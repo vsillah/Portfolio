@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import styles from './workshop.module.css'
+import mobileTeachingDetails from './mobile-teaching-details.json'
 
 type EndScreen = {
   startSeconds: number
@@ -17,7 +18,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const videoRef = useRef<HTMLVideoElement>(null)
   const [posterRevealed, setPosterRevealed] = useState(false)
   const [endScreenVisible, setEndScreenVisible] = useState(false)
-  const [l05DiagramVisible, setL05DiagramVisible] = useState(false)
+  const [activeTeachingScene, setActiveTeachingScene] = useState<string | null>(null)
   const captionsChangeRef = useRef(onCaptionsChange)
   captionsChangeRef.current = onCaptionsChange
 
@@ -32,16 +33,18 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   useEffect(() => {
     setPosterRevealed(false)
     setEndScreenVisible(false)
-    setL05DiagramVisible(false)
+    setActiveTeachingScene(null)
     videoRef.current?.pause()
     if (videoRef.current) videoRef.current.currentTime = 0
   }, [lessonId, videoSrc])
 
   const label = `${lessonId} ${title} lesson cover`
   const syncEndScreen = (currentTime: number) => setEndScreenVisible(Boolean(endScreen && currentTime >= endScreen.startSeconds))
-  const syncScene = (currentTime: number) => setL05DiagramVisible(lessonId === 'L05' && currentTime >= 78.582 && currentTime < 105.560)
+  const lessonTeachingScenes = mobileTeachingDetails.scenes.filter((scene) => scene.lessonId === lessonId)
+  const syncScene = (currentTime: number) => setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null)
+  const teachingScene = lessonTeachingScenes.find((scene) => scene.sceneId === activeTeachingScene)
   return <><div className={styles.coverStage} aria-label={label}>
-    {videoSrc ? <video ref={videoRef} className={`${styles.lessonVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = 'showing'; captionsChangeRef.current?.(Array.from(event.currentTarget.textTracks).some((item) => item.mode === 'showing')) }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime) }} onPause={(event) => onProgress?.(Math.floor(event.currentTarget.currentTime))} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); setL05DiagramVisible(false); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false); setL05DiagramVisible(false) }}>
+    {videoSrc ? <video ref={videoRef} className={`${styles.lessonVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = 'showing'; captionsChangeRef.current?.(Array.from(event.currentTarget.textTracks).some((item) => item.mode === 'showing')) }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime) }} onPause={(event) => onProgress?.(Math.floor(event.currentTarget.currentTime))} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); setActiveTeachingScene(null); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false); setActiveTeachingScene(null) }}>
       <source src={videoSrc} type="video/mp4" />
       {captionsSrc && <track kind="captions" src={captionsSrc} srcLang="en" label="English" default />}
       Your browser cannot play this video. The read-along transcript is available below.
@@ -64,8 +67,8 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
         <strong>Review your Operating File</strong>
       </div>}
     </div>}
-  </div>{l05DiagramVisible && <figure className={styles.l05MobileDiagram} aria-label="L05 operating stack diagram details">
-    <Image src="/agentified/lessons/l05/figure-8-1-portfolio-first-stack-publication-plate.png" alt="Complete approved Portfolio-first operating stack. Open Brain and Harness appear as connected parts of the same source-to-receipt system." width={4000} height={2500} sizes="(max-width: 620px) 100vw, 1px" />
-    <figcaption><strong>Open Brain</strong><span>sources, events, proposals, memories</span><strong>Harness</strong><span>Codex, tools, browser, apps, worktrees</span></figcaption>
+  </div>{videoSrc && teachingScene && <figure className={styles.mobileTeachingDetails} aria-label={`${teachingScene.sceneId} ${teachingScene.title} diagram details`}>
+    <Image src={teachingScene.image} alt={teachingScene.alt} width={teachingScene.width} height={teachingScene.height} sizes="(max-width: 620px) 100vw, 1px" />
+    <figcaption>{teachingScene.details.map((detail) => <div key={detail.label}><strong>{detail.label}</strong><span>{detail.description}</span></div>)}</figcaption>
   </figure>}</>
 }
