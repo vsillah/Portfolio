@@ -8,7 +8,9 @@ const root = path.resolve(__dirname, '../../..')
 const map = require(path.join(root, 'app/agentified/mobile-teaching-details.json'))
 const output = path.join(root, 'agentified/workshop/mobile-teaching-detail-review')
 const revision = process.argv[2]
+const reviewPort = Number(process.env.AGENTIFIED_REVIEW_PORT || 3121)
 if (!/^[a-f0-9]{7,40}$/.test(revision || '')) throw new Error('Pass the code commit SHA')
+if (!Number.isInteger(reviewPort) || reviewPort < 1 || reviewPort > 65535) throw new Error('Invalid review port')
 fs.mkdirSync(output, { recursive: true })
 const sha = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex')
 const audit = require(path.join(root, 'agentified/workshop/presentation-illustration-audit/audit-boundaries.json'))
@@ -30,7 +32,7 @@ async function run() {
       const page = await context.newPage()
       for (const lessonId of [...new Set(map.scenes.map((scene) => scene.lessonId))]) {
         const scenes = map.scenes.filter((scene) => scene.lessonId === lessonId)
-        const url = `http://127.0.0.1:3121/agentified/learningplan?lesson=${lessonId}&rev=${revision}`
+        const url = `http://127.0.0.1:${reviewPort}/agentified/learningplan?lesson=${lessonId}&rev=${revision}`
         await page.goto(url, { waitUntil: 'domcontentloaded' })
         const player = page.locator('video')
         await player.waitFor({ timeout: 15000 })
