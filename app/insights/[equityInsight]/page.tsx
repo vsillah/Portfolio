@@ -12,7 +12,7 @@ const dashboards = {
 type DashboardSlug = keyof typeof dashboards
 
 function isDashboardSlug(value: string): value is DashboardSlug {
-  return value in dashboards
+  return Object.prototype.hasOwnProperty.call(dashboards, value)
 }
 
 export function generateStaticParams() {
