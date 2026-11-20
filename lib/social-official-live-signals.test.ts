@@ -1,13 +1,21 @@
 import { describe, expect, it, vi } from 'vitest'
-const database = vi.hoisted(() => ({ rows: [] as Array<Record<string, unknown>> }))
+const database = vi.hoisted(() => ({
+  rows: [] as Array<Record<string, unknown>>,
+  readError: null as { message: string } | null,
+  insertError: null as { code?: string; message: string } | null,
+}))
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: {
   from: () => ({
     select: () => ({ contains: (_column: string, filter: { official_signal: { coverage_identity: string } }) => ({
-      limit: async () => ({ data: database.rows.filter((row) =>
+      limit: async () => ({ data: database.readError ? null : database.rows.filter((row) =>
         ((row.actor_metadata as Record<string, unknown>).official_signal as { coverage_identity: string }).coverage_identity
-          === filter.official_signal.coverage_identity), error: null }),
+          === filter.official_signal.coverage_identity), error: database.readError }),
     }) }),
-    insert: async (packet: Record<string, unknown>) => { database.rows.push(packet); return { error: null } },
+    insert: async (packet: Record<string, unknown>) => {
+      if (database.insertError) return { error: database.insertError }
+      database.rows.push(packet)
+      return { error: null }
+    },
   }),
 } }))
 import {
@@ -17,6 +25,7 @@ import {
   officialSignalPacketFromPage,
   persistPendingOfficialSignalPackets,
   validOfficialSignalAttribution,
+  type OfficialSignalPacket,
 } from './social-official-live-signals'
 import { approvedPublicMomentumProjectionsFromResearchPackets, buildTrendWorkRelevanceReport } from './social-trend-work-join'
 import { approvedRepositoryEvidenceProjections } from './social-repository-evidence'
@@ -129,5 +138,84 @@ describe('official live-signal discovery and review boundary', () => {
     }) as unknown as typeof fetch })
     expect(blocked.packets.some((packet) => packet.source_url === forumUrl)).toBe(false)
     expect(blocked.blockers).toEqual(expect.arrayContaining([expect.stringContaining('official_signal_source_blocked')]))
+  })
+
+  it('excludes query strings, mismatched publication paths, and detail pages that no longer match the discovery', () => {
+    const queried = `${forumUrl}?utm=1`
+    const mismatched = 'https://engineering.fb.com/2026/09/15/ml-applications/how-meta-built-forum-ai-native-engineering/'
+    const xml = `<rss><channel>${item('How Meta Built Forum With AI-Native Engineering', queried, 'Thu, 15 Oct 2026 19:00:03 +0000', 'Forum engineers brought an AI agent into the development cycle.')}${item('How Meta Built Forum With AI-Native Engineering', mismatched, 'Thu, 15 Oct 2026 19:00:03 +0000', 'Forum engineers brought an AI agent into the development cycle.')}</channel></rss>`
+    const result = discoverOfficialLiveSignals({ indexUrl: engineering, body: xml, observedAt })
+    expect(result.discovered).toEqual([])
+    expect(result.excluded.map((entry) => entry.reason)).toEqual(['source_path_not_allowlisted', 'publication_path_mismatch'])
+    const discovery = discoverOfficialLiveSignals({ indexUrl: engineering, body: engineeringXml, observedAt }).discovered[0]
+    expect(() => officialSignalPacketFromPage({
+      discovery,
+      html: `<html><head><title>Unrelated Forum headline</title></head><body>Forum agent ${'Official release detail. '.repeat(8)}</body></html>`,
+      observedAt,
+    })).toThrow('official_signal_detail_date_or_title_mismatch')
+    expect(() => officialSignalPacketFromPage({ discovery, html: 'short', observedAt })).toThrow('official_signal_detail_malformed')
+    const agents = discoverOfficialLiveSignals({ indexUrl: openai, body: openaiHtml, observedAt }).discovered[0]
+    expect(() => officialSignalPacketFromPage({
+      discovery: agents,
+      html: openaiHtml.replace('Oct 16', 'Oct 15'),
+      observedAt,
+    })).toThrow('official_signal_changelog_entry_changed')
+  })
+
+  it('rejects attribution that breaks the publisher, freshness, fingerprint, or raw-content boundary', () => {
+    const discovery = discoverOfficialLiveSignals({ indexUrl: openai, body: openaiHtml, observedAt }).discovered[0]
+    const packet = officialSignalPacketFromPage({ discovery, html: openaiHtml, observedAt })
+    expect(validOfficialSignalAttribution(packet)).toBe(true)
+    const mutations: Array<(packet: OfficialSignalPacket) => void> = [
+      (item) => { (item.actor_metadata.official_signal as { raw_content_included: boolean }).raw_content_included = true },
+      (item) => { (item.actor_metadata.topic_momentum_receipt as { raw_content_included: boolean }).raw_content_included = true },
+      (item) => { (item.actor_metadata.official_signal as { evidence_status: string }).evidence_status = 'approved' },
+      (item) => { (item.actor_metadata.topic_momentum_receipt as { approval_status: string }).approval_status = 'approved' },
+      (item) => { (item.actor_metadata.topic_momentum_receipt as { product_identity: string }).product_identity = 'other' },
+      (item) => { (item.actor_metadata.official_signal as { source_url: string }).source_url = 'https://example.org/other' },
+      (item) => { (item.actor_metadata.official_signal as { source_fingerprint: string }).source_fingerprint = 'short' },
+      (item) => { (item.actor_metadata.official_signal as { published_at: string }).published_at = '2026-08-01T00:00:00.000Z' },
+      (item) => { (item.actor_metadata.official_signal as { topic_identities: string[] }).topic_identities = ['other'] },
+      (item) => { (item.actor_metadata.official_signal as { kind: string }).kind = 'muse_agent' },
+      (item) => { (item.actor_metadata.official_signal as { coverage_identity: string }).coverage_identity = 'forged' },
+      (item) => { (item.actor_metadata.topic_momentum_receipt as { entity_identities: string[] }).entity_identities = ['other'] },
+      (item) => { (item.actor_metadata.official_signal as { expires_at: string }).expires_at = 'not-a-date' },
+      (item) => { item.title = 'Agents API update: Ultrafast mode and Artifact SDK' },
+      (item) => { delete item.actor_metadata.official_signal },
+    ]
+    for (const mutate of mutations) {
+      const copy = structuredClone(packet)
+      mutate(copy)
+      expect(validOfficialSignalAttribution(copy)).toBe(false)
+    }
+  })
+
+  it('skips unique conflicts and fails closed when packet reads or inserts fail', async () => {
+    const discovery = discoverOfficialLiveSignals({ indexUrl: openai, body: openaiHtml, observedAt }).discovered[0]
+    const packet = officialSignalPacketFromPage({ discovery, html: openaiHtml, observedAt })
+    database.rows = []
+    database.readError = null
+    database.insertError = null
+    expect(await persistPendingOfficialSignalPackets([])).toBe(0)
+    database.readError = { message: 'fixture-read' }
+    await expect(persistPendingOfficialSignalPackets([packet])).rejects.toThrow(/^official_signal_packet_read_failed:/)
+    expect(database.rows).toEqual([])
+    database.readError = null
+    database.insertError = { code: '23505', message: 'duplicate' }
+    expect(await persistPendingOfficialSignalPackets([packet])).toBe(0)
+    expect(database.rows).toEqual([])
+    database.insertError = { code: '42501', message: 'denied' }
+    await expect(persistPendingOfficialSignalPackets([packet])).rejects.toThrow(/^official_signal_packet_insert_failed:/)
+    database.insertError = null
+  })
+
+  it('blocks an index response whose content type is not the publisher format', async () => {
+    const wrongType = await collectOfficialLiveSignalPackets({ observedAt, fetchPage: vi.fn(async (url: string) => {
+      if (url === engineering) return new Response(engineeringXml, { headers: { 'content-type': 'text/html' } })
+      return fakeFetch(url)
+    }) as unknown as typeof fetch })
+    expect(wrongType.blockers).toEqual(expect.arrayContaining([`${engineering}:official_signal_source_blocked`]))
+    expect(wrongType.packets.some((packet) => packet.source_url === forumUrl || packet.source_url === newReleaseUrl)).toBe(false)
+    expect(wrongType.packets.length).toBeGreaterThan(0)
   })
 })
