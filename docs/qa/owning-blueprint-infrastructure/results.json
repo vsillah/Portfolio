@@ -1,12 +1,12 @@
 {
-  "revision": "2c2635264032948eb661216e63042b283d6a1c13",
+  "revision": "93de677fda234b3b8ed31ebd516fa84947897b71",
   "base": "http://localhost:4173",
   "checks": [
     {
       "route": "owning-the-block",
       "width": 1440,
       "scrollWidth": 1440,
-      "navBottom": 81.86633586883545,
+      "navBottom": 82.75919675827026,
       "frameTop": 96,
       "frameHeight": 1251,
       "frameContentHeight": 1251,
@@ -23,6 +23,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(44, 57, 76)",
@@ -46,6 +64,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(189, 179, 162)",
@@ -69,6 +105,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(189, 179, 162)",
@@ -85,7 +139,7 @@
       "route": "owning-the-block",
       "width": 768,
       "scrollWidth": 768,
-      "navBottom": 80.61418533325195,
+      "navBottom": 82.75985765457153,
       "frameTop": 96,
       "frameHeight": 1518,
       "frameContentHeight": 1518,
@@ -102,6 +156,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(44, 57, 76)",
@@ -125,6 +197,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(189, 179, 162)",
@@ -148,6 +238,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(189, 179, 162)",
@@ -164,10 +272,10 @@
       "route": "owning-the-block",
       "width": 390,
       "scrollWidth": 390,
-      "navBottom": 79.47295451164246,
+      "navBottom": 80.97299385070801,
       "frameTop": 96,
-      "frameHeight": 1967,
-      "frameContentHeight": 1967,
+      "frameHeight": 1940,
+      "frameContentHeight": 1940,
       "frameScrollWidth": 390
     },
     {
@@ -181,6 +289,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(44, 57, 76)",
@@ -204,6 +330,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(189, 179, 162)",
@@ -227,6 +371,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(189, 179, 162)",
@@ -250,6 +412,24 @@
         "nodes": 18,
         "connectors": 34,
         "covers": 2,
+        "circularStreetCovers": 0,
+        "coverPositions": [
+          [
+            262,
+            316,
+            11,
+            3.4
+          ],
+          [
+            730,
+            316,
+            11,
+            3.4
+          ]
+        ],
+        "lidRings": 2,
+        "grateMarks": 2,
+        "shaftCollars": 2,
         "shafts": 3,
         "roofs": 71,
         "water": "rgb(44, 57, 76)",
