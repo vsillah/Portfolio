@@ -25,6 +25,25 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     window.matchMedia = vi.fn().mockReturnValue({ matches: false })
   })
 
+  it('keeps the exact L01 source playable with its corrected duration and L02 resting handoff', async () => {
+    const { container } = render(<AgentifiedWorkshop mode="plan" />)
+    const video = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
+    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings.L01.video)
+    expect(video).toHaveAttribute('controls')
+    expect(screen.getByText('Ready · 06:18')).toBeInTheDocument()
+    let currentTime = 359.644
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+    fireEvent.timeUpdate(video)
+    expect(screen.queryByText('UP NEXT · L02')).toBeNull()
+    currentTime = 359.645
+    fireEvent.seeking(video)
+    expect(screen.getByText('UP NEXT · L02')).toBeInTheDocument()
+    currentTime = 90
+    fireEvent.seeking(video)
+    expect(screen.queryByText('UP NEXT · L02')).toBeNull()
+    expect(container.querySelector('video')).toBe(video)
+  })
+
   it.each([['L01', 540], ['L05', 237.687], ['L09', 272.84], ['L13', 255.243]] as const)('restores claimed member playback for %s without claiming guest progress', async (id, duration) => {
     vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: { access_token: 'synthetic-token', user: { id: 'synthetic-member', email: 'member@example.invalid', user_metadata: {} } } }, error: null } as Awaited<ReturnType<typeof supabase.auth.getSession>>)
     vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => ({ ok: true, json: async () => init?.method === 'POST' ? { revision: 5 } : { enrollment: { revision: 4, current_lesson_id: id, updated_at: new Date().toISOString() }, worksheet: null, lessons: [{ lesson_id: id, video_seconds: 73, completed_at: null }] } })))

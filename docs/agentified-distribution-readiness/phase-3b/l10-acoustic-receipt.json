@@ -1,0 +1,19 @@
+{
+  "lessonId": "L10",
+  "sourceVideo": "public/agentified/lessons/l10/illustrated-65936cf3/agentified-l10-illustrated-composite.mp4",
+  "sourceSha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+  "windowSeconds": [166, 196],
+  "extractedPcmWavSha256": "b546628d597fdac618b364471f355c164e181833833834a8ce388f4053775ce0",
+  "method": "Local faster-whisper small.en CPU int8 word-level acoustic alignment of 16 kHz mono PCM; compared with existing L10 native word-timing.json and exact canonical VTT words; no provider call",
+  "modelBinSha256": "62b2a45b05ee59acb4a5341b33ee35e041395d378d418a18acfe4c9e768ee37a",
+  "keyWords": [
+    {"text": "revocation", "startSeconds": 184, "endSeconds": 184.36},
+    {"text": "condition", "startSeconds": 184.36, "endSeconds": 185},
+    {"text": "Mark it", "startSeconds": 185.52, "endSeconds": 185.78, "note": "ASR rendered the connected speech as 'Market'; canonical script and VTT retain 'Mark it'"},
+    {"text": "unapproved", "startSeconds": 185.78, "endSeconds": 186.3}
+  ],
+  "preparedPhase3aCandidate": "rejected: 03:04.360 end truncates the spoken word 'condition'",
+  "correction": "keep envelope cue through 03:05.000; start 'Mark it unapproved' at 03:05.520; leave all words and other cue timings unchanged",
+  "correctedVttSha256": "0650d923e75357b672a493b40f633953b97c014efdd96767413f3679c2123ed3",
+  "humanAuditoryConfirmation": "pending captain listening; automated acoustic and source timing agree"
+}

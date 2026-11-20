@@ -29,6 +29,7 @@ def checked(path: str, expected: str) -> dict:
 
 
 baseline = json.loads(BASELINE.read_text())
+current = json.loads((ROOT / 'lib/agentified-illustrated-bindings.json').read_text())['bindings']
 records = []
 for lesson in baseline['lessons']:
     if lesson['id'] not in IDS:
@@ -38,6 +39,9 @@ for lesson in baseline['lessons']:
         'lessonId': lesson['id'],
         'script': checked(lesson['script']['path'], lesson['script']['sha256']),
         'originalVideo': checked(assets['composite']['path'], assets['composite']['sha256']),
+        'currentVideo': checked(current[lesson['id']]['video'], current[lesson['id']]['compositeSha256']),
+        'currentCaption': checked(current[lesson['id']]['captions'], current[lesson['id']]['captionsSha256']),
+        'currentDurationSeconds': current[lesson['id']]['durationSeconds'],
         'originalCaption': checked(assets['captions']['path'], assets['captions']['sha256']),
         'oldUnattributedTranscriptSha256': lesson['transcript']['bindingSha256'],
         'spokenWordingReview': 'pending_contextual_listening',

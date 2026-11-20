@@ -17,8 +17,9 @@ type Mode = 'plan' | 'file'
 const lessonById = (id: string) => agentifiedLessons.find((lesson) => lesson.id === id) ?? agentifiedLessons[0]
 const approvedMedia = Object.fromEntries(Object.entries(agentifiedSourceMedia).map(([id, media]) => {
   const binding = illustrated.bindings[id as keyof typeof illustrated.bindings]
-  return [id, binding && binding.sourceVideo === media.video && binding.sourceSha256 === media.compositeSha256 && binding.captions === media.captions && binding.durationSeconds === media.durationSeconds
-    ? { ...media, video: binding.video, compositeSha256: binding.compositeSha256 }
+  const l01DurationCorrection = id === 'L01' && media.durationSeconds === 378.059 && binding?.durationSeconds === 378.285 && binding.compositeSha256 === '1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775' && binding.captionsSha256 === '6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e'
+  return [id, binding && binding.sourceVideo === media.video && binding.sourceSha256 === media.compositeSha256 && binding.captions === media.captions && (binding.durationSeconds === media.durationSeconds || l01DurationCorrection)
+    ? { ...media, video: binding.video, compositeSha256: binding.compositeSha256, durationSeconds: binding.durationSeconds }
     : null]
 })) as Record<keyof typeof agentifiedSourceMedia, (typeof agentifiedSourceMedia)[keyof typeof agentifiedSourceMedia] | null>
 const mediaFor = (id: string) => approvedMedia[id as keyof typeof approvedMedia]

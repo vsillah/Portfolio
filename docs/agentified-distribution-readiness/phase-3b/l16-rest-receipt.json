@@ -1,0 +1,28 @@
+{
+  "lessonId": "L16",
+  "status": "review_only_unbound",
+  "originalVideoPath": "public/agentified/lessons/l16/illustrated-4283c8d8/agentified-l16-illustrated-composite.mp4",
+  "originalVideoSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+  "sourceBoundCardPath": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-08.png",
+  "sourceBoundCardSha256": "de03f55bf5c6472d53b540ba3c0de023fb9dda4ccba83008c89b0ed85982f015",
+  "sourceAuthority": [
+    "agentified/workshop/l13-l16-continuous-preflight/l16-request-candidate.json: closing_card.overlay_on_final_presenter_passage=true",
+    "agentified/workshop/l13-l16-native-composite/l16-composite-timeline.json: provider_free_closing_card.start=258.262 and overlay_on_final_presenter_passage=true"
+  ],
+  "visualTransitionSeconds": 266.68,
+  "originalVideoFrames": 6667,
+  "candidateVideoFrames": 6883,
+  "originalVideoElementaryStreamSha256": "5cc40ac20398d5c40159e06005579d99d5cc918b0e7e6d132e2deccc4f99548c",
+  "candidateFirst6667VideoFramesSha256": "5cc40ac20398d5c40159e06005579d99d5cc918b0e7e6d132e2deccc4f99548c",
+  "originalAudioElementaryStreamSha256": "e5dee4f45e775ed1b253641c5a702893462d72ca59c062223453188d6d3a9924",
+  "candidateAudioElementaryStreamSha256": "e5dee4f45e775ed1b253641c5a702893462d72ca59c062223453188d6d3a9924",
+  "lastCaptionEndSeconds": 267.222,
+  "originalAudioEndSeconds": 267.309,
+  "candidateEndSeconds": 275.32,
+  "silentRestAfterAudioSeconds": 8.011,
+  "visibleRestAfterCueSeconds": 8.098,
+  "candidatePath": "agentified/workshop/phase-3b-review/L16/agentified-l16-resting-composite.mp4",
+  "candidateSha256": "5e5159a626a3cc3c5ef43ce679fcd451140895b0717db572b01fb1ed01496a3c",
+  "review": "final card inspected at 266.72, 267.30, and 275.00 seconds; moving presenter remains unchanged before 266.68; browser/mobile and human QA pending",
+  "learnerBindingChanged": false
+}
