@@ -1,0 +1,11 @@
+.control{display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:12px;font-weight:700}
+.control>span{margin-right:3px}
+.control button{display:inline-flex;align-items:center;justify-content:center;min-width:30px;min-height:32px;padding:4px 6px;border:1px solid #9f7420;border-radius:5px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.control button[aria-pressed=true]{background:#c89b35;color:#132b35}
+.control button:focus-visible{outline:3px solid #d4af37;outline-offset:2px}
+.band[data-caption-size=S]{font-size:14px}
+.band[data-caption-size=M]{font-size:17px}
+.band[data-caption-size=L]{font-size:21px}
+.nativeVideo[data-caption-size=S]::cue{font-size:75%}
+.nativeVideo[data-caption-size=M]::cue{font-size:100%}
+.nativeVideo[data-caption-size=L]::cue{font-size:125%}
