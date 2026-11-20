@@ -233,6 +233,19 @@ describe('evidence-backed social visual plan', () => {
     expect(evaluation.dimensions.find((item) => item.key === 'evidence_coverage')).toMatchObject({ status: 'unscored', score: null })
   })
 
+  it('treats evidence that expires at the evaluation instant as stale and one millisecond later as current', () => {
+    const stale = passingPlan()
+    stale.exact_sources[0].fresh_until = NOW.toISOString()
+    const staleEvaluation = evaluateCampaignVisualPlan(stale, NOW)
+    expect(staleEvaluation).toMatchObject({ status: 'unscored', approval_ready: false, overall_score: null })
+    expect(staleEvaluation.blockers.map((item) => item.code)).toContain('visual_evidence_unscored')
+    expect(staleEvaluation.dimensions.find((item) => item.key === 'evidence_coverage')).toMatchObject({ status: 'unscored', score: null })
+
+    const current = passingPlan()
+    current.exact_sources[0].fresh_until = new Date(NOW.getTime() + 1).toISOString()
+    expect(evaluateCampaignVisualPlan(current, NOW).blockers.map((item) => item.code)).not.toContain('visual_evidence_unscored')
+  })
+
   it('does not pass a fabricated playlist similarity number without an attributable current receipt', () => {
     const plan = passingPlan()
     plan.benchmark_logic.playlist_similarity = {
