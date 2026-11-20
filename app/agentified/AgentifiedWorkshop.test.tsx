@@ -44,6 +44,29 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     expect(container.querySelector('video')).toBe(video)
   })
 
+  it.each(['L01', 'L10', 'L16'])('keeps %s caption status aligned with the native track while paused and ended', async (id) => {
+    window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
+    const track = { mode: 'disabled' }
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    render(<AgentifiedWorkshop mode="plan" />)
+    const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
+    fireEvent.loadedMetadata(video)
+    expect(track.mode).toBe('showing')
+    expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    track.mode = 'disabled'
+    fireEvent(tracks, new Event('change'))
+    fireEvent.pause(video)
+    expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    fireEvent.ended(video)
+    expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    track.mode = 'showing'
+    fireEvent(tracks, new Event('change'))
+    expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
+  })
+
   it.each([['L01', 540], ['L05', 237.687], ['L09', 272.84], ['L13', 255.243]] as const)('restores claimed member playback for %s without claiming guest progress', async (id, duration) => {
     vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: { access_token: 'synthetic-token', user: { id: 'synthetic-member', email: 'member@example.invalid', user_metadata: {} } } }, error: null } as Awaited<ReturnType<typeof supabase.auth.getSession>>)
     vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => ({ ok: true, json: async () => init?.method === 'POST' ? { revision: 5 } : { enrollment: { revision: 4, current_lesson_id: id, updated_at: new Date().toISOString() }, worksheet: null, lessons: [{ lesson_id: id, video_seconds: 73, completed_at: null }] } })))

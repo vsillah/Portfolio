@@ -10,13 +10,23 @@ type EndScreen = {
   nextLesson?: { id: string; title: string; poster: string }
 }
 
-type Props = { lessonId: string; title: string; poster: string; altText?: string; videoSrc?: string; captionsSrc?: string; durationSeconds?: number; resumeSeconds?: number; endScreen?: EndScreen; onProgress?: (seconds: number) => void }
+type Props = { lessonId: string; title: string; poster: string; altText?: string; videoSrc?: string; captionsSrc?: string; durationSeconds?: number; resumeSeconds?: number; endScreen?: EndScreen; onProgress?: (seconds: number) => void; onCaptionsChange?: (enabled: boolean) => void }
 
 /** Video is an explicit future input. Without an approved source the hero is a static cover. */
-export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSrc, captionsSrc, durationSeconds, resumeSeconds = 0, endScreen, onProgress }: Props) {
+export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSrc, captionsSrc, durationSeconds, resumeSeconds = 0, endScreen, onProgress, onCaptionsChange }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [posterRevealed, setPosterRevealed] = useState(false)
   const [endScreenVisible, setEndScreenVisible] = useState(false)
+  const captionsChangeRef = useRef(onCaptionsChange)
+  captionsChangeRef.current = onCaptionsChange
+
+  useEffect(() => {
+    const tracks = videoRef.current?.textTracks
+    if (!tracks || typeof tracks.addEventListener !== 'function') return
+    const sync = () => captionsChangeRef.current?.(Array.from(tracks).some((track) => track.mode === 'showing'))
+    tracks.addEventListener('change', sync)
+    return () => tracks.removeEventListener('change', sync)
+  }, [lessonId, videoSrc])
 
   useEffect(() => {
     setPosterRevealed(false)
@@ -28,7 +38,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const label = `${lessonId} ${title} lesson cover`
   const syncEndScreen = (currentTime: number) => setEndScreenVisible(Boolean(endScreen && currentTime >= endScreen.startSeconds))
   return <div className={styles.coverStage} aria-label={label}>
-    {videoSrc ? <video ref={videoRef} className={`${styles.lessonVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = 'showing' }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => syncEndScreen(event.currentTarget.currentTime)} onPause={(event) => onProgress?.(Math.floor(event.currentTarget.currentTime))} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false) }}>
+    {videoSrc ? <video ref={videoRef} className={`${styles.lessonVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = 'showing'; captionsChangeRef.current?.(Array.from(event.currentTarget.textTracks).some((item) => item.mode === 'showing')) }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => syncEndScreen(event.currentTarget.currentTime)} onPause={(event) => onProgress?.(Math.floor(event.currentTarget.currentTime))} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false) }}>
       <source src={videoSrc} type="video/mp4" />
       {captionsSrc && <track kind="captions" src={captionsSrc} srcLang="en" label="English" default />}
       Your browser cannot play this video. The read-along transcript is available below.
