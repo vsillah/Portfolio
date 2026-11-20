@@ -1,0 +1,505 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="description" content="Thirty-five laws and events that built five gaps in Black American life, with lineage, extraction, impact and reparative approaches."><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>The Compounding Graph</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: header + color-by controls; radial graph beside a narration panel; play scrubber with running ledger; verbatims; law-by-pillar matrix; methodology accordions. */
+:root{
+  --bg:#F2F3F5; --panel:#FFFFFF; --panel2:#E9EBEF; --fg:#151821; --muted:#5B6270; --line:#D5D9E0; --dim:#C3C8D1;
+  --accent:#1E5A6E; --hit:#B8860B; --hit-soft:#FBF1D6; --v:#1D7A5F; --v-soft:#DDF1EA;
+  --root:#7A2A3C; --own:#1E5A6E; --eq:#8A4B1F; --ed:#4E3C8C; --he:#2B6E4A; --po:#7A2A3C;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --panel:#161A22; --panel2:#1D2230; --fg:#E7E9EE; --muted:#9BA3B2; --line:#2A3039; --dim:#2E343E;
+  --accent:#6FB5CC; --hit:#E0B64C; --hit-soft:#3A2F10; --v:#5FCBA3; --v-soft:#143027;
+  --root:#E39AAA; --own:#6FB5CC; --eq:#E2A571; --ed:#B5A6F0; --he:#7FD0A3; --po:#E39AAA; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0E1117; --panel:#161A22; --panel2:#1D2230; --fg:#E7E9EE; --muted:#9BA3B2; --line:#2A3039; --dim:#2E343E;
+  --accent:#6FB5CC; --hit:#E0B64C; --hit-soft:#3A2F10; --v:#5FCBA3; --v-soft:#143027;
+  --root:#E39AAA; --own:#6FB5CC; --eq:#E2A571; --ed:#B5A6F0; --he:#7FD0A3; --po:#E39AAA; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.5;margin:0;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto;display:grid;gap:24px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:20px;font-weight:700}
+h3{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header{display:grid;gap:10px}
+header p{max-width:70ch;font-size:16px}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ctl .eyebrow{margin-right:4px}
+.seg button{font:inherit;font-size:13px;padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer;border-radius:4px}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.seg button:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,420px);gap:20px;align-items:start}
+@media (max-width:900px){.main{grid-template-columns:1fr}}
+.graph{background:var(--panel);border:1px solid var(--line);padding:10px;min-width:0;overflow:hidden}
+.graph svg{width:100%;height:auto;display:block;max-width:100%}
+.edge{stroke:var(--line);stroke-width:1.2;fill:none}
+.edge.x{stroke-dasharray:4 4}
+.edge.on{stroke:var(--hit);stroke-width:2.2;opacity:1}
+.faded .edge:not(.on){opacity:.22}
+.node{cursor:pointer}
+.node circle{stroke-width:2;fill:var(--panel)}
+.node text{font-family:var(--body);font-size:11.5px;fill:var(--fg);pointer-events:none}
+.node .yr{font-family:var(--mono);font-size:9.5px;fill:var(--muted)}
+.node.sel circle{fill:var(--hit);stroke:var(--hit)}
+.node.on circle{stroke:var(--hit);stroke-width:3}
+.faded .node:not(.on):not(.sel){opacity:.3}
+.node.future{opacity:.12!important}
+.node:focus{outline:none}
+.node:focus-visible circle{stroke:var(--accent);stroke-width:3.5}
+.spoke{font-family:var(--display);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;pointer-events:none}
+.hub{fill:var(--panel);stroke:var(--root);stroke-width:1.5;stroke-dasharray:3 3}
+.panel{background:var(--panel);border:1px solid var(--line);padding:20px;display:grid;gap:16px;min-width:0;position:sticky;top:env(safe-area-inset-top,0px)}
+@media (max-width:900px){.panel{position:static}}
+.panel .yr{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:3px;color:#fff}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border:1px solid var(--line);border-radius:2px;color:var(--muted);background:var(--panel2);vertical-align:middle;margin-right:6px}
+.block{display:grid;gap:6px;font-size:14px}
+.num{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--fg);line-height:1.15;font-variant-numeric:tabular-nums}
+.num.gold{color:var(--hit)}
+.sub{font-size:13px;color:var(--muted)}
+.imp{display:flex;gap:4px;align-items:center}
+.imp i{width:22px;height:10px;background:var(--dim);display:block;border-radius:2px}
+.imp i.f{background:var(--hit)}
+.imp span{font-size:12px;color:var(--muted);margin-left:6px}
+.rep{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.rep li{font-size:14px;padding:8px 10px;border-left:3px solid var(--line)}
+.rep li.v{border-left-color:var(--v);background:var(--v-soft)}
+.rep li.v b{color:var(--v);font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:2px}
+.conn{display:flex;flex-wrap:wrap;gap:6px}
+.conn button,.nav button,.chips button{font:inherit;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.conn button{font-size:12px;padding:4px 9px;border-radius:3px}
+.nav{display:flex;gap:8px}
+.nav button{font-size:13px;padding:7px 12px;border-radius:4px}
+.nav button:disabled{opacity:.4;cursor:default}
+.ledger{background:var(--panel);border:1px solid var(--line);padding:18px 20px;display:grid;gap:14px}
+.play{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.play button{font:inherit;font-size:14px;padding:8px 16px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);border-radius:4px;cursor:pointer;min-width:80px}
+.play .status{font-size:13px;color:var(--muted)}
+.scrub{display:grid;gap:6px}
+.scrub input{width:100%;margin:0;accent-color:var(--hit)}
+.ticks{position:relative;height:30px}
+.ticks i{position:absolute;top:0;width:8px;height:8px;border-radius:50%;transform:translateX(-50%);cursor:pointer}
+.ticks i.r{border-radius:1px}
+.ticks b{position:absolute;top:14px;font-family:var(--mono);font-size:10px;font-weight:400;color:var(--muted);transform:translateX(-50%)}
+.ticks b.cur{color:var(--fg);font-weight:500}
+.totals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.totals{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tot{display:grid;gap:4px;min-width:0}
+.rp{display:grid;gap:10px;padding:16px 18px;border:1px solid var(--line);background:var(--panel)}
+.rp p{font-size:14px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font-family:var(--display);font-size:13px;padding:7px 12px;border-radius:20px;text-align:left}
+.chips button[aria-pressed="true"]{background:var(--hit);border-color:var(--hit);color:#1a1200}
+.quote{font-family:var(--display);font-size:22px;font-weight:700;line-height:1.2;color:var(--hit)}
+.rpl{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.rpl li{font-size:13px;padding:6px 10px;border-left:3px solid var(--hit);background:var(--hit-soft)}
+.rpl li q{font-family:var(--display);font-weight:700;display:block;margin-bottom:2px}
+.rpl li q::before,.rpl li q::after{content:'"'}
+.mag{display:grid;gap:12px;background:var(--panel);border:1px solid var(--line);padding:18px 20px}
+.maghead,.magrow{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(90px,.8fr) minmax(0,1.6fr);gap:14px;align-items:center}
+.maghead{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 0 4px;border-bottom:1px solid var(--line)}
+.magrow{padding:5px 0;cursor:pointer;border-bottom:1px solid var(--line);font-size:13px;min-width:0}
+.magrow:last-child{border-bottom:0}
+.magrow:hover .lab,.magrow.sel .lab{color:var(--hit)}
+.magrow .lab{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.magrow .lab .y{font-family:var(--mono);font-size:11px;color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
+.magrow .lab i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:middle}
+.bar{height:12px;background:var(--dim);border-radius:2px;position:relative;overflow:hidden}
+.bar b{position:absolute;left:0;top:0;bottom:0;background:var(--hit);border-radius:2px}
+.bar.seg5 b{background:repeating-linear-gradient(90deg,var(--hit) 0 calc(20% - 2px),transparent calc(20% - 2px) 20%)}
+.dollar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;min-width:0}
+.dollar .bar b{background:var(--accent)}
+.dollar .lbl{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.dollar .lbl.none{color:var(--dim)}
+@media (max-width:640px){.maghead{display:none}.magrow{grid-template-columns:1fr;gap:6px}}
+.matrix{display:grid;gap:12px}
+.mwrap{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0 3px;width:100%;min-width:640px;font-size:13px}
+th{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;text-align:center;padding:4px 6px}
+th:first-child{text-align:left}
+td{padding:0 3px}
+td.lab{white-space:nowrap;padding-right:10px;cursor:pointer}
+td.lab .y{font-family:var(--mono);font-size:11px;color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
+td.lab:hover{color:var(--hit)}
+.cell{display:block;text-align:center;padding:5px 6px;border-radius:3px;font-size:12px;color:var(--muted);background:transparent}
+.cell.d{color:#fff;font-weight:500}
+.cell.f{background:var(--panel2);color:var(--fg)}
+tr.sel td.lab{color:var(--hit);font-weight:500}
+tr.sel .cell.d{outline:2px solid var(--hit);outline-offset:-2px}
+details{border:1px solid var(--line);background:var(--panel)}
+details summary{font-family:var(--display);font-weight:700;font-size:14px;padding:12px 16px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";font-family:var(--mono);color:var(--muted)}
+details[open] summary::after{content:"\2212"}
+details .body{padding:0 16px 16px;font-size:14px;display:grid;gap:8px;max-width:80ch}
+details .body ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.acc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+@media (max-width:900px){.acc{grid-template-columns:1fr}}
+.foot{font-size:12px;color:var(--muted);max-width:90ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Thirty-five laws and events, 1830 to 2026</div>
+  <h1>The Compounding Graph</h1>
+  <p>Each node is a statute, ruling, or event that built one of five gaps in Black American life. Solid lines are lineage inside a pillar; dashed lines are where one pillar feeds another. The dollar figures link to their sources. The impact scores are an interpretation, and the scoring rules are written out at the bottom.</p>
+  <div class="ctl">
+    <span class="eyebrow">Color by</span>
+    <span class="seg" id="colorby">
+      <button type="button" data-c="pillar" aria-pressed="true">Pillar</button>
+      <button type="button" data-c="impact" aria-pressed="false">Impact today</button>
+      <button type="button" data-c="status" aria-pressed="false">Status</button>
+      <button type="button" data-c="dollars" aria-pressed="false">Quantified</button>
+    </span>
+  </div>
+  <div class="legend" id="legend"></div>
+</header>
+
+<div class="main">
+  <div class="graph"><svg id="g" viewBox="0 0 900 820" role="img" aria-labelledby="gt"><title id="gt">Radial graph of laws and events across five pillars</title></svg></div>
+  <aside class="panel" id="panel" aria-live="polite">
+    <div class="eyebrow">Narration</div>
+    <h2 id="p-title">Start at the center</h2>
+    <p class="sub">The foundation nodes in the middle are the legal floor laid between 1865 and 1896. Click one, press Play below, or pick a verbatim further down.</p>
+  </aside>
+</div>
+
+<section class="ledger">
+  <div class="play">
+    <button type="button" id="playbtn">Play</button>
+    <span class="status" id="pstatus">Press Play to walk the timeline from 1830. The ledger accumulates as you go.</span>
+  </div>
+  <div class="scrub">
+    <input type="range" id="scrub" min="0" max="34" value="34" step="1" aria-label="Timeline position">
+    <div class="ticks" id="ticks"></div>
+  </div>
+  <div class="totals" id="totals"></div>
+</section>
+
+<section class="mag">
+  <div class="ctl">
+    <h2 style="margin-right:auto">Magnitude</h2>
+    <span class="eyebrow">Sort by</span>
+    <span class="seg" id="magsort">
+      <button type="button" data-s="imp" aria-pressed="true">Impact today</button>
+      <button type="button" data-s="usd" aria-pressed="false">Dollars</button>
+      <button type="button" data-s="y" aria-pressed="false">Year</button>
+    </span>
+  </div>
+  <p class="hint">Left bar is impact today, 1 to 5. Right bar is the documented figure on a log scale, so each step across is ten times the money. Ongoing annual costs are marked per year. Click a row to read it.</p>
+  <div class="maghead"><span>Law or event</span><span>Impact</span><span>Documented figure</span></div>
+  <div id="magrows"></div>
+</section>
+
+<section class="rp">
+  <div class="eyebrow">Respectability verbatims</div>
+  <p>Pick a saying. The laws it talks past light up.</p>
+  <div class="chips" id="chips" role="group" aria-label="Respectability verbatims"></div>
+</section>
+
+<section class="matrix">
+  <h2>Every law against every pillar</h2>
+  <p class="hint">Filled cells are the pillar the law belongs to. Lighter cells are pillars it feeds through a cross-link. Click a row to read it.</p>
+  <div class="mwrap"><table id="mtx"><thead><tr><th>Law or event</th><th>Ownership</th><th>Equity</th><th>Education</th><th>Health</th><th>Power</th><th>Impact</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<div class="acc">
+  <details><summary>How impact is scored</summary><div class="body">
+    <p>Impact today is a 1–5 judgment of how much of a person's present life the harm still governs. It is interpretation, not measurement.</p>
+    <ul>
+      <li><b>5</b> — shapes where you can live, learn, borrow, or vote right now, with no effective legal remedy.</li>
+      <li><b>4</b> — still operating through successor policies or unremedied losses; partial legal remedy exists.</li>
+      <li><b>3</b> — formally ended or struck down, but the asset or trust it destroyed was never restored.</li>
+      <li><b>2–1</b> — historical; effects are real but diffuse.</li>
+    </ul>
+    <p>Status is separate from impact. "In force" means the rule or its direct successor still operates. "Struck, unrepaired" means a court or Congress ended it but nothing was returned. "Ended" means the mechanism stopped and some remedy followed.</p>
+  </div></details>
+  <details><summary>How the dollars are built</summary><div class="body">
+    <p>Each figure carries a tag. <span class="tag">Official</span> is a government count or court record. <span class="tag">Scholarly</span> is a peer-reviewed or institutional estimate, converted to recent dollars where the source does that. <span class="tag">Rough</span> is an order-of-magnitude figure from contemporary reporting. <span class="tag">No estimate</span> means the harm is real but no one has priced it.</p>
+    <p>The running ledger sums only one-time documented extractions with a scholarly or official tag. Ongoing annual costs are totaled separately and are system-wide, not Black-community-only. Several large harms (the GI Bill, FHA underwriting, Plessy) have no defensible single number and are left out of the sum on purpose, which makes the total a floor.</p>
+  </div></details>
+  <details><summary>Sources for the figures</summary><div class="body">
+    <ul>
+      <li>Blackmon, <i>Slavery by Another Name</i>; Oshinsky, <i>Worse Than Slavery</i></li>
+      <li>Rothstein, <i>The Color of Law</i>; Katznelson, <i>When Affirmative Action Was White</i></li>
+      <li>Francis, Hamilton, Mitchell et al., "Black Land Loss: 1920–1997," AEA Papers 2022</li>
+      <li>Perry, Rothwell, Harshbarger, "The Devaluation of Assets in Black Neighborhoods," Brookings 2018</li>
+      <li>Samuel DuBois Cook Center, "The Plunder of Black Wealth in Chicago," 2019</li>
+      <li>EdBuild, "$23 Billion," 2019; Council of State Governments, "Breaking Schools' Rules," 2011</li>
+      <li>Hoffman et al., PNAS 2016; Hoffman, Shandas, Pendleton, <i>Climate</i> 2020</li>
+      <li>The Sentencing Project, "Locked Out 2024"; Prison Policy Initiative; Brennan Center</li>
+      <li>National Urban League, <i>State of Black America</i> 2026; CDC; Oklahoma Commission on the Tulsa Race Riot, 2001</li>
+    </ul>
+    <p class="sub">Verify any number before quoting it in print.</p>
+  </div></details>
+</div>
+
+<p class="foot">"V's proposal" marks where Stability Through Ownership applies: Black-led organizations owning their technology, data, and income, scaled through an apprenticeship network rather than a single founder.</p>
+</div>
+
+<script>
+(function(){
+var P={root:{c:'--root',n:'Foundation'},own:{c:'--own',n:'Ownership'},eq:{c:'--eq',n:'Equity'},ed:{c:'--ed',n:'Education'},he:{c:'--he',n:'Health'},po:{c:'--po',n:'Power'}};
+var TAGS={off:'Official',sch:'Scholarly',rough:'Rough',none:'No estimate'};
+var ST={live:'In force',struck:'Struck, unrepaired',ended:'Ended'};
+var REP={
+  vra:"Restore federal preclearance (John Lewis Voting Rights Advancement Act) and end prison gerrymandering by counting people at home.",
+  rights:"Automatic restoration of voting rights on release, in every state.",
+  clean:"Clean-slate record sealing and an end to collateral consequences on licenses, loans, and leases.",
+  sentencing:"Retroactive sentencing parity and an end to mandatory minimums; reinvest the savings in the neighborhoods that lost people.",
+  discipline:"Remove police from schools; replace zero tolerance with restorative discipline and counselors.",
+  funding:"Fund schools by student need at the state level, decoupled from the local property-tax base.",
+  integration:"Regional school assignment and housing-voucher mobility so district lines stop doing what covenants did.",
+  appraisal:"Appraisal reform with mandatory bias audits, automated-valuation review, and borrower appeal rights.",
+  housing:"Down-payment grants and first-generation homebuyer credits targeted to formerly redlined tracts; enforce Fair Housing with real penalties.",
+  land:"Community land trusts and limited-equity co-ops that keep ownership in the neighborhood when values rise.",
+  babybonds:"Baby bonds or direct reparations sized to the wealth gap, paid as an asset rather than a program.",
+  contracts:"Rebuild public contracting access on documented disadvantage; set-asides for firms in formerly redlined ZIP codes.",
+  capital:"CDFI and Black-owned bank capitalization with federal deposit guarantees; patient capital, not microloans.",
+  usda:"Full payment of outstanding USDA discrimination claims and heirs' property reform to stop land loss.",
+  health:"Community health centers and hospital reinvestment in formerly redlined areas; close the Medicaid gap.",
+  bias:"Mandatory bias training tied to outcome audits; pain-management and maternal-care protocols with accountability.",
+  food:"Grocery incentives and co-op grocers in food deserts; zoning that bars new polluting siting in overburdened tracts.",
+  env:"Highway removal and reconnection funds, lead-pipe replacement, and cumulative-impact permitting.",
+  truth:"A formal truth-and-reparations commission with a legal mandate, not a report.",
+  restitution:"Restitution to documented descendants of massacre victims and land seizures."
+};
+var VT={
+  own:"Ownership of the firm, its tools, and its data; apprentices learn the method so capability compounds instead of depending on one person.",
+  eq:"Cooperative ownership of the organization and its income, so stability stops depending on a mortgage the system never meant to give.",
+  ed:"A youth pipeline through METCO and mentoring programs that produces builders, not just graduates, with a paid path waiting.",
+  he:"Organizations that own their systems have predictable income and fewer vendor shocks; that predictability is the health intervention.",
+  po:"Self-operating institutions keep their own data and records, the base layer any political power is built on.",
+  root:"Build what the law withheld: owned institutions that do not need permission to exist."
+};
+var RP={
+  boot:{q:"Pull yourselves up by your bootstraps.",a:"Assumes everyone started with boots. The land, the bank, the GI Bill, and the mortgage were each handed to one group and withheld from the other by statute.",n:['fo15','fsb','gi','holc','cov','contract','usda','massacre']},
+  house:{q:"Stop renting and buy a house like everybody else.",a:"Assumes the mortgage market was ever open. For most of the 20th century it was closed by federal underwriting, then reopened on predatory terms.",n:['holc','cov','contract','fha68','sub','appr']},
+  budget:{q:"Learn to budget. It's about financial literacy.",a:"Assumes the losses came from spending. Freedman's Bank, contract buying, and subprime steering took money from people who saved and paid on time.",n:['fsb','contract','sub','gi']},
+  twice:{q:"You have to work twice as hard.",a:"Accepts the handicap as permanent and makes it the worker's job to overcome. The rules that required double effort are named here.",n:['croson','sba','gi','usda','codes']},
+  comply:{q:"Just comply with the police and you'll be fine.",a:"Assumes the encounter is neutral. The laws that decide who gets stopped, charged, and sentenced were written with a target.",n:['a13','codes','disc','drug','crime']},
+  bob:{q:"What about Black-on-Black crime?",a:"Treats concentrated violence as a trait instead of a result of concentrated disinvestment, displacement, and policing that followed the same map.",n:['renewal','env','drug','crime','rod']},
+  vote:{q:"If you don't vote, don't complain.",a:"Assumes the vote is available. Four million people are barred by law, and the districts of those who can vote are drawn to dilute them.",n:['miss','felony','shelby','rucho']},
+  school:{q:"Stay in school and get an education.",a:"Assumes the schools are equal. Funding follows the property tax that follows the redline, and discipline removes Black students at three times the rate.",n:['lit','brown','rod','milliken','disc','vouch']},
+  family:{q:"Fix the family first. Too many absent fathers.",a:"Blames the household for an absence manufactured by sentencing policy. The fathers are counted in the prison's district, not the home's.",n:['drug','crime','felony','mort']},
+  eat:{q:"Eat better, exercise, take responsibility for your health.",a:"Assumes a grocery store, clean air, and a doctor who believes you. The map decided which neighborhoods got those.",n:['food','env','pain','mort']},
+  trust:{q:"Black people just don't trust doctors.",a:"Treats earned distrust as superstition. The government ran a 40-year untreated-disease study and funded segregated hospitals.",n:['tusk','hill','pain']},
+  past:{q:"Slavery ended 160 years ago. Move on.",a:"Assumes the harm stopped in 1865. The exception clause, the Black Codes, and Plessy carried it forward in law for another century.",n:['a13','fo15','codes','plessy','massacre']},
+  code:{q:"Learn to code-switch and play the game.",a:"Makes survival in the room the goal, when the room's contracting rules, set-aside rulings, and capital access were the game.",n:['croson','sba','gi']}
+};
+/* usd = one-time documented extraction in $B (recent dollars); yr_usd = ongoing $B per year, system-wide */
+var N=[
+ {id:'lit',p:'ed',y:1830,yr:'1830s',t:'Anti-literacy laws',st:'ended',lin:"Teaching enslaved people to read is a crime across the South. Education is treated as a threat to the labor system from the start.",ext:"Two centuries of withheld schooling; the starting line for everything below.",tag:'none',src:"Williams, Self-Taught",imp:3,rep:['truth'],x:[]},
+ {id:'a13',p:'root',y:1865,yr:'1865',t:'13th Amendment exception',st:'live',lin:"Abolition arrives with a clause: slavery stays legal as punishment for crime. Southern legislatures read it as an instruction.",ext:"Convict-leased labor built railroads, mines, and plantations for 60 years; Alabama drew up to 73% of state revenue from leasing in 1898.",tag:'rough',src:"Blackmon, Slavery by Another Name",imp:5,rep:['sentencing','truth'],x:[]},
+ {id:'fo15',p:'root',y:1865,yr:'1865',t:'Field Order 15 reversed',st:'live',lin:"Sherman sets aside 400,000 acres for freed families. Within months President Johnson returns it to former enslavers. The land base is gone before it exists.",ext:"400,000 acres; the single largest forfeited asset in Black American history. Never priced.",tag:'none',src:"Oubre, Forty Acres and a Mule",imp:5,rep:['babybonds','land','truth'],x:['usda','holc']},
+ {id:'codes',p:'root',y:1866,yr:'1865–66',t:'Black Codes',st:'ended',lin:"Vagrancy, unemployment, and 'insulting gestures' become crimes for Black men only. The 13th's exception needs bodies; the codes supply them.",ext:"Labor extracted under lease; convict death rates ran as high as 30% a year in some camps.",tag:'rough',src:"Blackmon; Oshinsky",imp:4,rep:['sentencing','truth'],x:['miss']},
+ {id:'fsb',p:'own',y:1874,yr:'1874',t:"Freedman's Bank collapse",st:'struck',usd:0.08,lin:"Chartered by Congress to hold Black savings; mismanaged by white trustees who speculated with deposits. It fails nine years in.",ext:"$3M in 1874, about $80M today, from 61,000 depositors. Most never repaid.",tag:'sch',src:"Osthaus, Freedmen, Philanthropy and Fraud",imp:4,rep:['capital','truth'],x:[]},
+ {id:'miss',p:'po',y:1890,yr:'1890–1908',t:'The Mississippi Plan',st:'struck',lin:"Poll taxes, literacy tests, grandfather clauses, and felony disenfranchisement keyed to the crimes Black men were charged with. Wilmington's elected government is overthrown by coup in 1898.",ext:"Black registration in Louisiana fell from 130,000 in 1896 to 1,342 in 1904.",tag:'off',src:"Keyssar, The Right to Vote",imp:5,rep:['vra','rights'],x:['felony']},
+ {id:'plessy',p:'root',y:1896,yr:'1896',t:'Plessy v. Ferguson',st:'struck',lin:"Separate but equal becomes constitutional. Every segregated school, hospital, and neighborhood for the next 58 years cites it.",ext:"The legal cover for everything below; a license rather than a dollar figure.",tag:'none',src:"163 U.S. 537",imp:5,rep:['truth'],x:['brown','hill','holc']},
+ {id:'massacre',p:'own',y:1898,yr:'1898–1923',t:'Wilmington, Tulsa, Rosewood',st:'live',usd:0.03,lin:"Where Black commerce succeeded anyway, it was burned. Greenwood: 35 blocks, 1,200 homes, hundreds dead, insurance claims denied.",ext:"$1.8M in claims filed in 1921, over $30M today; no restitution paid to date.",tag:'off',src:"Oklahoma Commission 2001",imp:4,rep:['restitution','truth'],x:['miss']},
+ {id:'usda',p:'own',y:1920,yr:'1920–1999',t:'USDA lending discrimination',st:'live',usd:326,lin:"County committees deny Black farmers loans and disaster aid for decades. Black farmers fall from 14% of all farmers to under 2%.",ext:"About $326B in lost land value and income, 1920–1997. Pigford settles in 1999 and many claims go unpaid.",tag:'sch',src:"Francis et al., AEA 2022",imp:4,rep:['usda','land'],x:[]},
+ {id:'cov',p:'eq',y:1926,yr:'1926–48',t:'Racial covenants',st:'ended',lin:"Deeds forbid sale to Black buyers. Shelley v. Kraemer makes them unenforceable in 1948; they stay on deeds and in practice for decades.",ext:"Locked out of the appreciating suburbs for the full postwar boom.",tag:'none',src:"334 U.S. 1",imp:4,rep:['integration','housing'],x:['milliken']},
+ {id:'tusk',p:'he',y:1932,yr:'1932–72',t:'Tuskegee syphilis study',st:'ended',lin:"600 Black men left untreated for 40 years by the U.S. Public Health Service, even after penicillin. Distrust of medicine is earned.",ext:"128 men dead of syphilis or complications; 40 wives infected; 19 children born with it.",tag:'off',src:"CDC",imp:3,rep:['bias','truth'],x:[]},
+ {id:'holc',p:'eq',y:1934,yr:'1933–34',t:'HOLC maps and FHA underwriting',st:'live',lin:"Federal appraisers color Black neighborhoods red; the FHA refuses to insure mortgages there and writes the bias into its manual.",ext:"98% of $120B in federally backed loans 1934–62 went to white families. The exclusion has no single price.",tag:'rough',src:"Rothstein, The Color of Law",imp:5,rep:['housing','appraisal','babybonds'],x:['rod','food','env','gi']},
+ {id:'gi',p:'own',y:1944,yr:'1944',t:'GI Bill, locally administered',st:'live',lin:"Benefits are federal; approval is local. White-run banks and VA offices decide. Of 67,000 GI mortgages in NY and NJ, fewer than 100 go to Black veterans.",ext:"Black veterans excluded from the bulk of a $95B program that built the white middle class.",tag:'rough',src:"Katznelson, When Affirmative Action Was White",imp:5,rep:['babybonds','housing'],x:['holc']},
+ {id:'hill',p:'he',y:1946,yr:'1946–63',t:'Hill-Burton Act',st:'ended',lin:"Federal hospital construction money explicitly permits segregated facilities until Simkins v. Cone strikes the clause.",ext:"$3.7B in federal hospital funding built a segregated system before 1963.",tag:'off',src:"Smith, Health Care Divided",imp:3,rep:['health'],x:[]},
+ {id:'renewal',p:'eq',y:1949,yr:'1949–56',t:'Urban renewal and the Interstates',st:'live',lin:"Highways and 'slum clearance' are routed through Black neighborhoods. James Baldwin called it Negro removal.",ext:"About 1 million people displaced, most Black; homes taken at depressed, redlined values.",tag:'rough',src:"Fullilove, Root Shock; USDOT",imp:4,rep:['env','land'],x:['env']},
+ {id:'brown',p:'ed',y:1954,yr:'1954–64',t:'Brown, then Massive Resistance',st:'ended',lin:"Brown overturns Plessy for schools. Prince Edward County, Virginia closes every public school for five years rather than comply.",ext:"A cohort of Black children in Prince Edward got no public schooling for five years.",tag:'off',src:"347 U.S. 483; Griffin 1964",imp:4,rep:['integration','funding'],x:[]},
+ {id:'contract',p:'eq',y:1955,yr:'1950s–60s',t:'Contract buying',st:'ended',usd:3.5,lin:"Denied mortgages, Chicago families buy on installment contracts: no equity until the last payment, eviction on one miss.",ext:"$3–4B extracted from Chicago's Black families in two decades.",tag:'sch',src:"Samuel DuBois Cook Center, 2019",imp:4,rep:['housing','capital'],x:[]},
+ {id:'env',p:'he',y:1956,yr:'1950s–now',t:'Highways and industrial siting',st:'live',lin:"Redlined tracts receive the interstates, refineries, and incinerators. Flint in 2014 is the same pattern with water.",ext:"Formerly redlined areas run 5–7°F hotter and carry double the asthma ER rates.",tag:'sch',src:"Hoffman et al. 2020; Nardone 2020",imp:4,rep:['env','food'],x:[]},
+ {id:'food',p:'he',y:1965,yr:'1960s–70s',t:'Supermarket redlining',st:'live',lin:"Chains follow white flight out. The 1930s HOLC map predicts today's food deserts.",ext:"About 19 million people in low-income, low-access tracts; diet-related disease costs follow the map.",tag:'off',src:"USDA ERS",imp:3,rep:['food'],x:[]},
+ {id:'fha68',p:'eq',y:1968,yr:'1968',t:'Fair Housing Act, unenforced',st:'live',lin:"Discrimination becomes illegal; HUD gets no enforcement power until 1988. The homeownership gap is wider today than in 1968.",ext:"44% vs 73% ownership; the gap has not closed in 58 years.",tag:'off',src:"National Urban League 2026",imp:4,rep:['housing','integration'],x:[]},
+ {id:'drug',p:'po',y:1971,yr:'1971–86',t:'War on Drugs, 100:1 rule',st:'live',yr_usd:182,lin:"Crack carries sentences 100 times harsher than powder cocaine. Black incarceration rises sixfold between 1970 and 2000.",ext:"Mass incarceration costs about $182B a year; each formerly incarcerated person loses about $500,000 in lifetime earnings.",tag:'sch',src:"Prison Policy Initiative; Brennan Center",imp:5,rep:['sentencing','clean'],x:['disc']},
+ {id:'rod',p:'ed',y:1973,yr:'1973',t:'San Antonio v. Rodriguez',st:'live',yr_usd:23,lin:"No federal right to equal school funding. Property-tax funding stands, so a redlined home value becomes a school's budget.",ext:"Nonwhite districts receive about $23B less per year than white districts serving the same number of students.",tag:'sch',src:"411 U.S. 1; EdBuild 2019",imp:5,rep:['funding'],x:['disc']},
+ {id:'milliken',p:'ed',y:1974,yr:'1974',t:'Milliken v. Bradley',st:'live',lin:"No cross-district desegregation. Suburbs become the escape hatch; Boston's busing crisis is the same year. METCO is the workaround.",ext:"Schools are more segregated today than in 1990.",tag:'sch',src:"418 U.S. 717; UCLA Civil Rights Project",imp:4,rep:['integration'],x:[]},
+ {id:'croson',p:'own',y:1989,yr:'1989 · 1995',t:'Croson and Adarand',st:'live',lin:"The Court applies strict scrutiny to minority set-asides. Richmond's program is struck; most city and state programs shrink or close.",ext:"Richmond's minority share of contracts fell from about 30% to under 4% within a year of the ruling.",tag:'off',src:"488 U.S. 469; 515 U.S. 200",imp:3,rep:['contracts'],x:[]},
+ {id:'disc',p:'ed',y:1994,yr:'1994',t:'Zero tolerance and school police',st:'live',lin:"The Gun-Free Schools Act mandates expulsions; officers move into hallways. Black students are suspended at three times the white rate for the same conduct.",ext:"A single suspension doubles the odds of dropping out and triples the odds of later arrest.",tag:'sch',src:"Council of State Governments 2011",imp:4,rep:['discipline'],x:['crime']},
+ {id:'crime',p:'po',y:1994,yr:'1994',t:'Violent Crime Control Act',st:'live',lin:"Three strikes, mandatory minimums, 100,000 new police, $9.7B for prisons. Private prison operators grow with it.",ext:"$30B authorized; the prison population peaks at 2.3 million.",tag:'off',src:"P.L. 103-322",imp:4,rep:['sentencing','clean'],x:['sba','fha68']},
+ {id:'vouch',p:'ed',y:2002,yr:'2002–25',t:'Vouchers go federal',st:'live',lin:"Zelman upholds vouchers; a 2025 federal tax-credit scholarship moves public money to private schools, draining districts already starved by Rodriguez.",ext:"Each departing voucher student removes per-pupil funding while fixed costs stay.",tag:'none',src:"536 U.S. 639; P.L. 119-21",imp:3,rep:['funding'],x:[]},
+ {id:'sub',p:'eq',y:2004,yr:'2004–12',t:'Subprime targeting',st:'ended',lin:"Borrowers who qualified for prime loans are steered into subprime by race. Wells Fargo settles for $175M in 2012.",ext:"Black household wealth fell 53% between 2005 and 2009.",tag:'sch',src:"Pew 2011; DOJ 2012",imp:4,rep:['capital','appraisal'],x:[]},
+ {id:'shelby',p:'po',y:2013,yr:'2013',t:'Shelby County v. Holder',st:'live',lin:"Preclearance ends. Within years: 1,600 polling places closed in former preclearance states, strict ID laws, voter purges.",ext:"Black-white turnout gap widened in every former preclearance state.",tag:'sch',src:"570 U.S. 529; Brennan Center",imp:4,rep:['vra'],x:['a13']},
+ {id:'pain',p:'he',y:2016,yr:'2016',t:'Pain-perception bias',st:'live',lin:"Half of white medical trainees surveyed hold false beliefs about Black bodies and undertreat pain accordingly.",ext:"Black patients 40% less likely to receive pain medication for the same injury.",tag:'sch',src:"Hoffman et al., PNAS 2016",imp:4,rep:['bias'],x:[]},
+ {id:'appr',p:'eq',y:2018,yr:'2018–now',t:'Appraisal bias',st:'live',usd:156,lin:"The same house appraises lower when the owner is Black. Values in majority-Black neighborhoods are systematically marked down.",ext:"About $48,000 per home, $156B in total.",tag:'sch',src:"Brookings, Perry et al. 2018",imp:4,rep:['appraisal','land'],x:['rod']},
+ {id:'rucho',p:'po',y:2019,yr:'2019–25',t:'Rucho and unreviewed maps',st:'live',lin:"Partisan gerrymandering is declared beyond federal courts' reach. Districts are drawn to dilute Black votes with no federal check, closing the loop back to the foundation.",ext:"The vote that could change any node on this map is the one most reliably removed.",tag:'none',src:"588 U.S. 684",imp:5,rep:['vra'],x:['a13','plessy']},
+ {id:'sba',p:'own',y:2023,yr:'2023–25',t:'8(a) presumption struck',st:'live',lin:"Ultima Services ends the presumption of social disadvantage; executive orders dismantle federal DEI contracting. The last structured door to public money narrows.",ext:"8(a) firms received about $34B in federal contracts in FY2022; access to that pool is now case-by-case.",tag:'off',src:"SBA FY2022; Ultima v. USDA",imp:3,rep:['contracts','capital'],x:[]},
+ {id:'felony',p:'po',y:2024,yr:'Ongoing',t:'Felony disenfranchisement',st:'live',lin:"About 4 million people barred from voting; incarcerated people are counted where the prison sits, shifting seats to rural districts.",ext:"Black adults disenfranchised at nearly three times the national rate.",tag:'off',src:"The Sentencing Project 2024",imp:4,rep:['rights','vra'],x:['a13']},
+ {id:'mort',p:'he',y:2026,yr:'Today',t:'Maternal mortality, life expectancy',st:'live',yr_usd:320,lin:"Black women die in childbirth at about three times the white rate; Black men have the shortest life expectancy of any group.",ext:"Health disparities cost the U.S. about $320B a year; life expectancy 74 vs 78.",tag:'sch',src:"CDC 2023; Deloitte 2022",imp:5,rep:['health','bias'],x:[]}
+];
+var byId={}; N.forEach(function(n){byId[n.id]=n});
+var ORDER=N.slice().sort(function(a,b){return a.y-b.y});
+var svg=document.getElementById('g'); var NS='http://www.w3.org/2000/svg';
+var CX=450,CY=410; var spokes={own:-90,eq:-18,ed:54,he:126,po:198}; var pos={};
+var rootIds=N.filter(function(n){return n.p==='root'}).map(function(n){return n.id});
+rootIds.forEach(function(id,i){var a=(i/rootIds.length)*Math.PI*2-Math.PI/4;pos[id]={x:CX+Math.cos(a)*48,y:CY+Math.sin(a)*48}});
+function pl(p){return N.filter(function(n){return n.p===p}).sort(function(a,b){return a.y-b.y})}
+Object.keys(spokes).forEach(function(p){var list=pl(p);var base=spokes[p]*Math.PI/180;list.forEach(function(n,k){var r=150+k*38;var off=(k%2?1:-1)*7*Math.PI/180;pos[n.id]={x:CX+Math.cos(base+off)*r,y:CY+Math.sin(base+off)*r}})});
+function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e}
+svg.appendChild(el('circle',{cx:CX,cy:CY,r:82,'class':'hub'}));
+var edgesG=el('g',{}); svg.appendChild(edgesG); var edges=[];
+Object.keys(spokes).forEach(function(p){var list=pl(p);for(var i=0;i<list.length-1;i++)edges.push({a:list[i].id,b:list[i+1].id,k:'lin'});edges.push({a:'plessy',b:list[0].id,k:'lin'})});
+rootIds.forEach(function(id,i){edges.push({a:id,b:rootIds[(i+1)%rootIds.length],k:'lin'})});
+N.forEach(function(n){n.x.forEach(function(t){if(byId[t])edges.push({a:n.id,b:t,k:'x'})})});
+edges.forEach(function(e){var A=pos[e.a],B=pos[e.b];var d=e.k==='x'?('M'+A.x+' '+A.y+' Q'+CX+' '+CY+' '+B.x+' '+B.y):('M'+A.x+' '+A.y+' L'+B.x+' '+B.y);var l=el('path',{d:d,'class':'edge '+e.k});l.setAttribute('data-a',e.a);l.setAttribute('data-b',e.b);edgesG.appendChild(l)});
+Object.keys(spokes).forEach(function(p){var a=spokes[p]*Math.PI/180;var t=el('text',{x:CX+Math.cos(a)*385,y:CY+Math.sin(a)*385,'text-anchor':'middle','class':'spoke',fill:'var('+P[p].c+')'});t.textContent=P[p].n;svg.appendChild(t)});
+var nodesG=el('g',{}); svg.appendChild(nodesG); var circ={};
+N.forEach(function(n){
+  var q=pos[n.id]; var g=el('g',{'class':'node',tabindex:'0',role:'button'}); g.setAttribute('data-id',n.id);
+  var c=el('circle',{cx:q.x,cy:q.y,r:(n.p==='root'?4.5:3.5)+n.imp*1.4}); g.appendChild(c); circ[n.id]=c;
+  var ang=Math.atan2(q.y-CY,q.x-CX); var right=Math.cos(ang)>=0; var isV=Math.abs(Math.cos(ang))<0.25;
+  var tx=q.x+(isV?0:(right?12:-12)), ty=q.y+(isV?(Math.sin(ang)>0?20:-13):4); var anchor=isV?'middle':(right?'start':'end');
+  if(n.p==='root'){tx=q.x+(q.x>=CX?12:-12);ty=q.y+4;anchor=q.x>=CX?'start':'end';}
+  var t=el('text',{x:tx,y:ty,'text-anchor':anchor}); t.textContent=n.t; g.appendChild(t);
+  var y=el('text',{x:tx,y:ty+11,'text-anchor':anchor,'class':'yr'}); y.textContent=n.yr; g.appendChild(y);
+  var title=el('title',{}); title.textContent=n.t+' ('+n.yr+')'; g.appendChild(title);
+  nodesG.appendChild(g);
+});
+/* color modes */
+var mode='pillar';
+function colorOf(n){
+  if(mode==='pillar')return 'var('+P[n.p].c+')';
+  if(mode==='impact')return n.imp>=5?'var(--hit)':n.imp===4?'color-mix(in srgb,var(--hit) 65%,var(--dim))':'var(--dim)';
+  if(mode==='status')return n.st==='live'?'var(--hit)':n.st==='struck'?'var(--accent)':'var(--dim)';
+  return n.usd||n.yr_usd?'var(--hit)':n.tag==='none'?'var(--dim)':'var(--accent)';
+}
+var LEG={
+  pillar:[['--root','Foundation'],['--own','Ownership'],['--eq','Equity'],['--ed','Education'],['--he','Health'],['--po','Power'],['--hit','Selected and connected'],['--line','Node size = impact today']],
+  impact:[['--hit','5 · governs daily life now'],['--dim','3 · ended, never repaired']],
+  status:[['--hit','In force'],['--accent','Struck, unrepaired'],['--dim','Ended']],
+  dollars:[['--hit','Priced, in the ledger'],['--accent','Figure, but not summable'],['--dim','No estimate']]
+};
+function paint(){N.forEach(function(n){circ[n.id].setAttribute('stroke',colorOf(n))});
+  document.getElementById('legend').innerHTML=LEG[mode].map(function(l){return '<span><i style="background:var('+l[0]+')"></i>'+l[1]+'</span>'}).join('')}
+document.getElementById('colorby').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;mode=b.getAttribute('data-c');this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});paint()});
+paint();
+/* selection */
+function lineage(id){var n=byId[id];var list=n.p==='root'?[]:pl(n.p);var i=list.indexOf(n);return list.slice(0,Math.max(i,0)).map(function(x){return x.id})}
+function connected(id){var s={};lineage(id).forEach(function(x){s[x]=1});edges.forEach(function(e){if(e.k==='x'){if(e.a===id)s[e.b]=1;if(e.b===id)s[e.a]=1}});if(byId[id].p!=='root')s['plessy']=1;delete s[id];return Object.keys(s)}
+function fmt(b){return b>=1000?('$'+(b/1000).toFixed(1)+' trillion'):b>=1?('$'+Math.round(b)+' billion'):('$'+Math.round(b*1000)+' million')}
+var selected=null;
+function select(id,quiet){
+  selected=id; var n=byId[id]; var conn=connected(id);
+  svg.classList.add('faded');
+  nodesG.querySelectorAll('.node').forEach(function(g){var i=g.getAttribute('data-id');g.classList.toggle('sel',i===id);g.classList.toggle('on',conn.indexOf(i)>-1)});
+  edgesG.querySelectorAll('.edge').forEach(function(l){var a=l.getAttribute('data-a'),b=l.getAttribute('data-b');var on=(a===id||b===id)||(conn.indexOf(a)>-1&&conn.indexOf(b)>-1&&l.classList.contains('lin')&&byId[a].p===n.p);l.classList.toggle('on',on)});
+  clearChips(); markRow(id);
+  var rps=Object.keys(RP).filter(function(k){return RP[k].n.indexOf(id)>-1}).map(function(k){return '<li><q>'+RP[k].q+'</q>'+RP[k].a+'</li>'}).join('');
+  var reps=n.rep.map(function(k){return '<li>'+REP[k]+'</li>'}).join('')+'<li class="v"><b>V’s proposal · Stability through ownership</b>'+VT[n.p]+'</li>';
+  var imp='';for(var i=1;i<=5;i++)imp+='<i class="'+(i<=n.imp?'f':'')+'"></i>';
+  var lin=lineage(id); var linTxt=lin.length?('Builds on: '+lin.map(function(x){return byId[x].t}).join(' → ')):'Root of its pillar.';
+  var btns=conn.map(function(c){return '<button type="button" data-go="'+c+'">'+byId[c].t+'</button>'}).join('');
+  var list=n.p==='root'?N.filter(function(x){return x.p==='root'}):pl(n.p); var i=list.indexOf(n);
+  var money=n.usd?'<div class="num gold">'+fmt(n.usd)+'</div>':n.yr_usd?'<div class="num gold">'+fmt(n.yr_usd)+' <span class="sub">per year</span></div>':'';
+  document.getElementById('panel').innerHTML=
+   '<div class="eyebrow">Narration</div>'+
+   '<div><span class="pill" style="background:var('+P[n.p].c+')">'+P[n.p].n+'</span> <span class="yr">'+n.yr+'</span> <span class="tag">'+ST[n.st]+'</span></div>'+
+   '<h2>'+n.t+'</h2>'+
+   '<div class="block"><h3>Lineage</h3><p>'+n.lin+'</p><p class="sub">'+linTxt+'</p></div>'+
+   '<div class="block"><h3>What it took</h3>'+money+'<p><span class="tag">'+TAGS[n.tag]+'</span>'+n.ext+'</p><p class="sub">'+n.src+'</p></div>'+
+   '<div class="block"><h3>Impact today</h3><div class="imp">'+imp+'<span>'+n.imp+' of 5</span></div></div>'+
+   '<div class="block"><h3>Connected nodes</h3><div class="conn">'+btns+'</div></div>'+
+   (rps?'<div class="block"><h3>How it gets dismissed</h3><ul class="rpl">'+rps+'</ul></div>':'')+
+   '<div class="block"><h3>Reparative approaches</h3><ul class="rep">'+reps+'</ul></div>'+
+   '<div class="nav"><button type="button" data-go="'+(i>0?list[i-1].id:'')+'" '+(i>0?'':'disabled')+'>← Earlier in pillar</button><button type="button" data-go="'+(i<list.length-1?list[i+1].id:'')+'" '+(i<list.length-1?'':'disabled')+'>Later →</button></div>';
+  if(!quiet){var k=ORDER.indexOf(n);scrubEl.value=k;applyThrough(k,true)}
+}
+/* ledger / scrubber */
+var scrubEl=document.getElementById('scrub'); scrubEl.max=ORDER.length-1; scrubEl.value=ORDER.length-1;
+var ticks=document.getElementById('ticks');
+ORDER.forEach(function(n,k){var x=(k/(ORDER.length-1))*100;var i=document.createElement('i');i.style.left=x+'%';i.style.background='var('+P[n.p].c+')';if(n.p==='root')i.className='r';i.title=n.t+' ('+n.yr+')';i.setAttribute('data-k',k);ticks.appendChild(i)});
+[0,4,8,12,16,20,24,28,31,34].forEach(function(k){if(!ORDER[k])return;var b=document.createElement('b');b.style.left=(k/(ORDER.length-1))*100+'%';b.textContent=ORDER[k].y;b.setAttribute('data-k',k);ticks.appendChild(b)});
+ticks.addEventListener('click',function(e){var t=e.target.closest('[data-k]');if(t){stop();select(ORDER[+t.getAttribute('data-k')].id)}});
+function applyThrough(k,keepSel){
+  var cur=ORDER[k]; var seen=ORDER.slice(0,k+1);
+  nodesG.querySelectorAll('.node').forEach(function(g){var n=byId[g.getAttribute('data-id')];g.classList.toggle('future',ORDER.indexOf(n)>k)});
+  var usd=0,yr=0,ct={live:0,struck:0,ended:0},pill={},imp5=0;
+  seen.forEach(function(n){if(n.usd)usd+=n.usd;if(n.yr_usd)yr+=n.yr_usd;ct[n.st]++;pill[n.p]=1;if(n.imp===5)imp5++});
+  ticks.querySelectorAll('b').forEach(function(b){b.classList.toggle('cur',+b.getAttribute('data-k')<=k)});
+  document.getElementById('pstatus').textContent='Through '+cur.y+': '+seen.length+' of '+ORDER.length+' laws and events · '+ct.live+' still in force';
+  document.getElementById('totals').innerHTML=
+   '<div class="tot"><h3>Running total through '+cur.y+'</h3><div class="sub">Documented one-time extraction</div><div class="num gold">'+(usd?fmt(usd):'$0')+'</div><div class="sub"><span class="tag">Floor</span>Scholarly and official figures only; the largest harms carry no price.</div></div>'+
+   '<div class="tot"><h3>Ongoing, per year</h3><div class="sub">System-wide costs now running</div><div class="num">'+(yr?fmt(yr):'$0')+'</div><div class="sub">School funding gap, incarceration, health disparities.</div></div>'+
+   '<div class="tot"><h3>Status</h3><div class="num">'+ct.live+' <span class="sub">in force</span></div><div class="sub">'+ct.struck+' struck but unrepaired · '+ct.ended+' ended</div></div>'+
+   '<div class="tot"><h3>Reach</h3><div class="num">'+Object.keys(pill).length+' <span class="sub">of 6 pillars</span></div><div class="sub">'+imp5+' rated 5 of 5 impact today</div></div>';
+  if(!keepSel)select(cur.id,true);
+}
+scrubEl.addEventListener('input',function(){stop();applyThrough(+this.value,false)});
+var timer=null,playBtn=document.getElementById('playbtn');
+function stop(){if(timer){clearInterval(timer);timer=null;playBtn.textContent='Play'}}
+playBtn.addEventListener('click',function(){
+  if(timer){stop();return}
+  var k=+scrubEl.value; if(k>=ORDER.length-1)k=-1;
+  playBtn.textContent='Pause';
+  var step=function(){k++;if(k>ORDER.length-1){stop();return}scrubEl.value=k;applyThrough(k,false)};
+  step(); timer=setInterval(step,1800);
+});
+applyThrough(ORDER.length-1,true);
+/* verbatims */
+var chips=document.getElementById('chips');
+Object.keys(RP).forEach(function(k){var b=document.createElement('button');b.type='button';b.textContent='“'+RP[k].q+'”';b.setAttribute('data-rp',k);b.setAttribute('aria-pressed','false');chips.appendChild(b)});
+function clearChips(){chips.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed','false')})}
+function selectRP(k){
+  stop(); var r=RP[k]; selected=null; markRow(null);
+  chips.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-rp')===k?'true':'false')});
+  svg.classList.add('faded'); scrubEl.value=ORDER.length-1; applyThrough(ORDER.length-1,true);
+  nodesG.querySelectorAll('.node').forEach(function(g){var i=g.getAttribute('data-id');g.classList.remove('sel');g.classList.toggle('on',r.n.indexOf(i)>-1)});
+  edgesG.querySelectorAll('.edge').forEach(function(l){var a=l.getAttribute('data-a'),b=l.getAttribute('data-b');l.classList.toggle('on',r.n.indexOf(a)>-1&&r.n.indexOf(b)>-1)});
+  var pillars={};var usd=0;r.n.forEach(function(i){pillars[byId[i].p]=1;if(byId[i].usd)usd+=byId[i].usd});
+  var btns=r.n.map(function(c){return '<button type="button" data-go="'+c+'">'+byId[c].t+' <span class="sub">'+byId[c].yr+'</span></button>'}).join('');
+  document.getElementById('panel').innerHTML=
+   '<div class="eyebrow">Respectability verbatim</div>'+
+   '<div class="quote">“'+r.q+'”</div>'+
+   '<div class="block"><h3>What it assumes</h3><p>'+r.a+'</p></div>'+
+   '<div class="block"><h3>What it erases</h3><div class="num">'+r.n.length+' <span class="sub">laws across '+Object.keys(pillars).length+' pillar'+(Object.keys(pillars).length>1?'s':'')+'</span></div>'+(usd?'<div class="sub">Documented extraction among them: <b>'+fmt(usd)+'</b></div>':'')+'<div class="conn">'+btns+'</div></div>'+
+   '<div class="block"><h3>The reframe</h3><p>Every one of these sayings aims a remedy at the person. The nodes lit on the graph are where the remedy actually has to land.</p></div>';
+}
+chips.addEventListener('click',function(e){var b=e.target.closest('button[data-rp]');if(b)selectRP(b.getAttribute('data-rp'))});
+/* matrix */
+var tb=document.querySelector('#mtx tbody'); var cols=['own','eq','ed','he','po'];
+ORDER.forEach(function(n){
+  var feeds={}; n.x.forEach(function(t){if(byId[t])feeds[byId[t].p]=1}); edges.forEach(function(e){if(e.k==='x'&&e.b===n.id)feeds[byId[e.a].p]=1});
+  var tr=document.createElement('tr'); tr.setAttribute('data-id',n.id);
+  var h='<td class="lab"><span class="y">'+n.y+'</span>'+n.t+'</td>';
+  cols.forEach(function(c){var cls=n.p===c?'cell d':(feeds[c]?'cell f':'cell');var txt=n.p===c?P[c].n:(feeds[c]?'feeds':'·');var sty=n.p===c?' style="background:var('+P[c].c+')"':'';h+='<td><span class="'+cls+'"'+sty+'>'+txt+'</span></td>'});
+  if(n.p==='root'){h=h.replace('<td class="lab">','<td class="lab" style="color:var(--root)">')}
+  h+='<td><span class="cell f">'+n.imp+' / 5</span></td>';
+  tr.innerHTML=h; tb.appendChild(tr);
+});
+function markRow(id){tb.querySelectorAll('tr').forEach(function(r){r.classList.toggle('sel',r.getAttribute('data-id')===id)});document.querySelectorAll('.magrow').forEach(function(r){r.classList.toggle('sel',r.getAttribute('data-id')===id)})}
+/* magnitude */
+var magRows=document.getElementById('magrows'); var magSort='imp';
+var LOGMIN=Math.log10(0.01), LOGMAX=Math.log10(1000);
+function magVal(n){return n.usd||n.yr_usd||0}
+function renderMag(){
+  var list=N.slice().sort(function(a,b){
+    if(magSort==='imp')return b.imp-a.imp||magVal(b)-magVal(a)||a.y-b.y;
+    if(magSort==='usd')return magVal(b)-magVal(a)||b.imp-a.imp;
+    return a.y-b.y});
+  magRows.innerHTML=list.map(function(n){
+    var v=magVal(n); var w=v?Math.max(4,Math.round((Math.log10(v)-LOGMIN)/(LOGMAX-LOGMIN)*100)):0;
+    var lbl=v?(fmt(v)+(n.yr_usd?' / yr':'')):(n.tag==='none'?'no estimate':'unpriced');
+    return '<div class="magrow'+(selected===n.id?' sel':'')+'" data-id="'+n.id+'" role="button" tabindex="0">'+
+      '<div class="lab"><i style="background:var('+P[n.p].c+')"></i><span class="y">'+n.y+'</span>'+n.t+'</div>'+
+      '<div class="bar seg5" title="Impact '+n.imp+' of 5"><b style="width:'+(n.imp*20)+'%"></b></div>'+
+      '<div class="dollar"><div class="bar"><b style="width:'+w+'%"></b></div><span class="lbl'+(v?'':' none')+'">'+lbl+'</span></div></div>'}).join('');
+}
+renderMag();
+document.getElementById('magsort').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;magSort=b.getAttribute('data-s');this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});renderMag()});
+magRows.addEventListener('click',function(e){var r=e.target.closest('.magrow');if(r){stop();select(r.getAttribute('data-id'));document.getElementById('g').scrollIntoView({block:'start',behavior:'smooth'})}});
+magRows.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){var r=e.target.closest('.magrow');if(r){e.preventDefault();stop();select(r.getAttribute('data-id'))}}});
+/* wiring */
+nodesG.addEventListener('click',function(e){var g=e.target.closest('.node');if(g){stop();select(g.getAttribute('data-id'))}});
+nodesG.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){var g=e.target.closest('.node');if(g){e.preventDefault();stop();select(g.getAttribute('data-id'))}}});
+document.getElementById('panel').addEventListener('click',function(e){var b=e.target.closest('button[data-go]');if(b&&b.getAttribute('data-go')){stop();select(b.getAttribute('data-go'));if(window.innerWidth<=900)document.getElementById('g').scrollIntoView({block:'start'})}});
+})();
+</script>
+</body></html>

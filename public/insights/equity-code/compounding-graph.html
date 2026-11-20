@@ -350,8 +350,9 @@ Object.keys(spokes).forEach(function(p){var list=pl(p);for(var i=0;i<list.length
 rootIds.forEach(function(id,i){edges.push({a:id,b:rootIds[(i+1)%rootIds.length],k:'lin'})});
 N.forEach(function(n){n.x.forEach(function(t){if(byId[t])edges.push({a:n.id,b:t,k:'x'})})});
 edges.forEach(function(e){var A=pos[e.a],B=pos[e.b];var d=e.k==='x'?('M'+A.x+' '+A.y+' Q'+CX+' '+CY+' '+B.x+' '+B.y):('M'+A.x+' '+A.y+' L'+B.x+' '+B.y);var l=el('path',{d:d,'class':'edge '+e.k});l.setAttribute('data-a',e.a);l.setAttribute('data-b',e.b);edgesG.appendChild(l)});
-Object.keys(spokes).forEach(function(p){var a=spokes[p]*Math.PI/180;var t=el('text',{x:CX+Math.cos(a)*385,y:CY+Math.sin(a)*385,'text-anchor':'middle','class':'spoke',fill:'var('+P[p].c+')'});t.textContent=P[p].n;svg.appendChild(t)});
+var spokeT={}; Object.keys(spokes).forEach(function(p){var a=spokes[p]*Math.PI/180;var t=el('text',{x:CX+Math.cos(a)*385,y:CY+Math.sin(a)*385,'text-anchor':'middle','class':'spoke',fill:'var('+P[p].c+')'});t.textContent=P[p].n;svg.appendChild(t);spokeT[p]=t});
 var nodesG=el('g',{}); svg.appendChild(nodesG); var circ={};
+var labelT={};
 N.forEach(function(n){
   var q=pos[n.id]; var g=el('g',{'class':'node',tabindex:'0',role:'button'}); g.setAttribute('data-id',n.id);
   var c=el('circle',{cx:q.x,cy:q.y,r:(n.p==='root'?4.5:3.5)+n.imp*1.4}); g.appendChild(c); circ[n.id]=c;
@@ -360,9 +361,63 @@ N.forEach(function(n){
   if(n.p==='root'){tx=q.x+(q.x>=CX?12:-12);ty=q.y+4;anchor=q.x>=CX?'start':'end';}
   var t=el('text',{x:tx,y:ty,'text-anchor':anchor}); t.textContent=n.t; g.appendChild(t);
   var y=el('text',{x:tx,y:ty+11,'text-anchor':anchor,'class':'yr'}); y.textContent=n.yr; g.appendChild(y);
+  labelT[n.id]={t:t,y:y,side:isV?'v':(right?'r':'l'),down:Math.sin(ang)>0};
   var title=el('title',{}); title.textContent=n.t+' ('+n.yr+')'; g.appendChild(title);
   nodesG.appendChild(g);
 });
+/* Label placement: keep every node, edge and label; move only label text so nothing overlaps or clips.
+   For each node, candidate positions are tried in order (the original side first) and the first one
+   that clears all placed labels, every circle and the spoke titles wins; otherwise the least-overlapping.
+   Re-run once web fonts arrive, since glyph widths change. The viewBox is then fitted to the content. */
+function placeLabels(){
+  var PAD=3;
+  function box(e,pad){var b=e.getBBox();pad=pad||0;return {l:b.x-pad,t:b.y-pad,r:b.x+b.width+pad,b:b.y+b.height+pad}}
+  function union(a,b){return {l:Math.min(a.l,b.l),t:Math.min(a.t,b.t),r:Math.max(a.r,b.r),b:Math.max(a.b,b.b)}}
+  function ovl(a,b){var x=Math.min(a.r,b.r)-Math.max(a.l,b.l),y=Math.min(a.b,b.b)-Math.max(a.t,b.t);return (x>0&&y>0)?x*y:0}
+  var fixed=[]; Object.keys(spokeT).forEach(function(p){fixed.push(box(spokeT[p],PAD))});
+  N.forEach(function(n){var c=circ[n.id];var r=+c.getAttribute('r')+PAD;var q=pos[n.id];fixed.push({l:q.x-r,t:q.y-r,r:q.x+r,b:q.y+r,id:n.id})});
+  var placed=[];
+  function setPos(L,x,y,anchor){L.t.setAttribute('x',x);L.t.setAttribute('y',y);L.t.setAttribute('text-anchor',anchor);L.y.setAttribute('x',x);L.y.setAttribute('y',y+11);L.y.setAttribute('text-anchor',anchor)}
+  function cands(n){
+    var q=pos[n.id],L=labelT[n.id],r=+circ[n.id].getAttribute('r'),o=r+8,c=[];
+    var R_={x:q.x+o,y:q.y+4,a:'start'},Lf={x:q.x-o,y:q.y+4,a:'end'},Up={x:q.x,y:q.y-r-14,a:'middle'},Dn={x:q.x,y:q.y+r+14,a:'middle'};
+    var Ru={x:q.x+o,y:q.y-6,a:'start'},Lu={x:q.x-o,y:q.y-6,a:'end'},Rd={x:q.x+o,y:q.y+14,a:'start'},Ld={x:q.x-o,y:q.y+14,a:'end'};
+    var Ru2={x:q.x+o,y:q.y-18,a:'start'},Lu2={x:q.x-o,y:q.y-18,a:'end'},Rd2={x:q.x+o,y:q.y+26,a:'start'},Ld2={x:q.x-o,y:q.y+26,a:'end'};
+    var Up2={x:q.x,y:q.y-r-26,a:'middle'},Dn2={x:q.x,y:q.y+r+26,a:'middle'};
+    if(n.p==='root'){var pr=q.x>=CX;c=pr?[Ru,R_,Up,Dn,Rd,Lu,Lf,Ru2,Rd2]:[Lu,Lf,Up,Dn,Ld,Ru,R_,Lu2,Ld2]}
+    else if(L.side==='v'){c=L.down?[Dn,Up,R_,Lf,Rd,Ld,Dn2,Up2]:[Up,Dn,R_,Lf,Ru,Lu,Up2,Dn2]}
+    else if(L.side==='r'){c=[R_,Ru,Rd,Lf,Lu,Ld,Up,Dn,Ru2,Rd2,Lu2,Ld2,Up2,Dn2]}
+    else{c=[Lf,Lu,Ld,R_,Ru,Rd,Up,Dn,Lu2,Ld2,Ru2,Rd2,Up2,Dn2]}
+    return c;
+  }
+  var order=N.filter(function(n){return n.p==='root'});
+  Object.keys(spokes).forEach(function(p){order=order.concat(pl(p))});
+  var placedBy={},scoreBy={};
+  function fit(n){
+    var L=labelT[n.id],best=null,bestScore=Infinity,bestBox=null;
+    cands(n).some(function(cd){
+      setPos(L,cd.x,cd.y,cd.a);
+      var bb=union(box(L.t,PAD),box(L.y,PAD)),score=0;
+      fixed.forEach(function(f){if(f.id!==n.id)score+=ovl(bb,f)});
+      Object.keys(placedBy).forEach(function(k){if(k!==n.id)score+=ovl(bb,placedBy[k])});
+      if(score<bestScore){bestScore=score;best=cd;bestBox=bb}
+      return score===0;
+    });
+    setPos(L,best.x,best.y,best.a); placedBy[n.id]=bestBox; scoreBy[n.id]=bestScore;
+  }
+  order.forEach(fit);
+  /* further passes: re-fit every label still touching another, worst first, until clean or settled */
+  for(var pass=0;pass<4;pass++){
+    var dirty=[];
+    order.forEach(function(n){var bb=placedBy[n.id],sc=0;fixed.forEach(function(f){if(f.id!==n.id)sc+=ovl(bb,f)});Object.keys(placedBy).forEach(function(k){if(k!==n.id)sc+=ovl(bb,placedBy[k])});if(sc>0)dirty.push({n:n,sc:sc})});
+    if(!dirty.length)break;
+    dirty.sort(function(a,b){return b.sc-a.sc}).forEach(function(d){delete placedBy[d.n.id];fit(d.n)});
+  }
+  var all=svg.getBBox(),m=10;
+  svg.setAttribute('viewBox',Math.floor(all.x-m)+' '+Math.floor(all.y-m)+' '+Math.ceil(all.width+2*m)+' '+Math.ceil(all.height+2*m));
+}
+placeLabels();
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(placeLabels)}
 /* color modes */
 var mode='pillar';
 function colorOf(n){

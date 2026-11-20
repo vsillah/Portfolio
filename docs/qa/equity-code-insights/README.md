@@ -2,11 +2,13 @@
 
 Review target: local Portfolio build at `http://localhost:4173/insights` and its three Equity Code routes. The source HTML and the ledger's two relative scripts match the hashes in `docs/insights/equity-code-source-register.md`.
 
-Run `node scripts/qa/equity-code-insights-review.cjs` while the local server is listening on port 4173. The script records `desktop.mp4` at 1440×900 and `mobile.mp4` at 390×844, walks from the Insights index into each dashboard, exercises representative controls with mouse and keyboard, verifies source links in the ledger, checks page-level overflow, and loads the three routes with reduced motion requested. `review-results.json` records the measured widths and video paths.
+Run `node scripts/qa/equity-code-insights-review.cjs` while the local server is listening on port 4173 to recheck all three dashboards, source links, page-level overflow, and reduced-motion loading. The original broad walkthroughs predate the Compounding Graph correction and are superseded by the focused videos below.
 
-## Source correction for Claude
+## Compounding Graph source correction
 
-The Compounding Graph's authored SVG labels overlap and some names clip at desktop width; they become harder to read at the 390px content lane. The issue is visible in the exact source file and its Portfolio route. Keep the supplied HTML hash unchanged in this integration PR. Claude should correct the original source's label layout or responsive presentation, then publish an updated source file for a separately verified re-import.
+The original Compounding Graph's SVG labels overlapped and clipped at desktop and mobile widths. Claude supplied a bounded label-layout correction. The original file is preserved under `docs/insights/source-snapshots/`; the corrected file and its hash are recorded in the source register.
+
+Run `node scripts/qa/equity-code-graph-correction.cjs` against the local production build to record `desktop-graph-correction.mp4` at 1440×900 and `mobile-graph-correction.mp4` at 390×844. Both videos open the Insights index, show the label-dense graph, and exercise color modes, a keyboard-selected node, a magnitude row, a verbatim chip, timeline scrubbing, and the source disclosure. `graph-correction-results.json` records the measured viewBoxes and collisions. At both widths, before and after interaction, all 35 nodes were present with zero label-label, label-circle, label-spoke, or viewBox-clipping intersections. The page had no horizontal overflow.
 
 The Home Front Ledger HTML was described as self-contained, but it loads public `world.js` and `data.js` relative to the page. Those exact scripts are included and rewritten to the route's resolved paths. The unchanged HTML also loads D3 and TopoJSON from cdnjs and Google Fonts. Offline behavior for those third-party dependencies was not tested.
 

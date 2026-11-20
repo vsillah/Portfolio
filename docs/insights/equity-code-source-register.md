@@ -6,11 +6,17 @@ Retrieved: 2026-11-19 (America/New_York). Provenance: public source pages, fetch
 
 This is an append-only source snapshot. Future source revisions should add a new retrieval record and hash rather than overwrite these entries.
 
-| Portfolio route | Public source URL | SHA-256 |
+| Original Portfolio route | Public source URL | SHA-256 |
 | --- | --- | --- |
 | `/insights/compounding-graph` | https://home-front-ledger.vercel.app/compounding-graph/ | `1822a76ec480782f14e873677dc77104680b212b3b534e6129608ea6420fef99` |
 | `/insights/home-front-ledger` | https://home-front-ledger.vercel.app/home-front-ledger/ | `79f992fa0c00ac2cfde194b66d415e618dbdc40569ae9718e9f11a9df59bb79b` |
 | `/insights/owning-the-block` | https://home-front-ledger.vercel.app/owning-the-block/ | `d8cd0ac397adcfc1271d2f14d016d19271aa2828905510b03896b6e18067c24b` |
+
+## Claude-authored Compounding Graph correction
+
+On 2026-11-19, the original Compounding Graph file was preserved at `docs/insights/source-snapshots/compounding-graph.1822a76e.html`. Claude returned `/Users/vambahsillah/Downloads/compounding-graph.corrected.html`, SHA-256 `a207a6738e5392f114aba65350c526e9b532ab6471c67e72b1057e25970f3d80`. That exact file now serves `/insights/compounding-graph`. The local artifact is the correction source; it was not presented as a new published URL.
+
+The only source diff is one contiguous SVG label-layout block. It records spoke and node labels, positions them to avoid label/circle collisions, reruns layout after fonts load, and fits the SVG viewBox. Research data, event relationships, figures, citations, colors, controls, and handlers outside the block match the preserved original. The other two dashboard files retain their original hashes above.
 
 The Home Front Ledger HTML is not self-contained: it references two relative public scripts. Portfolio serves exact copies at the resolved same-origin paths. It also references D3 and TopoJSON from cdnjs and fonts from Google; those external URLs remain unchanged in the source HTML.
 
