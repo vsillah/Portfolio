@@ -18,6 +18,8 @@ The combined #1293 head `ddfd61fb744aab68a272fe08569da69fb4aee7df` includes the 
 
 The latest stacked PR #1293 head `404656cca67eb48d57261520a1a54179ed87095e` adds an external mobile cue band and caption size control. The exact-code preview verified L07-08 mobile cue readability. The resumed L08 sweep then stopped at **L08-01**, 00:12.717 on desktop: the active native caption overlaps “A handoff must be testable”; disabling the track reveals the headline. The 390×844 external band remains below the video. See `404-l08-caption-overlap-stop.md`, exact-route on/off screenshots, and decoded MP4. **L08-01 fails; L08-02–L16 remain unqualified.** The stacked source worktree was not modified.
 
+Approved stacked PR #1293 at `32f44fb97fd4c9ecbd04cf0e367f1c767464e282` was audited read-only. L09–L16 scene midpoints rendered without a new caption collision at 1280×720 and 390×844 (64 positions, 128 states); the cue band matched the active VTT cue in every sampled state. See `32f-l09-l16-qualification-hold.md` and contact sheets. This is a midpoint sample, not full contextual or cue-boundary qualification. L10 direct auditory confirmation is pending, the L16 card candidate remains unbound, and all 13 eligible source-map records still lack attributed versioned spoken transcripts. **PR #1290 remains HOLD.**
+
 ## L01: corrected learner metadata and end-screen UI
 
 The existing illustrated MP4 has 9,457 video frames at 25 fps (378.280 s) and audio through 378.285 s. Its earlier declared 378.059 s was 0.226 s short. The illustrated binding uses the container duration, while the historic source-media receipt remains lineage. The exact-hash L01 end-screen binding begins at the final VTT cue end, 359.645 s, shows progress 1 of 16, and names L02 next. A narrow source-identity exception in `AgentifiedWorkshop.tsx` accepts only this exact duration correction; it does not admit a different video or caption asset.
@@ -52,4 +54,4 @@ No provider contact, generation, spend, L02–L04 change, L10/L16 learner bindin
 
 `node docs/agentified-distribution-readiness/phase-3b/record_browser_walkthrough.cjs e5cce9a7a`
 
-Next gate: a separate source-faithful desktop L08-01 caption placement correction, validated on the exact stacked desktop/mobile route at 00:12.717 with captions on and off. Then resume L08-02–L16 in order. L10 acoustic/caption confirmation, L16 card handoff, complete source-faithful QA, and transcript provenance remain open before any Human QA handoff. The existing browser MP4s are captain review evidence, not a Human QA request.
+Next gate: captain technical listening of the L10 corrected candidate and exact-media spoken-transcript provenance for L01 and L05–L16. Then review the L16 candidate in the learner route and resume full contextual/cue-boundary qualification. PR #1290 remains HOLD; no Human QA handoff or merge is warranted from midpoint-only evidence.

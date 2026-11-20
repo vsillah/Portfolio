@@ -1,0 +1,198 @@
+{
+  "stackedHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+  "lessonId": "L09",
+  "states": [
+    {
+      "scene": "L09-01",
+      "kind": "desktop",
+      "expected": 15.91,
+      "time": 15.91,
+      "mode": "hidden",
+      "active": [
+        "The third accurately says the facilitator is still under review."
+      ],
+      "band": [
+        "The third accurately says the facilitator is still under review."
+      ]
+    },
+    {
+      "scene": "L09-02",
+      "kind": "desktop",
+      "expected": 50.769999999999996,
+      "time": 50.769999,
+      "mode": "hidden",
+      "active": [
+        "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate."
+      ],
+      "band": [
+        "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate."
+      ]
+    },
+    {
+      "scene": "L09-03",
+      "kind": "desktop",
+      "expected": 86.37,
+      "time": 86.37,
+      "mode": "hidden",
+      "active": [
+        "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer."
+      ],
+      "band": [
+        "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer."
+      ]
+    },
+    {
+      "scene": "L09-04",
+      "kind": "desktop",
+      "expected": 120.55000000000001,
+      "time": 120.55,
+      "mode": "hidden",
+      "active": [
+        "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence."
+      ],
+      "band": [
+        "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence."
+      ]
+    },
+    {
+      "scene": "L09-05",
+      "kind": "desktop",
+      "expected": 151.19,
+      "time": 151.19,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L09-06",
+      "kind": "desktop",
+      "expected": 167.41000000000003,
+      "time": 167.41,
+      "mode": "hidden",
+      "active": [
+        "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+      ],
+      "band": [
+        "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+      ]
+    },
+    {
+      "scene": "L09-07",
+      "kind": "desktop",
+      "expected": 211.79000000000002,
+      "time": 211.79,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L09-08",
+      "kind": "desktop",
+      "expected": 262.95,
+      "time": 262.95,
+      "mode": "hidden",
+      "active": [
+        "Next we will put the same discipline around money and the final decision brief."
+      ],
+      "band": [
+        "Next we will put the same discipline around money and the final decision brief."
+      ]
+    },
+    {
+      "scene": "L09-01",
+      "kind": "mobile",
+      "expected": 15.91,
+      "time": 15.91,
+      "mode": "hidden",
+      "active": [
+        "The third accurately says the facilitator is still under review."
+      ],
+      "band": [
+        "The third accurately says the facilitator is still under review."
+      ]
+    },
+    {
+      "scene": "L09-02",
+      "kind": "mobile",
+      "expected": 50.769999999999996,
+      "time": 50.769999,
+      "mode": "hidden",
+      "active": [
+        "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate."
+      ],
+      "band": [
+        "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate."
+      ]
+    },
+    {
+      "scene": "L09-03",
+      "kind": "mobile",
+      "expected": 86.37,
+      "time": 86.37,
+      "mode": "hidden",
+      "active": [
+        "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer."
+      ],
+      "band": [
+        "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer."
+      ]
+    },
+    {
+      "scene": "L09-04",
+      "kind": "mobile",
+      "expected": 120.55000000000001,
+      "time": 120.55,
+      "mode": "hidden",
+      "active": [
+        "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence."
+      ],
+      "band": [
+        "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence."
+      ]
+    },
+    {
+      "scene": "L09-05",
+      "kind": "mobile",
+      "expected": 151.19,
+      "time": 151.19,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L09-06",
+      "kind": "mobile",
+      "expected": 167.41000000000003,
+      "time": 167.41,
+      "mode": "hidden",
+      "active": [
+        "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+      ],
+      "band": [
+        "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+      ]
+    },
+    {
+      "scene": "L09-07",
+      "kind": "mobile",
+      "expected": 211.79000000000002,
+      "time": 211.79,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L09-08",
+      "kind": "mobile",
+      "expected": 262.95,
+      "time": 262.95,
+      "mode": "hidden",
+      "active": [
+        "Next we will put the same discipline around money and the final decision brief."
+      ],
+      "band": [
+        "Next we will put the same discipline around money and the final decision brief."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,198 @@
+{
+  "stackedHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+  "lessonId": "L12",
+  "states": [
+    {
+      "scene": "L12-01",
+      "kind": "desktop",
+      "expected": 13.65,
+      "time": 13.65,
+      "mode": "hidden",
+      "active": [
+        "That would reveal source notes and internal deliberation the board member did not request."
+      ],
+      "band": [
+        "That would reveal source notes and internal deliberation the board member did not request."
+      ]
+    },
+    {
+      "scene": "L12-02",
+      "kind": "desktop",
+      "expected": 46.83,
+      "time": 46.83,
+      "mode": "hidden",
+      "active": [
+        "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request."
+      ],
+      "band": [
+        "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request."
+      ]
+    },
+    {
+      "scene": "L12-03",
+      "kind": "desktop",
+      "expected": 81.45,
+      "time": 81.45,
+      "mode": "hidden",
+      "active": [
+        "Morgan reviews the proposed proof packet before any sharing."
+      ],
+      "band": [
+        "Morgan reviews the proposed proof packet before any sharing."
+      ]
+    },
+    {
+      "scene": "L12-04",
+      "kind": "desktop",
+      "expected": 115.30000000000001,
+      "time": 115.3,
+      "mode": "hidden",
+      "active": [
+        "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates."
+      ],
+      "band": [
+        "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates."
+      ]
+    },
+    {
+      "scene": "L12-05",
+      "kind": "desktop",
+      "expected": 148.75,
+      "time": 148.75,
+      "mode": "hidden",
+      "active": [
+        "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson."
+      ],
+      "band": [
+        "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson."
+      ]
+    },
+    {
+      "scene": "L12-06",
+      "kind": "desktop",
+      "expected": 166.15,
+      "time": 166.15,
+      "mode": "hidden",
+      "active": [
+        "What would you leave out of the board packet even if it helped tell a better story?"
+      ],
+      "band": [
+        "What would you leave out of the board packet even if it helped tell a better story?"
+      ]
+    },
+    {
+      "scene": "L12-07",
+      "kind": "desktop",
+      "expected": 209.47000000000003,
+      "time": 209.47,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L12-08",
+      "kind": "desktop",
+      "expected": 259.1,
+      "time": 259.1,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L12-01",
+      "kind": "mobile",
+      "expected": 13.65,
+      "time": 13.65,
+      "mode": "hidden",
+      "active": [
+        "That would reveal source notes and internal deliberation the board member did not request."
+      ],
+      "band": [
+        "That would reveal source notes and internal deliberation the board member did not request."
+      ]
+    },
+    {
+      "scene": "L12-02",
+      "kind": "mobile",
+      "expected": 46.83,
+      "time": 46.83,
+      "mode": "hidden",
+      "active": [
+        "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request."
+      ],
+      "band": [
+        "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request."
+      ]
+    },
+    {
+      "scene": "L12-03",
+      "kind": "mobile",
+      "expected": 81.45,
+      "time": 81.45,
+      "mode": "hidden",
+      "active": [
+        "Morgan reviews the proposed proof packet before any sharing."
+      ],
+      "band": [
+        "Morgan reviews the proposed proof packet before any sharing."
+      ]
+    },
+    {
+      "scene": "L12-04",
+      "kind": "mobile",
+      "expected": 115.30000000000001,
+      "time": 115.3,
+      "mode": "hidden",
+      "active": [
+        "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates."
+      ],
+      "band": [
+        "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates."
+      ]
+    },
+    {
+      "scene": "L12-05",
+      "kind": "mobile",
+      "expected": 148.75,
+      "time": 148.75,
+      "mode": "hidden",
+      "active": [
+        "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson."
+      ],
+      "band": [
+        "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson."
+      ]
+    },
+    {
+      "scene": "L12-06",
+      "kind": "mobile",
+      "expected": 166.15,
+      "time": 166.15,
+      "mode": "hidden",
+      "active": [
+        "What would you leave out of the board packet even if it helped tell a better story?"
+      ],
+      "band": [
+        "What would you leave out of the board packet even if it helped tell a better story?"
+      ]
+    },
+    {
+      "scene": "L12-07",
+      "kind": "mobile",
+      "expected": 209.47000000000003,
+      "time": 209.47,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L12-08",
+      "kind": "mobile",
+      "expected": 259.1,
+      "time": 259.1,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    }
+  ]
+}

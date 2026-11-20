@@ -1,0 +1,206 @@
+{
+  "stackedHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+  "lessonId": "L16",
+  "states": [
+    {
+      "scene": "L16-01",
+      "kind": "desktop",
+      "expected": 17.106,
+      "time": 17.106,
+      "mode": "hidden",
+      "active": [
+        "The file is impressive in one sense: its gaps are visible."
+      ],
+      "band": [
+        "The file is impressive in one sense: its gaps are visible."
+      ]
+    },
+    {
+      "scene": "L16-02",
+      "kind": "desktop",
+      "expected": 48.4785,
+      "time": 48.4785,
+      "mode": "hidden",
+      "active": [
+        "When will someone revisit the rule?"
+      ],
+      "band": [
+        "When will someone revisit the rule?"
+      ]
+    },
+    {
+      "scene": "L16-03",
+      "kind": "desktop",
+      "expected": 76.216,
+      "time": 76.216,
+      "mode": "hidden",
+      "active": [
+        "The receipt describes a paper event shape; it does not certify that an agent ran."
+      ],
+      "band": [
+        "The receipt describes a paper event shape; it does not certify that an agent ran."
+      ]
+    },
+    {
+      "scene": "L16-04",
+      "kind": "desktop",
+      "expected": 103.398,
+      "time": 103.398,
+      "mode": "hidden",
+      "active": [
+        "The agent cannot book, send, buy, or turn a proposal into a team rule."
+      ],
+      "band": [
+        "The agent cannot book, send, buy, or turn a proposal into a team rule."
+      ]
+    },
+    {
+      "scene": "L16-05",
+      "kind": "desktop",
+      "expected": 131.464,
+      "time": 131.464,
+      "mode": "hidden",
+      "active": [
+        "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it."
+      ],
+      "band": [
+        "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it."
+      ]
+    },
+    {
+      "scene": "L16-06",
+      "kind": "desktop",
+      "expected": 155.7595,
+      "time": 155.7595,
+      "mode": "hidden",
+      "active": [
+        "Name the human who can make that call and the evidence that person would need."
+      ],
+      "band": [
+        "Name the human who can make that call and the evidence that person would need."
+      ]
+    },
+    {
+      "scene": "L16-07",
+      "kind": "desktop",
+      "expected": 206.963,
+      "time": 206.963,
+      "mode": "hidden",
+      "active": [
+        "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete."
+      ],
+      "band": [
+        "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete."
+      ]
+    },
+    {
+      "scene": "L16-08",
+      "kind": "desktop",
+      "expected": 257.76750000000004,
+      "time": 257.767499,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L16-01",
+      "kind": "mobile",
+      "expected": 17.106,
+      "time": 17.106,
+      "mode": "hidden",
+      "active": [
+        "The file is impressive in one sense: its gaps are visible."
+      ],
+      "band": [
+        "The file is impressive in one sense: its gaps are visible."
+      ]
+    },
+    {
+      "scene": "L16-02",
+      "kind": "mobile",
+      "expected": 48.4785,
+      "time": 48.4785,
+      "mode": "hidden",
+      "active": [
+        "When will someone revisit the rule?"
+      ],
+      "band": [
+        "When will someone revisit the rule?"
+      ]
+    },
+    {
+      "scene": "L16-03",
+      "kind": "mobile",
+      "expected": 76.216,
+      "time": 76.216,
+      "mode": "hidden",
+      "active": [
+        "The receipt describes a paper event shape; it does not certify that an agent ran."
+      ],
+      "band": [
+        "The receipt describes a paper event shape; it does not certify that an agent ran."
+      ]
+    },
+    {
+      "scene": "L16-04",
+      "kind": "mobile",
+      "expected": 103.398,
+      "time": 103.398,
+      "mode": "hidden",
+      "active": [
+        "The agent cannot book, send, buy, or turn a proposal into a team rule."
+      ],
+      "band": [
+        "The agent cannot book, send, buy, or turn a proposal into a team rule."
+      ]
+    },
+    {
+      "scene": "L16-05",
+      "kind": "mobile",
+      "expected": 131.464,
+      "time": 131.464,
+      "mode": "hidden",
+      "active": [
+        "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it."
+      ],
+      "band": [
+        "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it."
+      ]
+    },
+    {
+      "scene": "L16-06",
+      "kind": "mobile",
+      "expected": 155.7595,
+      "time": 155.7595,
+      "mode": "hidden",
+      "active": [
+        "Name the human who can make that call and the evidence that person would need."
+      ],
+      "band": [
+        "Name the human who can make that call and the evidence that person would need."
+      ]
+    },
+    {
+      "scene": "L16-07",
+      "kind": "mobile",
+      "expected": 206.963,
+      "time": 206.963,
+      "mode": "hidden",
+      "active": [
+        "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete."
+      ],
+      "band": [
+        "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete."
+      ]
+    },
+    {
+      "scene": "L16-08",
+      "kind": "mobile",
+      "expected": 257.76750000000004,
+      "time": 257.767499,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    }
+  ]
+}
