@@ -39,18 +39,43 @@ for (const width of [1280, 390]) {
       const bb = band?.getBoundingClientRect()
       return { time: video.currentTime, mode: video.textTracks[0].mode, cues: [...video.textTracks[0].cues].filter((cue) => cue.startTime <= video.currentTime && video.currentTime < cue.endTime).map((cue) => ({ start: cue.startTime, end: cue.endTime, text: cue.text })), band: band?.textContent ?? null, bandCount: document.querySelectorAll('[aria-label="L06 caption"]').length, bandFont: band ? getComputedStyle(band).fontSize : null, bandTop: bb?.top ?? null, videoBottom: vb.bottom, video: [Math.round(vb.width), Math.round(vb.height)], controls: video.controls, selected: [...document.querySelectorAll('[role="group"][aria-label="Caption size"] button[aria-pressed="true"]')].map((button) => button.getAttribute('aria-label')), scrollWidth: document.documentElement.scrollWidth }
     })
-    const external = width === 390 || size === 'L' || time >= 65.532 && time < 97.482
+    const external = true
     const active = state.cues.length === 1
-    if (state.cues.length > 1 || state.mode !== (external ? 'hidden' : 'showing') || state.bandCount !== (external && active ? 1 : 0) || external && active && state.band !== state.cues[0].text || state.bandTop !== null && state.bandTop < state.videoBottom - 1 || state.video.join() !== baseline.video.join() || state.scrollWidth > baseline.scrollWidth + 1 || !state.controls) throw Error(`${width} ${scene} ${sample} ${size}: ${JSON.stringify(state)}`)
+    if (state.cues.length > 1 || state.mode !== 'hidden' || state.bandCount !== (active && time < 255.493 ? 1 : 0) || active && time < 255.493 && state.band !== state.cues[0].text || state.bandTop !== null && state.bandTop < state.videoBottom - 1 || state.video.join() !== baseline.video.join() || state.scrollWidth > baseline.scrollWidth + 1 || !state.controls) throw Error(`${width} ${scene} ${sample} ${size}: ${JSON.stringify(state)}`)
     if (external && active && state.bandFont !== { S: '14px', M: '18px', L: '24px' }[size]) throw Error(`${width} ${scene} ${sample} ${size}: band font drifted`)
     learner.push({ width, scene, sample, time, size, external, ...state })
     return state
   }
-  for (const row of rows) for (const [sample, time] of [['boundary', row.boundary_sample_seconds], ['midpoint', row.midpoint_sample_seconds]]) {
+  for (const row of rows) for (const [sample, time] of [['start', row.start_seconds], ['boundary', row.boundary_sample_seconds], ['midpoint', row.midpoint_sample_seconds], ['end-minus', Math.min(row.end_seconds, 255.493) - .001]]) {
     await seek(time)
-    const state = await inspect(row.scene_id, sample, time)
-    if (['L06-02', 'L06-03', 'L06-04'].includes(row.scene_id) && sample === 'boundary') await video.locator('../..').screenshot({ path: `${out}/${row.scene_id}-${width}-boundary.png` })
+    await inspect(row.scene_id, sample, time)
+    await video.locator('../..').screenshot({ path: `${out}/${row.scene_id}-${width}-${sample}.png` })
+    if (sample !== 'midpoint') continue
+    for (const [size, label] of [['S', 'Small'], ['M', 'Medium'], ['L', 'Large']]) {
+      await page.getByRole('button', { name: `${label} captions` }).click()
+      const on = await inspect(row.scene_id, 'midpoint-on', time, size)
+      if (on.selected.join() !== `${label} captions`) throw Error(`${width} ${row.scene_id} ${size}: Aa selection drifted`)
+      await video.locator('../..').screenshot({ path: `${out}/${row.scene_id}-${width}-${size}-on.png` })
+      await page.getByRole('button', { name: 'English captions on' }).click()
+      const off = await page.evaluate(() => ({ mode: document.querySelector('video').textTracks[0].mode, bandCount: document.querySelectorAll('[aria-label="L06 caption"]').length, sizeGroup: document.querySelectorAll('[role="group"][aria-label="Caption size"]').length }))
+      if (off.mode !== 'disabled' || off.bandCount || off.sizeGroup) throw Error(`${width} ${row.scene_id} ${size}: off state ${JSON.stringify(off)}`)
+      learner.push({ width, scene: row.scene_id, sample: 'off', time, size, off })
+      await page.getByRole('button', { name: 'English captions off' }).click()
+      await inspect(row.scene_id, 'restored', time, size)
+    }
+    await page.getByRole('button', { name: 'Medium captions' }).click()
   }
+  for (const boundary of [28.639, 65.532, 97.482, 132.486, 162.599, 169.015, 243.974, 255.493]) {
+    await seek(boundary - .25)
+    await video.evaluate(async (element) => { element.muted = true; await element.play() })
+    await page.waitForFunction((target) => document.querySelector('video')?.currentTime >= target, boundary + .2)
+    await video.evaluate((element) => element.pause())
+    await inspect('playback-boundary', `${boundary}`, boundary + .2)
+    await video.locator('../..').screenshot({ path: `${out}/L06-${width}-played-through-${boundary}.png` })
+  }
+  await seek(255.493)
+  await inspect('protected-ending', 'start', 255.493)
+  await video.locator('../..').screenshot({ path: `${out}/L06-${width}-protected-ending.png` })
   for (const [sample, time] of [['before', 64.5], ['start-minus', 65.531], ['start', 65.532], ['collision', 77], ['gap', 97.481], ['end', 97.482], ['after', 98.5]]) {
     await seek(time)
     await inspect('L06-03-boundary', sample, time)

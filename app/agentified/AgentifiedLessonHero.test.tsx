@@ -207,7 +207,7 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
-  it('routes only L06-03 desktop cues below the video and restores adjacent native captions', () => {
+  it('routes all L06 teaching cues below the video and clears the protected ending', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
     const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
@@ -221,7 +221,7 @@ describe('Agentified lesson media gate', () => {
     Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
     Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
     vi.stubGlobal('matchMedia', vi.fn(() => mobileMedia))
-    const props = { lessonId: 'L06', title: 'Permission', poster: '/agentified/posters/l06-poster.webp', videoSrc: '/approved-l06.mp4', captionsSrc: '/approved-l06.vtt' }
+    const props = { lessonId: 'L06', title: 'Permission', poster: '/agentified/posters/l06-poster.webp', videoSrc: '/approved-l06.mp4', captionsSrc: '/approved-l06.vtt', endScreen: { startSeconds: 255.493, progress: 6 } }
     try {
       const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
       const video = container.querySelector('video')!
@@ -229,8 +229,8 @@ describe('Agentified lesson media gate', () => {
       Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
       fireEvent.loadedMetadata(video)
       fireEvent.seeking(video)
-      expect(track.mode).toBe('showing')
-      expect(screen.queryByRole('status', { name: 'L06 caption' })).toBeNull()
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L06 caption' })).toHaveTextContent(before.text)
 
       currentTime = 77
       fireEvent.seeking(video)
@@ -252,13 +252,17 @@ describe('Agentified lesson media gate', () => {
       expect(screen.queryByRole('status', { name: 'L06 caption' })).toBeNull()
       currentTime = 98.5
       fireEvent.seeking(video)
-      expect(track.mode).toBe('showing')
-      expect(screen.queryByRole('status', { name: 'L06 caption' })).toBeNull()
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L06 caption' })).toHaveTextContent(after.text)
       act(() => { mobileMedia.matches = true; mobileMedia.dispatchEvent(new Event('change')) })
       expect(track.mode).toBe('hidden')
       expect(screen.getByRole('status', { name: 'L06 caption' })).toHaveTextContent(after.text)
       act(() => { mobileMedia.matches = false; mobileMedia.dispatchEvent(new Event('change')) })
-      expect(track.mode).toBe('showing')
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L06 caption' })).toHaveTextContent(after.text)
+      currentTime = 255.493
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
       expect(screen.queryByRole('status', { name: 'L06 caption' })).toBeNull()
       expect([before, protectedCue, after]).toEqual([
         { startTime: 62.762, endTime: 65.531, text: before.text },
