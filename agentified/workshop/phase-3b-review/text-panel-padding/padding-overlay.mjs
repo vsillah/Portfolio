@@ -7,8 +7,9 @@ const rect=(x,y,w,h,fill,stroke='none',radius=20)=>`<rect x="${x}" y="${y}" widt
 const progress=id=>{const n=Number(id.slice(-2));return `${rect(80,1020,1760,11,'#24424f','none',6)}${rect(80,1020,Math.round(1760*n/8),11,'#d7ad56','none',6)}`}
 const baseOverlay=id=>`<rect width="1920" height="1080" fill="none" stroke="#d6ad56" stroke-width="3"/>${progress(id)}`
 
-export function paddingOverlay(brief,auditScene,selectedKinds=null){
+export function paddingOverlay(brief,auditScene,selectedKinds=null,variant=null){
  assert.equal(brief.scene_id,auditScene.sceneId)
+ assert(variant===null||(variant==='l06-01-mobile-controls-clear'&&brief.scene_id==='L06-01'),'mobile variant is L06-01 only')
  const [a,b]=brief.visible_labels,headline=brief.headline
  const used=new Set(),decisions=[]
  const panel=(kind,fill,stroke,radius=20,color='#fff4df',weight=700)=>{
@@ -18,7 +19,7 @@ export function paddingOverlay(brief,auditScene,selectedKinds=null){
   const old=item.containerPx,g=item.glyphBoundsPx,s=item.textSpec
   const fitted=selectedKinds===null||selectedKinds.includes(kind)
   if(!fitted){decisions.push({kind,action:'retained',old});return `${rect(old.x,old.y,old.width,old.height,fill,stroke,radius)}${renderText(item,s.x,s.y,color,weight)}`}
-  const padding=28,box={x:old.x,y:old.y,width:g.width+2*padding,height:g.height+2*padding}
+  const padding=28,box={x:old.x,y:variant==='l06-01-mobile-controls-clear'&&kind==='headline'?20:old.y,width:g.width+2*padding,height:g.height+2*padding}
   const x=s.x+(box.x+padding-g.x),y=s.y+(box.y+padding-g.y)
   assert(box.x>=0&&box.y>=0&&box.x+box.width<=1920&&box.y+box.height<=1080,`${brief.scene_id}: ${kind} beyond frame`)
   decisions.push({kind,action:'fitted',old,box,glyph:g,paddingPx:padding})
