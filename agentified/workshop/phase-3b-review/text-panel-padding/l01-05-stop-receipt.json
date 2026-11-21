@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "status": "STOP: L01-05 native desktop cue covers Source missing",
+  "paddingBasePr": 1290,
+  "paddingBaseCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+  "captionDependencyPr": 1293,
+  "captionDependencyCommit": "6a8006bbbf0ee57416d7339bd0a0e88315403b4a",
+  "sourceVideoSha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+  "sourceCaptionSha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+  "candidateFrameSha256": "f96fb58b91a42846d1063d6fa51a2f84c18644b49b04b0ef300064b27eec9182",
+  "changedPixelBounds": [
+    60,
+    193,
+    1397,
+    911
+  ],
+  "outsidePanelPixelsIdentical": true,
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-05-desktop.mp4",
+      "sha256": "5ec18b955e298319b1592809147642196f657cbf37f0c684fd80683c4ac4cd25",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-05-desktop.vtt",
+      "vttSha256": "175353093eb63a7b21d1071597d63e03f5ae63a5f62c157d59ef4a83799bd597",
+      "dimensionsPx": [
+        1280,
+        720
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-05-mobile.mp4",
+      "sha256": "5ec614c3bc409b47c9df362409d414b7ae19765b812ea594be8ea2ebb1016157",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-05-mobile.vtt",
+      "vttSha256": "175353093eb63a7b21d1071597d63e03f5ae63a5f62c157d59ef4a83799bd597",
+      "dimensionsPx": [
+        390,
+        844
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    }
+  ],
+  "browserEvidence": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-05-desktop-caption-collision.png",
+    "sha256": "166d9682726aee25b46ac223eaeaa182bd3b8408e9d1e9b10b1cd472016f6612",
+    "lessonTimeSecondsApprox": 162.78
+  },
+  "boundary": "Review-only unbound; no learner media or approved frame replaced; no later scene qualified."
+}
