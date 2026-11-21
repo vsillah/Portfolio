@@ -9,7 +9,7 @@ const baseOverlay=id=>`<rect width="1920" height="1080" fill="none" stroke="#d6a
 
 export function paddingOverlay(brief,auditScene,selectedKinds=null,variant=null){
  assert.equal(brief.scene_id,auditScene.sceneId)
- assert(variant===null||(variant==='l06-01-mobile-controls-clear'&&brief.scene_id==='L06-01'),'mobile variant is L06-01 only')
+ assert(variant===null||(['l06-01-mobile-controls-clear','l06-01-mobile-panel-only'].includes(variant)&&brief.scene_id==='L06-01'),'mobile variant is L06-01 only')
  const [a,b]=brief.visible_labels,headline=brief.headline
  const used=new Set(),decisions=[]
  const panel=(kind,fill,stroke,radius=20,color='#fff4df',weight=700)=>{
@@ -17,6 +17,12 @@ export function paddingOverlay(brief,auditScene,selectedKinds=null,variant=null)
   assert(item && !used.has(kind),`${brief.scene_id}: missing or duplicate ${kind}`)
   used.add(kind)
   const old=item.containerPx,g=item.glyphBoundsPx,s=item.textSpec
+  if(variant==='l06-01-mobile-panel-only'&&kind==='headline'){
+   const box={x:46,y:20,width:490,height:370},lines=['A role','needs a','permission','slip.']
+   assert.equal(lines.join(' '),brief.headline)
+   decisions.push({kind,action:'mobile_reflow',old,box,paddingPx:28,lines,fontSizePx:s.size})
+   return `${rect(box.x,box.y,box.width,box.height,fill,stroke,radius)}${lines.map((line,i)=>`<text x="74" y="${100+i*83}" fill="${color}" font-family="Arial,sans-serif" font-size="${s.size}" font-weight="${weight}">${esc(line)}</text>`).join('')}`
+  }
   const fitted=selectedKinds===null||selectedKinds.includes(kind)
   if(!fitted){decisions.push({kind,action:'retained',old});return `${rect(old.x,old.y,old.width,old.height,fill,stroke,radius)}${renderText(item,s.x,s.y,color,weight)}`}
   const padding=28,box={x:old.x,y:variant==='l06-01-mobile-controls-clear'&&kind==='headline'?20:old.y,width:g.width+2*padding,height:g.height+2*padding}
