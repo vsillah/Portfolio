@@ -21,7 +21,10 @@ const l07DesktopCaptionClearance = [
   { sceneId: 'L07-06', startSeconds: 153.479, endSeconds: 160.078, line: 52 },
 ] as const
 
-const l01CaptionClearance = { startSeconds: 34.585, endSeconds: 74.197 } as const
+const l01CaptionClearance = [
+  { sceneId: 'L01-02', startSeconds: 34.585, endSeconds: 74.197 },
+  { sceneId: 'L01-04', startSeconds: 114.358, endSeconds: 150.501 },
+] as const
 
 /** Video is an explicit future input. Without an approved source the hero is a static cover. */
 export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSrc, captionsSrc, captionsOn = true, captionSize = 'M', durationSeconds, resumeSeconds = 0, endScreen, onProgress, onCaptionsChange }: Props) {
@@ -31,7 +34,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const [activeTeachingScene, setActiveTeachingScene] = useState<string | null>(null)
   const [mobileWidth, setMobileWidth] = useState(false)
   const [mobileCaption, setMobileCaption] = useState('')
-  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId) || (lessonId === 'L06' && activeTeachingScene === 'L06-03') || (lessonId === 'L01' && activeTeachingScene === 'L01-02')
+  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId) || (lessonId === 'L06' && activeTeachingScene === 'L06-03') || (lessonId === 'L01' && l01CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))
   const cueCacheRef = useRef<Array<{ startTime: number; endTime: number; text: string }>>([])
   const endScreenStart = endScreen?.startSeconds
   const captionsChangeRef = useRef(onCaptionsChange)
@@ -132,7 +135,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const syncEndScreen = (currentTime: number) => setEndScreenVisible(Boolean(endScreen && currentTime >= endScreen.startSeconds))
   const lessonTeachingScenes = mobileTeachingDetails.scenes.filter((scene) => scene.lessonId === lessonId)
   const syncScene = (currentTime: number) => {
-    setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? (lessonId === 'L01' && currentTime >= l01CaptionClearance.startSeconds && currentTime < l01CaptionClearance.endSeconds ? 'L01-02' : null))
+    setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? (lessonId === 'L01' ? l01CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : null))
   }
   const teachingScene = lessonTeachingScenes.find((scene) => scene.sceneId === activeTeachingScene)
   return <><div className={styles.coverStage} aria-label={label}>
