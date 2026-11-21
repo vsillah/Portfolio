@@ -486,6 +486,75 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
+  it('keeps L05-01 captions clear after the native presenter and restores L05-02', () => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    const presenterCue = { startTime: 11.13, endTime: 11.64, text: 'role read?' }
+    const panelCue = { startTime: 15.872, endTime: 21.568, text: "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system." }
+    const adjacentCue = { startTime: 24.779, endTime: 26.614, text: 'Start with the real sequence on paper.' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [presenterCue, panelCue, adjacentCue] })
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const mobileMedia = Object.assign(new EventTarget(), { matches: false })
+    HTMLMediaElement.prototype.pause = vi.fn()
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    vi.stubGlobal('matchMedia', vi.fn(() => mobileMedia))
+    const props = { lessonId: 'L05', title: 'Visible path', poster: '/agentified/posters/l05-poster.webp', videoSrc: '/approved-l05.mp4', captionsSrc: '/approved-l05.vtt' }
+    try {
+      const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      const video = container.querySelector('video')!
+      let currentTime = 11.91
+      Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+      fireEvent.loadedMetadata(video)
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
+      currentTime = 11.909
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('showing')
+      currentTime = 19.314
+      fireEvent.seeking(video)
+      fireEvent.pause(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent(panelCue.text.replace(/\s+/g, ' '))
+      for (const size of ['S', 'L', 'M'] as const) {
+        rerender(<AgentifiedLessonHero {...props} captionSize={size} captionsOn />)
+        expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveAttribute('data-caption-size', size)
+      }
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn={false} />)
+      expect(track.mode).toBe('disabled')
+      expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent(panelCue.text.replace(/\s+/g, ' '))
+      currentTime = 21.7
+      fireEvent.seeking(video)
+      expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
+      currentTime = 24.779
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('showing')
+      expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
+      act(() => { mobileMedia.matches = true; mobileMedia.dispatchEvent(new Event('change')) })
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent(adjacentCue.text)
+      expect([presenterCue, panelCue, adjacentCue]).toEqual([
+        { startTime: 11.13, endTime: 11.64, text: 'role read?' },
+        { startTime: 15.872, endTime: 21.568, text: panelCue.text },
+        { startTime: 24.779, endTime: 26.614, text: adjacentCue.text },
+      ])
+      expect(video).toHaveAttribute('controls')
+      unmount()
+    } finally {
+      if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
+      else Reflect.deleteProperty(HTMLMediaElement.prototype, 'textTracks')
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('clears L01-08 captions before the protected completion boundary', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
