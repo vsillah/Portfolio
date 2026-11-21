@@ -1,0 +1,6689 @@
+{
+  "generatedAt": "2026-11-21T14:48:43.439Z",
+  "codeCommit": "4ef836a3cdb67aaaba0fe6c7c39762e32c3d7c59",
+  "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+  "base": "http://127.0.0.1:3137",
+  "candidateBase": "http://127.0.0.1:8767",
+  "source": {
+    "video": "/agentified/lessons/l06/illustrated-163e01e6/agentified-l06-illustrated-composite.mp4",
+    "videoHash": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+    "captions": "/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-captions.vtt",
+    "captionsHash": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba"
+  },
+  "candidateHashes": {
+    "L06-03-desktop.mp4": "fe43edac9b88b6d381de36e81cdadd6ae558fa74b6982d502df6f58ee85b4f80",
+    "L06-03-desktop.vtt": "2eb78df15dd80e458cb3788f35d196c84aeeb06cb8793663194bd2eac0c9f789",
+    "L06-03-mobile.mp4": "475535fe5c92f87202cfc78e5b732780eb7a831c2b6594ea3378c3383460ad59",
+    "L06-03-mobile.vtt": "2eb78df15dd80e458cb3788f35d196c84aeeb06cb8793663194bd2eac0c9f789"
+  },
+  "learner": [
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "start",
+      "time": 0,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 0,
+          "end": 1.87,
+          "text": "The Operating Map has a row that says"
+        }
+      ],
+      "band": "The Operating Map has a row that says",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 985.84375,
+      "videoBottom": 977.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 0,
+          "end": 1.87,
+          "text": "The Operating Map has a row that says"
+        }
+      ],
+      "band": "The Operating Map has a row that says",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 432.84375,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "midpoint",
+      "time": 14.32,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 432.84375,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "midpoint-on",
+      "time": 14.32,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "off",
+      "time": 14.32,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "restored",
+      "time": 14.32,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "midpoint-on",
+      "time": 14.32,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "off",
+      "time": 14.32,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "restored",
+      "time": 14.32,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "midpoint-on",
+      "time": 14.32,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "off",
+      "time": 14.32,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "restored",
+      "time": 14.32,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-01",
+      "sample": "end-minus",
+      "time": 28.637999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "start",
+      "time": 28.639,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 28.639,
+          "end": 35.487,
+          "text": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+        }
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "boundary",
+      "time": 30.139,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 28.639,
+          "end": 35.487,
+          "text": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+        }
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "midpoint",
+      "time": 47.086,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "midpoint-on",
+      "time": 47.086,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "off",
+      "time": 47.086,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "restored",
+      "time": 47.086,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "midpoint-on",
+      "time": 47.086,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "off",
+      "time": 47.086,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "restored",
+      "time": 47.086,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "midpoint-on",
+      "time": 47.086,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "off",
+      "time": 47.086,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "restored",
+      "time": 47.086,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-02",
+      "sample": "end-minus",
+      "time": 65.530998,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "start",
+      "time": 65.532,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 65.532,
+          "end": 72.892,
+          "text": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute."
+        }
+      ],
+      "band": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "boundary",
+      "time": 67.032,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 65.532,
+          "end": 72.892,
+          "text": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute."
+        }
+      ],
+      "band": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "midpoint",
+      "time": 81.507,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "midpoint-on",
+      "time": 81.507,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "off",
+      "time": 81.507,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 81.507,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "midpoint-on",
+      "time": 81.507,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "off",
+      "time": 81.507,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 81.507,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "midpoint-on",
+      "time": 81.507,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "off",
+      "time": 81.507,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 81.507,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "end-minus",
+      "time": 97.481,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "start",
+      "time": 97.482,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "boundary",
+      "time": 98.982,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "midpoint",
+      "time": 114.984,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "midpoint-on",
+      "time": 114.984,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "off",
+      "time": 114.984,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "restored",
+      "time": 114.984,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "midpoint-on",
+      "time": 114.984,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "off",
+      "time": 114.984,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "restored",
+      "time": 114.984,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "midpoint-on",
+      "time": 114.984,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "off",
+      "time": 114.984,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "restored",
+      "time": 114.984,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-04",
+      "sample": "end-minus",
+      "time": 132.484998,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "start",
+      "time": 132.485998,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "boundary",
+      "time": 133.985998,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 132.486,
+          "end": 134.648,
+          "text": "A retirement decision needs a person too."
+        }
+      ],
+      "band": "A retirement decision needs a person too.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "midpoint",
+      "time": 147.542,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "midpoint-on",
+      "time": 147.542,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "off",
+      "time": 147.542,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "restored",
+      "time": 147.542,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "midpoint-on",
+      "time": 147.542,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "off",
+      "time": 147.542,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "restored",
+      "time": 147.542,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "midpoint-on",
+      "time": 147.542,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "off",
+      "time": 147.542,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "restored",
+      "time": 147.542,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-05",
+      "sample": "end-minus",
+      "time": 162.597999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "start",
+      "time": 162.599,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 162.599,
+          "end": 163.226,
+          "text": "Pause."
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "boundary",
+      "time": 164.099,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "midpoint",
+      "time": 165.807,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "midpoint-on",
+      "time": 165.807,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "off",
+      "time": 165.807,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "restored",
+      "time": 165.807,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "midpoint-on",
+      "time": 165.807,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "off",
+      "time": 165.807,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "restored",
+      "time": 165.807,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "midpoint-on",
+      "time": 165.807,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "off",
+      "time": 165.807,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "restored",
+      "time": 165.807,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-06",
+      "sample": "end-minus",
+      "time": 169.013999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "start",
+      "time": 169.015,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 169.015,
+          "end": 171.618,
+          "text": "Write the Permission Slip for the preparation\nrole."
+        }
+      ],
+      "band": "Write the Permission Slip for the preparation\nrole.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "boundary",
+      "time": 170.515,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 169.015,
+          "end": 171.618,
+          "text": "Write the Permission Slip for the preparation\nrole."
+        }
+      ],
+      "band": "Write the Permission Slip for the preparation\nrole.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "midpoint",
+      "time": 206.495,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "midpoint-on",
+      "time": 206.495,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "off",
+      "time": 206.495,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "restored",
+      "time": 206.495,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "midpoint-on",
+      "time": 206.495,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "off",
+      "time": 206.495,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "restored",
+      "time": 206.495,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "midpoint-on",
+      "time": 206.495,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "off",
+      "time": 206.495,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "restored",
+      "time": 206.495,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-07",
+      "sample": "end-minus",
+      "time": 243.972999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "start",
+      "time": 243.974,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 243.974,
+          "end": 245.723,
+          "text": "Save revision six as a draft."
+        }
+      ],
+      "band": "Save revision six as a draft.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "boundary",
+      "time": 245.474,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 243.974,
+          "end": 245.723,
+          "text": "Save revision six as a draft."
+        }
+      ],
+      "band": "Save revision six as a draft.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "midpoint",
+      "time": 251.467,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "midpoint-on",
+      "time": 251.467,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "off",
+      "time": 251.467,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "restored",
+      "time": 251.467,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "midpoint-on",
+      "time": 251.467,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "off",
+      "time": 251.467,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "restored",
+      "time": 251.467,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "midpoint-on",
+      "time": 251.467,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "off",
+      "time": 251.467,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "restored",
+      "time": 251.467,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-08",
+      "sample": "end-minus",
+      "time": 255.492,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 254.323,
+          "end": 255.493,
+          "text": "small team would share it."
+        }
+      ],
+      "band": "small team would share it.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "playback-boundary",
+      "sample": "28.639",
+      "time": 28.847172,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 28.639,
+          "end": 35.487,
+          "text": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+        }
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "playback-boundary",
+      "sample": "65.532",
+      "time": 65.734957,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 65.532,
+          "end": 72.892,
+          "text": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute."
+        }
+      ],
+      "band": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "playback-boundary",
+      "sample": "97.482",
+      "time": 97.698706,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "playback-boundary",
+      "sample": "132.486",
+      "time": 132.693035,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 132.486,
+          "end": 134.648,
+          "text": "A retirement decision needs a person too."
+        }
+      ],
+      "band": "A retirement decision needs a person too.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "playback-boundary",
+      "sample": "162.599",
+      "time": 162.807088,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 162.599,
+          "end": 163.226,
+          "text": "Pause."
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "playback-boundary",
+      "sample": "169.015",
+      "time": 169.231912,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 169.015,
+          "end": 171.618,
+          "text": "Write the Permission Slip for the preparation\nrole."
+        }
+      ],
+      "band": "Write the Permission Slip for the preparation\nrole.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "playback-boundary",
+      "sample": "243.974",
+      "time": 244.195372,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 243.974,
+          "end": 245.723,
+          "text": "Save revision six as a draft."
+        }
+      ],
+      "band": "Save revision six as a draft.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "playback-boundary",
+      "sample": "255.493",
+      "time": 255.696392,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "protected-ending",
+      "sample": "start",
+      "time": 255.493,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03-boundary",
+      "sample": "before",
+      "time": 64.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 60.668,
+          "end": 65.297,
+          "text": "Expiry sends the proposed slip back for review\nbefore the next course planning cycle."
+        }
+      ],
+      "band": "Expiry sends the proposed slip back for review\nbefore the next course planning cycle.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03-boundary",
+      "sample": "start-minus",
+      "time": 65.531,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03-boundary",
+      "sample": "start",
+      "time": 65.532,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 65.532,
+          "end": 72.892,
+          "text": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute."
+        }
+      ],
+      "band": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03-boundary",
+      "sample": "collision",
+      "time": 77,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "collision",
+      "time": 77,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 77,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "off",
+      "size": "S",
+      "off": {
+        "time": 77,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "collision",
+      "time": 77,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 77,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "off",
+      "size": "M",
+      "off": {
+        "time": 77,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "collision",
+      "time": 77,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 77,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03",
+      "sample": "off",
+      "size": "L",
+      "off": {
+        "time": 77,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03-boundary",
+      "sample": "gap",
+      "time": 97.481,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03-boundary",
+      "sample": "end",
+      "time": 97.482,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L06-03-boundary",
+      "sample": "after",
+      "time": 98.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "start",
+      "time": 0,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 0,
+          "end": 1.87,
+          "text": "The Operating Map has a row that says"
+        }
+      ],
+      "band": "The Operating Map has a row that says",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 1066.125,
+      "videoBottom": 1058.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 0,
+          "end": 1.87,
+          "text": "The Operating Map has a row that says"
+        }
+      ],
+      "band": "The Operating Map has a row that says",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 495.125,
+      "videoBottom": 487.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "midpoint",
+      "time": 14.32,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 495.125,
+      "videoBottom": 487.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "midpoint-on",
+      "time": 14.32,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 470.125,
+      "videoBottom": 462.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "off",
+      "time": 14.32,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "restored",
+      "time": 14.32,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 470.125,
+      "videoBottom": 462.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "midpoint-on",
+      "time": 14.32,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 470.125,
+      "videoBottom": 462.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "off",
+      "time": 14.32,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "restored",
+      "time": 14.32,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 470.125,
+      "videoBottom": 462.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "midpoint-on",
+      "time": 14.32,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 470.125,
+      "videoBottom": 462.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "off",
+      "time": 14.32,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "restored",
+      "time": 14.32,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 14.103,
+          "end": 18.057,
+          "text": "One Friday, the facilitator note says\n'available for review.'"
+        }
+      ],
+      "band": "One Friday, the facilitator note says\n'available for review.'",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 446.125,
+      "videoBottom": 438.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-01",
+      "sample": "end-minus",
+      "time": 28.637999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 438.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "start",
+      "time": 28.639,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 28.639,
+          "end": 35.487,
+          "text": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+        }
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 446.125,
+      "videoBottom": 438.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "boundary",
+      "time": 30.139,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 28.639,
+          "end": 35.487,
+          "text": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+        }
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 446.125,
+      "videoBottom": 438.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "midpoint",
+      "time": 47.086,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 446.125,
+      "videoBottom": 438.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "midpoint-on",
+      "time": 47.086,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "off",
+      "time": 47.086,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "restored",
+      "time": 47.086,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "midpoint-on",
+      "time": 47.086,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "off",
+      "time": 47.086,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "restored",
+      "time": 47.086,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "midpoint-on",
+      "time": 47.086,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "off",
+      "time": 47.086,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "restored",
+      "time": 47.086,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 42.387,
+          "end": 50.015,
+          "text": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants."
+        }
+      ],
+      "band": "The role cannot change the source notes,\napprove a memory, book a room, contact a\nfacilitator, or message participants.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 317.125,
+      "videoBottom": 309.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-02",
+      "sample": "end-minus",
+      "time": 65.530998,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 309.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "start",
+      "time": 65.532,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 65.532,
+          "end": 72.892,
+          "text": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute."
+        }
+      ],
+      "band": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 317.125,
+      "videoBottom": 309.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "boundary",
+      "time": 67.032,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 65.532,
+          "end": 72.892,
+          "text": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute."
+        }
+      ],
+      "band": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "midpoint",
+      "time": 81.507,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "midpoint-on",
+      "time": 81.507,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "off",
+      "time": 81.507,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 81.507,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "midpoint-on",
+      "time": 81.507,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "off",
+      "time": 81.507,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 81.507,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "midpoint-on",
+      "time": 81.507,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "off",
+      "time": 81.507,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 81.507,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "end-minus",
+      "time": 97.481,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "start",
+      "time": 97.482,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "boundary",
+      "time": 98.982,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "midpoint",
+      "time": 114.984,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "midpoint-on",
+      "time": 114.984,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "off",
+      "time": 114.984,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "restored",
+      "time": 114.984,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "midpoint-on",
+      "time": 114.984,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "off",
+      "time": 114.984,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "restored",
+      "time": 114.984,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "midpoint-on",
+      "time": 114.984,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "off",
+      "time": 114.984,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "restored",
+      "time": 114.984,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 110.069,
+          "end": 117.323,
+          "text": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?"
+        }
+      ],
+      "band": "Chapter Ten calls for a Quarterly Cull: proof\ndelivered, permission current, and would we\nbuild it again today?",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-04",
+      "sample": "end-minus",
+      "time": 132.484998,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "start",
+      "time": 132.485998,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "boundary",
+      "time": 133.985998,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 132.486,
+          "end": 134.648,
+          "text": "A retirement decision needs a person too."
+        }
+      ],
+      "band": "A retirement decision needs a person too.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "midpoint",
+      "time": 147.542,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "midpoint-on",
+      "time": 147.542,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "off",
+      "time": 147.542,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "restored",
+      "time": 147.542,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "midpoint-on",
+      "time": 147.542,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "off",
+      "time": 147.542,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "restored",
+      "time": 147.542,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "midpoint-on",
+      "time": 147.542,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "off",
+      "time": 147.542,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "restored",
+      "time": 147.542,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-05",
+      "sample": "end-minus",
+      "time": 162.597999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "start",
+      "time": 162.599,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 162.599,
+          "end": 163.226,
+          "text": "Pause."
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "boundary",
+      "time": 164.099,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "midpoint",
+      "time": 165.807,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "midpoint-on",
+      "time": 165.807,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "off",
+      "time": 165.807,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "restored",
+      "time": 165.807,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "midpoint-on",
+      "time": 165.807,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "off",
+      "time": 165.807,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "restored",
+      "time": 165.807,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "midpoint-on",
+      "time": 165.807,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "off",
+      "time": 165.807,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "restored",
+      "time": 165.807,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 163.596,
+          "end": 168.78,
+          "text": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?"
+        }
+      ],
+      "band": "Which line in the slip would prevent a\nwell-written brief from turning into an\nunauthorized announcement?",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-06",
+      "sample": "end-minus",
+      "time": 169.013999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "start",
+      "time": 169.015,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 169.015,
+          "end": 171.618,
+          "text": "Write the Permission Slip for the preparation\nrole."
+        }
+      ],
+      "band": "Write the Permission Slip for the preparation\nrole.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "boundary",
+      "time": 170.515,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 169.015,
+          "end": 171.618,
+          "text": "Write the Permission Slip for the preparation\nrole."
+        }
+      ],
+      "band": "Write the Permission Slip for the preparation\nrole.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "midpoint",
+      "time": 206.495,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "midpoint-on",
+      "time": 206.495,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "off",
+      "time": 206.495,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "restored",
+      "time": 206.495,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "midpoint-on",
+      "time": 206.495,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "off",
+      "time": 206.495,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "restored",
+      "time": 206.495,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "midpoint-on",
+      "time": 206.495,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "off",
+      "time": 206.495,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "restored",
+      "time": 206.495,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-07",
+      "sample": "end-minus",
+      "time": 243.972999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "start",
+      "time": 243.974,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 243.974,
+          "end": 245.723,
+          "text": "Save revision six as a draft."
+        }
+      ],
+      "band": "Save revision six as a draft.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "boundary",
+      "time": 245.474,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 243.974,
+          "end": 245.723,
+          "text": "Save revision six as a draft."
+        }
+      ],
+      "band": "Save revision six as a draft.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "midpoint",
+      "time": 251.467,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "midpoint-on",
+      "time": 251.467,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "off",
+      "time": 251.467,
+      "size": "S",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "restored",
+      "time": 251.467,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "midpoint-on",
+      "time": 251.467,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "off",
+      "time": 251.467,
+      "size": "M",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "restored",
+      "time": 251.467,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "midpoint-on",
+      "time": 251.467,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "off",
+      "time": 251.467,
+      "size": "L",
+      "off": {
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "restored",
+      "time": 251.467,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 250.193,
+          "end": 252.143,
+          "text": "Next we will give the work a tighter"
+        }
+      ],
+      "band": "Next we will give the work a tighter",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-08",
+      "sample": "end-minus",
+      "time": 255.492,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 254.323,
+          "end": 255.493,
+          "text": "small team would share it."
+        }
+      ],
+      "band": "small team would share it.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "playback-boundary",
+      "sample": "28.639",
+      "time": 28.847029,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 28.639,
+          "end": 35.487,
+          "text": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+        }
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "playback-boundary",
+      "sample": "65.532",
+      "time": 65.739994,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 65.532,
+          "end": 72.892,
+          "text": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute."
+        }
+      ],
+      "band": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "playback-boundary",
+      "sample": "97.482",
+      "time": 97.692121,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "playback-boundary",
+      "sample": "132.486",
+      "time": 132.694254,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 132.486,
+          "end": 134.648,
+          "text": "A retirement decision needs a person too."
+        }
+      ],
+      "band": "A retirement decision needs a person too.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "playback-boundary",
+      "sample": "162.599",
+      "time": 162.808855,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 162.599,
+          "end": 163.226,
+          "text": "Pause."
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "playback-boundary",
+      "sample": "169.015",
+      "time": 169.223205,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 169.015,
+          "end": 171.618,
+          "text": "Write the Permission Slip for the preparation\nrole."
+        }
+      ],
+      "band": "Write the Permission Slip for the preparation\nrole.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "playback-boundary",
+      "sample": "243.974",
+      "time": 244.180715,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 243.974,
+          "end": 245.723,
+          "text": "Save revision six as a draft."
+        }
+      ],
+      "band": "Save revision six as a draft.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "playback-boundary",
+      "sample": "255.493",
+      "time": 255.702523,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "protected-ending",
+      "sample": "start",
+      "time": 255.493,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03-boundary",
+      "sample": "before",
+      "time": 64.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 60.668,
+          "end": 65.297,
+          "text": "Expiry sends the proposed slip back for review\nbefore the next course planning cycle."
+        }
+      ],
+      "band": "Expiry sends the proposed slip back for review\nbefore the next course planning cycle.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03-boundary",
+      "sample": "start-minus",
+      "time": 65.531,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03-boundary",
+      "sample": "start",
+      "time": 65.532,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 65.532,
+          "end": 72.892,
+          "text": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute."
+        }
+      ],
+      "band": "The workbook asks us to place an action on an\nauthority ladder: prepare, recommend, route,\nstage, execute.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03-boundary",
+      "sample": "collision",
+      "time": 77,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "collision",
+      "time": 77,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 77,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "off",
+      "size": "S",
+      "off": {
+        "time": 77,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "collision",
+      "time": 77,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 77,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "off",
+      "size": "M",
+      "off": {
+        "time": 77,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "collision",
+      "time": 77,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "restored",
+      "time": 77,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 75.572,
+          "end": 83.679,
+          "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+        }
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03",
+      "sample": "off",
+      "size": "L",
+      "off": {
+        "time": 77,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L06-03-boundary",
+      "sample": "gap",
+      "time": 97.481,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03-boundary",
+      "sample": "end",
+      "time": 97.482,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L06-03-boundary",
+      "sample": "after",
+      "time": 98.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 97.482,
+          "end": 99.623,
+          "text": "Now test the value of the work itself."
+        }
+      ],
+      "band": "Now test the value of the work itself.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    }
+  ],
+  "candidate": [
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "S",
+      "on": {
+        "time": 2.004738,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0.572,
+            "end": 8,
+            "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+          }
+        ],
+        "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+        "bandTop": 540,
+        "videoBottom": 532,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.004738
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "M",
+      "on": {
+        "time": 2.004738,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0.572,
+            "end": 8,
+            "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+          }
+        ],
+        "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+        "bandTop": 540,
+        "videoBottom": 532,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.004738
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "L",
+      "on": {
+        "time": 2.004738,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0.572,
+            "end": 8,
+            "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+          }
+        ],
+        "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+        "bandTop": 522,
+        "videoBottom": 514,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.004738
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "S",
+      "on": {
+        "time": 2.005529,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0.572,
+            "end": 8,
+            "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+          }
+        ],
+        "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+        "bandTop": 648.65625,
+        "videoBottom": 640.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.005529
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "M",
+      "on": {
+        "time": 2.005529,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0.572,
+            "end": 8,
+            "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+          }
+        ],
+        "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+        "bandTop": 648.65625,
+        "videoBottom": 640.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.005529
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "L",
+      "on": {
+        "time": 2.005529,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0.572,
+            "end": 8,
+            "text": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+          }
+        ],
+        "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+        "bandTop": 549.65625,
+        "videoBottom": 541.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.005529
+      }
+    }
+  ]
+}
