@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L10-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L10-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L10-08.png",
+      "frame_sha256": "669dfb43c8fa40ffd5fc6296b0136b1b47d69f2594ac556c3c5227512b452bc9",
+      "visual_family": "L10-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep spend and decision separate.",
+        "Spend",
+        "Decision"
+      ],
+      "accessibility_text": "The Operating File preserves both boundaries. Visual: Two sealed sleeves in one binder.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File preserves both boundaries.",
+      "brief_sha256": "a5c786c7e0de89547f9377e50c7ec54f5f575b49c0134abbc585a79cddfcdb14",
+      "original_frame_sha256": "c44b2ca3d0de93034c9e7d9c4aaa60e3b453d88177d8dddc16696fae7f6dd109",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 187,
+            "height": 97
+          },
+          "glyph": {
+            "x": 169,
+            "y": 618,
+            "width": 131,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 234,
+            "height": 89
+          },
+          "glyph": {
+            "x": 171,
+            "y": 783,
+            "width": 178,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L10-02"
+  ],
+  "frames": [
+    {
+      "scene_id": "L10-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L10-02.png",
+      "frame_sha256": "f0f69c9a28ee0f41f49dc4ef79826a6997d08b9a9b7a583ee0513a5d6c640cb2",
+      "visual_family": "L10-operating-artifact:boundary:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the exact spend boundary.",
+        "Amount",
+        "Purpose"
+      ],
+      "accessibility_text": "Amount, purpose, and expiry belong together. Visual: Envelope with a bounded permission strip.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Amount, purpose, and expiry belong together.",
+      "brief_sha256": "43e67ceb212d2302022687dcb1d232d123bef09080786250209139774d3db936",
+      "original_frame_sha256": "67eea4947466c6fd80a67bf058dd0daaa1a5370afbb099da860ec3b95341422f",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 42,
+            "y": 700,
+            "width": 1560,
+            "height": 265
+          },
+          "box": {
+            "x": 42,
+            "y": 700,
+            "width": 1096,
+            "height": 120
+          },
+          "glyph": {
+            "x": 95,
+            "y": 761,
+            "width": 1040,
+            "height": 64
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 296,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 296,
+            "width": 222,
+            "height": 89
+          },
+          "glyph": {
+            "x": 968,
+            "y": 328,
+            "width": 166,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 436,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 436,
+            "width": 228,
+            "height": 97
+          },
+          "glyph": {
+            "x": 971,
+            "y": 468,
+            "width": 172,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

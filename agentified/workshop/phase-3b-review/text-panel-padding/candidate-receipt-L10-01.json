@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L10-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L10-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L10-01.png",
+      "frame_sha256": "e2d5150ebdd98deb18371fbf633c8b0fe525b46ae966fe95a3e364a53a8b15d8",
+      "visual_family": "L10-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A recommendation cannot release money."
+      ],
+      "accessibility_text": "The spending envelope stays sealed. Visual: Recommendation brief and closed spend gate.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The spending envelope stays sealed.",
+      "brief_sha256": "64f24bb01017a9dcaa646839cf8845475a31e4ca20cbd9d8107774e954760c17",
+      "original_frame_sha256": "9bca1d246d5041d8db73235c0e7e4cab77433259939dc9e8faaa13dc6a1996a9",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 961,
+            "height": 206
+          },
+          "glyph": {
+            "x": 104,
+            "y": 706,
+            "width": 905,
+            "height": 150
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

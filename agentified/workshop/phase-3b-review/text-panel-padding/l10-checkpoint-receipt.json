@@ -1,0 +1,200 @@
+{
+  "status": "review_only_unbound",
+  "sourceVideoSha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+  "sourceCaptionSha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+  "ladderFrameReceiptSha256": "044859e93cccf4327a9ed399f5d6403d33e1539618d5bee3f62507c89a3809ea",
+  "ladderClipReceiptSha256": "38b0d2a197d904fcad07d6e932408884659239c16e42d1ce1bd7f7bd2af7a258",
+  "ladderClips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l10-03-ladder-study/L10-03-desktop-review.mp4",
+      "sha256": "20bf3a31a2b96c197b15473f7706a469d95f11b48a57338579dc4539d64cb60b",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png",
+          "durationSeconds": 29.9
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "748"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1403"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "29.920000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l10-03-ladder-study/L10-03-mobile-review.mp4",
+      "sha256": "bbdb0d99da89e1127c265109658cb5e1ca2ee3106d0ad65a06a6d4f72d872c89",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-02-recommend.png",
+          "durationSeconds": 9.08
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-05-execute.png",
+          "durationSeconds": 19.22
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "748"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1403"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "29.920000"
+        }
+      }
+    }
+  ],
+  "otherScenes": [
+    {
+      "scene": "L10-01",
+      "frameSha256": "e2d5150ebdd98deb18371fbf633c8b0fe525b46ae966fe95a3e364a53a8b15d8",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "cebd7f9cf057f6fe468bfa6b4678791485ce044a2227cdc10ed75fac6da9de85",
+          "vttSha256": "6db236a00b1af8bf4455d4adf1ad33b5e058029695c877af4bc2993c163fbdb2"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "baa31d50c776fbb7b63cba89e326df1eca63c5bddbb74802c9b5ec2ccb6897b9",
+          "vttSha256": "6db236a00b1af8bf4455d4adf1ad33b5e058029695c877af4bc2993c163fbdb2"
+        }
+      ]
+    },
+    {
+      "scene": "L10-02",
+      "frameSha256": "f0f69c9a28ee0f41f49dc4ef79826a6997d08b9a9b7a583ee0513a5d6c640cb2",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "d0bdf3ffb3a3ec7e91332408644edad1d3945982a398f528ee533d1a90597629",
+          "vttSha256": "dae98505ba127fdbb455501db0893be21915be8549844580e970e931f7c04eba"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "7be844cd20c9addbe41f92a971b717cf521e0886d72d19cb8273742e9c6dfe4e",
+          "vttSha256": "dae98505ba127fdbb455501db0893be21915be8549844580e970e931f7c04eba"
+        }
+      ]
+    },
+    {
+      "scene": "L10-04",
+      "frameSha256": "398e2542e9564a8b981b99b3bbb5190f2eda1e114fa094b82af2e4b751652139",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "555f39895795998bf3d9b9fce8b043dcf29961defbae15c81338ec151b7e8adf",
+          "vttSha256": "fc04e147bd2f439091f8786e005309c7cf5aef879ee8074e9bf79286090cac65"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "e92494490ed90d349f8da6b0b7f85f1f190c5257fbb60c4c3c80ea79da42c3de",
+          "vttSha256": "fc04e147bd2f439091f8786e005309c7cf5aef879ee8074e9bf79286090cac65"
+        }
+      ]
+    },
+    {
+      "scene": "L10-05",
+      "frameSha256": "e065d957ccfdf8901812d9a5c7e48db5f1eb6c48c9abb6c46b692a642b9f2834",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "5e912f1a09fca0b154d7daf08452a06ce3ba6991f3547baf2b5dba8cc93c9eab",
+          "vttSha256": "e72e41acfd293d181d69c886ddb24bbd28317272d45c0e8a28ecd0bb44f7e690"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "7bcd2e052ee380935351127822a53ac8e7cf50e092b117e2807ab73b2b286a31",
+          "vttSha256": "e72e41acfd293d181d69c886ddb24bbd28317272d45c0e8a28ecd0bb44f7e690"
+        }
+      ]
+    },
+    {
+      "scene": "L10-06",
+      "frameSha256": "17f51bfa198470554963648ebdd5f67e42a6b98ad58c0d417529420a8c0e4ab5",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "124dce94423227d8088c674bbbe1539cb17241e07488ccc1091d355a6ddbc8ba",
+          "vttSha256": "8b2d90beb6656233b6b435862be5db4d4aca0d38e6fd05586e5985aaf30c36ac"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "baad3fa7da57b890468b1878ff5d68487c4bf17ddec8df56f8108c0e31d7c00e",
+          "vttSha256": "8b2d90beb6656233b6b435862be5db4d4aca0d38e6fd05586e5985aaf30c36ac"
+        }
+      ]
+    },
+    {
+      "scene": "L10-07",
+      "frameSha256": "88e3cb49c886e197054f7645d6d72acf81a027a81844e7fc80e09e31de811ded",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "517d5789cc45f6fcb76eab5c435934281f4c3caa5df9ae746ede8304306e6415",
+          "vttSha256": "d45ea134f14430d5fd96c6fc386a0b0f17e53840e1c8124be0139469bc3f271f"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "5f8aa8b504a7a6b5f8a741df4e133c3a178b9cd88ca8bbdecff8d2173774a382",
+          "vttSha256": "d45ea134f14430d5fd96c6fc386a0b0f17e53840e1c8124be0139469bc3f271f"
+        }
+      ]
+    },
+    {
+      "scene": "L10-08",
+      "frameSha256": "669dfb43c8fa40ffd5fc6296b0136b1b47d69f2594ac556c3c5227512b452bc9",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "107e232dc18366ea8f569de6debdf4c8cf76e89652f82e01a128cc18a3137c58",
+          "vttSha256": "73420fdc06730575e08b8a09b5b3824e0f2a9d2dd742640613490ef3abac2bd0"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "22351d6937365e9bc4bb9bd8049c11ebc6c25201401f48196cf7461817fa8d5e",
+          "vttSha256": "73420fdc06730575e08b8a09b5b3824e0f2a9d2dd742640613490ef3abac2bd0"
+        }
+      ]
+    }
+  ],
+  "limits": "Source audio/VTT unchanged; candidate clips are unbound. L10 source acoustic join and full lesson route remain separate gates."
+}
