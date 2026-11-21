@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "state": "stopped at first scene-boundary regression; temporary binding removed",
+  "review_branch_head_before_receipt": "3df8c30f1e356f413a34bbb4c11694e23ab8544f",
+  "caption_head": "af647b6adc101cafade371d5ca53047670d53213",
+  "player_head": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lesson": "L07",
+  "route_tested": "http://127.0.0.1:3141/agentified/learningplan?lesson=L07&rev=3df8c30f1-7bb6267c",
+  "temporary_video_sha256": "34053689c794843024ecde23f7847339aa5b08fb25210a88f1c6d12699045509",
+  "passed_checkpoint": "A separate video-input overlay pass restored the protected native presenter inset at 0:01 and 4:05 and the original countdown at 3:20. At desktop width, the learner route loaded the 251.36-second temporary video, played and paused, restored paused position 128 seconds after reload, kept the selected large caption preference, and toggled English captions off and on. Small, medium, and large controls were selected, but visual qualification of all sizes across scenes was not completed.",
+  "first_new_failure": {
+    "time_seconds": 128,
+    "viewport": "390x844 mobile",
+    "observed": "The loaded, paused video displays L07-01 art and its empty presenter inset at 2:08. A direct frame extraction from the temporary MP4 at 128 seconds confirms the same frame, so this is a temporary composite timeline failure rather than a stale browser frame.",
+    "expected": "At 128 seconds the scene-boundary register maps to L07-05, whose approved review candidate is the Authority ladder route-focus frame. The L07-05 boundary is 127.108–153.479 seconds.",
+    "candidate_frame": "checks/L07-route-retry-candidate-at-128.jpg",
+    "candidate_frame_sha256": "b802bd0c733154e22e153f6e187b16dd5771efde3fc33a71a524317b55fd7c1b",
+    "expected_scene_frame": "l07-05-route-study/l07-05-route-focus.png",
+    "expected_scene_frame_sha256": "47af44514ff526ca3e980297a0e56dd50f67acc340f00a25f7f4b1e2aab25006"
+  },
+  "opening_pass_evidence": {
+    "frame": "checks/L07-route-retry-opening-at-1.jpg",
+    "sha256": "1c49d0e228b6bcd96bceff063656b3b55174caa41e60f591b7f92faff6770e58"
+  },
+  "unqualified": "Exact scene boundaries, mobile playback beyond the paused frame, caption S/M/L visual behavior across scenes, controls beyond play/pause and caption toggle, and L08–L16.",
+  "next_gate": "Diagnose the temporary composite's still-frame timeline and prove L07-05 appears at its registered boundary before resuming the matrix. Keep the test binding out of the committed product."
+}
