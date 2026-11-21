@@ -1,0 +1,447 @@
+{
+  "generatedAt": "2026-11-21T13:21:57.853Z",
+  "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+  "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+  "states": [
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "protected native presenter",
+      "time": 8,
+      "mode": "showing",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "presenter final frame",
+      "time": 11.909,
+      "mode": "showing",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "teaching transition without cue",
+      "time": 11.91,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 Small band",
+      "time": 19.314,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 Medium band",
+      "time": 19.314,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 Large band",
+      "time": 19.314,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 captions off",
+      "time": 19.314,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 captions restored",
+      "time": 19.314,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 cue gap",
+      "time": 21.7,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-02 adjacent native caption",
+      "time": 24.779,
+      "mode": "showing",
+      "cue": [
+        "Start with the real sequence on paper."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "protected native presenter",
+      "time": 8,
+      "mode": "hidden",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "presenter final frame",
+      "time": 11.909,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "teaching transition without cue",
+      "time": 11.91,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 Small band",
+      "time": 19.314,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 Medium band",
+      "time": 19.314,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 Large band",
+      "time": 19.314,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 captions off",
+      "time": 19.314,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 captions restored",
+      "time": 19.314,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-01 cue gap",
+      "time": 21.7,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "step": "L05-02 adjacent native caption",
+      "time": 24.779,
+      "mode": "hidden",
+      "cue": [
+        "Start with the real sequence on paper."
+      ],
+      "band": "Start with the real sequence on paper.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Small band",
+      "time": 6.810802,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Medium band",
+      "time": 6.810802,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Large band",
+      "time": 6.810802,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "captions off",
+      "time": 6.810802,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "captions restored",
+      "time": 6.810802,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Small band",
+      "time": 6.803994,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Medium band",
+      "time": 6.803994,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Large band",
+      "time": 6.803994,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "captions off",
+      "time": 6.803994,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "captions restored",
+      "time": 6.803994,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    }
+  ]
+}
