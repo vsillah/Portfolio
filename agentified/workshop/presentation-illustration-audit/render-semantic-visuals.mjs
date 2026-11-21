@@ -17,6 +17,9 @@ const plateOnly=process.argv.includes('--plate-only')
 const paddingReview=process.argv.includes('--padding-review')
 const sceneArg=process.argv.find(arg=>arg.startsWith('--scenes='))
 const selectedScenes=sceneArg?new Set(sceneArg.slice('--scenes='.length).split(',')):null
+const receiptArg=process.argv.find(arg=>arg.startsWith('--receipt-name='))
+const receiptName=receiptArg?receiptArg.slice('--receipt-name='.length):'candidate-receipt'
+assert(/^[a-zA-Z0-9-]+$/.test(receiptName),'invalid receipt name')
 const headlinesOnly=process.argv.includes('--headlines-only')
 assert(!(paddingReview&&plateOnly),'padding review and plate-only modes are exclusive')
 const existing=plateOnly?new Map(JSON.parse(readFileSync(path.join(here,'visual-receipts.json'),'utf8')).frames.map(frame=>[frame.scene_id,frame])):new Map()
@@ -99,6 +102,6 @@ for(const brief of briefs){
   writeFileSync(output,final)
   receipts.push({scene_id:brief.scene_id,frame_path:path.relative(root,output),frame_sha256:sha(output),visual_family:`${brief.continuity.id}:${brief.treatment}:${brief.focus}`,source_path:sourcePath,source_sha256:sourceSha,source_rights:brief.approved_plate?brief.approved_plate.rights:brief.master_source.rights,approved_plate_rendered_px:renderedPlate,display_copy:brief.scene_id==='L01-01'?['A suggestion needs a source.','Harbor Learning Circle']:[brief.headline,...brief.visible_labels],accessibility_text:brief.accessibility_description,continuity:brief.continuity,one_second_read:brief.one_second_read,brief_sha256:createHash('sha256').update(JSON.stringify(brief)).digest('hex'),...(paddingReview?{original_frame_sha256:auditScene.sourceFrame.sha256,padding_decisions:review?.decisions||[],review_only_unbound:true}:{})})
 }
-if(paddingReview)writeFileSync(path.join(paddingHere,'candidate-receipt.json'),JSON.stringify({schemaVersion:1,status:'review_only_unbound',baseAuditSha256:sha(path.join(paddingHere,'audit-receipt.json')),headlinesOnly,selectedScenes:[...(selectedScenes||briefs.map(b=>b.scene_id))],frames:receipts},null,2)+'\n')
+if(paddingReview)writeFileSync(path.join(paddingHere,`${receiptName}.json`),JSON.stringify({schemaVersion:1,status:'review_only_unbound',baseAuditSha256:sha(path.join(paddingHere,'audit-receipt.json')),headlinesOnly,selectedScenes:[...(selectedScenes||briefs.map(b=>b.scene_id))],frames:receipts},null,2)+'\n')
 else writeFileSync(path.join(here,'visual-receipts.json'),JSON.stringify({schema_version:2,source_commit:'f0931f3860e042507ee5aba83f220eb57cfd3eb5',frames:receipts},null,2)+'\n')
 console.log(`Rendered ${receipts.length} ${paddingReview?'review-only padding candidates':'concept-bound scene visuals'}`)

@@ -2,7 +2,16 @@
   "schemaVersion": 1,
   "status": "audit-only; no learner media changed",
   "briefSha256": "4fdcb61a0cc990fad457c9f737447f39d0c62e67d2f3a188d4f1412203bb4b52",
-  "rendererSha256": "1c166f370f7266905efe28cece5dd2f6c2b613ab887978733e0267c9ab2d494c",
+  "rendererSha256": "e6876140efb6f0271c73731c0240dd7d56811511a90d1522160d801075d593e5",
+  "crossPrCaptionClearance": {
+    "pr": 1293,
+    "head": "c746b96d6076d20f0e605be4ffc7aee7b36b9ddc",
+    "scene": "L06-03",
+    "finding": "At the exact stacked code head, L06-03 desktop captions use an external band below the video; the source learner MP4 and VTT remain unchanged.",
+    "sourceVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+    "sourceCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+    "relationship": "read-only qualification dependency; no branch restack or learner binding"
+  },
   "summary": {
     "scenes": 128,
     "panels": 276,

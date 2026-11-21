@@ -56,3 +56,7 @@ PR #1290 stays draft and Phase 3B stays HOLD until contextual Human QA passes. P
 ## Authorized overflow-repair checkpoint
 
 Vambah authorized review-only overlay repair of L06-03 and L10-03, then a resumed lesson-order pass only if both repaired scenes cleared desktop/mobile caption and control checks. The two measured headline boxes now fit their glyphs with 28 px padding and preserve all pixels outside the headline overlay area. The first L06-03 desktop caption-on context check found an active source cue covering “Prepare” and “Human gate.” See `STOP.md` and `context-check-receipt.json`. The requested stop-on-collision rule applies, so the full padding pass and consolidated MP4 are not yet authorized to advance. These candidate stills and clips are review-only and unbound.
+
+## Resumed lesson-order checkpoint
+
+Separate draft PR #1293 at `c746b96d6076d20f0e605be4ffc7aee7b36b9ddc` cleared L06-03 by placing its desktop cue below the video while preserving the source MP4/VTT. `audit-receipt.json` binds that exact cross-PR dependency without restacking. The first new lesson-order candidate, L01-02, fits its headline and two labels to measured glyphs with 28 px padding. Its desktop Medium native cue covers “Prepare one brief” at approximately lesson second 52. See `L01-02-STOP.md` and the browser screenshot. The full pass and consolidated MP4 remain stopped at this new collision; no L02–L16 candidate has been qualified.

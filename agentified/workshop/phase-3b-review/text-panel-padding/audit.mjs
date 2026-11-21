@@ -68,6 +68,11 @@ for(const scene of scenes){
  records.push({sceneId:scene.scene_id,lessonId:scene.scene_id.slice(0,3),treatment:scene.treatment,sourceMaster:{path:scene.master_source.path,sha256:scene.master_source.sha256},sourceFrame:{path:path.relative(root,frame),sha256:hash(frame)},approvedPlate:!!scene.approved_plate,special,panels:items})
 }
 const summary={scenes:records.length,panels:records.reduce((n,r)=>n+r.panels.length,0),candidatePanels:records.reduce((n,r)=>n+r.panels.filter(p=>p.disposition==='candidate').length,0),clippingPanels:records.reduce((n,r)=>n+r.panels.filter(p=>p.disposition==='stop-clipping').length,0)}
-const receipt={schemaVersion:1,status:'audit-only; no learner media changed',briefSha256:hash(briefPath),rendererSha256:hash(renderPath),summary,scenes:records}
+const receipt={schemaVersion:1,status:'audit-only; no learner media changed',briefSha256:hash(briefPath),rendererSha256:hash(renderPath),
+ crossPrCaptionClearance:{pr:1293,head:'c746b96d6076d20f0e605be4ffc7aee7b36b9ddc',scene:'L06-03',
+  finding:'At the exact stacked code head, L06-03 desktop captions use an external band below the video; the source learner MP4 and VTT remain unchanged.',
+  sourceVideoSha256:'163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3',
+  sourceCaptionSha256:'018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba',
+  relationship:'read-only qualification dependency; no branch restack or learner binding'},summary,scenes:records}
 writeFileSync(path.join(here,'audit-receipt.json'),JSON.stringify(receipt,null,2)+'\n')
 console.log(JSON.stringify(summary))

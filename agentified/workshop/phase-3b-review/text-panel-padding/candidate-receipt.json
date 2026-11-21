@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "status": "review_only_unbound",
-  "baseAuditSha256": "12100c1adcd68bfd108f9db76ffa49d90c5264ffc41fb811a47fd9d23f783b3b",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
   "headlinesOnly": true,
   "selectedScenes": [
     "L06-03",
