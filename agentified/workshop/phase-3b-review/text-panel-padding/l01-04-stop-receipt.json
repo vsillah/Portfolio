@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "status": "STOP: L01-04 native desktop cue covers Receipt fields and Human gate",
+  "paddingBasePr": 1290,
+  "paddingBaseCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+  "captionDependencyPr": 1293,
+  "captionDependencyCommit": "5aab9acd8f464684706649566aa6b1e368188726",
+  "sourceVideoSha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+  "sourceCaptionSha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+  "frames": [
+    {
+      "sceneId": "L01-03",
+      "candidateFrameSha256": "f227239e2513934da509aa1078224f583c3297be6b5e841f8d268ecb30075809",
+      "changedPixelBounds": [
+        40,
+        294,
+        1604,
+        967
+      ],
+      "outsidePanelPixelsIdentical": true
+    },
+    {
+      "sceneId": "L01-04",
+      "candidateFrameSha256": "520c824b71e972bb5e8ce48eb17378bba505be06dfa80efa371fef169afba8ec",
+      "changedPixelBounds": [
+        42,
+        170,
+        1812,
+        937
+      ],
+      "outsidePanelPixelsIdentical": true
+    }
+  ],
+  "clips": [
+    {
+      "sceneId": "L01-03",
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-03-desktop.mp4",
+      "sha256": "4942ab05bcbcbdda713c9d439e6f05b4bf18eeeb53ae61d472c4a12da6e0fd27",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-03-desktop.vtt",
+      "vttSha256": "55bff3866f77a314cf69e8c9199925fd967cb7c5635b25445466479edc772114",
+      "dimensionsPx": [
+        1280,
+        720
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    },
+    {
+      "sceneId": "L01-03",
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-03-mobile.mp4",
+      "sha256": "e179d546429e73d542ac3aeb189444bd7edc7bc91ff7c0db9117cf2f13b03eed",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-03-mobile.vtt",
+      "vttSha256": "55bff3866f77a314cf69e8c9199925fd967cb7c5635b25445466479edc772114",
+      "dimensionsPx": [
+        390,
+        844
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    },
+    {
+      "sceneId": "L01-04",
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-04-desktop.mp4",
+      "sha256": "1dd7218a67663a948a5cff3caeda38ae9a0656a535dbe8b71f6a8bce4676ee4c",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-04-desktop.vtt",
+      "vttSha256": "c0d93b54dd99916f304464c3e2c97b656b11bd5b2a19af9fe8baea1fa2326e41",
+      "dimensionsPx": [
+        1280,
+        720
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    },
+    {
+      "sceneId": "L01-04",
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-04-mobile.mp4",
+      "sha256": "3dc7b04098a108ebea68e547a7cd6bec7ed59cf14fe03f4e0f2fe98a7a01427e",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-04-mobile.vtt",
+      "vttSha256": "c0d93b54dd99916f304464c3e2c97b656b11bd5b2a19af9fe8baea1fa2326e41",
+      "dimensionsPx": [
+        390,
+        844
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    }
+  ],
+  "browserEvidence": {
+    "L01-03-desktop-caption-on.png": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-03-desktop-caption-on.png",
+      "sha256": "2a61754cc0a6f342e875f7cb33578f5cf0ffcf1c4e04afa689b9232b2c81483a"
+    },
+    "L01-03-mobile-caption-on.png": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-03-mobile-caption-on.png",
+      "sha256": "649b587d7cc8d6e8c72592cccbcfd3bd24ab817324d4fa4d4f56ed5206c7ac6f"
+    },
+    "L01-04-desktop-caption-collision.png": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-04-desktop-caption-collision.png",
+      "sha256": "84ab1c2e475e7012a3822f830ccbfe399916638ef97dcc77267d5acb977cbddf"
+    }
+  },
+  "lessonTimeSecondsApprox": 128.43,
+  "boundary": "Review-only unbound; no learner media or approved frame replaced; no later lesson qualified."
+}
