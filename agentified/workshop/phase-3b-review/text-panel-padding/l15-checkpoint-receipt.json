@@ -1,0 +1,219 @@
+{
+  "status": "review_only_unbound",
+  "sourceVideoSha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+  "sourceCaptionSha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522",
+  "plateStudies": [
+    {
+      "scene": "L15-04",
+      "frameReceiptSha256": "6b08323ec8adc5727afabb9542dd18f446912a0d13cab99bd635ed04b90a0ce3",
+      "clipReceiptSha256": "5ca61eea3b8390b379281a7832812f27f2095964b395206023b6344352a0cf79",
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/L15-04-desktop-review.mp4",
+          "sha256": "977e4af12334e53b4e2f9b855f81d57d9d73a0272759e17b3ced9a7fe8b0c15f",
+          "timeline": [
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/overview-wide.png",
+              "durationSeconds": 1.6
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval.png",
+              "durationSeconds": 27.4
+            }
+          ],
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 1280,
+                "height": 720,
+                "nb_frames": "725"
+              },
+              {
+                "codec_type": "audio",
+                "nb_frames": "1361"
+              },
+              {
+                "codec_type": "subtitle",
+                "nb_frames": "17"
+              }
+            ],
+            "format": {
+              "duration": "29.000000"
+            }
+          }
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/L15-04-mobile-review.mp4",
+          "sha256": "666bae852f08ab40ccea359c3caafa9565a4cb4f5e117039cc19b0975373e604",
+          "timeline": [
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/overview-wide.png",
+              "durationSeconds": 1.6
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval.png",
+              "durationSeconds": 27.4
+            }
+          ],
+          "probe": {
+            "programs": [],
+            "stream_groups": [],
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 780,
+                "height": 438,
+                "nb_frames": "725"
+              },
+              {
+                "codec_type": "audio",
+                "nb_frames": "1361"
+              },
+              {
+                "codec_type": "subtitle",
+                "nb_frames": "17"
+              }
+            ],
+            "format": {
+              "duration": "29.000000"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "otherScenes": [
+    {
+      "scene": "L15-01",
+      "frameSha256": "5c5fba3b8cbc85da90b035ab52c3c7dc9ed1462bfb630960431cc8c855be3d7f",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "77493343c285705e113937cef2005d84ef40dfdeec55050576841df438d0b827",
+          "vttSha256": "61a5dd62e323dc8090c6b6f8ae0f3fd54f3428ac2c67ee61dc7b851e28b30448",
+          "cueCount": 3
+        },
+        {
+          "layout": "mobile",
+          "sha256": "f6eaa377689485b10b5d83de84046ba11e17b04f56303bc75f3f8329e8d223e5",
+          "vttSha256": "61a5dd62e323dc8090c6b6f8ae0f3fd54f3428ac2c67ee61dc7b851e28b30448",
+          "cueCount": 3
+        }
+      ]
+    },
+    {
+      "scene": "L15-02",
+      "frameSha256": "44a32bc4ea3e1ff3de656bd8e15f424c8c597cd0858d365b01605f7a70c26afa",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "0862db468bc9e8c27df5582522a8c3a009dca0fab20ad5bc6de60056cd1ebd67",
+          "vttSha256": "b297af965132461ec3e521dd852e61a5e8a33e4d85f355492670c49e89600def",
+          "cueCount": 2
+        },
+        {
+          "layout": "mobile",
+          "sha256": "a7f8e2d072f81fae4ec7eb9f6492033dc0139bf50104cda01c304962b72cebc1",
+          "vttSha256": "b297af965132461ec3e521dd852e61a5e8a33e4d85f355492670c49e89600def",
+          "cueCount": 2
+        }
+      ]
+    },
+    {
+      "scene": "L15-03",
+      "frameSha256": "b8875dea3f0c7c382d874ff95bd854e6c267c61fdbd1024dc74e61e10a9b32c6",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "d16963b31634a47f5abcef5bf3cbd3bb3337b553a23eb0ee3b849a2cb2457450",
+          "vttSha256": "18cc57b9ba7870199df0d8b8cc109363a6b5f6bbe6e5af08d17315bd49a8feca",
+          "cueCount": 3
+        },
+        {
+          "layout": "mobile",
+          "sha256": "96189b698d48fe2725dc32c7e985a27376f3c462fe67e4723f729fab4657d404",
+          "vttSha256": "18cc57b9ba7870199df0d8b8cc109363a6b5f6bbe6e5af08d17315bd49a8feca",
+          "cueCount": 3
+        }
+      ]
+    },
+    {
+      "scene": "L15-05",
+      "frameSha256": "9c97a3983d37ac647017a785614a7eaaedd21204444f9dc4cc90002beb8b3afe",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "9f465a524a3d74bdf35ddf11cd74cf28f30680ba40384f6ea7e5dd3e7d0038ec",
+          "vttSha256": "1140add4f36527c70c171583b2cf2139b4b79aa5b667b249db3f8a591a26bb5d",
+          "cueCount": 4
+        },
+        {
+          "layout": "mobile",
+          "sha256": "ad09aee43c4d15beb8cd373db0a7e93b6c5f6744859d74a7f88b77a0d9edd82f",
+          "vttSha256": "1140add4f36527c70c171583b2cf2139b4b79aa5b667b249db3f8a591a26bb5d",
+          "cueCount": 4
+        }
+      ]
+    },
+    {
+      "scene": "L15-06",
+      "frameSha256": "15158919ee17a64f81bf9767eb33afff539a87052ee726ca1b1a44872f193ece",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "494d1dc20726cf597a2f3c71db7f70806cfbb7b443266d97a28350a0371a2e08",
+          "vttSha256": "1aca7e076a561d3230a3a96b260629af277819c4d641364c8f61a5117e4fe9f7",
+          "cueCount": 2
+        },
+        {
+          "layout": "mobile",
+          "sha256": "170565e00a0696548c2e58c8575788fa7975ce2021d80231394edb12b18f23ea",
+          "vttSha256": "1aca7e076a561d3230a3a96b260629af277819c4d641364c8f61a5117e4fe9f7",
+          "cueCount": 2
+        }
+      ]
+    },
+    {
+      "scene": "L15-07",
+      "frameSha256": "f25973ed4fd6d3541707c6584f9430cfce75734eae2ca37d0688054e46d69d83",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "e8c0cde0d736909f45af6ffdddb74262d7ac746f8d98306174a6317848198cb1",
+          "vttSha256": "761d7261c60e5a3aedee1e0a3e1c7ee3f1d4b08eb7791a535910dc4c6e464b51",
+          "cueCount": 3
+        },
+        {
+          "layout": "mobile",
+          "sha256": "2a87c027eb59b0d7c715ce70b05ef235bcf57f9d97a0a041900c555291068fe4",
+          "vttSha256": "761d7261c60e5a3aedee1e0a3e1c7ee3f1d4b08eb7791a535910dc4c6e464b51",
+          "cueCount": 3
+        }
+      ]
+    },
+    {
+      "scene": "L15-08",
+      "frameSha256": "b97112caab109fb0bbf9d9dcb2acf6dfe57aa85c94f34cb9e6aecc8d1b0fdcb6",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "f5fdd55f37fe7bd5fc9c8d68a844f35d35621192a1b8af41fdab259a51f31dda",
+          "vttSha256": "73420fdc06730575e08b8a09b5b3824e0f2a9d2dd742640613490ef3abac2bd0",
+          "cueCount": 0
+        },
+        {
+          "layout": "mobile",
+          "sha256": "efd3f72c610ae5a40f10de22c7fafa46d12d00a55cbb95c3bebef63e4719d052",
+          "vttSha256": "73420fdc06730575e08b8a09b5b3824e0f2a9d2dd742640613490ef3abac2bd0",
+          "cueCount": 0
+        }
+      ]
+    }
+  ],
+  "limits": "Source audio/VTT unchanged; candidate clips unbound. L15-08 sample falls after the mapped VTT final cue. Full learner-route and protected intervals remain separate gates."
+}

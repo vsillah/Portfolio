@@ -1,0 +1,541 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L15-01",
+    "L15-02",
+    "L15-03",
+    "L15-05",
+    "L15-06",
+    "L15-07",
+    "L15-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L15-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L15-01.png",
+      "frame_sha256": "5c5fba3b8cbc85da90b035ab52c3c7dc9ed1462bfb630960431cc8c855be3d7f",
+      "visual_family": "L15-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "The day is prepared, not sent."
+      ],
+      "accessibility_text": "Human approval controls the work clock. Visual: Six physical stations around a brass day-clock.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Human approval controls the work clock.",
+      "brief_sha256": "5a581def3c7065e2d70a11d26cb5fdecfb7a40ceb09c5458db60db4e5b596945",
+      "original_frame_sha256": "4bbcfa010e81358d10ee8db26365c370cfd531e7bb3ffa2a427a66f41da29b50",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 887,
+            "height": 192
+          },
+          "glyph": {
+            "x": 105,
+            "y": 706,
+            "width": 831,
+            "height": 136
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L15-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L15-02.png",
+      "frame_sha256": "44a32bc4ea3e1ff3de656bd8e15f424c8c597cd0858d365b01605f7a70c26afa",
+      "visual_family": "L15-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Brief the work and learning.",
+        "Work",
+        "Human owner"
+      ],
+      "accessibility_text": "The first beat names the human and the job. Visual: Brief folder at the first clock station.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The first beat names the human and the job.",
+      "brief_sha256": "a6c5f48dd3e920de50213c882827d68b178e7ce296c3dee2d7a11931bcf0f890",
+      "original_frame_sha256": "e9ec4b82c43165064ae90a8fb6d46962c1ebbfc121b7b9419068ee48ac1eef59",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 633,
+            "height": 197
+          },
+          "glyph": {
+            "x": 98,
+            "y": 265,
+            "width": 577,
+            "height": 141
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 856,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 856,
+            "width": 165,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1058,
+            "y": 888,
+            "width": 109,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 736,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 736,
+            "width": 345,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 768,
+            "width": 289,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L15-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L15-03.png",
+      "frame_sha256": "b8875dea3f0c7c382d874ff95bd854e6c267c61fdbd1024dc74e61e10a9b32c6",
+      "visual_family": "L15-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Route to an owner and window.",
+        "Owner",
+        "Review window"
+      ],
+      "accessibility_text": "The second beat establishes handoff timing. Visual: Route token and review window on the clock.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The second beat establishes handoff timing.",
+      "brief_sha256": "e35f804cbad10b3d2eced8654b5ebcb8b09943b02b3fea364cbfe564dc05f1b3",
+      "original_frame_sha256": "50d0114a385402f5bae052f898477de42d0d0145c151cf287057f029832d3ab5",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1006,
+            "height": 103
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 950,
+            "height": 47
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 95,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 95,
+            "y": 801,
+            "width": 193,
+            "height": 89
+          },
+          "glyph": {
+            "x": 124,
+            "y": 833,
+            "width": 137,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1190,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 1190,
+            "y": 801,
+            "width": 379,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1221,
+            "y": 833,
+            "width": 323,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L15-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L15-05.png",
+      "frame_sha256": "9c97a3983d37ac647017a785614a7eaaedd21204444f9dc4cc90002beb8b3afe",
+      "visual_family": "L15-operating-artifact:compare:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Recover before learning.",
+        "Recover",
+        "Learn"
+      ],
+      "accessibility_text": "Preserve, correct, and trace precede a new proposal. Visual: Recovery kit and learning notebook as later beats.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Preserve, correct, and trace precede a new proposal.",
+      "brief_sha256": "d50aa4e8c69b0ec33af4bc5bfee779814144e9fbd87f3fcacec86996c03dd8da",
+      "original_frame_sha256": "d6348d225a7a38185c90893f0c85b09df6f80d7d3a4820fa0b889db9a5a62db3",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 799,
+            "height": 117
+          },
+          "glyph": {
+            "x": 96,
+            "y": 79,
+            "width": 743,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 228,
+            "height": 89
+          },
+          "glyph": {
+            "x": 141,
+            "y": 878,
+            "width": 172,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 170,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1121,
+            "y": 878,
+            "width": 114,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L15-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L15-06.png",
+      "frame_sha256": "15158919ee17a64f81bf9767eb33afff539a87052ee726ca1b1a44872f193ece",
+      "visual_family": "L15-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Where can approval go soft?",
+        "Who approves?",
+        "What changes?"
+      ],
+      "accessibility_text": "The learner finds the weak human decision point. Visual: Approval seal hovering over the clock.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner finds the weak human decision point.",
+      "brief_sha256": "9d89044740f4976b30b21824c177131e891cd6655930ab76c383c64477f90784",
+      "original_frame_sha256": "fee648001060e4f485a9fa39a977e83d827c9f92b4733a8d579734d0fd52e516",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 932,
+            "height": 117
+          },
+          "glyph": {
+            "x": 92,
+            "y": 79,
+            "width": 876,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 385,
+            "height": 97
+          },
+          "glyph": {
+            "x": 143,
+            "y": 788,
+            "width": 329,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 380,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1178,
+            "y": 788,
+            "width": 324,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L15-07",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L15-07.png",
+      "frame_sha256": "f25973ed4fd6d3541707c6584f9430cfce75734eae2ca37d0688054e46d69d83",
+      "visual_family": "L15-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write a six-beat day.",
+        "Failure",
+        "Recovery"
+      ],
+      "accessibility_text": "The learner records one failure and its recovery. Visual: Six-station worksheet over the work clock.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records one failure and its recovery.",
+      "brief_sha256": "087128bc255e767509428af7086b5ca6209861f7392c6347863a61f10277ee35",
+      "original_frame_sha256": "f25973ed4fd6d3541707c6584f9430cfce75734eae2ca37d0688054e46d69d83",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L15-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L15-08.png",
+      "frame_sha256": "b97112caab109fb0bbf9d9dcb2acf6dfe57aa85c94f34cb9e6aecc8d1b0fdcb6",
+      "visual_family": "L15-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L15.png",
+      "source_sha256": "b04f9cafb51d87a60fc120adb7352b7f809972139614e37edd212ca6ffb0de12",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the rehearsal in the file.",
+        "Day plan",
+        "Next audit"
+      ],
+      "accessibility_text": "The Operating File gains a day sequence. Visual: Six-beat plan folded into the binder.",
+      "continuity": {
+        "id": "L15-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains a day sequence.",
+      "brief_sha256": "8f71d58808973cb5a461da09ca667807230c4684b2e9e0d4fd42c940dc90ff82",
+      "original_frame_sha256": "4b428b633cd62c262b0b44068dc942615e0c1d1f27424ba36f0853eb9149bd7a",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 234,
+            "height": 98
+          },
+          "glyph": {
+            "x": 171,
+            "y": 618,
+            "width": 178,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 266,
+            "height": 89
+          },
+          "glyph": {
+            "x": 171,
+            "y": 783,
+            "width": 210,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
