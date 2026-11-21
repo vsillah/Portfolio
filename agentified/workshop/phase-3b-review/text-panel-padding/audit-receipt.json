@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "status": "audit-only; no learner media changed",
   "briefSha256": "4fdcb61a0cc990fad457c9f737447f39d0c62e67d2f3a188d4f1412203bb4b52",
-  "rendererSha256": "60e478ae266c5fa4d150e2da363868b39ea797053f12ebbdc34f0d122f10f32a",
+  "rendererSha256": "1c166f370f7266905efe28cece5dd2f6c2b613ab887978733e0267c9ab2d494c",
   "summary": {
     "scenes": 128,
     "panels": 276,

@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "12100c1adcd68bfd108f9db76ffa49d90c5264ffc41fb811a47fd9d23f783b3b",
+  "headlinesOnly": true,
+  "selectedScenes": [
+    "L06-03",
+    "L10-03"
+  ],
+  "frames": [
+    {
+      "scene_id": "L06-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-03.png",
+      "frame_sha256": "5fb529f1f5664160fbd57ef108237b9061076b6b4b4dae279fc875dd9dc9393d",
+      "visual_family": "L06-operating-artifact:plate:bottom",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          450,
+          3050,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            190,
+            70,
+            140
+          ],
+          "feather_px": 40,
+          "focus": "Recommend and Prepare boundary",
+          "edge_risk": "neighboring blank ladder rung at top and bottom",
+          "mask_sha256": "b0b95da87279cd324eea3faa79ec0c439d222b0535ad4ea672b09d14d011aafa"
+        }
+      },
+      "display_copy": [
+        "Source check before action.",
+        "Prepare",
+        "Human gate"
+      ],
+      "accessibility_text": "The role can prepare a receipt, not execute. Visual: Approved authority ladder focused on the Prepare rung.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The role can prepare a receipt, not execute.",
+      "brief_sha256": "b4d862d5becd8806cf8307acad2e800ae1711e04897ca5da547c5b0f929d79e5",
+      "original_frame_sha256": "3d8dcec08c8da382e6b3109a3e241c002da6fb1934129397e5ca8afe1c54cbfa",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 711,
+            "height": 183
+          },
+          "glyph": {
+            "x": 96,
+            "y": 265,
+            "width": 655,
+            "height": 127
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "retained",
+          "old": {
+            "x": 755,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          }
+        },
+        {
+          "kind": "label-b",
+          "action": "retained",
+          "old": {
+            "x": 1300,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          }
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L10-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L10-03.png",
+      "frame_sha256": "10db420f1ebc8d274babb78cb89067cfc28564f0a90a6315688e996b575d3f7c",
+      "visual_family": "L10-operating-artifact:plate:top",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          450,
+          250,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            80,
+            70,
+            120
+          ],
+          "feather_px": 40,
+          "focus": "Execute gate",
+          "edge_risk": "neighboring rung at left and bottom",
+          "mask_sha256": "02972479505b7f261f694edb855ff88e9613968d1f2f2111f7cef6a897d9a553"
+        }
+      },
+      "display_copy": [
+        "Changed terms need new review.",
+        "Recommend",
+        "Execute only after approval"
+      ],
+      "accessibility_text": "A recommendation stays separate from execution. Visual: Approved authority ladder focused on Recommend and Execute.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A recommendation stays separate from execution.",
+      "brief_sha256": "a1c64722933a4be6d84821e46a17d82a840950c8c585ba0bc70ae6695a112353",
+      "original_frame_sha256": "beca1283fd816611b2dea0c5656998f5bb97600345d4c7540fb1d9476c2805b0",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 712,
+            "height": 183
+          },
+          "glyph": {
+            "x": 97,
+            "y": 265,
+            "width": 656,
+            "height": 127
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "retained",
+          "old": {
+            "x": 755,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          }
+        },
+        {
+          "kind": "label-b",
+          "action": "retained",
+          "old": {
+            "x": 1300,
+            "y": 782,
+            "width": 510,
+            "height": 148
+          }
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

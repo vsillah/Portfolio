@@ -5,6 +5,7 @@ import {mkdirSync,readFileSync,writeFileSync} from 'node:fs'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 import sharp from 'sharp'
+import {paddingOverlay} from '../phase-3b-review/text-panel-padding/padding-overlay.mjs'
 
 const here=path.dirname(fileURLToPath(import.meta.url)),root=path.resolve(here,'../../..')
 const briefs=JSON.parse(readFileSync(path.join(here,'semantic-briefs.json'),'utf8')).scenes
@@ -13,8 +14,15 @@ const safetyById=new Map(cropSafety.scenes.map(scene=>[scene.scene_id,scene]))
 assert.equal(safetyById.size,cropSafety.scenes.length,'duplicate crop-safety scene')
 assert.equal(safetyById.size,briefs.filter(scene=>scene.approved_plate).length,'every approved plate needs crop safety')
 const plateOnly=process.argv.includes('--plate-only')
+const paddingReview=process.argv.includes('--padding-review')
+const sceneArg=process.argv.find(arg=>arg.startsWith('--scenes='))
+const selectedScenes=sceneArg?new Set(sceneArg.slice('--scenes='.length).split(',')):null
+const headlinesOnly=process.argv.includes('--headlines-only')
+assert(!(paddingReview&&plateOnly),'padding review and plate-only modes are exclusive')
 const existing=plateOnly?new Map(JSON.parse(readFileSync(path.join(here,'visual-receipts.json'),'utf8')).frames.map(frame=>[frame.scene_id,frame])):new Map()
-const out=path.join(here,'frames/illustrated');mkdirSync(out,{recursive:true})
+const paddingHere=path.join(root,'agentified/workshop/phase-3b-review/text-panel-padding')
+const paddingAudit=paddingReview?new Map(JSON.parse(readFileSync(path.join(paddingHere,'audit-receipt.json'),'utf8')).scenes.map(scene=>[scene.sceneId,scene])):null
+const out=paddingReview?path.join(paddingHere,'frames/illustrated'):path.join(here,'frames/illustrated');mkdirSync(out,{recursive:true})
 const sha=file=>createHash('sha256').update(readFileSync(file)).digest('hex')
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')
 const lineWrap=(s,max)=>{const words=s.split(/\s+/),lines=[];let line='';for(const word of words){if((line+' '+word).trim().length>max&&line){lines.push(line);line=word}else line=(line+' '+word).trim()}if(line)lines.push(line);return lines}
@@ -57,6 +65,7 @@ function overlay(brief){
 }
 const receipts=[]
 for(const brief of briefs){
+  if(selectedScenes&&!selectedScenes.has(brief.scene_id))continue
   if(plateOnly&&!brief.approved_plate){const prior=existing.get(brief.scene_id);assert(prior,`${brief.scene_id}: no prior unmodified frame`);receipts.push(prior);continue}
   const output=path.join(out,`${brief.scene_id}.png`),master=path.join(root,brief.master_source.path)
   assert.equal(sha(master),brief.master_source.sha256,`${brief.scene_id}: master source changed`)
@@ -81,9 +90,15 @@ for(const brief of briefs){
     }
     if(brief.treatment==='worksheet'||brief.treatment==='file')background=await sharp(background).modulate({brightness:.55,saturation:.7}).png().toBuffer()
   }
-  const final=brief.scene_id==='L01-01'?background:await sharp(background).composite([{input:Buffer.from(overlay(brief)),left:0,top:0}]).png().toBuffer()
+  const auditScene=paddingReview?paddingAudit.get(brief.scene_id):null
+  if(paddingReview)assert(auditScene,`${brief.scene_id}: missing padding audit`)
+  const review=paddingReview&&brief.scene_id!=='L01-01'&&brief.scene_id!=='L13-03'?paddingOverlay(brief,auditScene,headlinesOnly?['headline']:null):null
+  const final=paddingReview&&brief.scene_id==='L13-03'
+    ? readFileSync(path.join(root,'agentified/workshop/phase-3b-review/L13/L13-03-content-aware.png'))
+    : brief.scene_id==='L01-01'?background:await sharp(background).composite([{input:Buffer.from(review?review.svg:overlay(brief)),left:0,top:0}]).png().toBuffer()
   writeFileSync(output,final)
-  receipts.push({scene_id:brief.scene_id,frame_path:path.relative(root,output),frame_sha256:sha(output),visual_family:`${brief.continuity.id}:${brief.treatment}:${brief.focus}`,source_path:sourcePath,source_sha256:sourceSha,source_rights:brief.approved_plate?brief.approved_plate.rights:brief.master_source.rights,approved_plate_rendered_px:renderedPlate,display_copy:brief.scene_id==='L01-01'?['A suggestion needs a source.','Harbor Learning Circle']:[brief.headline,...brief.visible_labels],accessibility_text:brief.accessibility_description,continuity:brief.continuity,one_second_read:brief.one_second_read,brief_sha256:createHash('sha256').update(JSON.stringify(brief)).digest('hex')})
+  receipts.push({scene_id:brief.scene_id,frame_path:path.relative(root,output),frame_sha256:sha(output),visual_family:`${brief.continuity.id}:${brief.treatment}:${brief.focus}`,source_path:sourcePath,source_sha256:sourceSha,source_rights:brief.approved_plate?brief.approved_plate.rights:brief.master_source.rights,approved_plate_rendered_px:renderedPlate,display_copy:brief.scene_id==='L01-01'?['A suggestion needs a source.','Harbor Learning Circle']:[brief.headline,...brief.visible_labels],accessibility_text:brief.accessibility_description,continuity:brief.continuity,one_second_read:brief.one_second_read,brief_sha256:createHash('sha256').update(JSON.stringify(brief)).digest('hex'),...(paddingReview?{original_frame_sha256:auditScene.sourceFrame.sha256,padding_decisions:review?.decisions||[],review_only_unbound:true}:{})})
 }
-writeFileSync(path.join(here,'visual-receipts.json'),JSON.stringify({schema_version:2,source_commit:'f0931f3860e042507ee5aba83f220eb57cfd3eb5',frames:receipts},null,2)+'\n')
-console.log(`Rendered ${plateOnly?briefs.filter(scene=>scene.approved_plate).length:receipts.length} concept-bound scene visuals`)
+if(paddingReview)writeFileSync(path.join(paddingHere,'candidate-receipt.json'),JSON.stringify({schemaVersion:1,status:'review_only_unbound',baseAuditSha256:sha(path.join(paddingHere,'audit-receipt.json')),headlinesOnly,selectedScenes:[...(selectedScenes||briefs.map(b=>b.scene_id))],frames:receipts},null,2)+'\n')
+else writeFileSync(path.join(here,'visual-receipts.json'),JSON.stringify({schema_version:2,source_commit:'f0931f3860e042507ee5aba83f220eb57cfd3eb5',frames:receipts},null,2)+'\n')
+console.log(`Rendered ${receipts.length} ${paddingReview?'review-only padding candidates':'concept-bound scene visuals'}`)

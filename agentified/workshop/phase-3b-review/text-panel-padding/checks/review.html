@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Agentified text-panel review</title>
+<style>
+  body{margin:0;background:#071b2a;color:#f7ebd5;font:16px Arial,sans-serif}
+  main{max-width:1280px;margin:24px auto;padding:0 16px}
+  video{display:block;width:100%;max-height:calc(100vh - 120px);background:#071b2a}
+  nav{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 16px}
+  a{color:#f7ebd5}
+</style>
+<main>
+  <nav><a href="?scene=L06-03&amp;layout=desktop">L06 desktop</a><a href="?scene=L06-03&amp;layout=mobile">L06 mobile</a><a href="?scene=L10-03&amp;layout=desktop">L10 desktop</a><a href="?scene=L10-03&amp;layout=mobile">L10 mobile</a></nav>
+  <h1 id="title"></h1>
+  <video id="clip" controls preload="metadata"><source id="source" type="video/mp4"><track id="captions" kind="subtitles" srclang="en" label="English" default></video>
+</main>
+<script>
+  const q=new URLSearchParams(location.search),scene=['L06-03','L10-03'].includes(q.get('scene'))?q.get('scene'):'L06-03',layout=['desktop','mobile'].includes(q.get('layout'))?q.get('layout'):'desktop',stem=`${scene}-${layout}`;
+  document.getElementById('title').textContent=`${scene} ${layout} review-only overlay`;
+  document.getElementById('source').src=`${stem}.mp4`;
+  document.getElementById('captions').src=`${stem}.vtt`;
+  document.getElementById('clip').load();
+</script>
