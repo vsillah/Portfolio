@@ -77,6 +77,7 @@
 .workshop [data-tooltip]::after{position:absolute;z-index:20;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);content:attr(data-tooltip);width:max-content;max-width:220px;padding:6px 8px;border-radius:6px;background:#071a24;color:#fff;font-size:11px;font-weight:700;line-height:1.25;opacity:0;pointer-events:none;transition:opacity 0.15s ease,
     transform 0.15s ease;white-space:normal;text-align:center}
 .workshop [data-tooltip]:hover::after,.workshop [data-tooltip]:focus-visible::after{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:620px){.lessonFooter [data-tooltip]::after{left:auto;right:0;transform:translateY(4px)}.lessonFooter [data-tooltip]:hover::after,.lessonFooter [data-tooltip]:focus-visible::after{transform:translateY(0)}}
 .transcript{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
 .transcript summary{cursor:pointer;font-size:13px;font-weight:800}
 .transcript>div{max-height:420px;overflow:auto;padding:4px 8px}
