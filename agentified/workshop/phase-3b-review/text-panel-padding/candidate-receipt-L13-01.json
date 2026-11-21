@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L13-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L13-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L13-01.png",
+      "frame_sha256": "34b482075ee5a29a40b44dc3f3026557687d51b58da67f930ba9ffadb9536001",
+      "visual_family": "L13-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "An idea is still a proposal."
+      ],
+      "accessibility_text": "The lab gate remains closed. Visual: Hypothesis folder, blank baseline, and human key.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The lab gate remains closed.",
+      "brief_sha256": "ec149c173cd132375c2a85158fa58bf9419866a55afdc396fe6bbfc118520cf5",
+      "original_frame_sha256": "d2295cf1b4e8249f8891b21b65c6d2a0586ddef2ed629f4fd5fe8ee86e37c5eb",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 940,
+            "height": 123
+          },
+          "glyph": {
+            "x": 104,
+            "y": 706,
+            "width": 884,
+            "height": 67
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
