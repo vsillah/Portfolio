@@ -20,7 +20,7 @@ The latest stacked PR #1293 head `404656cca67eb48d57261520a1a54179ed87095e` adds
 
 Approved stacked PR #1293 at `32f44fb97fd4c9ecbd04cf0e367f1c767464e282` was audited read-only. L09–L16 scene midpoints rendered without a new caption collision at 1280×720 and 390×844 (64 positions, 128 states); the cue band matched the active VTT cue in every sampled state. See `32f-l09-l16-qualification-hold.md` and contact sheets. This is a midpoint sample, not full contextual or cue-boundary qualification. L10 direct auditory confirmation is pending, the L16 card candidate remains unbound, and all 13 eligible source-map records still lack attributed versioned spoken transcripts. **PR #1290 remains HOLD.**
 
-The captain's bounded direct listening clears the L10 180–190-second caption join without changing its media or cue timing. All 13 eligible versioned scripts now have deterministic transcript artifacts whose normalized words exactly match their bound VTTs; hashes and repeatable verification are in `source-map-v1.json` and `verify_transcripts.py`. The earlier #1293 learner-route check found that the L16 React end-screen obscured the unbound candidate's resting card. See `transcript-provenance-and-l16-stop.md` for that historical stop. Exact stacked PR #1294 head `11fc4cb663028240016d144364e8ac4030b3372e` now passes the candidate's desktop/mobile endpoint, one-overlay, replay, caption-toggle, Aa-size, and native-control recheck; see `11fc-l16-pass-rights-hold.md` and decoded MP4s. The candidate remains unbound. All 13 source-map rights scopes still limit use to visual preproduction and leave final distribution unconfirmed. **PR #1290 remains HOLD at the rights gate.**
+The captain's bounded direct listening clears the L10 180–190-second caption join without changing its media or cue timing. All 13 eligible versioned scripts now have deterministic transcript artifacts whose normalized words exactly match their bound VTTs; hashes and repeatable verification are in `source-map-v1.json` and `verify_transcripts.py`. The earlier #1293 learner-route check found that the L16 React end-screen obscured the unbound candidate's resting card. See `transcript-provenance-and-l16-stop.md` for that historical stop. Exact stacked PR #1294 head `11fc4cb663028240016d144364e8ac4030b3372e` now passes the candidate's desktop/mobile endpoint, one-overlay, replay, caption-toggle, Aa-size, and native-control recheck; see `11fc-l16-pass-rights-hold.md` and decoded MP4s. The candidate remains unbound. The original source map's 13 historical preproduction rights scopes remain immutable lineage. The owner release receipt dated 2026-11-20 confirms public open-learning workshop distribution for precisely the assets identified by source-map SHA-256 `6316aa15a232e99019f938ccbaae397e5314f5d4035a626346caad5f6b8aebad`; `rights-overlay-v1.json` applies that grant without modifying the source map. Unbound L10/L16 candidates and independent assets absent from that map are outside the grant. **PR #1290 remains HOLD for full audio and contextual qualification.**
 
 ## L01: corrected learner metadata and end-screen UI
 
@@ -38,11 +38,17 @@ L16's approved closing-card contract explicitly overlays the final presenter pas
 
 `source-map-v1.json` verifies immutable script, original composite and caption bytes for L01 and L05–L16. Old transcript digests remain unattributed lineage; versioned script-derived transcripts and their normalized bound-VTT word checks are recorded above. No full-audio-verified final transcript is claimed. Fourteen desktop/mobile contextual media MP4s cover representative setup, teaching, guided work, ending and adjacent continuity with optional captions; every file decoded cleanly. They show media content rather than browser controls. The existing illustration validator passes 128 hashed scenes and unchanged baseline audio/caption streams, but contextual source-faithful visual/caption review across all scenes and full audio performance review remain pending.
 
+The resumed first eligible audio checkpoint is L01. Local, provider-free speech recognition against its exact illustrated composite recognizes the opening and closing words and yields 0.992379 sequence similarity to the versioned script transcript. Six token-level differences remain, including possible recognition insertions and a possible “Agentified”/“identified” substitution; their contexts and the 62 timed recognized segments are in `l01-local-speech-check.json`. This is a technical aid, not direct listening or a whole-lesson acoustic pass. L01 remains open for direct full-audio review; subsequent eligible lessons have not received this resumed audio check.
+
 No provider contact, generation, spend, L02–L04 change, L10/L16 learner binding, production/learner data mutation, deployment, publication, or release occurred. Do not request Human QA, mark Phase 3 complete, or merge PR #1290 from this packet.
 
 ## Reproduction
 
 `python3 docs/agentified-distribution-readiness/phase-3b/build_source_map.py`
+
+`PYTHONDONTWRITEBYTECODE=1 python3 docs/agentified-distribution-readiness/phase-3b/build_rights_overlay.py`
+
+`PYTHONDONTWRITEBYTECODE=1 python3 docs/agentified-distribution-readiness/phase-3b/verify_owner_release.py`
 
 `bash docs/agentified-distribution-readiness/phase-3b/remux_l10_caption.sh`
 
@@ -56,4 +62,4 @@ No provider contact, generation, spend, L02–L04 change, L10/L16 learner bindin
 
 `node docs/agentified-distribution-readiness/phase-3b/record_browser_walkthrough.cjs e5cce9a7a`
 
-Next gate: a version-bound owner release receipt for the exact final lesson assets, presenter voice/likeness, script paraphrases, music/visuals, and intended access model. The L16 endpoint, L10 bounded join, and script/VTT transcript provenance now pass. Whole-lesson acoustic and full contextual visual qualification remain open. PR #1290 remains HOLD; no Human QA handoff, media binding, or merge is warranted.
+Next gate: complete whole-lesson acoustic and full contextual visual qualification for the 13 eligible lessons against exact stacked code head `11fc4cb663028240016d144364e8ac4030b3372e`. The owner distribution grant, L16 endpoint, L10 bounded join, and script/VTT transcript provenance now pass for their exact stated scopes. PR #1290 remains HOLD; no Human QA handoff, media binding, or merge is warranted.

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "sourceMap": {
+    "path": "docs/agentified-distribution-readiness/phase-3b/source-map-v1.json",
+    "sha256": "6316aa15a232e99019f938ccbaae397e5314f5d4035a626346caad5f6b8aebad"
+  },
+  "ownerReleaseReceipt": {
+    "path": "docs/agentified-distribution-readiness/phase-3b/owner-release-receipt-2026-11-20.json",
+    "sha256": "72701f4a636763248af5fcd03e9f99e1c4501b513f3ce326124b1fec2d547579"
+  },
+  "previousStatePreservedInSourceMap": true,
+  "qualification": "owner_rights_confirmed_for_identified_workshop_distribution_only; no execution or release",
+  "records": [
+    {
+      "lessonId": "L01",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+      "currentCaptionSha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+      "scriptSha256": "c600f29d7fcc6c2a50d3bcb2d07f92a9d0f45225520e300d865c188d75cdaa26",
+      "versionedTranscriptSha256": "5dcf6d2c47b55aa2a40daccc61b53293b35db50fbc5fb63c457f6a253e96f71f",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L05",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061",
+      "currentCaptionSha256": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389",
+      "scriptSha256": "f6d8916f442a5b15bf51c1c50f9277f97fa225508bc6fd1f3d07dc00a80e8dc3",
+      "versionedTranscriptSha256": "647e6a00966dbc8e71a71bc4ac71217ce756664e822734d8fa7d5da6d4e09bcd",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L06",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+      "currentCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+      "scriptSha256": "42c2b7a3c10d2547b08520475187d70f8f087343dc0c6b732ea5fb86c0ca7862",
+      "versionedTranscriptSha256": "3ecdd5730e884b12ade63e5729492e42d08e4e0074c6dbc4ded86d2871b33732",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L07",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+      "currentCaptionSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+      "scriptSha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952",
+      "versionedTranscriptSha256": "c14353fa9a18cf5e3a20fa2e76f1c5c0bb0c1b23ddf67b4f3f30c925e4ff23de",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L08",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "5ea78c3647a901be84eddc1647185fcbea7178d79a5588befb467f92d20c93bd",
+      "currentCaptionSha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011",
+      "scriptSha256": "219060baa998bd6a866e9ff00a6df99d2ccba64b6c5ecd55e9db7cc385df6846",
+      "versionedTranscriptSha256": "ed631644905645f1b7b91cec607bc74e8c81e6b23ec541212ad8e428d14168fe",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L09",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+      "currentCaptionSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+      "scriptSha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79",
+      "versionedTranscriptSha256": "85f7620a874c67f066fd5b3a5e66f3e7fc86d5b3c94587464b636ae9cb48d7df",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L10",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+      "currentCaptionSha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+      "scriptSha256": "689d6c0b2fe4c93a08fcc8043e33ccf30c33a31333b9c4eeec43c5ab2f1db69a",
+      "versionedTranscriptSha256": "a160fe9c4f7d8dec80d50dc64ca9f6453697f2a09d0f518949950b06ff98e7e3",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L11",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "169488eced03d6c5c300dc9241af14c7677389d9ed9997578266a7828cf842b3",
+      "currentCaptionSha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78",
+      "scriptSha256": "adafcfec9e4a83cc5e279c73e2b6e5f1f1df25237f00b30b76ed930e8bdb599d",
+      "versionedTranscriptSha256": "7e18a51b360cdf317f0eb052e68a5214647860f0d790fb56e216b88175b6a4b5",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L12",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "64039c97b99b884e2c12351210ec079469e2b4c6a872961d1eaac2ff845089d1",
+      "currentCaptionSha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467",
+      "scriptSha256": "5201a7b99266d2a7f227679e3b7719ae42d6322ac6f6ce053b780b6c4d1dc4e4",
+      "versionedTranscriptSha256": "660e4a5dc977fc63b1bd337cacf340c151f94538c6ba777cbe40812456bf172b",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L13",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f",
+      "currentCaptionSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+      "scriptSha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+      "versionedTranscriptSha256": "eee524348ce2509403704677658b5a591c2e132ed313efc6ea518c84239636d6",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L14",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+      "currentCaptionSha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446",
+      "scriptSha256": "2003984f83277f2e810a5145aa967da1b20261f733d6ccdccb45b758f52a271d",
+      "versionedTranscriptSha256": "02e2062a64100633cb253738da42cfce72e9855c83b5f6085ebf4cd8b8c59864",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L15",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+      "currentCaptionSha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522",
+      "scriptSha256": "b2256c3106e48c0fb664c091c97b8700aca016a2162a5e0e5ec5252fbdf76e47",
+      "versionedTranscriptSha256": "eac0ea33edae5d1973b0d36caa7cf2f430c2939442a3f1a33173bf782c3dc19b",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    },
+    {
+      "lessonId": "L16",
+      "priorRightsScope": "visual_preproduction_only; final distribution unconfirmed",
+      "currentVideoSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+      "currentCaptionSha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060",
+      "scriptSha256": "833da08a015fa682c01d3decf8bbf36b439daedc5078b5db23ef96b790a4fe9e",
+      "versionedTranscriptSha256": "1d0b554d0f7d578eccb9e0cef4b4045e89d5a0af239c9abd823f1f1aa1875171",
+      "approvedRightsScope": "public_open_learning_workshop_playback_and_ordinary_delivery_for_identified_assets"
+    }
+  ],
+  "unboundCandidateRights": "not_asserted_by_this_exact_source_map_receipt",
+  "independentUnidentifiedAssetRights": "not_asserted_by_this_exact_source_map_receipt"
+}
