@@ -493,7 +493,8 @@ describe('Agentified lesson media gate', () => {
     const presenterCue = { startTime: 11.13, endTime: 11.64, text: 'role read?' }
     const panelCue = { startTime: 15.872, endTime: 21.568, text: "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system." }
     const adjacentCue = { startTime: 24.779, endTime: 26.614, text: 'Start with the real sequence on paper.' }
-    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [presenterCue, panelCue, adjacentCue] })
+    const afterCue = { startTime: 52.822, endTime: 55.766, text: 'Chapter Eight gives the operating map five columns.' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [presenterCue, panelCue, adjacentCue, afterCue] })
     const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
     const mobileMedia = Object.assign(new EventTarget(), { matches: false })
     HTMLMediaElement.prototype.pause = vi.fn()
@@ -533,15 +534,23 @@ describe('Agentified lesson media gate', () => {
       expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
       currentTime = 24.779
       fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent(adjacentCue.text)
+      currentTime = 38.8
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      currentTime = 52.822
+      fireEvent.seeking(video)
       expect(track.mode).toBe('showing')
       expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
       act(() => { mobileMedia.matches = true; mobileMedia.dispatchEvent(new Event('change')) })
       expect(track.mode).toBe('hidden')
-      expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent(adjacentCue.text)
-      expect([presenterCue, panelCue, adjacentCue]).toEqual([
+      expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent(afterCue.text)
+      expect([presenterCue, panelCue, adjacentCue, afterCue]).toEqual([
         { startTime: 11.13, endTime: 11.64, text: 'role read?' },
         { startTime: 15.872, endTime: 21.568, text: panelCue.text },
         { startTime: 24.779, endTime: 26.614, text: adjacentCue.text },
+        { startTime: 52.822, endTime: 55.766, text: afterCue.text },
       ])
       expect(video).toHaveAttribute('controls')
       unmount()
