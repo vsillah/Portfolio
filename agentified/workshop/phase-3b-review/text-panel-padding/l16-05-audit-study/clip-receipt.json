@@ -9,7 +9,7 @@
   "sourceVideoSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
   "sourceCaptionSha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060",
   "trimmedCaptionSha256": "18de5528658de6b135a8412763860cb1fd4a66cf3c88f5de57414737a71254c0",
-  "frameReceiptSha256": "420a13dd7c72180c941b96fc2489482cc974ad4c6ffac9f973a4d19d2c3688c3",
+  "frameReceiptSha256": "7eeec64411275c78044c7c4507f9dd3f42b144719e556325d967c57c6e073028",
   "clips": [
     {
       "layout": "desktop",
@@ -52,15 +52,27 @@
     {
       "layout": "mobile",
       "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/L16-05-mobile-review.mp4",
-      "sha256": "49620491c4bc42f54823f1fb3f942097c8c330bc034a5a68bd128930582b20ac",
+      "sha256": "d89b7b9bbeb4ed60c9f870efe99f513e36e77992767268c31bc2ee633a2c242b",
       "timeline": [
         {
           "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/overview-wide.png",
-          "durationSeconds": 1.6
+          "durationSeconds": 2.0
         },
         {
-          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/audit.png",
-          "durationSeconds": 26.4
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-proof.png",
+          "durationSeconds": 4.2
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-rollback.png",
+          "durationSeconds": 6.3
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-revoke.png",
+          "durationSeconds": 7.3
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-staffing.png",
+          "durationSeconds": 8.2
         }
       ],
       "probe": {

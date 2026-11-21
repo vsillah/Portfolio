@@ -91,20 +91,29 @@ for scene, spec in SPECS.items():
         frames.append({'kind': kind, 'path': str(path.relative_to(ROOT)), 'sha256': sha(path),
                        'mobilePreviewPath': str(preview.relative_to(ROOT)), 'mobilePreviewSha256': sha(preview),
                        'geometry': {'completePlatePx': box, 'narrationAudit': spec['lines'] if kind == 'audit' else []}})
+    mobile_cards = ()
     if scene == 'L16-04':
-        for kind, title, lines in (
+        mobile_cards = (
             ('roles', 'Who owns each step?', ['Prepare: brief only', 'Morgan: recommends', 'Spend: separate owner']),
             ('prohibitions', 'The agent must hold', ['No booking or sending', 'No buying', 'No team rule from draft']),
             ('hold', 'The gate stays closed', ['Staffing: no evidence', 'Hold remains', 'Score cannot lift it', 'Human decides with evidence']),
-        ):
-            im = mobile_audit_card(title, lines)
-            path = out / f'mobile-{kind}.png'
-            im.save(path)
-            preview = out / f'{path.stem}-mobile-preview.png'
-            im.resize((390, 219), Image.Resampling.LANCZOS).save(preview)
-            frames.append({'kind': f'mobile_{kind}', 'path': str(path.relative_to(ROOT)), 'sha256': sha(path),
-                           'mobilePreviewPath': str(preview.relative_to(ROOT)), 'mobilePreviewSha256': sha(preview),
-                           'geometry': {'narrationAudit': lines, 'completePlatePx': None}})
+        )
+    elif scene == 'L16-05':
+        mobile_cards = (
+            ('proof', 'Export stays sealed', ['Proof: not shared', 'Audience scoped']),
+            ('rollback', 'Correct the paper', ['Keep prior draft', 'Correct the brief', 'Record the reason']),
+            ('revoke', 'A future rule can change', ['Name the human owner', 'Narrow or revoke', 'Retire if needed']),
+            ('staffing', 'The weakest gate', ['Staffing unconfirmed', 'No team proposal yet', 'Nothing launches']),
+        )
+    for kind, title, lines in mobile_cards:
+        im = mobile_audit_card(title, lines)
+        path = out / f'mobile-{kind}.png'
+        im.save(path)
+        preview = out / f'{path.stem}-mobile-preview.png'
+        im.resize((390, 219), Image.Resampling.LANCZOS).save(preview)
+        frames.append({'kind': f'mobile_{kind}', 'path': str(path.relative_to(ROOT)), 'sha256': sha(path),
+                       'mobilePreviewPath': str(preview.relative_to(ROOT)), 'mobilePreviewSha256': sha(preview),
+                       'geometry': {'narrationAudit': lines, 'completePlatePx': None}})
     receipt = {'status': 'review_only_unbound', 'scene': scene,
                'approvedPlatePath': spec['source'], 'approvedPlateSha256': spec['sha'],
                'approvedPlatePx': list(spec['size']),

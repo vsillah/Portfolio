@@ -46,6 +46,65 @@
           "Weakest gate: staffing confirmation"
         ]
       }
+    },
+    {
+      "kind": "mobile_proof",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-proof.png",
+      "sha256": "9c303df1ddbf33cd57065499161db766869a96851859d34f8bbc629a38c62874",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-proof-mobile-preview.png",
+      "mobilePreviewSha256": "38d391152fba7dbebc80c1fb821bca0c9681e678dc4d73a42738688cba5fc93c",
+      "geometry": {
+        "narrationAudit": [
+          "Proof: not shared",
+          "Audience scoped"
+        ],
+        "completePlatePx": null
+      }
+    },
+    {
+      "kind": "mobile_rollback",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-rollback.png",
+      "sha256": "e523f81892640b824aee3ea1f620b4cedbb0136712ce96cb02d622ccd391cb58",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-rollback-mobile-preview.png",
+      "mobilePreviewSha256": "8007a9653aadaced48344df314ffe28325747ba4cab8998337e81b69cbd3dc21",
+      "geometry": {
+        "narrationAudit": [
+          "Keep prior draft",
+          "Correct the brief",
+          "Record the reason"
+        ],
+        "completePlatePx": null
+      }
+    },
+    {
+      "kind": "mobile_revoke",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-revoke.png",
+      "sha256": "1103882a1d3436db407e508b4d97ac032086394766dd4b97036010c177eaa8a2",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-revoke-mobile-preview.png",
+      "mobilePreviewSha256": "9e7b5aca2012f3db570a52252246bba96ca72ea0d2221109089dae57f3c6a5a7",
+      "geometry": {
+        "narrationAudit": [
+          "Name the human owner",
+          "Narrow or revoke",
+          "Retire if needed"
+        ],
+        "completePlatePx": null
+      }
+    },
+    {
+      "kind": "mobile_staffing",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-staffing.png",
+      "sha256": "dc95ca66809d9b19d571445d6a98b8a739191f0573d86df09ca22b77d4690d7d",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-staffing-mobile-preview.png",
+      "mobilePreviewSha256": "e93b6aa9ae50ea74c1492d1117ad648df7edb1e9e08a42638af864d40bac6cf2",
+      "geometry": {
+        "narrationAudit": [
+          "Staffing unconfirmed",
+          "No team proposal yet",
+          "Nothing launches"
+        ],
+        "completePlatePx": null
+      }
     }
   ]
 }

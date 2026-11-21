@@ -38,6 +38,10 @@ for layout in ('desktop', 'mobile'):
     if SCENE == 'L16-04' and layout == 'mobile':
         timeline = [(OUT / 'overview-wide.png', 4.20), (OUT / 'mobile-roles.png', 7.30),
                     (OUT / 'mobile-prohibitions.png', 5.50), (OUT / 'mobile-hold.png', 11.00)]
+    elif SCENE == 'L16-05' and layout == 'mobile':
+        timeline = [(OUT / 'overview-wide.png', 2.00), (OUT / 'mobile-proof.png', 4.20),
+                    (OUT / 'mobile-rollback.png', 6.30), (OUT / 'mobile-revoke.png', 7.30),
+                    (OUT / 'mobile-staffing.png', 8.20)]
     else:
         timeline = [(OUT / 'overview-wide.png', 1.60), (OUT / 'audit.png', 26.40)]
     concat = OUT / f'{SCENE}-{layout}-timeline.txt'
