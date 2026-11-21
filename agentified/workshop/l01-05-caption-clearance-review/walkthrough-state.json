@@ -1,0 +1,394 @@
+{
+  "generatedAt": "2026-11-21T11:53:33.130Z",
+  "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+  "states": [
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-04 adjacent boundary",
+      "time": 149,
+      "mode": "hidden",
+      "cue": [
+        "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it."
+      ],
+      "band": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 Small band",
+      "time": 162.78,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 Medium band",
+      "time": 162.78,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 Large band",
+      "time": 162.78,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 captions off",
+      "time": 162.78,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 captions restored",
+      "time": 162.78,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 cue gap",
+      "time": 164.8,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-06 adjacent boundary",
+      "time": 185,
+      "mode": "showing",
+      "cue": [
+        "Picture one workflow in your own work."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-04 adjacent boundary",
+      "time": 149,
+      "mode": "hidden",
+      "cue": [
+        "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it."
+      ],
+      "band": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 Small band",
+      "time": 162.78,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 Medium band",
+      "time": 162.78,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 Large band",
+      "time": 162.78,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 captions off",
+      "time": 162.78,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 captions restored",
+      "time": 162.78,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-05 cue gap",
+      "time": 164.8,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=85cadf493669e91245ce3d9eafa75df759081304",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "step": "L01-06 adjacent boundary",
+      "time": 185,
+      "mode": "hidden",
+      "cue": [
+        "Picture one workflow in your own work."
+      ],
+      "band": "Picture one workflow in your own work.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=desktop&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "Small band",
+      "time": 0.802737,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=desktop&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "Medium band",
+      "time": 0.802737,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=desktop&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "Large band",
+      "time": 0.802737,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=desktop&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "captions off",
+      "time": 0.802737,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=desktop&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "captions restored",
+      "time": 0.802737,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=mobile&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "Small band",
+      "time": 0.810794,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=mobile&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "Medium band",
+      "time": 0.810794,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=mobile&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "Large band",
+      "time": 0.810794,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=mobile&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "captions off",
+      "time": 0.810794,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-05-caption-clearance-review/candidate/review.html?layout=mobile&revision=ff17e8a0",
+      "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+      "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+      "step": "captions restored",
+      "time": 0.810794,
+      "mode": "hidden",
+      "cue": [
+        "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "controls": true
+    }
+  ]
+}
