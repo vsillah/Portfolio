@@ -567,7 +567,8 @@ describe('Agentified lesson media gate', () => {
         { startTime: 52.822, endTime: 55.766, text: afterCue.text },
         ...remainingCues,
       ])
-      expect(video).toHaveAttribute('controls')
+      expect(video).not.toHaveAttribute('controls')
+      expect(screen.getByRole('group', { name: 'L05 video controls' })).toBeInTheDocument()
       unmount()
     } finally {
       if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
@@ -643,7 +644,8 @@ describe('Agentified lesson media gate', () => {
         { startTime: 348.879, endTime: 355.004, text: cue.text },
         { startTime: 356.899, endTime: 359.645, text: lastCue.text },
       ])
-      expect(video).toHaveAttribute('controls')
+      expect(video).not.toHaveAttribute('controls')
+      expect(screen.getByRole('group', { name: 'L01 video controls' })).toBeInTheDocument()
       unmount()
     } finally {
       if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
@@ -676,13 +678,14 @@ describe('Agentified lesson media gate', () => {
       fireEvent.loadedMetadata(video)
       fireEvent.timeUpdate(video)
       expect(track.mode).toBe('hidden')
-      expect(video).toHaveAttribute('controls')
+      expect(video).not.toHaveAttribute('controls')
+      expect(screen.getByRole('group', { name: 'L08 video controls' })).toBeInTheDocument()
       expect(screen.getByRole('status', { name: 'L08 caption' })).toHaveTextContent(cue.text)
 
       rerender(<AgentifiedLessonHero {...props} captionsOn={false} />)
       expect(track.mode).toBe('disabled')
       expect(screen.queryByRole('status', { name: 'L08 caption' })).toBeNull()
-      expect(video).toHaveAttribute('controls')
+      expect(video).not.toHaveAttribute('controls')
 
       rerender(<AgentifiedLessonHero {...props} captionsOn />)
       expect(track.mode).toBe('hidden')
@@ -835,6 +838,44 @@ describe('Agentified lesson media gate', () => {
     expect(screen.getByRole('status', { name: 'L16 complete. Agentified course complete.' })).toBeInTheDocument()
     expect(screen.getByText('COURSE COMPLETE')).toBeInTheDocument()
     expect(screen.getByText('Review your Operating File')).toBeInTheDocument()
+  })
+
+  it('keeps mobile playback controls outside the video and restores native desktop controls', async () => {
+    const media = Object.assign(new EventTarget(), { matches: true })
+    vi.stubGlobal('matchMedia', vi.fn(() => media))
+    const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined)
+    const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
+    try {
+      const { container, unmount } = render(<AgentifiedLessonHero lessonId="L06" title="Map" poster="/l06.webp" videoSrc="/l06.mp4" durationSeconds={120} />)
+      const video = container.querySelector('video')!
+      let currentTime = 0
+      Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime, set: (value) => { currentTime = value } })
+      expect(video).not.toHaveAttribute('controls')
+      expect(screen.getByRole('group', { name: 'L06 video controls' })).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: 'Play video' }))
+      expect(play).toHaveBeenCalled()
+      fireEvent.playing(video)
+      expect(screen.getByRole('button', { name: 'Pause video' })).toBeInTheDocument()
+      fireEvent.change(screen.getByRole('slider', { name: 'Seek video' }), { target: { value: '42' } })
+      expect(currentTime).toBe(42)
+      expect(screen.getByRole('slider', { name: 'Seek video' })).toHaveAttribute('aria-valuetext', '0:42 of 2:00')
+      fireEvent.click(screen.getByRole('button', { name: 'Mute video' }))
+      expect(video.muted).toBe(true)
+      expect(screen.getByRole('button', { name: 'Unmute video' })).toHaveAttribute('aria-pressed', 'true')
+      fireEvent.change(screen.getByRole('slider', { name: 'Video volume' }), { target: { value: '0.5' } })
+      expect(video.volume).toBe(0.5)
+      expect(video.muted).toBe(false)
+      fireEvent.click(screen.getByRole('button', { name: 'Pause video' }))
+      expect(pause).toHaveBeenCalled()
+      act(() => { media.matches = false; media.dispatchEvent(new Event('change')) })
+      expect(video).toHaveAttribute('controls')
+      expect(screen.queryByRole('group', { name: 'L06 video controls' })).toBeNull()
+      unmount()
+    } finally {
+      play.mockRestore()
+      pause.mockRestore()
+      vi.unstubAllGlobals()
+    }
   })
 
   it('keeps the established 340 ms fade and reduced-motion cut in CSS', () => {
