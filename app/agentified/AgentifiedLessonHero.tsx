@@ -29,7 +29,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const [activeTeachingScene, setActiveTeachingScene] = useState<string | null>(null)
   const [mobileWidth, setMobileWidth] = useState(false)
   const [mobileCaption, setMobileCaption] = useState('')
-  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId)
+  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId) || (lessonId === 'L06' && activeTeachingScene === 'L06-03')
   const cueCacheRef = useRef<Array<{ startTime: number; endTime: number; text: string }>>([])
   const endScreenStart = endScreen?.startSeconds
   const captionsChangeRef = useRef(onCaptionsChange)
