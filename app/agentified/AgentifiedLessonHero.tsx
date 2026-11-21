@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import { Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import styles from './workshop.module.css'
 import mobileTeachingDetails from './mobile-teaching-details.json'
 import type { CaptionSize } from '@/lib/caption-size-preference'
@@ -69,6 +70,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const [mediaDuration, setMediaDuration] = useState(durationSeconds ?? 0)
   const [muted, setMuted] = useState(false)
   const [volume, setVolume] = useState(1)
+  const savedVolumeRef = useRef(1)
   const [fullscreen, setFullscreen] = useState(false)
   const [playerMessage, setPlayerMessage] = useState('')
   const [posterRevealed, setPosterRevealed] = useState(false)
@@ -228,6 +230,27 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
       setPlayerMessage('')
     } catch { setPlayerMessage('Fullscreen could not open. The lesson remains playable here.') }
   }
+  const volumeLevel = volume < 0.4 ? 1 : volume < 0.8 ? 2 : 3
+  const setVolumeLevel = (level: number) => {
+    const video = videoRef.current
+    if (!video) return
+    const requested = [0.25, 0.6, 1][Math.max(1, Math.min(3, level)) - 1]
+    video.volume = requested
+    video.muted = false
+    setVolume(video.volume)
+    setMuted(video.muted)
+    if (Math.abs(video.volume - requested) > 0.01) setPlayerMessage('This browser controls volume with device buttons.')
+    else { savedVolumeRef.current = requested; setPlayerMessage('') }
+  }
+  const toggleMute = () => {
+    const video = videoRef.current
+    if (!video) return
+    if (!video.muted && video.volume > 0) savedVolumeRef.current = video.volume
+    if (video.muted && video.volume === 0) video.volume = savedVolumeRef.current
+    video.muted = !video.muted
+    setVolume(video.volume)
+    setMuted(video.muted)
+  }
 
   const label = `${lessonId} ${title} lesson cover`
   const syncEndScreen = (currentTime: number) => {
@@ -302,13 +325,13 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
       </div>}
     </div>}
   </div>{videoSrc && mobileWidth && <div className={styles.mobilePlayerRail} role="group" aria-label={`${lessonId} video controls`}>
-    <button type="button" onClick={togglePlayback} aria-label={playing ? 'Pause video' : 'Play video'}>{playing ? 'Pause' : 'Play'}</button>
-    <label className={styles.playerSeek}><span>Seek · {formatTime(position)} / {formatTime(mediaDuration)}</span><input type="range" min="0" max={Math.max(1, mediaDuration)} step="0.1" value={Math.min(position, Math.max(1, mediaDuration))} disabled={mediaDuration <= 0} aria-label="Seek video" aria-valuetext={`${formatTime(position)} of ${formatTime(mediaDuration)}`} onChange={(event) => { const video = videoRef.current; if (video) { video.currentTime = Number(event.currentTarget.value); setPosition(video.currentTime) } }} /></label>
-    <button type="button" onClick={() => { const video = videoRef.current; if (video) { video.muted = !video.muted; setMuted(video.muted) } }} aria-label={muted ? 'Unmute video' : 'Mute video'} aria-pressed={muted}>{muted ? 'Unmute' : 'Mute'}</button>
-    <label className={styles.playerVolume}><span>Volume</span><input type="range" min="0" max="1" step="0.05" value={volume} aria-label="Video volume" aria-valuetext={`${Math.round(volume * 100)} percent`} onChange={(event) => { const video = videoRef.current; if (video) { const requested = Number(event.currentTarget.value); video.volume = requested; if (video.volume > 0) video.muted = false; setVolume(video.volume); setMuted(video.muted); setPlayerMessage(Math.abs(video.volume - requested) > 0.01 ? 'This browser controls volume with device buttons.' : '') } }} /></label>
-    <button type="button" onClick={toggleFullscreen} aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>{fullscreen ? 'Exit fullscreen' : 'Fullscreen'}</button>
-    {playerMessage && <span role="status" className={styles.playerMessage}>{playerMessage}</span>}
-  </div>}{videoSrc && externalCaption && captionsOn && mobileCaption && !endScreenVisible && <div className={`${styles.mobileCaptionBand} ${captionStyles.band}`} data-caption-size={captionSize} role="status" aria-label={`${lessonId} caption`}>{mobileCaption}</div>}</div>{videoSrc && teachingScene && <aside className={styles.mobileTeachingDetails} aria-label={`${teachingScene.sceneId} ${teachingScene.title} source wording`}>
+    <button type="button" onClick={togglePlayback} aria-label={playing ? 'Pause video' : 'Play video'}>{playing ? <Pause aria-hidden="true" size={19} fill="currentColor" /> : <Play aria-hidden="true" size={19} fill="currentColor" />}</button>
+    <input className={styles.playerSeek} type="range" min="0" max={Math.max(1, mediaDuration)} step="0.1" value={Math.min(position, Math.max(1, mediaDuration))} disabled={mediaDuration <= 0} aria-label="Seek video" aria-valuetext={`${formatTime(position)} of ${formatTime(mediaDuration)}`} onChange={(event) => { const video = videoRef.current; if (video) { video.currentTime = Number(event.currentTarget.value); setPosition(video.currentTime) } }} />
+    <output className={styles.playerTime} aria-hidden="true">{formatTime(position)}<span>/</span>{formatTime(mediaDuration)}</output>
+    <button type="button" onClick={toggleMute} aria-label={muted ? 'Unmute video' : 'Mute video'} aria-pressed={muted}>{muted ? <VolumeX aria-hidden="true" size={20} /> : <Volume2 aria-hidden="true" size={20} />}</button>
+    <div className={styles.playerWaves} role="slider" tabIndex={0} aria-label="Video volume level" aria-valuemin={1} aria-valuemax={3} aria-valuenow={volumeLevel} aria-valuetext={`${['Low', 'Medium', 'Full'][volumeLevel - 1]} volume${muted ? ', muted' : ''}`} onClick={(event) => { const box = event.currentTarget.getBoundingClientRect(); setVolumeLevel(Math.min(3, Math.floor(((event.clientX - box.left) / box.width) * 3) + 1)) }} onKeyDown={(event) => { const level = event.key === 'Home' ? 1 : event.key === 'End' ? 3 : event.key === 'ArrowRight' || event.key === 'ArrowUp' ? Math.min(3, volumeLevel + 1) : event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? Math.max(1, volumeLevel - 1) : null; if (level !== null) { event.preventDefault(); setVolumeLevel(level) } }}><svg viewBox="0 0 44 44" aria-hidden="true"><path className={volumeLevel >= 1 && !muted ? styles.waveActive : ''} d="M7 18 Q11 22 7 26" /><path className={volumeLevel >= 2 && !muted ? styles.waveActive : ''} d="M13 14 Q20 22 13 30" /><path className={volumeLevel >= 3 && !muted ? styles.waveActive : ''} d="M19 10 Q29 22 19 34" /></svg></div>
+    <button type="button" onClick={toggleFullscreen} aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>{fullscreen ? <Minimize2 aria-hidden="true" size={19} /> : <Maximize2 aria-hidden="true" size={19} />}</button>
+  </div>}{playerMessage && mobileWidth && <span role="status" className={styles.playerMessage}>{playerMessage}</span>}{videoSrc && externalCaption && captionsOn && mobileCaption && !endScreenVisible && <div className={`${styles.mobileCaptionBand} ${captionStyles.band}`} data-caption-size={captionSize} role="status" aria-label={`${lessonId} caption`}>{mobileCaption}</div>}</div>{videoSrc && teachingScene && <aside className={styles.mobileTeachingDetails} aria-label={`${teachingScene.sceneId} ${teachingScene.title} source wording`}>
     <div className={styles.mobileTeachingHeading}><strong>{teachingScene.title}</strong>{'image' in teachingScene && <a href={teachingScene.image} target="_blank" rel="noopener noreferrer" onClick={() => videoRef.current?.pause()}>Open full plate</a>}</div>
     {teachingScene.details.length > 0 && <div className={styles.mobileTeachingCopy}>{teachingScene.details.map((detail) => <div key={detail.label}><strong>{detail.label}</strong><span>{detail.description}</span></div>)}</div>}
   </aside>}</>
