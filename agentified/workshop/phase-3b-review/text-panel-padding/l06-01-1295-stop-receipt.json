@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "status": "stopped_desktop_caption_art_collision",
+  "sceneId": "L06-01",
+  "paddingPr": 1290,
+  "paddingBaseHead": "54ba14f3646af526f2b19a02b95a8da1a90011f9",
+  "stackHeads": {
+    "1291": "2139a136469908e817ceb274cc9af9b43b9a2708",
+    "1292": "c67ae48ddcf3974ad4216c4f4ac03d19619aa949",
+    "1293": "46b2c166ec012a06b8e0a458d6c189c5911f4a03",
+    "1294": "11fc4cb663028240016d144364e8ac4030b3372e",
+    "1295": "afdd4e2c191225eebe839e68040bf9547bda77de"
+  },
+  "captionLocalEvidenceHead": "e74c66c39ed161c10f5df485f78f1ad15ff84ed1",
+  "sourceVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+  "sourceCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+  "reviewRoute": "http://127.0.0.1:3140/agentified/learningplan?lesson=L06&rev=afdd4e2c191225eebe839e68040bf9547bda77de",
+  "reviewBranchWorktree": "/Users/vambahsillah/.codex/worktrees/f6a9/Portfolio",
+  "safeLocalEnv": ["MOCK_N8N=true", "N8N_DISABLE_OUTBOUND=true"],
+  "environmentRetry": "initial unrecognized outbound-disable flag caused a warning; stopped and repeated with the repo-supported flags, with no outbound call observed",
+  "mobilePreliminary": {
+    "viewport": "390x844",
+    "atSeconds": [3, 21],
+    "observed": "external mobile rail clears presenter and headline; active caption is below video at 21 seconds",
+    "candidateBoundToLearner": false
+  },
+  "firstFailure": {
+    "viewport": "1280x844",
+    "atSeconds": 20.7168,
+    "captions": "on, medium",
+    "paused": true,
+    "cueBegins": "If the agent quietly treats that as permission",
+    "collision": "three-line native caption covers lower-left source headline",
+    "evidence": "browser screenshot and AX observation in this task's computer-use trace"
+  },
+  "nextSceneBlocked": "L06-02",
+  "candidatePlaybackQualified": false
+}
