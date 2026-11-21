@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L11-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L11-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L11-08.png",
+      "frame_sha256": "353f65075607f94b2bef8a2a28c581445443db69083fd3b21adbcdcd84de4bc7",
+      "visual_family": "L11-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the cockpit in the file.",
+        "Cockpit",
+        "Trace"
+      ],
+      "accessibility_text": "The Operating File gains an unblock view. Visual: Cockpit and trace sheet in one binder.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains an unblock view.",
+      "brief_sha256": "77ef946095fa994a10113de506602e88fcd44ea3210f36e9cef51628ba298c93",
+      "original_frame_sha256": "093fd1d2e9f800368b99e262b13c97d2f87f15b3a21772f96b00d438897be8df",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 215,
+            "height": 97
+          },
+          "glyph": {
+            "x": 170,
+            "y": 618,
+            "width": 159,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 170,
+            "height": 89
+          },
+          "glyph": {
+            "x": 168,
+            "y": 783,
+            "width": 114,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

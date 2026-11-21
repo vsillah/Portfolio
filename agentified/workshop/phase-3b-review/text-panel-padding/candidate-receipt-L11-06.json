@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L11-06"
+  ],
+  "frames": [
+    {
+      "scene_id": "L11-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L11-06.png",
+      "frame_sha256": "8fd2a4e63d46879801a984fb1fc26cae15a7918bb7cf43710fbc41e24bc8927b",
+      "visual_family": "L11-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Find the missing field.",
+        "Missing field",
+        "Next safe step"
+      ],
+      "accessibility_text": "The learner spots the empty cockpit slot. Visual: One unfilled dial in the operator desk.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner spots the empty cockpit slot.",
+      "brief_sha256": "8f035cd2f7d6f2af63028130a27b1b3df85950737680bab4a0f6ea42133509f3",
+      "original_frame_sha256": "8774175b1be0ffae635acbcd3bad5773d09dae2eaf15c3fa211b19306b7751b3",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 724,
+            "height": 117
+          },
+          "glyph": {
+            "x": 96,
+            "y": 79,
+            "width": 668,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 317,
+            "height": 98
+          },
+          "glyph": {
+            "x": 146,
+            "y": 788,
+            "width": 261,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 350,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 294,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

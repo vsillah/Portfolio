@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:02.160
+Chapter Nineteen calls this a cockpit.
+
+00:00:02.160 --> 00:00:18.620
+Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note.
+
+00:00:19.020 --> 00:00:24.020
+Add owner, age, cost signal, approval queue, and a link to the source trace.
+
+00:00:24.520 --> 00:00:31.520
+A teammate should be able to distinguish work that is waiting from work that has failed, and a failed check should offer a recovery path.
+
+00:00:31.520 --> 00:00:35.040
+This is a paper sketch, not a screenshot of a running system.

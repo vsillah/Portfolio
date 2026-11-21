@@ -1,0 +1,200 @@
+{
+  "status": "review_only_unbound",
+  "sourceVideoSha256": "169488eced03d6c5c300dc9241af14c7677389d9ed9997578266a7828cf842b3",
+  "sourceCaptionSha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78",
+  "stackFrameReceiptSha256": "e1a63259471c4ea96af7ade19df011a9e8139c5f81ea36e14e4f30e9fc58c6b2",
+  "stackClipReceiptSha256": "46e0fe39115b9b701c8d0e3b347c114f534aaceea0ea58cfa33ccf4b09537b88",
+  "stackClips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/L11-02-desktop-review.mp4",
+      "sha256": "cd4c655962a834019be2550ca19fa42930d10fb094532f5304b071a32b03bf81",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/mission-focus.png",
+          "durationSeconds": 33.98
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "890"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1669"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "8"
+          }
+        ],
+        "format": {
+          "duration": "35.600000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/L11-02-mobile-review.mp4",
+      "sha256": "19a73e96713378dea725cb44a6fc8af75ec9816daee0270b1c6dbbb22cf26b2a",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/mission-focus.png",
+          "durationSeconds": 33.98
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "890"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1669"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "8"
+          }
+        ],
+        "format": {
+          "duration": "35.600000"
+        }
+      }
+    }
+  ],
+  "otherScenes": [
+    {
+      "scene": "L11-01",
+      "frameSha256": "d78289cf322fdce7724730b874a4ed6eb4827ea321d167df5555bb9d5c781b1d",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "4d6e95155a24e9615494eaa7ea5af3151f7b190c885afe077873f593e9c205e3",
+          "vttSha256": "53d98e3b22715651157b0dca90ad7d61f122b56b8c248269be587d3dec9c91b1"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "8fd560c7f3ceb944b42d4a1b0e434fa42017f59846c8de9ae8e285f550008c27",
+          "vttSha256": "53d98e3b22715651157b0dca90ad7d61f122b56b8c248269be587d3dec9c91b1"
+        }
+      ]
+    },
+    {
+      "scene": "L11-03",
+      "frameSha256": "e29dbcfcb252b6539f8e1e28bc0b82f959981540bace6e7c934d458ef8e03406",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "658554012fab4cd493a36a2550d35ebaf662eb526605d2dbc0b0efa7ad6b3418",
+          "vttSha256": "cbf392920143c043a270f84502c7d3838fa75b4db78b3b49ea908ad4dedaf681"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "19105b66320f6144b455cde0aa3db444d5df90072a55a4f90799d41b7e987278",
+          "vttSha256": "cbf392920143c043a270f84502c7d3838fa75b4db78b3b49ea908ad4dedaf681"
+        }
+      ]
+    },
+    {
+      "scene": "L11-04",
+      "frameSha256": "309c38a28e42c81e2f71e5925c72ee85d0292a6a6c898ee6f722e9c0d9df992c",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "177e5e418ce425eaf797289749aa6607acec9606a310ef52704eb622e37ea60e",
+          "vttSha256": "c59f377db8a713916d361fd41ccec2fedfda24df08a4a118a4cdc88d09c73c3f"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "5937c978cb38aeaf1153add1f03414778fd3ecbfa79262fc1fcb3c57f08420f2",
+          "vttSha256": "c59f377db8a713916d361fd41ccec2fedfda24df08a4a118a4cdc88d09c73c3f"
+        }
+      ]
+    },
+    {
+      "scene": "L11-05",
+      "frameSha256": "095cd8aac84291d320870597d724b78d4ef8c97bb194cdf233a5dc213ef03148",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "2214ca1b82448b9c33c15d253da1479131dbcf7be60b2d515f0ba017e3b72bd3",
+          "vttSha256": "f894a06fec524a41119c6274134930924bb6a4003d973e84f4d4dbfb79c716c2"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "f0e562ce73254239d73b30201009332c9959f57940afbd3765b6dcc79467e88c",
+          "vttSha256": "f894a06fec524a41119c6274134930924bb6a4003d973e84f4d4dbfb79c716c2"
+        }
+      ]
+    },
+    {
+      "scene": "L11-06",
+      "frameSha256": "8fd2a4e63d46879801a984fb1fc26cae15a7918bb7cf43710fbc41e24bc8927b",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "004a2d55dd361b4ff60e51fc6a6cb4cd67035b9b2e94b8c25e36b5c56e22ee65",
+          "vttSha256": "17e49adca818cb88f2b2e9ecca4e273d3b6d7a810a7fc776cc7fb01f12cd3745"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "e1afeb2e75fcc60e2866e56bfcc16064ad1212d97e3749c0a0a87ce237f6bb2a",
+          "vttSha256": "17e49adca818cb88f2b2e9ecca4e273d3b6d7a810a7fc776cc7fb01f12cd3745"
+        }
+      ]
+    },
+    {
+      "scene": "L11-07",
+      "frameSha256": "93f997642e1485647013e8d1f7f54094f656ecba73adebf4d524c1d19121d357",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "bc8088d6113d7214dbb23de8cc4268610bc011e893e22034bf02841286d7e2bf",
+          "vttSha256": "3ebd062a03594ba4eb2533bc5a73e12eef3178d0d254abfa70c8557d784b53a8"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "6040bdbda19264c817a49cad22e80871ba93a95e64ddf5b22572aa813f315964",
+          "vttSha256": "3ebd062a03594ba4eb2533bc5a73e12eef3178d0d254abfa70c8557d784b53a8"
+        }
+      ]
+    },
+    {
+      "scene": "L11-08",
+      "frameSha256": "353f65075607f94b2bef8a2a28c581445443db69083fd3b21adbcdcd84de4bc7",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "2e506f4f0d5ba1bc5834ed0f7c1424a01188b579f0dd7ea965a35f37c5bfad46",
+          "vttSha256": "848a218a914c62f470fcb2708cdb08e115431e9a4fdce0a2faac571038da9ab3"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "646ce56f046f5ea7b080a45b6d2599996902ea48f8a9d077021b55e23ae9465d",
+          "vttSha256": "848a218a914c62f470fcb2708cdb08e115431e9a4fdce0a2faac571038da9ab3"
+        }
+      ]
+    }
+  ],
+  "limits": "Source audio/VTT unchanged; candidate clips are unbound. Full L11 learner-route and protected end presentation remain separate gates."
+}

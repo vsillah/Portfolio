@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L11-05"
+  ],
+  "frames": [
+    {
+      "scene_id": "L11-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L11-05.png",
+      "frame_sha256": "095cd8aac84291d320870597d724b78d4ef8c97bb194cdf233a5dc213ef03148",
+      "visual_family": "L11-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Open the full trace from mobile.",
+        "Summary card",
+        "Full trace"
+      ],
+      "accessibility_text": "A compact card cannot erase the gate. Visual: Job card beside the deeper trace ledger.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A compact card cannot erase the gate.",
+      "brief_sha256": "82ec2e30bc16cc3490cb9b44db3089fb4f286d12724917ff469ef47f4ecab232",
+      "original_frame_sha256": "6ad7ef8eb073960d27d22ca4a45fa73e4c50144794690ff3949d65230078c181",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 642,
+            "height": 183
+          },
+          "glyph": {
+            "x": 94,
+            "y": 265,
+            "width": 586,
+            "height": 127
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 856,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 856,
+            "width": 358,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1059,
+            "y": 888,
+            "width": 302,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 736,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 736,
+            "width": 247,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 768,
+            "width": 191,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
