@@ -67,8 +67,8 @@
       "captionedReviewClips": [
         {
           "path": "agentified/workshop/phase-3b-review/L13/context/L13-desktop-captioned.mp4",
-          "sha256": "35919f3974a5e85cd964db8c4583afe75875c9118c457a3b685cbf44e8031a43",
-          "bytes": 790199
+          "sha256": "c86dfa83e65f0e587afef707843f1d8dd9bf01302ab0361f69384eda31bef546",
+          "bytes": 791895
         },
         {
           "path": "agentified/workshop/phase-3b-review/L13/context/L13-mobile-captioned.mp4",
@@ -172,13 +172,16 @@
     "desktop and 390x844 contextual MP4s decoded cleanly and stills visually inspected",
     "L13 candidate audio stream duration 255.243 seconds matches source metadata after end trim",
     "L13-03 content-aware panel reduced from 625 to 252 px with original type and source art",
-    "desktop 1280x720 and mobile 390x844 caption-off/on stills visually clear; native-controls bottom zone remains separate"
+    "desktop 1280x720 and mobile 390x844 caption-off/on stills visually clear; native-controls bottom zone remains separate",
+    "L13 desktop QA caption relocated into y=12-100 top clearance; teaching panel begins y=129 and baseline label occupies y=541-603",
+    "L13 desktop prior/new audio and subtitle elementary streams and 16-second/400-frame timing are identical",
+    "L13 mobile review artifact hash unchanged after regeneration"
   ],
-  "openGate": "Combined visual and direct audio Human QA remains HOLD. The L13 source-to-insert and insert-to-source joins, speaker timbre, pitch, pacing, and sentence flow require direct listening; this runtime cannot accept audio for that check. Committing review-only candidates does not authorize learner binding, Human QA approval, merge, deployment, publication, or release.",
+  "openGate": "Combined Human QA must judge the L13 content-aware panel and direct source-to-insert/insert-to-source audio joins, speaker timbre, pitch, pacing, and sentence flow. This runtime cannot accept audio for direct listening. The review correction does not authorize learner binding, merge, deployment, publication, or release.",
   "boundary": "No source media/caption/script binding, provider contact, spend, merge, deployment, publication, release, or learner-data mutation.",
   "basePrHead": "9a1c272f5102b9ff9dc2bd83c255abd298f214ff",
   "learnerBound": false,
-  "humanQaStatus": "HOLD: combined visual and direct audio review pending; this commit is an exact-artifact review checkpoint only",
+  "humanQaStatus": "PENDING: four exact-context MP4s for combined L13 panel and audio-join Human QA; no approval recorded",
   "reproduction": {
     "command": "AGENTIFIED_AUDIO_PYTHON=<python-with-numpy-2.5.5> bash agentified/workshop/phase-3b-review/build-l09-l13-review.sh",
     "requirements": [
@@ -194,5 +197,36 @@
       "agentified/workshop/phase-3b-review/burn-review-captions.py",
       "agentified/workshop/phase-3b-review/verify-review-candidates.py"
     ]
+  },
+  "reviewCaptionCorrection": {
+    "scope": "L13 desktop burned-caption QA copy only",
+    "priorDesktopClipSha256": "35919f3974a5e85cd964db8c4583afe75875c9118c457a3b685cbf44e8031a43",
+    "correctedDesktopClipSha256": "c86dfa83e65f0e587afef707843f1d8dd9bf01302ab0361f69384eda31bef546",
+    "sourceVttUnchanged": true,
+    "cueTextAndTimingUnchanged": true,
+    "priorCaptionBoxPx": [
+      72,
+      560,
+      1208,
+      692
+    ],
+    "correctedCaptionBoxMaxPx": [
+      72,
+      12,
+      1208,
+      100
+    ],
+    "teachingPanelStartsAtYPx": 129,
+    "baselineLabelYPx": [
+      541,
+      603
+    ],
+    "nativeControlsBottomZoneStartsAtYPx": 656,
+    "mobileCaptionStartsAtYPx": 552,
+    "mobileVideoEndsAtYPx": 531,
+    "desktopAudioStreamSha256": "a4c3b809e53c846c6a3e0615c4c8446f32f8771544af58b47763e0d5fc28ee99",
+    "desktopSubtitleStreamSha256": "23cf5da93148d68a0120927fbba8ac4aa09375e11fa7cb7585d9cf8c86faf8b3",
+    "outputGeometry": "1280x720 desktop and 390x844 mobile unchanged; all contextual clips 16.000 s for L13",
+    "learnerRouteChanged": false
   }
 }

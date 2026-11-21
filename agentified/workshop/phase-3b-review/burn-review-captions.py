@@ -9,7 +9,8 @@ for lesson in ('L09','L13'):
   source=folder/f'{lesson}-{layout}-context.mp4'
   vtt=folder/f'{lesson}-{layout}-context.vtt'
   width,height=(1280,720) if layout=='desktop' else (390,844)
-  font=ImageFont.truetype(font_path,28 if layout=='desktop' else 20)
+  l13_desktop=lesson=='L13' and layout=='desktop'
+  font=ImageFont.truetype(font_path,24 if l13_desktop else 28 if layout=='desktop' else 20)
   cues=[]
   for block in vtt.read_text().strip().split('\n\n')[1:]:
    lines=block.splitlines();match=re.fullmatch(r'(\d\d):(\d\d):(\d\d\.\d{3}) --> (\d\d):(\d\d):(\d\d\.\d{3})',lines[0]);assert match,block
@@ -26,9 +27,11 @@ for lesson in ('L09','L13'):
     if draw.textbbox((0,0),trial,font=font)[2]>max_width and line:lines.append(line);line=word
     else:line=trial
    if line:lines.append(line)
-   line_height=28 if layout=='mobile' else 36
+   line_height=28 if layout=='mobile' else 32 if l13_desktop else 36
    box_height=line_height*len(lines)+24
-   y=(552 if layout=='mobile' else height-box_height-28)
+   # L13's baseline label occupies the lower middle of the desktop frame.
+   # The review-only cue sits in the top margin, above the teaching panel.
+   y=(552 if layout=='mobile' else 12 if l13_desktop else height-box_height-28)
    x=12 if layout=='mobile' else 72
    draw.rounded_rectangle((x,y,width-x,y+box_height),radius=10,fill=(3,20,31,228))
    for j,line in enumerate(lines):

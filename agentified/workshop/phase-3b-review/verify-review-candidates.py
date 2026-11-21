@@ -75,4 +75,23 @@ video = next(stream for stream in meta['streams'] if stream['codec_type'] == 'vi
 audio = next(stream for stream in meta['streams'] if stream['codec_type'] == 'audio')
 assert (video['width'], video['height'], video['nb_frames'], video['duration']) == (1920, 1080, '6368', '254.720000')
 assert audio['duration'] == '255.243000'
+correction = receipt['reviewCaptionCorrection']
+desktop = next(clip for clip in l13['captionedReviewClips'] if 'desktop' in clip['path'])
+mobile = next(clip for clip in l13['captionedReviewClips'] if 'mobile' in clip['path'])
+assert desktop['sha256'] == correction['correctedDesktopClipSha256']
+assert correction['priorDesktopClipSha256'] != correction['correctedDesktopClipSha256']
+assert stream_hash(verified_asset(desktop), '0:a:0') == 'SHA256=' + correction['desktopAudioStreamSha256']
+assert stream_hash(verified_asset(desktop), '0:s:0') == 'SHA256=' + correction['desktopSubtitleStreamSha256']
+assert correction['correctedCaptionBoxMaxPx'][3] < correction['teachingPanelStartsAtYPx']
+assert correction['correctedCaptionBoxMaxPx'][3] < correction['baselineLabelYPx'][0]
+assert correction['correctedCaptionBoxMaxPx'][3] < correction['nativeControlsBottomZoneStartsAtYPx']
+assert correction['mobileCaptionStartsAtYPx'] > correction['mobileVideoEndsAtYPx']
+assert mobile['sha256'] == '728fb8e579a75c008910ab8af81efe64b92ac4d2f71e9342e0e603009601ec64'
+subtitle = subprocess.check_output([
+    'ffmpeg', '-v', 'error', '-i', str(verified_asset(desktop)), '-map', '0:s:0', '-f', 'webvtt', '-'
+], text=True)
+assert '00:00.000 --> 00:06.278' in subtitle
+assert "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate." in subtitle
+assert '00:06.747 --> 00:08.838' in subtitle
+assert 'Here the baseline is `unknown`, not zero.' in subtitle
 print('PASS: source hashes, one-word L09 VTT, L13 frame scope, candidate streams, and four decoded context MP4s')
