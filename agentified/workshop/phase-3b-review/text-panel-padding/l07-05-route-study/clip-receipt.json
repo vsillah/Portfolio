@@ -1,0 +1,87 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L07-05",
+  "paddingHead": "241822880bb3343e00e47c0f6218730bee7fa6b2",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 127.108,
+  "durationSeconds": 26.371,
+  "sourceVideoSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+  "sourceCaptionSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+  "trimmedCaptionSha256": "acc2f20dcae8d4e39715c19a40b1a9aef0004bae056bcd9419f966d9ecab99cd",
+  "frameReceiptSha256": "1628edd107ea4997cbe9b59d95b70f95688106b18e6eb550f6f948ebbade75dc",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/L07-05-desktop-review.mp4",
+      "sha256": "d93b451c675b525222a15ab0d86da85f64e7076c55c0c0a8660b1610d2ce994b",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-route-focus.png",
+          "durationSeconds": 26.371
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "659"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1238"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "26.371000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/L07-05-mobile-review.mp4",
+      "sha256": "f99e6d71c1c0c7b4ff68bf7afed4b09e98d5db07e93a7d0e63476d0130b6926c",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-overview.png",
+          "durationSeconds": 1.5
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-route-focus.png",
+          "durationSeconds": 24.871
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "659"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1238"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "26.371000"
+        }
+      }
+    }
+  ]
+}

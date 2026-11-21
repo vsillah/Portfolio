@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L07-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L07-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L07-08.png",
+      "frame_sha256": "38cfc00daa94f1b93fb69557ddc001d42d4daf9cd4c7f080857ff2a4eba2498c",
+      "visual_family": "L07-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the spec with the team.",
+        "PRD",
+        "Pod"
+      ],
+      "accessibility_text": "The Operating File gains a job spec and pod map. Visual: PRD sheet and team map in one binder.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains a job spec and pod map.",
+      "brief_sha256": "0888ab980f36c87395a61ef5e4b963b90741680c3ed95cf88388f9bd765500f8",
+      "original_frame_sha256": "234f3010cbdf74fe5be5a90d9e8ec0e516e7b62c8442838879149a3947abc820",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 144,
+            "height": 88
+          },
+          "glyph": {
+            "x": 171,
+            "y": 618,
+            "width": 88,
+            "height": 32
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 134,
+            "height": 89
+          },
+          "glyph": {
+            "x": 171,
+            "y": 783,
+            "width": 78,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

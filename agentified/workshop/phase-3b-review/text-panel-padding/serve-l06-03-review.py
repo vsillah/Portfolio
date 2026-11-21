@@ -1,13 +1,14 @@
 """Read-only localhost review server with MP4 byte-range support."""
 
+import os
 import re
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-ROOT = Path(__file__).resolve().parent / "l06-03-responsive-study"
+ROOT = Path(os.environ.get('AGENTIFIED_REVIEW_ROOT', Path(__file__).resolve().parent / 'l06-03-responsive-study')).resolve()
 HOST = "127.0.0.1"
-PORT = 8770
+PORT = int(os.environ.get('AGENTIFIED_REVIEW_PORT', '8770'))
 
 
 class ReviewHandler(SimpleHTTPRequestHandler):
@@ -56,5 +57,5 @@ class ReviewHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print(f"Serving unbound L06-03 review only at http://{HOST}:{PORT}/review.html")
+    print(f"Serving unbound review from {ROOT} at http://{HOST}:{PORT}/review.html")
     ThreadingHTTPServer((HOST, PORT), ReviewHandler).serve_forever()
