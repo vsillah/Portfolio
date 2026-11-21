@@ -1,6 +1,6 @@
 # L05-01 caption-clearance stop
 
-Status: **STOP before push or PR update**. Local experiment commit `0bc54af1f40e2b1b5495a9a691413f65994c1212` is one commit ahead of draft PR #1293 head `b93450a8d98f1d325dd5914b5a4c2f50df640099`. The exact review-only padding candidate is draft PR #1290 head `d047960edcf58bc2c75b3a944fe22a5d8ad25bb4`; no candidate media was bound to learners.
+Historical status: **STOP before push or PR update at that checkpoint**. The issue is resolved in the exact-commit consolidated packet at `../l05-caption-clearance-review/README.md`. Local experiment commit `0bc54af1f40e2b1b5495a9a691413f65994c1212` is one commit ahead of draft PR #1293 head `b93450a8d98f1d325dd5914b5a4c2f50df640099`. The exact review-only padding candidate is draft PR #1290 head `d047960edcf58bc2c75b3a944fe22a5d8ad25bb4`; no candidate media was bound to learners.
 
 The L05-01 desktop cue at 19.314 seconds clears the “One request needs a visible path” panel and its border in `L05-01-1280-M-on.png`. The mobile cue is below the video in `L05-01-390-M-on.png`. The protected presenter opening remains native through 11.909 seconds, and the scene-bound band starts at 11.91 seconds.
 
