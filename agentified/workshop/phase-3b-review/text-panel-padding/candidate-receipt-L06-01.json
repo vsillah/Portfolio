@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L06-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L06-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-01.png",
+      "frame_sha256": "9f042b9ec24e1c3a78bc1668775d879d05757aa89e5c4649ee88d18c537b76c1",
+      "visual_family": "L06-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A role needs a permission slip."
+      ],
+      "accessibility_text": "Preparation tools stop before execution. Visual: Lens, pencil, archive, and handoff envelope beside a gate.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Preparation tools stop before execution.",
+      "brief_sha256": "c8da06d43ec0f5ee0900de4961ca94386b8d2ad1c9b7ddcc5a1dd08c8e01bbf7",
+      "original_frame_sha256": "8e921d1ffb11638533c84241c4df746a90b729e25983fa42c4a6504846fac653",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 945,
+            "height": 205
+          },
+          "glyph": {
+            "x": 104,
+            "y": 706,
+            "width": 889,
+            "height": 149
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

@@ -28,6 +28,22 @@ if scene_id == 'L05-07':
     start = scene['start_seconds'] + 10  # Review the worksheet before the protected countdown.
 if scene_id == 'L05-08':
     start = scene['start_seconds'] + 0.2  # Review the file before the protected presenter ending.
+if any(start < right and start + duration > left for left, right, _ in composite['protected_windows']):
+    # Choose the longest scene-local unprotected interval, with a boundary margin.
+    windows = sorted((max(scene['start_seconds'], left), min(scene['end_seconds'], right))
+                     for left, right, _ in composite['protected_windows']
+                     if left < scene['end_seconds'] and right > scene['start_seconds'])
+    gaps, cursor = [], scene['start_seconds']
+    for left, right in windows:
+        if left > cursor:
+            gaps.append((cursor, left))
+        cursor = max(cursor, right)
+    if cursor < scene['end_seconds']:
+        gaps.append((cursor, scene['end_seconds']))
+    left, right = max(gaps, key=lambda gap: gap[1] - gap[0])
+    duration = min(duration, right - left - 0.2)
+    assert duration > 0, f'{scene_id}: no safe review interval'
+    start = left + 0.1 + (right - left - 0.2 - duration) / 2
 assert start >= scene['start_seconds'] and start + duration <= scene['end_seconds']
 for left, right, kind in composite['protected_windows']:
     assert start + duration <= left or start >= right, f'{scene_id}: overlaps protected {kind}'
