@@ -33,6 +33,9 @@ out.mkdir(parents=True, exist_ok=True)
 stem = out / f'{scene_id}-{layout}'
 subprocess.run(['python3', str(ROOT / 'docs/agentified-distribution-readiness/phase-3b/trim_vtt.py'),
                 str(vtt), str(stem) + '.vtt', str(start), '8'], check=True)
+trimmed_vtt = stem.with_suffix('.vtt')
+if trimmed_vtt.read_text().strip() == 'WEBVTT':
+    trimmed_vtt.write_text('WEBVTT\n')
 scale = 'scale=1280:720' if layout == 'desktop' else 'scale=390:219,pad=390:844:0:312:color=0x071b2a'
 subprocess.run(['ffmpeg', '-y', '-hide_banner', '-loglevel', 'error', '-ss', str(start), '-i', str(video),
                 '-loop', '1', '-framerate', '25', '-i', str(frame), '-i', str(stem) + '.vtt', '-t', '8',

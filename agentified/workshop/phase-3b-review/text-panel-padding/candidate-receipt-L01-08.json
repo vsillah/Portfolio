@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L01-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L01-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L01-08.png",
+      "frame_sha256": "f7b0c6a23e8167bfa6d4637a828d18d64ae04e3bfef5d0af66425a4b5aef363a",
+      "visual_family": "L01-operating-artifact:file:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the job and receipt together.",
+        "Workflow",
+        "Receipt"
+      ],
+      "accessibility_text": "The first Operating File has two useful parts. Visual: Two-tab Operating File binder over the source table.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The first Operating File has two useful parts.",
+      "brief_sha256": "87d0934918eeb322ad1fb8a11c7609d542540c1d819cea3c18b901ec94db6c92",
+      "original_frame_sha256": "cc93b2699a872e189879dd0976a8d5fd927a2a1ba58df55f1d8e3d1e7887b669",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 254,
+            "height": 89
+          },
+          "glyph": {
+            "x": 168,
+            "y": 618,
+            "width": 198,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 212,
+            "height": 97
+          },
+          "glyph": {
+            "x": 171,
+            "y": 783,
+            "width": 156,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

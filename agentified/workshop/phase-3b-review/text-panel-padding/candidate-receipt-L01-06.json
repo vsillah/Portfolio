@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L01-06"
+  ],
+  "frames": [
+    {
+      "scene_id": "L01-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L01-06.png",
+      "frame_sha256": "8e9f693376b77b375b9a92f7e99fd3e211ea58f5f55c675084869df156d961b8",
+      "visual_family": "L01-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Choose a workflow worth tracing.",
+        "Choose one job",
+        "Name its owner"
+      ],
+      "accessibility_text": "Start with a job whose result can be reviewed. Visual: Three possible workflow slips beside the source table.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Start with a job whose result can be reviewed.",
+      "brief_sha256": "ac5718f927958b8b4124a30a5ca00c3ca2a4b0027ffb412c6e1ee4c3ba361d6f",
+      "original_frame_sha256": "369b243adda5cc52704a943c7924599261eca69594287a7a9d010c67246df0f5",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1073,
+            "height": 117
+          },
+          "glyph": {
+            "x": 95,
+            "y": 79,
+            "width": 1017,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 383,
+            "height": 98
+          },
+          "glyph": {
+            "x": 145,
+            "y": 788,
+            "width": 327,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 379,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 323,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
