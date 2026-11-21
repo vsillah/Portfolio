@@ -86,7 +86,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
     track.mode = 'showing'
     act(() => { tracks.dispatchEvent(new Event('change')) })
-    expect(track.mode).toBe(id === 'L01' ? 'showing' : 'hidden')
+    expect(track.mode).toBe('hidden')
     expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Caption size' })).toBeInTheDocument()
     if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)

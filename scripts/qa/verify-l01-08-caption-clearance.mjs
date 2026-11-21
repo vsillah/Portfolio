@@ -33,7 +33,7 @@ for (const width of [1280, 390]) {
   const seek = async (time) => {
     await video.evaluate((element, target) => { element.currentTime = target; element.dispatchEvent(new Event('timeupdate', { bubbles: true })) }, time)
     await waitForCueFrame(page, time)
-    await page.waitForFunction(({ time, width }) => document.querySelector('video')?.textTracks[0]?.mode === (width === 390 || (time >= 34.585 && time < 74.197 || time >= 114.358 && time < 150.501 || time >= 150.501 && time < 183.059 || time >= 343.059 && time < 359.645) ? 'hidden' : 'showing'), { time, width }, { timeout: 3000 }).catch(async () => { throw Error(`${width} seek ${time}: track mode ${await video.evaluate((element) => element.textTracks[0].mode)}`) })
+    await page.waitForFunction(({ time, width }) => document.querySelector('video')?.textTracks[0]?.mode === (width === 390 || (time >= 34.585 && time < 74.197 || time >= 114.358 && time < 150.501 || time >= 150.501 && time < 183.059 || time >= 343.059) ? 'hidden' : 'showing'), { time, width }, { timeout: 3000 }).catch(async () => { throw Error(`${width} seek ${time}: track mode ${await video.evaluate((element) => element.textTracks[0].mode)}`) })
     await video.evaluate((element) => element.pause())
   }
   const inspect = async (scene, sample, time, size = 'M') => {
@@ -44,7 +44,7 @@ for (const width of [1280, 390]) {
       const bb = band?.getBoundingClientRect()
       return { time: video.currentTime, mode: video.textTracks[0].mode, cues: [...video.textTracks[0].cues].filter((cue) => cue.startTime <= video.currentTime && video.currentTime < cue.endTime).map((cue) => ({ start: cue.startTime, end: cue.endTime, text: cue.text })), band: band?.textContent ?? null, bandCount: document.querySelectorAll('[aria-label="L01 caption"]').length, bandFont: band ? getComputedStyle(band).fontSize : null, bandTop: bb?.top ?? null, videoBottom: vb.bottom, video: [Math.round(vb.width), Math.round(vb.height)], controls: video.controls, endScreen: Boolean(document.querySelector('[role="status"][aria-label^="L01 complete."]')), selected: [...document.querySelectorAll('[role="group"][aria-label="Caption size"] button[aria-pressed="true"]')].map((button) => button.getAttribute('aria-label')), scrollWidth: document.documentElement.scrollWidth }
     })
-    const external = width === 390 || size === 'L' || (time >= 34.585 && time < 74.197 || time >= 114.358 && time < 150.501 || time >= 150.501 && time < 183.059 || time >= 343.059 && time < 359.645)
+    const external = width === 390 || size === 'L' || (time >= 34.585 && time < 74.197 || time >= 114.358 && time < 150.501 || time >= 150.501 && time < 183.059 || time >= 343.059)
     const active = state.cues.length === 1
     if (state.cues.length > 1 || state.mode !== (external ? 'hidden' : 'showing') || state.bandCount !== (external && active ? 1 : 0) || external && active && state.band !== state.cues[0].text || state.bandTop !== null && state.bandTop < state.videoBottom - 1 || state.video.join() !== baseline.video.join() || state.scrollWidth > baseline.scrollWidth + 1 || !state.controls || state.endScreen !== (time >= 359.645)) throw Error(`${width} ${scene} ${sample} ${size}: ${JSON.stringify(state)}`)
     if (external && active && state.bandFont !== { S: '14px', M: '18px', L: '24px' }[size]) throw Error(`${width} ${scene} ${sample} ${size}: band font drifted`)
@@ -78,6 +78,21 @@ for (const width of [1280, 390]) {
       await page.getByRole('button', { name: 'Medium captions' }).click()
     }
   }
+  await seek(359.3)
+  await video.evaluate(async (element) => { element.muted = true; await element.play() })
+  await page.waitForFunction(() => document.querySelector('video')?.currentTime >= 359.7)
+  await video.evaluate((element) => element.pause())
+  await inspect('L01-08-boundary', 'played-through', 359.7)
+  await video.locator('../..').screenshot({ path: `${out}/L01-08-${width}-played-through.png` })
+  await page.evaluate(() => localStorage.setItem('theme', 'dark'))
+  await page.reload({ waitUntil: 'networkidle' })
+  await page.waitForFunction(() => document.documentElement.classList.contains('dark') && document.querySelector('video')?.textTracks[0]?.cues?.length > 0)
+  await seek(350)
+  await video.evaluate(async (element) => { element.muted = true; await element.play() })
+  await page.waitForFunction(() => document.querySelector('video')?.currentTime >= 350.2)
+  await video.evaluate((element) => element.pause())
+  await inspect('L01-08', 'dark-theme', 350)
+  await video.locator('../..').screenshot({ path: `${out}/L01-08-${width}-dark-theme.png` })
   await page.close()
 }
 
