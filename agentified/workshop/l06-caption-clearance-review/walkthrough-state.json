@@ -1,0 +1,394 @@
+{
+  "generatedAt": "2026-11-21T05:01:44.226Z",
+  "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+  "states": [
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-02 adjacent boundary",
+      "time": 64.5,
+      "mode": "showing",
+      "cue": [
+        "Expiry sends the proposed slip back for review\nbefore the next course planning cycle."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 Small band",
+      "time": 77,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 Medium band",
+      "time": 77,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 Large band",
+      "time": 77,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 captions off",
+      "time": 77,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 captions restored",
+      "time": 77,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 cue gap",
+      "time": 97.481,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-04 adjacent boundary",
+      "time": 98.5,
+      "mode": "showing",
+      "cue": [
+        "Now test the value of the work itself."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-02 adjacent boundary",
+      "time": 64.5,
+      "mode": "hidden",
+      "cue": [
+        "Expiry sends the proposed slip back for review\nbefore the next course planning cycle."
+      ],
+      "band": "Expiry sends the proposed slip back for review\nbefore the next course planning cycle.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 Small band",
+      "time": 77,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 Medium band",
+      "time": 77,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 Large band",
+      "time": 77,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 captions off",
+      "time": 77,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 captions restored",
+      "time": 77,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-03 cue gap",
+      "time": 97.481,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "step": "L06-04 adjacent boundary",
+      "time": 98.5,
+      "mode": "hidden",
+      "cue": [
+        "Now test the value of the work itself."
+      ],
+      "band": "Now test the value of the work itself.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=desktop&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "Small band",
+      "time": 2.007933,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=desktop&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "Medium band",
+      "time": 2.007933,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=desktop&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "Large band",
+      "time": 2.007933,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=desktop&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "captions off",
+      "time": 2.007933,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=desktop&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "captions restored",
+      "time": 2.007933,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=mobile&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "Small band",
+      "time": 2.003732,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=mobile&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "Medium band",
+      "time": 2.003732,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=mobile&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "Large band",
+      "time": 2.003732,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=mobile&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "captions off",
+      "time": 2.003732,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l06-caption-clearance-review/candidate/review.html?layout=mobile&revision=519918b9",
+      "codeCommit": "51747cb7d53f5be320a04896e9c6a648f0803d6e",
+      "candidateCommit": "519918b9df23ae012d5c20c700ffb8a696775afb",
+      "step": "captions restored",
+      "time": 2.003732,
+      "mode": "hidden",
+      "cue": [
+        "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path."
+      ],
+      "band": "Its proposed slip also names permitted source\nIDs, forbidden inputs, the receipt, source\nchecks, an owner, and a revocation path.",
+      "controls": true
+    }
+  ]
+}
