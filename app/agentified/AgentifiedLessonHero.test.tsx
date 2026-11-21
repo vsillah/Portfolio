@@ -277,6 +277,76 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
+  it('routes only L01-02 desktop cues below the video and restores adjacent native captions', () => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    const before = { startTime: 30, endTime: 34.584, text: 'Before the scoped job' }
+    const protectedCue = { startTime: 49.894, endTime: 55.569, text: 'If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.' }
+    const after = { startTime: 74.197, endTime: 83.794, text: 'Write the job in one sentence' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [before, protectedCue, after] })
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const mobileMedia = Object.assign(new EventTarget(), { matches: false })
+    HTMLMediaElement.prototype.pause = vi.fn()
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    vi.stubGlobal('matchMedia', vi.fn(() => mobileMedia))
+    const props = { lessonId: 'L01', title: 'Scoped job', poster: '/agentified/posters/l01-poster.webp', videoSrc: '/approved-l01.mp4', captionsSrc: '/approved-l01.vtt' }
+    try {
+      const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      const video = container.querySelector('video')!
+      let currentTime = 34.584
+      Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+      fireEvent.loadedMetadata(video)
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('showing')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+
+      currentTime = 52
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveTextContent(protectedCue.text)
+      for (const size of ['S', 'L', 'M'] as const) {
+        rerender(<AgentifiedLessonHero {...props} captionSize={size} captionsOn />)
+        expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveAttribute('data-caption-size', size)
+      }
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn={false} />)
+      expect(track.mode).toBe('disabled')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveTextContent(protectedCue.text)
+
+      currentTime = 55.8
+      fireEvent.seeking(video)
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      currentTime = 74.197
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('showing')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      act(() => { mobileMedia.matches = true; mobileMedia.dispatchEvent(new Event('change')) })
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveTextContent(after.text)
+      act(() => { mobileMedia.matches = false; mobileMedia.dispatchEvent(new Event('change')) })
+      expect(track.mode).toBe('showing')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      expect([before, protectedCue, after]).toEqual([
+        { startTime: 30, endTime: 34.584, text: before.text },
+        { startTime: 49.894, endTime: 55.569, text: protectedCue.text },
+        { startTime: 74.197, endTime: 83.794, text: after.text },
+      ])
+      expect(video).toHaveAttribute('controls')
+      unmount()
+    } finally {
+      if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
+      else Reflect.deleteProperty(HTMLMediaElement.prototype, 'textTracks')
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('shows the exact mobile cue outside the player and restores it while paused', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     HTMLMediaElement.prototype.pause = vi.fn()
