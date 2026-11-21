@@ -1,0 +1,91 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L16-04",
+  "paddingHead": "31f283cb7",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 89.0,
+  "durationSeconds": 28.0,
+  "sourceVideoSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+  "sourceCaptionSha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060",
+  "trimmedCaptionSha256": "f7637cb0b26091db01a08c6125e7e297e718ead8df1660baf192dcc8f87ba804",
+  "frameReceiptSha256": "3fa3342ccd924e653f5153dc1005289e05316a38656fad3be048c640ea7bf5ec",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/L16-04-desktop-review.mp4",
+      "sha256": "5e938af3c7a9d59ac8c552ae47d4b9c93cbbb7443b760da4bf1824041a7f10cc",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit.png",
+          "durationSeconds": 26.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "700"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1314"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "17"
+          }
+        ],
+        "format": {
+          "duration": "28.000000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/L16-04-mobile-review.mp4",
+      "sha256": "0d9cbdd8965431afaf135474215ca1a0dfc0100efe3979cae3f4c9a3ecce08fb",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit.png",
+          "durationSeconds": 26.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "700"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1314"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "17"
+          }
+        ],
+        "format": {
+          "duration": "28.000000"
+        }
+      }
+    }
+  ]
+}

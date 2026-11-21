@@ -1,0 +1,51 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L16-04",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+  "approvedPlateSha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+  "approvedPlatePx": [
+    3600,
+    4500
+  ],
+  "method": "complete approved plate in both frames beside distinct narration-derived audit; no crop or SVG",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide.png",
+      "sha256": "9d7812b23c2b67d94ce6e015bac7956d703c1e1d7ca83bb25f05a8d3d2071dc4",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "a0e235aa601d98b45802579846831f56cb84c011f517f706a292b2643cfd0684",
+      "geometry": {
+        "completePlatePx": [
+          672,
+          135,
+          576,
+          720
+        ],
+        "narrationAudit": []
+      }
+    },
+    {
+      "kind": "audit",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit.png",
+      "sha256": "ae8e293a55f34a586b914d99486ca848f8bfb7905047e134e0b7d582642a18f2",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit-mobile-preview.png",
+      "mobilePreviewSha256": "d29fe3a9759a5e023d1c44c07736023805c23aa40511292418879897b9ee57b1",
+      "geometry": {
+        "completePlatePx": [
+          82,
+          190,
+          480,
+          600
+        ],
+        "narrationAudit": [
+          "Preparation role: draft brief",
+          "Morgan: session recommendation",
+          "Separate owner: spend review",
+          "Staffing: no evidence yet",
+          "Hold: no book, send, or buy"
+        ]
+      }
+    }
+  ]
+}

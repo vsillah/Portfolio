@@ -1,0 +1,51 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L16-05",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+  "approvedPlateSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+  "approvedPlatePx": [
+    3000,
+    4700
+  ],
+  "method": "complete approved plate in both frames beside distinct narration-derived audit; no crop or SVG",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/overview-wide.png",
+      "sha256": "a606fcaed577340195d7d74c31ea8fce97d0232b58fc0f3e8aad58e2e2da680b",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "8da977bb521660848b8227eee3a06069afe5b8d9099899797c0ed8b564750ee1",
+      "geometry": {
+        "completePlatePx": [
+          720,
+          145,
+          480,
+          752
+        ],
+        "narrationAudit": []
+      }
+    },
+    {
+      "kind": "audit",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/audit.png",
+      "sha256": "8e832a273243bfcbf884d78d00c0d17e95a7246527c35fd1e900b81762bde6f8",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/audit-mobile-preview.png",
+      "mobilePreviewSha256": "46bd20ba76437c83235bd96401fd09bfbb7888a8ba3d7e1a8a8cd8fafd06209d",
+      "geometry": {
+        "completePlatePx": [
+          80,
+          173,
+          420,
+          658
+        ],
+        "narrationAudit": [
+          "Proof outline: not shared",
+          "Retain the prior paper draft",
+          "Correct the claim and log why",
+          "Future rule: named revoke owner",
+          "Weakest gate: staffing confirmation"
+        ]
+      }
+    }
+  ]
+}
