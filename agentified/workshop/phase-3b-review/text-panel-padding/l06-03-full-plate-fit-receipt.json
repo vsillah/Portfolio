@@ -1,0 +1,41 @@
+{
+  "status": "STOP: no-crop source plate is unreadable in the 390x219 learner video",
+  "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+  "sourceSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+  "sourcePx": [
+    3000,
+    4700
+  ],
+  "method": "optimistic full-frame-height no-crop fit; excludes headline, labels, and 28px panels",
+  "fits": [
+    {
+      "layout": "desktop",
+      "videoPx": [
+        1920,
+        1080
+      ],
+      "platePx": [
+        689,
+        1080
+      ],
+      "sourceScale": 0.2297872340425532,
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/L06-03-full-plate-fit-desktop.png",
+      "sha256": "e236ccb2b2672028ddd1dc3f26118d40d1f3a48a91dc3311f03bc1612b436634"
+    },
+    {
+      "layout": "mobile-video",
+      "videoPx": [
+        390,
+        219
+      ],
+      "platePx": [
+        140,
+        219
+      ],
+      "sourceScale": 0.046595744680851064,
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/L06-03-full-plate-fit-mobile-video.png",
+      "sha256": "16579b8c46278ded5f15633cd87f9d4218c3ab655fbb038d82a97c570d510291"
+    }
+  ],
+  "reviewOnlyUnbound": true
+}
