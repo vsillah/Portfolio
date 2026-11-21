@@ -1,0 +1,676 @@
+{
+  "generatedAt": "2026-11-21T18:26:23.200Z",
+  "captionHead": "e0275a09c488735f88dac12c15016a3155b82989",
+  "playerHead": "afdd4e2c191225eebe839e68040bf9547bda77de",
+  "binding": {
+    "video": "/agentified/lessons/l06/illustrated-163e01e6/agentified-l06-illustrated-composite.mp4",
+    "compositeSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+    "sourceVideo": "/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-composite.mp4",
+    "sourceSha256": "991cb8b676ab1d3eaea35bf9ff0593e7a47fd2538b2f6d5c22ecc9ffd0737827",
+    "captions": "/agentified/lessons/l06/continuous-991cb8b6/agentified-l06-continuous-narration-captions.vtt",
+    "captionsSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+    "transcriptSha256": "fd2934696358cf5713882956ee394cb2d6530da126149450294971962b11f17a",
+    "durationSeconds": 258.96
+  },
+  "states": [
+    {
+      "width": 1280,
+      "label": "S-paused",
+      "expectedTime": 20.7168,
+      "size": "S",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "14px",
+      "bandTop": 354.84375,
+      "videoBottom": 346.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "S-off",
+      "expectedTime": 20.7168,
+      "size": "S",
+      "expectedOn": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "font": null,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "S-restored",
+      "expectedTime": 20.7168,
+      "size": "S",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "14px",
+      "bandTop": 356.84375,
+      "videoBottom": 348.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "M-paused",
+      "expectedTime": 20.7168,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 356.84375,
+      "videoBottom": 348.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "M-off",
+      "expectedTime": 20.7168,
+      "size": "M",
+      "expectedOn": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "font": null,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "M-restored",
+      "expectedTime": 20.7168,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 356.84375,
+      "videoBottom": 348.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L-paused",
+      "expectedTime": 20.7168,
+      "size": "L",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "24px",
+      "bandTop": 356.84375,
+      "videoBottom": 348.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L-off",
+      "expectedTime": 20.7168,
+      "size": "L",
+      "expectedOn": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "font": null,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L-restored",
+      "expectedTime": 20.7168,
+      "size": "L",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "24px",
+      "bandTop": 356.84375,
+      "videoBottom": 348.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L06-01-end-minus",
+      "expectedTime": 28.638,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 28.638,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "font": null,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L06-02-start",
+      "expectedTime": 28.639,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 28.639,
+      "mode": "hidden",
+      "active": [
+        "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 363.84375,
+      "videoBottom": 355.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "natural-L06-02",
+      "expectedTime": 28.839,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 28.841339,
+      "mode": "hidden",
+      "active": [
+        "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 363.84375,
+      "videoBottom": 355.84375,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "S-paused",
+      "expectedTime": 20.7168,
+      "size": "S",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "14px",
+      "bandTop": 226.125,
+      "videoBottom": 160.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "S-off",
+      "expectedTime": 20.7168,
+      "size": "S",
+      "expectedOn": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "font": null,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "S-restored",
+      "expectedTime": 20.7168,
+      "size": "S",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "14px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "M-paused",
+      "expectedTime": 20.7168,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "M-off",
+      "expectedTime": 20.7168,
+      "size": "M",
+      "expectedOn": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "font": null,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "M-restored",
+      "expectedTime": 20.7168,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L-paused",
+      "expectedTime": 20.7168,
+      "size": "L",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "24px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L-off",
+      "expectedTime": 20.7168,
+      "size": "L",
+      "expectedOn": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "font": null,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L-restored",
+      "expectedTime": 20.7168,
+      "size": "L",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "24px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "rail-play-pause",
+      "expectedTime": 20.7168,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 20.7168,
+      "mode": "hidden",
+      "active": [
+        "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary."
+      ],
+      "band": "If the agent quietly treats that as permission\nto confirm a teacher, the map looks orderly\nwhile the work crosses a boundary.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L06-01-end-minus",
+      "expectedTime": 28.638,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 28.638,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "font": null,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L06-02-start",
+      "expectedTime": 28.639,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 28.639,
+      "mode": "hidden",
+      "active": [
+        "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "natural-L06-02",
+      "expectedTime": 28.839,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 28.845945,
+      "mode": "hidden",
+      "active": [
+        "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "fullscreen",
+      "expectedTime": 28.839,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 28.845945,
+      "mode": "hidden",
+      "active": [
+        "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 512.484375,
+      "videoBottom": 444.484375,
+      "geometry": [
+        366,
+        206
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "fullscreen-restored",
+      "expectedTime": 28.839,
+      "size": "M",
+      "expectedOn": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06&rev=e0275a09c488735f88dac12c15016a3155b82989-afdd4e2c19",
+      "time": 28.845945,
+      "mode": "hidden",
+      "active": [
+        "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry."
+      ],
+      "band": "Chapter Nine names five fields: scope, ceiling,\nreversibility, escalation, and expiry.",
+      "bandCount": 1,
+      "font": "18px",
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "endScreen": false
+    }
+  ]
+}
