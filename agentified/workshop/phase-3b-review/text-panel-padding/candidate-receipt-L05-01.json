@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L05-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L05-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L05-01.png",
+      "frame_sha256": "e9decf91c57afc00d9a85517546b20660ef69e3fe6e094f1c7bfa1971dbe880f",
+      "visual_family": "L05-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "One request needs a visible path."
+      ],
+      "accessibility_text": "A new teammate can follow the work. Visual: Request card, compass, source lens, draft, receipt, and owner.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A new teammate can follow the work.",
+      "brief_sha256": "38c85bdda9a49bc6f1a204bc2e7e8f1adac81d7f1376f1f0af58c94d8ea7e335",
+      "original_frame_sha256": "ae17ecedc7aed89fc4b46f6b2b1ad24e521d451cde78005b857bdd3a712bdf74",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 1003,
+            "height": 206
+          },
+          "glyph": {
+            "x": 107,
+            "y": 705,
+            "width": 947,
+            "height": 150
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

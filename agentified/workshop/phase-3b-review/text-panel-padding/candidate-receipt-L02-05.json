@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L02-05"
+  ],
+  "frames": [
+    {
+      "scene_id": "L02-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L02-05.png",
+      "frame_sha256": "c9aff683bfa6dc274814e01bd6bff4e07f15ac06be0dbad2dcf1c18828305792",
+      "visual_family": "L02-operating-artifact:hold:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Conflicting evidence means hold.",
+        "Conflicting source",
+        "Morgan decides"
+      ],
+      "accessibility_text": "A polished brief can remain closed. Visual: Red hold folder beside the unresolved record.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A polished brief can remain closed.",
+      "brief_sha256": "72c6e76e4a5f5e99d5843fdeac5f15bae4b3cdfdab38fa535afddcc158868ddb",
+      "original_frame_sha256": "bfed3e363d90939e327f6b872a9d0e69f1fda227f218b965cf9a5bef38ce7850",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 62,
+            "y": 195,
+            "width": 690,
+            "height": 625
+          },
+          "box": {
+            "x": 62,
+            "y": 195,
+            "width": 561,
+            "height": 258
+          },
+          "glyph": {
+            "x": 110,
+            "y": 271,
+            "width": 505,
+            "height": 202
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 875,
+            "y": 811,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 875,
+            "y": 811,
+            "width": 439,
+            "height": 98
+          },
+          "glyph": {
+            "x": 905,
+            "y": 843,
+            "width": 383,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

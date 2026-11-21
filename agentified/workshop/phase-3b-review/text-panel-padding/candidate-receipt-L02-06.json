@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L02-06"
+  ],
+  "frames": [
+    {
+      "scene_id": "L02-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L02-06.png",
+      "frame_sha256": "a9cef1062b95166b8d115a2ba03bfabe6201f7ab8c586937a8d711c23a227de7",
+      "visual_family": "L02-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name the choice before acting.",
+        "Propose",
+        "Hold"
+      ],
+      "accessibility_text": "The learner must commit to one review posture. Visual: Three physical decision folders as an exercise.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner must commit to one review posture.",
+      "brief_sha256": "61b6f2ba8d78e76b9bad1e353ed94d33d5446b5974551dabb089b3608199697e",
+      "original_frame_sha256": "8474b18d8d6fabd7dc3d1ac0b965d19ed122a139ae3eda5fd052ed772eb65b61",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 994,
+            "height": 117
+          },
+          "glyph": {
+            "x": 96,
+            "y": 79,
+            "width": 938,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 228,
+            "height": 97
+          },
+          "glyph": {
+            "x": 146,
+            "y": 788,
+            "width": 172,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 148,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 92,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

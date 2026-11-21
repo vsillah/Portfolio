@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L03-03"
+  ],
+  "frames": [
+    {
+      "scene_id": "L03-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L03-03.png",
+      "frame_sha256": "50e6ae3f303ba9fca7e7886a72bcd8bc742eaa51a5ce348f1647050b56ec865e",
+      "visual_family": "L03-operating-artifact:compare:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Check date and permitted use.",
+        "Current date",
+        "Permitted use"
+      ],
+      "accessibility_text": "A source needs freshness and a use boundary. Visual: Calendar and permission sheet beside the seating plan.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A source needs freshness and a use boundary.",
+      "brief_sha256": "e62ea4c2953408b3108e06350baf8cebbc1da14db7d0a9956cc5a8280f15fac0",
+      "original_frame_sha256": "3c4186132aa5e45402aee1aa88b2cfc84151779e4c7d2140a62e1699fb14b773",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 977,
+            "height": 116
+          },
+          "glyph": {
+            "x": 95,
+            "y": 79,
+            "width": 921,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 314,
+            "height": 89
+          },
+          "glyph": {
+            "x": 140,
+            "y": 878,
+            "width": 258,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 343,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1121,
+            "y": 878,
+            "width": 287,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
