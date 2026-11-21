@@ -1,0 +1,242 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L09-02",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+  "approvedPlateSha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+  "approvedPlatePx": [
+    4000,
+    2500
+  ],
+  "narratedRungs": [
+    "Activity",
+    "Output",
+    "Quality",
+    "Behavior",
+    "Outcome",
+    "Learning",
+    "Authority"
+  ],
+  "method": "separate seven-rung metrics ladder derived from exact narration and complete approved SAM trust-layer contextual frame; no crop, SVG, or implication that three trust-layer sections are seven metrics",
+  "frames": [
+    {
+      "kind": "metrics",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-full.png",
+      "sha256": "2d93ebf345389c2b84243abf06033fb17837ad1f3b37f7706a15b4f34155ab29",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-full-mobile-preview.png",
+      "mobilePreviewSha256": "f38932ce25b0e38a8a396859d87210803eabb7bebec1a947e192d9950b4bdc03",
+      "geometry": {
+        "rungs": [
+          {
+            "rung": "Activity",
+            "detail": "brief count",
+            "boxPx": [
+              90,
+              165,
+              1830,
+              251
+            ]
+          },
+          {
+            "rung": "Output",
+            "detail": "drafts produced",
+            "boxPx": [
+              90,
+              265,
+              1830,
+              351
+            ]
+          },
+          {
+            "rung": "Quality",
+            "detail": "source-supported claims",
+            "boxPx": [
+              90,
+              365,
+              1830,
+              451
+            ]
+          },
+          {
+            "rung": "Behavior",
+            "detail": "correct holds",
+            "boxPx": [
+              90,
+              465,
+              1830,
+              551
+            ]
+          },
+          {
+            "rung": "Outcome",
+            "detail": "clearer decision",
+            "boxPx": [
+              90,
+              565,
+              1830,
+              651
+            ]
+          },
+          {
+            "rung": "Learning",
+            "detail": "fewer repeat errors",
+            "boxPx": [
+              90,
+              665,
+              1830,
+              751
+            ]
+          },
+          {
+            "rung": "Authority",
+            "detail": "human-granted scope",
+            "boxPx": [
+              90,
+              765,
+              1830,
+              851
+            ]
+          }
+        ],
+        "orderedRungs": [
+          "Activity",
+          "Output",
+          "Quality",
+          "Behavior",
+          "Outcome",
+          "Learning",
+          "Authority"
+        ]
+      }
+    },
+    {
+      "kind": "metrics",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-1-4.png",
+      "sha256": "adda320a18e93e43121d7360b2c7e43f45e9d2c41119f5621f9fa728fdb34bce",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-1-4-mobile-preview.png",
+      "mobilePreviewSha256": "28efca16f2db12f4dfbe3734cf8e02b0f183c0f13de8893eb26ef807fdfbfadb",
+      "geometry": {
+        "rungs": [
+          {
+            "rung": "Activity",
+            "detail": "brief count",
+            "boxPx": [
+              90,
+              160,
+              1830,
+              305
+            ]
+          },
+          {
+            "rung": "Output",
+            "detail": "drafts produced",
+            "boxPx": [
+              90,
+              330,
+              1830,
+              475
+            ]
+          },
+          {
+            "rung": "Quality",
+            "detail": "source-supported claims",
+            "boxPx": [
+              90,
+              500,
+              1830,
+              645
+            ]
+          },
+          {
+            "rung": "Behavior",
+            "detail": "correct holds",
+            "boxPx": [
+              90,
+              670,
+              1830,
+              815
+            ]
+          }
+        ],
+        "orderedRungs": [
+          "Activity",
+          "Output",
+          "Quality",
+          "Behavior",
+          "Outcome",
+          "Learning",
+          "Authority"
+        ]
+      }
+    },
+    {
+      "kind": "metrics",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-5-7.png",
+      "sha256": "e5abda24978c7835dca72e0f92b3d98013c30edfcee5eb0a0d88df6de7ae96c0",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-5-7-mobile-preview.png",
+      "mobilePreviewSha256": "329ecbde11cb5cd9b05c8f2d4b0c3f16cb21dd1af09464169b40b3e88f3dd034",
+      "geometry": {
+        "rungs": [
+          {
+            "rung": "Outcome",
+            "detail": "clearer decision",
+            "boxPx": [
+              90,
+              200,
+              1830,
+              375
+            ]
+          },
+          {
+            "rung": "Learning",
+            "detail": "fewer repeat errors",
+            "boxPx": [
+              90,
+              415,
+              1830,
+              590
+            ]
+          },
+          {
+            "rung": "Authority",
+            "detail": "human-granted scope",
+            "boxPx": [
+              90,
+              630,
+              1830,
+              805
+            ]
+          }
+        ],
+        "orderedRungs": [
+          "Activity",
+          "Output",
+          "Quality",
+          "Behavior",
+          "Outcome",
+          "Learning",
+          "Authority"
+        ]
+      }
+    },
+    {
+      "kind": "context",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/trust-context.png",
+      "sha256": "215d7af9776a35919357e78ce6556089ce6a1d6829fc90f75fe38b46f2467d52",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/trust-context-mobile-preview.png",
+      "mobilePreviewSha256": "59615bda70876b54be90b473397c1e6389d07ab1bd27632699ee25b71aa5f677",
+      "geometry": {
+        "completePlatePx": [
+          416,
+          155,
+          1088,
+          680
+        ],
+        "sourceSections": [
+          "Signals",
+          "Alignment",
+          "Momentum"
+        ]
+      }
+    }
+  ]
+}

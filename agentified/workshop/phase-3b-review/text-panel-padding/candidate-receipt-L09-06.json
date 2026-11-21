@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L09-06"
+  ],
+  "frames": [
+    {
+      "scene_id": "L09-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L09-06.png",
+      "frame_sha256": "d12996ba8f67f660557dd536a1e13c9d9138472db0422b037e6796131db35c14",
+      "visual_family": "L09-operating-artifact:choice:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Cross out one vanity metric.",
+        "Which number helps?",
+        "Who decides?"
+      ],
+      "accessibility_text": "The learner removes a number that changes no choice. Visual: Unsupported draft outside the scale.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner removes a number that changes no choice.",
+      "brief_sha256": "b1814a7d83b0d56b39ff016a6e2d8e09121e4907bab48bc708725a1f8ab4f072",
+      "original_frame_sha256": "2c8d5dcfadc60b4f1fab2914beeb8e95d3d7d1226e22628cb1d5fd78d42f7c43",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 910,
+            "height": 117
+          },
+          "glyph": {
+            "x": 95,
+            "y": 79,
+            "width": 854,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 514,
+            "height": 97
+          },
+          "glyph": {
+            "x": 143,
+            "y": 788,
+            "width": 458,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 353,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1178,
+            "y": 788,
+            "width": 297,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

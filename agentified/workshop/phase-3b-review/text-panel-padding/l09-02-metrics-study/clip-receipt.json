@@ -1,0 +1,95 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L09-02",
+  "paddingHead": "252a73e62",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 31.82,
+  "durationSeconds": 37.9,
+  "sourceVideoSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+  "sourceCaptionSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+  "trimmedCaptionSha256": "30fff37a159618f117dd34233613dc2eab42d5fcdfd3a68c61f6967891fb2b4c",
+  "frameReceiptSha256": "4bdf9886b8864774f2edbe27607a10b0e4918c089b8aa9668adf24d96a6c7680",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/L09-02-desktop-review.mp4",
+      "sha256": "ffc1692c02960cbee976945508eaa3a065f6c1f0a4e3746ff4e499b44268fd17",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-full.png",
+          "durationSeconds": 35.9
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/trust-context.png",
+          "durationSeconds": 2.0
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "948"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1778"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "13"
+          }
+        ],
+        "format": {
+          "duration": "37.920000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/L09-02-mobile-review.mp4",
+      "sha256": "69032d2e9873b181b3654a0bbc4067b70c801dc24e002996462fb0586483832a",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-1-4.png",
+          "durationSeconds": 21.84
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-5-7.png",
+          "durationSeconds": 14.06
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/trust-context.png",
+          "durationSeconds": 2.0
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "948"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1778"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "13"
+          }
+        ],
+        "format": {
+          "duration": "37.920000"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.800
+Chapter Sixteen asks us to choose a review posture for each action.
+
+00:00:04.660 --> 00:00:08.540
+Pre-action review means the work waits for a human before a side effect.
+
+00:00:09.140 --> 00:00:14.020
+Bounded action means a specifically fenced action may happen inside an already approved scope.
+
+00:00:14.940 --> 00:00:19.180
+Post-action audit checks low-stakes action after it happens, with a way to tighten the fence.
+
+00:00:19.780 --> 00:00:22.300
+In this course, these are design choices on paper.
+
+00:00:23.100 --> 00:00:31.280
+Harbor's brief may be prepared for Morgan; proposing a session, announcing it, booking a room, or spending would need its own explicit human gate.
+
+00:00:31.280 --> 00:00:34.200
+Nothing in our evaluation grants those permissions.
+
+00:00:35.060 --> 00:00:35.060
+Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes.

@@ -1,0 +1,7 @@
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-1-4.png'
+duration 21.840
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/metrics-5-7.png'
+duration 14.060
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/trust-context.png'
+duration 2.000
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l09-02-metrics-study/trust-context.png'
