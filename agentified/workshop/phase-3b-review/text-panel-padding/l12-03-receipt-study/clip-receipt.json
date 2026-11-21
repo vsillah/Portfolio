@@ -1,0 +1,91 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L12-03",
+  "paddingHead": "246d3ff45",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 66.36,
+  "durationSeconds": 30.18,
+  "sourceVideoSha256": "64039c97b99b884e2c12351210ec079469e2b4c6a872961d1eaac2ff845089d1",
+  "sourceCaptionSha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467",
+  "trimmedCaptionSha256": "294852fe79e0c84a86d902e077d6ee3bb01d868babf4f42e7b85faf4d171fa27",
+  "frameReceiptSha256": "7b5717b308dee1832c44f83ee56daea49e182391f3cbcdaa0e3c50dd56569939",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/L12-03-desktop-review.mp4",
+      "sha256": "a90a9b16d04e835afc57320c0d1f6d65e59d644c2d174093a09838eeb0707dbd",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/proof-focus.png",
+          "durationSeconds": 28.58
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "755"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1416"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "12"
+          }
+        ],
+        "format": {
+          "duration": "30.200000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/L12-03-mobile-review.mp4",
+      "sha256": "30b2722db9e2efb534fc9392be36e6b885268366e81f8543e0d4b578708d6d6c",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/proof-focus.png",
+          "durationSeconds": 28.58
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "755"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1416"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "12"
+          }
+        ],
+        "format": {
+          "duration": "30.200000"
+        }
+      }
+    }
+  ]
+}

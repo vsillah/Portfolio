@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L12-04",
+    "L12-05",
+    "L12-06",
+    "L12-07",
+    "L12-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L12-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L12-04.png",
+      "frame_sha256": "2a28dd162192eec84f0b6bca954eee6b077dadbe30681c1b6edb9064aabb013e",
+      "visual_family": "L12-operating-artifact:hold:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Evidence comes before a proposal.",
+        "Evidence missing",
+        "Human gate"
+      ],
+      "accessibility_text": "A missing source leaves the idea unscored. Visual: Empty evidence slot before the human seal.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A missing source leaves the idea unscored.",
+      "brief_sha256": "a64d4be7347dea4ac380d59f2d5eb96af51d7367c008ea16a6e08662dd34a0de",
+      "original_frame_sha256": "1e78d41330a3e84236e41dbd18fcf9e4c139b5efe533d0da0dfb075ab41df6c7",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 62,
+            "y": 195,
+            "width": 690,
+            "height": 625
+          },
+          "box": {
+            "x": 62,
+            "y": 195,
+            "width": 620,
+            "height": 193
+          },
+          "glyph": {
+            "x": 112,
+            "y": 272,
+            "width": 564,
+            "height": 137
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 875,
+            "y": 811,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 875,
+            "y": 811,
+            "width": 422,
+            "height": 98
+          },
+          "glyph": {
+            "x": 906,
+            "y": 843,
+            "width": 366,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L12-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L12-05.png",
+      "frame_sha256": "7d24a459680897468f9a6b78ea243842508b5c77039ec6c801a4be5be3158090",
+      "visual_family": "L12-operating-artifact:boundary:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Research review is a separate gate.",
+        "Proof packet",
+        "No build authority"
+      ],
+      "accessibility_text": "Proof of work does not authorize a build. Visual: Closed folder beside the next proposal card.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Proof of work does not authorize a build.",
+      "brief_sha256": "bb32679b81da9bdd3d98a478737cd123559491851ab7912a998f468a21ad7e8e",
+      "original_frame_sha256": "5aed1d0b1a669a76ad6b7d7e12171afb7dd7110434825db0c130d42ef4e09929",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 42,
+            "y": 700,
+            "width": 1560,
+            "height": 265
+          },
+          "box": {
+            "x": 42,
+            "y": 700,
+            "width": 1193,
+            "height": 120
+          },
+          "glyph": {
+            "x": 99,
+            "y": 761,
+            "width": 1137,
+            "height": 64
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 296,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 296,
+            "width": 319,
+            "height": 97
+          },
+          "glyph": {
+            "x": 971,
+            "y": 328,
+            "width": 263,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 436,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 436,
+            "width": 429,
+            "height": 98
+          },
+          "glyph": {
+            "x": 971,
+            "y": 468,
+            "width": 373,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L12-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L12-06.png",
+      "frame_sha256": "db6c76b4a6e600657bec69bad0766e20873fcff99f2e77965cac58042441f719",
+      "visual_family": "L12-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name one exclusion.",
+        "Include",
+        "Exclude"
+      ],
+      "accessibility_text": "The learner draws a real privacy boundary. Visual: Red ribbon beside the source stack.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner draws a real privacy boundary.",
+      "brief_sha256": "f79e2ff158773c7c348361e32cb2389b4dabcbe8451921dbf8cbb1f3b9f11f8a",
+      "original_frame_sha256": "9403b89be711b945e4d419bfcfefbcd50e47361f1229c686a99e5ab2b607257e",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 685,
+            "height": 103
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 629,
+            "height": 47
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 206,
+            "height": 89
+          },
+          "glyph": {
+            "x": 146,
+            "y": 788,
+            "width": 150,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 220,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 164,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L12-07",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L12-07.png",
+      "frame_sha256": "66d2b983e6dae1a21035e684280be0efb8f29f3ebb70ddde0f1cb2dd23d7300a",
+      "visual_family": "L12-operating-artifact:worksheet:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Draft the client-safe packet.",
+        "Scope",
+        "Redaction"
+      ],
+      "accessibility_text": "The learner records scope and redactions. Visual: Proof worksheet under the viewing frame.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records scope and redactions.",
+      "brief_sha256": "d6a8379d3c3da65fb080b025542e713dcaf894c9c03b640c6ccb656bec6a3ad0",
+      "original_frame_sha256": "66d2b983e6dae1a21035e684280be0efb8f29f3ebb70ddde0f1cb2dd23d7300a",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L12-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L12-08.png",
+      "frame_sha256": "374058db039f7ad614f56de5f7db9ce6e6e888f7b1164fd8af81f983188af2b9",
+      "visual_family": "L12-operating-artifact:file:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L12.png",
+      "source_sha256": "603600d3f0c11e39608a0298edcba426c8d8586b1c109e240078220f0b28e818",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep proof and proposal distinct.",
+        "Proof",
+        "Proposal"
+      ],
+      "accessibility_text": "The Operating File stores safe proof beside a future idea. Visual: Two sleeves separated by the review gate.",
+      "continuity": {
+        "id": "L12-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File stores safe proof beside a future idea.",
+      "brief_sha256": "4ef9ad12795c162deb827a112248cd35864dd99f44b5798d5b125d97578c274e",
+      "original_frame_sha256": "7e2c4924bcf54b572ea567ef41e101db12b779e114b1bbda61ae4a1e8018ab4e",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 170,
+            "height": 89
+          },
+          "glyph": {
+            "x": 171,
+            "y": 618,
+            "width": 114,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 239,
+            "height": 97
+          },
+          "glyph": {
+            "x": 171,
+            "y": 783,
+            "width": 183,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
