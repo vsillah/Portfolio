@@ -1,0 +1,422 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L14-01",
+    "L14-02",
+    "L14-05",
+    "L14-06",
+    "L14-07",
+    "L14-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L14-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L14-01.png",
+      "frame_sha256": "64588c2556983d675b3fa919eb6edfd5af691e3e6c923e300d707393ad63d94b",
+      "visual_family": "L14-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "The board needs three connected views."
+      ],
+      "accessibility_text": "Queue, trace, and memory sit together. Visual: Three-panel physical board with human reviewer.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Queue, trace, and memory sit together.",
+      "brief_sha256": "f858dabc0ef522138aa7329598a2a320311e34f1b9865dae36e95b017ed535ae",
+      "original_frame_sha256": "f71c42480916068def560479558c8f7d6f4e96df28fd7e8a0c6412a580c1d968",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 825,
+            "height": 192
+          },
+          "glyph": {
+            "x": 105,
+            "y": 706,
+            "width": 769,
+            "height": 136
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L14-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L14-02.png",
+      "frame_sha256": "064ca852c7235b1fb1a14c63d4b469bad4f8e7e69042ad8d3e6b72581c4f5695",
+      "visual_family": "L14-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Show prepared, held, and rejected.",
+        "Prepared",
+        "Held"
+      ],
+      "accessibility_text": "Status is visible on the board. Visual: Queue tray with distinct physical states.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Status is visible on the board.",
+      "brief_sha256": "df0b5fffda770fa6545b090fd5e1d45f296781e9a58b43bfeb0d3efc08562294",
+      "original_frame_sha256": "90ad541c1b0da130b4dd88ee6b8948a4af46986e99f734de4648bf36b44e0b19",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1110,
+            "height": 117
+          },
+          "glyph": {
+            "x": 94,
+            "y": 79,
+            "width": 1054,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 241,
+            "height": 97
+          },
+          "glyph": {
+            "x": 141,
+            "y": 878,
+            "width": 185,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 146,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1121,
+            "y": 878,
+            "width": 90,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L14-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L14-05.png",
+      "frame_sha256": "bd4c14ec218337b0b83aa84015e773156e7a96ce0c9120366c22cf25b36b6f55",
+      "visual_family": "L14-operating-artifact:hold:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep proof outlines unshared.",
+        "Outline only",
+        "Not shared"
+      ],
+      "accessibility_text": "A board sketch is not a production claim. Visual: Closed proof panel beside the active queue.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A board sketch is not a production claim.",
+      "brief_sha256": "4b8266ad7995fd71bffb1f11c224f51d1eee5da81b4fe0b9425f7446c1d32186",
+      "original_frame_sha256": "a086335f48a750207cc3467102efdf967f2e82034b542972574be256e845f4cc",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 62,
+            "y": 195,
+            "width": 690,
+            "height": 625
+          },
+          "box": {
+            "x": 62,
+            "y": 195,
+            "width": 637,
+            "height": 182
+          },
+          "glyph": {
+            "x": 110,
+            "y": 271,
+            "width": 581,
+            "height": 126
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 875,
+            "y": 811,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 875,
+            "y": 811,
+            "width": 309,
+            "height": 98
+          },
+          "glyph": {
+            "x": 904,
+            "y": 843,
+            "width": 253,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L14-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L14-06.png",
+      "frame_sha256": "f922dfea44f0c78611ad507d9df4ac980fe7e5c2c41f7954b8ff52e4c94b1f6e",
+      "visual_family": "L14-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Find the weakest panel.",
+        "Queue",
+        "Trace"
+      ],
+      "accessibility_text": "The learner spots the board view missing its evidence. Visual: One incomplete panel in the triptych.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner spots the board view missing its evidence.",
+      "brief_sha256": "1a750d7e9e9e41afd3bbff3b422ccf4a401c179a6c597cfa6026ec43877b03f8",
+      "original_frame_sha256": "765f447d5203be4a689c691d4f8da272f5d0e4b701e1f89c903bb1b71a73222d",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 766,
+            "height": 115
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 710,
+            "height": 59
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 191,
+            "height": 92
+          },
+          "glyph": {
+            "x": 144,
+            "y": 788,
+            "width": 135,
+            "height": 36
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 170,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1178,
+            "y": 788,
+            "width": 114,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L14-07",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L14-07.png",
+      "frame_sha256": "5144227d73f6caa708c8af62f4fb2bf41270d581ebe18657812f9b628b44874d",
+      "visual_family": "L14-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Storyboard the board review.",
+        "Panel",
+        "Reviewer"
+      ],
+      "accessibility_text": "The learner gives each panel a reviewer. Visual: Three-panel worksheet over the board.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner gives each panel a reviewer.",
+      "brief_sha256": "5a70308fa7f1c7397a54474d5b5977fc83d918df413a4b62494deca3496b37c1",
+      "original_frame_sha256": "5144227d73f6caa708c8af62f4fb2bf41270d581ebe18657812f9b628b44874d",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L14-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L14-08.png",
+      "frame_sha256": "b7a807b26e942adcdf7fe069a03af78e5d0cc36d3c9cd79783aa9eb143bbee03",
+      "visual_family": "L14-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L14.png",
+      "source_sha256": "ba987c6bd372ceaa6111f02188381c42dc58ef00ddc29ce101aca51724988779",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the board demo in the file.",
+        "Queue",
+        "Trace and memory"
+      ],
+      "accessibility_text": "The Operating File gains a reviewable storyboard. Visual: Triptych folded into the binder.",
+      "continuity": {
+        "id": "L14-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains a reviewable storyboard.",
+      "brief_sha256": "af820bd1b96e8e85bf4474be2a136b0158908078504fc0e7e74b8cf65b973c90",
+      "original_frame_sha256": "5287fb8a6c0cf11a8f7ea7d69d5ba0e9ace889015603c22a057156869a9b8912",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 191,
+            "height": 92
+          },
+          "glyph": {
+            "x": 169,
+            "y": 618,
+            "width": 135,
+            "height": 36
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 445,
+            "height": 98
+          },
+          "glyph": {
+            "x": 168,
+            "y": 783,
+            "width": 389,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

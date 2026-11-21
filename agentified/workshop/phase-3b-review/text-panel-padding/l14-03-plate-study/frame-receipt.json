@@ -1,0 +1,85 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L14-03",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+  "approvedPlateSha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+  "approvedPlatePx": [
+    4000,
+    2500
+  ],
+  "sourceRole": "Mission Control and controls",
+  "method": "complete approved source plate in both frames; separate narration-grounded teaching cues; no crop or SVG",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/overview-wide.png",
+      "sha256": "db03b20a783356c23c2f4c7badf922ac098e2653d94c9cd2e370d754b33c7388",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "28a49e9d70930bc0a34f60b8f644d5db5916a23438d7b31073092c7d4ed27239",
+      "geometry": {
+        "completePlatePx": [
+          384,
+          145,
+          1152,
+          720
+        ],
+        "sourceRole": "Mission Control and controls"
+      }
+    },
+    {
+      "kind": "focus",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/focus.png",
+      "sha256": "e87286747095f60fa176b5317c0122f11e5da7358cfbcb2fa5bcc19a473a9286",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/focus-mobile-preview.png",
+      "mobilePreviewSha256": "e5fbbc2ee2f69de4f1bd69f8a09948bfa9032e84648e996c5ef457e5148c6b59",
+      "geometry": {
+        "completePlatePx": [
+          70,
+          440,
+          592,
+          370
+        ],
+        "sourceRole": "Mission Control and controls",
+        "narrationCards": [
+          {
+            "label": "Cleared source",
+            "boxPx": [
+              67,
+              171,
+              477,
+              325
+            ]
+          },
+          {
+            "label": "Agent draft",
+            "boxPx": [
+              523,
+              171,
+              933,
+              325
+            ]
+          },
+          {
+            "label": "Staffing check",
+            "boxPx": [
+              979,
+              171,
+              1389,
+              325
+            ]
+          },
+          {
+            "label": "Morgan holds",
+            "boxPx": [
+              1435,
+              171,
+              1845,
+              325
+            ]
+          }
+        ],
+        "narrationClaim": "No send or booking event."
+      }
+    }
+  ]
+}

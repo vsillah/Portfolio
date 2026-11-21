@@ -1,0 +1,91 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L14-03",
+  "paddingHead": "919a56134",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 52.0,
+  "durationSeconds": 26.0,
+  "sourceVideoSha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+  "sourceCaptionSha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446",
+  "trimmedCaptionSha256": "27de110f95b9980e1aeb6dc74baae04f70324ca85d39ccb7c3cc3a7deb4018f4",
+  "frameReceiptSha256": "d58de7ae2bb76f466acaec7887c466e4203f5fb6632bfc0a0bad059c53a18aa2",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/L14-03-desktop-review.mp4",
+      "sha256": "40ee7d462f09a1dfc8fb96f574acb08fd3bb0c2fb9bb6d92d963673ac493c761",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/focus.png",
+          "durationSeconds": 24.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "650"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1220"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "26.000000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/L14-03-mobile-review.mp4",
+      "sha256": "a34c63994e665ae71fe3f115f8676331f7970109fc61486ed9a701cc5ccbd306",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l14-03-plate-study/focus.png",
+          "durationSeconds": 24.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "650"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1220"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "26.000000"
+        }
+      }
+    }
+  ]
+}
