@@ -1,0 +1,139 @@
+{
+  "status": "STOP_at_L07-05_source_geometry",
+  "paddingHeadBeforeThisPass": "51f32d189f6c9be45470e478b77cc6376da3fbd4",
+  "stackHeads": {
+    "caption": "af647b6adc101cafade371d5ca53047670d53213",
+    "player": "7bb6267c9fb98172679e161aafa208dfc7a276c3"
+  },
+  "sourceVideoSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+  "sourceCaptionSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+  "approvedPlate": {
+    "path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+    "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+    "sizePx": [
+      3000,
+      4700
+    ],
+    "cropSourcePx": [
+      450,
+      1750,
+      2200,
+      1500
+    ]
+  },
+  "failure": "L07-05 uses a cropped Route-rung fragment. The full subject, gate, connectors, and output path are absent; measured text padding cannot restore them.",
+  "scenes": [
+    {
+      "scene": "L07-01",
+      "disposition": "review_only_unbound",
+      "receiptSha256": "a1024b5e67edc408e00afb181e2ed17d7675c447285befd450bcd25be8a609d2",
+      "frameSha256": "63e4f6a7e38b57c25515a93e0c947e26a6862da59c37ec47a117133ba3707b18",
+      "fittedPanels": 1,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-01-desktop.mp4",
+          "sha256": "1feac611615cca310b2fea57668fc4764a7e9b7694cd679870da26772f21d4af",
+          "vttSha256": "7a37ea4211e19349f90b013dffcefa31bf6e02dd1d5046c36e8358ef0189622c"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-01-mobile.mp4",
+          "sha256": "bcdd0f6a38257795ed56b87a77efdae6a9e8185f6d7c49995068ab588c2ebde6",
+          "vttSha256": "7a37ea4211e19349f90b013dffcefa31bf6e02dd1d5046c36e8358ef0189622c"
+        }
+      ]
+    },
+    {
+      "scene": "L07-02",
+      "disposition": "review_only_unbound",
+      "receiptSha256": "b3d7740e673a44094aef7250f35b0e73a1f48e03261d689a7544d5a788d0ec38",
+      "frameSha256": "bb3a8706bef444012c7f133b7d0bef3b43e51aa179ced40a52ea01e3327be216",
+      "fittedPanels": 3,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-02-desktop.mp4",
+          "sha256": "6a84dc549d48bff114b8de16f70720aaeb9cbf9012cba91a1b46440d5406cdcf",
+          "vttSha256": "94f787cbedaff711cc50f932385f8d77bd8217308757eee5b4692199547fe4bf"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-02-mobile.mp4",
+          "sha256": "9b1625e8c28686dd1c300c328f2284afff8b67cf297749c155ed0b413897f2ea",
+          "vttSha256": "94f787cbedaff711cc50f932385f8d77bd8217308757eee5b4692199547fe4bf"
+        }
+      ]
+    },
+    {
+      "scene": "L07-03",
+      "disposition": "review_only_unbound",
+      "receiptSha256": "6759c2b0304eefd3d596ab9c3f7c19ba42e0dae76134c4fdd7b52865dd490225",
+      "frameSha256": "d936167945961d2e09548f8237744538c1e61a39dcce5dd4f630a7d6b75b1a1d",
+      "fittedPanels": 2,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-03-desktop.mp4",
+          "sha256": "db2344e3726511b5f7da84ff16390d8b704abd69c7e738de307cf38a872ec0fa",
+          "vttSha256": "054a860125f71b0d522579ebbe2d65a23619792c18d0fa1dc303f9f20daf0c86"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-03-mobile.mp4",
+          "sha256": "bd3ad599c80d9616e9c0db7ba20d707b8ac84f4187cd779c1a3d07d8fbe5e915",
+          "vttSha256": "054a860125f71b0d522579ebbe2d65a23619792c18d0fa1dc303f9f20daf0c86"
+        }
+      ]
+    },
+    {
+      "scene": "L07-04",
+      "disposition": "review_only_unbound",
+      "receiptSha256": "46ffa562b2f2bc0ad15d231d65e2c270d880c8f50b07c3cb59f4d555f06e4e7a",
+      "frameSha256": "6cee2cb198aa4d70b19d815c354fa251e6afea5b7566130439ba40ef6bb1dedb",
+      "fittedPanels": 3,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-04-desktop.mp4",
+          "sha256": "17919e72bc056af5f923e66e83736cbdf8f4042df616fd5d458693bc606067fb",
+          "vttSha256": "ea0a5f1dde71ed6324559170b435baf76a73783f071089fa4deed7f5a8208e9c"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-04-mobile.mp4",
+          "sha256": "f6ffab8bf4e4ed33f17e60256f1ebea239ac47e8a0adc5da9f285d9709fce37e",
+          "vttSha256": "ea0a5f1dde71ed6324559170b435baf76a73783f071089fa4deed7f5a8208e9c"
+        }
+      ]
+    },
+    {
+      "scene": "L07-05",
+      "disposition": "rejected_source_geometry",
+      "receiptSha256": "32de623094710cf78d9c32343d82aad5a500a8360fd0eb45fcc06cd0534eb042",
+      "frameSha256": "5159b5444497cc8e8b41a935435258d34d2231b13d4d794dc507befd11868661",
+      "fittedPanels": 3,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-05-desktop.mp4",
+          "sha256": "7170874f9ceec0929e05a0f35fa5383040666c467e10d0941b30cddaf7644aaa",
+          "vttSha256": "e3a2d0e66433f12d5d78ea028398e3ad3203538856c0e27b28320c1ce623c6ad"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L07-05-mobile.mp4",
+          "sha256": "3aed9160c353dfa2c612e3686b29f098ac2047399e95141d4350e7767b764d53",
+          "vttSha256": "e3a2d0e66433f12d5d78ea028398e3ad3203538856c0e27b28320c1ce623c6ad"
+        }
+      ]
+    }
+  ],
+  "notQualified": [
+    "L07-06",
+    "L07-07",
+    "L07-08",
+    "L08-L16"
+  ],
+  "limits": "Source-route caption/player behavior was not re-run in this stopped L07 sweep; scene-local clips are not candidate learner playback."
+}

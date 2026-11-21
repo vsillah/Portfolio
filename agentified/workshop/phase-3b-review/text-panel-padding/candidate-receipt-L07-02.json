@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L07-02"
+  ],
+  "frames": [
+    {
+      "scene_id": "L07-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L07-02.png",
+      "frame_sha256": "bb3a8706bef444012c7f133b7d0bef3b43e51aa179ced40a52ea01e3327be216",
+      "visual_family": "L07-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Specify the job before assigning it.",
+        "Outcome",
+        "Acceptance tests"
+      ],
+      "accessibility_text": "Outcome, tests, and reversal shape the work. Visual: Requirements sheet beside the small pod.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Outcome, tests, and reversal shape the work.",
+      "brief_sha256": "5d698c435604b49bf3a005d9db3d3c7db0a2ab7f7734e44c9154f79e671a1d63",
+      "original_frame_sha256": "e07c5502967130350a0ae10f4b36f950675238efb4a3fb8a7efd7fd2e0849e57",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 586,
+            "height": 260
+          },
+          "glyph": {
+            "x": 96,
+            "y": 265,
+            "width": 530,
+            "height": 204
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 856,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 856,
+            "width": 244,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1059,
+            "y": 888,
+            "width": 188,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 736,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 736,
+            "width": 416,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1058,
+            "y": 768,
+            "width": 360,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
