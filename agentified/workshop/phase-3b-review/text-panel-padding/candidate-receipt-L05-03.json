@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L05-03"
+  ],
+  "frames": [
+    {
+      "scene_id": "L05-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L05-03.png",
+      "frame_sha256": "40a03153ce1ffcb7b42b2a1628646083cfc9091f5c6875bec53e33331c37bf36",
+      "visual_family": "L05-operating-artifact:hold:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Mark each unknown handoff.",
+        "Unknown handoff",
+        "Mark the gap"
+      ],
+      "accessibility_text": "A gap is visible instead of guessed away. Visual: Missing station on the physical route.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A gap is visible instead of guessed away.",
+      "brief_sha256": "873d3ff87fc4d9ddb5fd64acd6f468432f8647ee3b6c6e32252a292f5c4dafe1",
+      "original_frame_sha256": "4c78e31081739a1826443a06d5adea9642569b24ce8c5627c74028656873ed0a",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 62,
+            "y": 195,
+            "width": 690,
+            "height": 625
+          },
+          "box": {
+            "x": 62,
+            "y": 195,
+            "width": 679,
+            "height": 181
+          },
+          "glyph": {
+            "x": 112,
+            "y": 272,
+            "width": 623,
+            "height": 125
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 875,
+            "y": 811,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 875,
+            "y": 811,
+            "width": 426,
+            "height": 89
+          },
+          "glyph": {
+            "x": 906,
+            "y": 843,
+            "width": 370,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

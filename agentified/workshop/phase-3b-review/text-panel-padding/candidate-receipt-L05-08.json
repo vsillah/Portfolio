@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L05-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L05-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L05-08.png",
+      "frame_sha256": "c7a2207b1aba7371631b88a774f888dfd9cdbe776938680dec4a3c0d39cc2df2",
+      "visual_family": "L05-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the map in the file.",
+        "Map",
+        "Next gate"
+      ],
+      "accessibility_text": "The Operating File gains one readable path. Visual: Map sheet folded into a labeled binder.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains one readable path.",
+      "brief_sha256": "942f653694459630a64791224ab8178af8354111d2f02ade2a92446bd4744945",
+      "original_frame_sha256": "88cfbcaf60a5b5637b85e578d6e541768198da23533a63b04b76617010ff24d5",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 140,
+            "height": 97
+          },
+          "glyph": {
+            "x": 171,
+            "y": 618,
+            "width": 84,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 250,
+            "height": 98
+          },
+          "glyph": {
+            "x": 171,
+            "y": 783,
+            "width": 194,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
