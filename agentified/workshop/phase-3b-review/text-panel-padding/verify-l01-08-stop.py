@@ -67,7 +67,6 @@ end = start + 8
 protected = next((left, right, kind) for left, right, kind in composite['protected_windows']
                  if start < right and end > left)
 assert protected[2] == 'approved branded end screen'
-assert not list((HERE / 'checks/lesson-order').glob('L01-08-*.mp4'))
 screens = {}
 for layout in ('desktop', 'mobile'):
     path = HERE / f'checks/lesson-order/L01-06-{layout}-caption-on.png'

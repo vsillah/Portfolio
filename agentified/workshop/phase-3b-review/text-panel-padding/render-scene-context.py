@@ -18,6 +18,8 @@ composites = json.loads((ROOT / 'agentified/workshop/presentation-illustration-a
 composite = next(item for item in composites['composites'] if item['lesson_id'] == lesson)
 scene = next(item for item in composite['scene_boundaries'] if item['scene_id'] == scene_id)
 start = (scene['start_seconds'] + scene['end_seconds']) / 2 - 4
+if scene_id == 'L01-08':
+    start = scene['start_seconds'] + 4  # Review the lesson art before its protected end screen.
 assert start >= scene['start_seconds'] and start + 8 <= scene['end_seconds']
 for left, right, kind in composite['protected_windows']:
     assert start + 8 <= left or start >= right, f'{scene_id}: overlaps protected {kind}'
