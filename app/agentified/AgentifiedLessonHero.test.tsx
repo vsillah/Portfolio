@@ -486,6 +486,42 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
+  it('positions only L05 protected-opening native cues above the panel on desktop', () => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    HTMLMediaElement.prototype.pause = vi.fn()
+    const cue = (startTime: number, endTime: number, text: string) => ({ startTime, endTime, text, snapToLines: true, line: 'auto' as number | 'auto' })
+    const opening = [cue(0, 1.6, 'Friday arrives at Harbor Learning'), cue(6.26, 8.01, 'But imagine Morgan is out for an hour.'), cue(11.13, 11.64, 'role read?')]
+    const teaching = cue(12.331, 15.616, 'Who can answer a question about the unconfirmed facilitator?')
+    const track = Object.assign(new EventTarget(), { cues: [...opening, teaching] })
+    const desktopMedia = Object.assign(new EventTarget(), { matches: true })
+    const mobileMedia = Object.assign(new EventTarget(), { matches: false })
+    const setWidth = (width: number) => { desktopMedia.matches = width >= 621; mobileMedia.matches = width <= 620; desktopMedia.dispatchEvent(new Event('change')); mobileMedia.dispatchEvent(new Event('change')) }
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => query.includes('min-width') ? desktopMedia : mobileMedia))
+    try {
+      const { container, unmount } = render(<AgentifiedLessonHero lessonId="L05" title="Visible path" poster="/agentified/posters/l05-poster.webp" videoSrc="/approved-l05.mp4" captionsSrc="/approved-l05.vtt" />)
+      expect(container.querySelector('video')).toHaveAttribute('controls')
+      for (const item of opening) expect(item).toMatchObject({ line: 10, snapToLines: false })
+      expect(teaching).toMatchObject({ line: 'auto', snapToLines: true })
+      act(() => setWidth(620))
+      for (const item of opening) expect(item).toMatchObject({ line: 'auto', snapToLines: true })
+      act(() => setWidth(621))
+      for (const item of opening) expect(item).toMatchObject({ line: 10, snapToLines: false })
+      expect(opening.map(({ startTime, endTime, text }) => ({ startTime, endTime, text }))).toEqual([
+        { startTime: 0, endTime: 1.6, text: 'Friday arrives at Harbor Learning' },
+        { startTime: 6.26, endTime: 8.01, text: 'But imagine Morgan is out for an hour.' },
+        { startTime: 11.13, endTime: 11.64, text: 'role read?' },
+      ])
+      unmount()
+    } finally {
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('keeps L05-01 captions clear after the native presenter and restores L05-02', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
@@ -494,14 +530,22 @@ describe('Agentified lesson media gate', () => {
     const panelCue = { startTime: 15.872, endTime: 21.568, text: "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system." }
     const adjacentCue = { startTime: 24.779, endTime: 26.614, text: 'Start with the real sequence on paper.' }
     const afterCue = { startTime: 52.822, endTime: 55.766, text: 'Chapter Eight gives the operating map five columns.' }
-    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [presenterCue, panelCue, adjacentCue, afterCue] })
+    const remainingCues = [
+      { startTime: 78.582, endTime: 81, text: 'Put the earlier lessons onto those rows.' },
+      { startTime: 105.56, endTime: 109, text: 'The workbook also asks where approval, spend checks, public-safe proof, and rollback sit.' },
+      { startTime: 136.581, endTime: 137.5, text: 'Pause.' },
+      { startTime: 144.329, endTime: 146.676, text: 'Build the Operating Map in your Operating File.' },
+      { startTime: 219.992, endTime: 221.971, text: 'Save revision five as a draft.' },
+      { startTime: 234.038, endTime: 234.398, text: 'system.' },
+    ]
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [presenterCue, panelCue, adjacentCue, afterCue, ...remainingCues] })
     const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
     const mobileMedia = Object.assign(new EventTarget(), { matches: false })
     HTMLMediaElement.prototype.pause = vi.fn()
     Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
     Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
     vi.stubGlobal('matchMedia', vi.fn(() => mobileMedia))
-    const props = { lessonId: 'L05', title: 'Visible path', poster: '/agentified/posters/l05-poster.webp', videoSrc: '/approved-l05.mp4', captionsSrc: '/approved-l05.vtt' }
+    const props = { lessonId: 'L05', title: 'Visible path', poster: '/agentified/posters/l05-poster.webp', videoSrc: '/approved-l05.mp4', captionsSrc: '/approved-l05.vtt', endScreen: { startSeconds: 234.398, progress: 5 } }
     try {
       const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
       const video = container.querySelector('video')!
@@ -541,16 +585,31 @@ describe('Agentified lesson media gate', () => {
       expect(track.mode).toBe('hidden')
       currentTime = 52.822
       fireEvent.seeking(video)
-      expect(track.mode).toBe('showing')
-      expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
-      act(() => { mobileMedia.matches = true; mobileMedia.dispatchEvent(new Event('change')) })
       expect(track.mode).toBe('hidden')
       expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent(afterCue.text)
-      expect([presenterCue, panelCue, adjacentCue, afterCue]).toEqual([
+      for (const [time, text] of [[78.582, remainingCues[0].text], [105.56, remainingCues[1].text], [136.581, remainingCues[2].text], [144.329, remainingCues[3].text], [219.992, remainingCues[4].text]] as const) {
+        currentTime = time
+        fireEvent.seeking(video)
+        expect(track.mode).toBe('hidden')
+        expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent(text)
+      }
+      currentTime = 234.397
+      fireEvent.seeking(video)
+      expect(screen.getByRole('status', { name: 'L05 caption' })).toHaveTextContent('system.')
+      currentTime = 234.398
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
+      expect(screen.getByRole('status', { name: 'L05 complete. Agentified course complete.' })).toBeInTheDocument()
+      act(() => { mobileMedia.matches = true; mobileMedia.dispatchEvent(new Event('change')) })
+      expect(track.mode).toBe('hidden')
+      expect(screen.queryByRole('status', { name: 'L05 caption' })).toBeNull()
+      expect([presenterCue, panelCue, adjacentCue, afterCue, ...remainingCues]).toEqual([
         { startTime: 11.13, endTime: 11.64, text: 'role read?' },
         { startTime: 15.872, endTime: 21.568, text: panelCue.text },
         { startTime: 24.779, endTime: 26.614, text: adjacentCue.text },
         { startTime: 52.822, endTime: 55.766, text: afterCue.text },
+        ...remainingCues,
       ])
       expect(video).toHaveAttribute('controls')
       unmount()
