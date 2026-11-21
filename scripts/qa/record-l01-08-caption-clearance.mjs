@@ -35,7 +35,7 @@ for (const width of [1280, 390]) {
   const seek = async (time) => {
     await video.evaluate((element, target) => { element.currentTime = target; element.dispatchEvent(new Event('timeupdate', { bubbles: true })) }, time)
     await waitForCueFrame(page, time)
-    await page.waitForFunction(({ time, width }) => document.querySelector('video')?.textTracks[0]?.mode === (width === 390 || (time >= 34.585 && time < 74.197 || time >= 114.358 && time < 150.501 || time >= 150.501 && time < 183.059 || time >= 343.059 && time < 359.645) ? 'hidden' : 'showing'), { time, width })
+    await page.waitForFunction(({ time, width }) => document.querySelector('video')?.textTracks[0]?.mode === (width === 390 || (time >= 34.585 && time < 74.197 || time >= 114.358 && time < 150.501 || time >= 150.501 && time < 183.059 || time >= 343.059) ? 'hidden' : 'showing'), { time, width })
     await video.evaluate((element) => element.pause())
   }
   const record = async (step) => {

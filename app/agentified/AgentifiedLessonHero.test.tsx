@@ -484,9 +484,17 @@ describe('Agentified lesson media gate', () => {
       expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveTextContent(lastCue.text)
       currentTime = 359.645
       fireEvent.seeking(video)
-      expect(track.mode).toBe('showing')
+      expect(track.mode).toBe('hidden')
       expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
       expect(screen.getByRole('status', { name: 'L01 complete. Agentified course complete.' })).toBeInTheDocument()
+      currentTime = 350
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveTextContent(cue.text)
+      currentTime = 359.645
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
       act(() => { mobileMedia.matches = true; mobileMedia.dispatchEvent(new Event('change')) })
       expect(track.mode).toBe('hidden')
       expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
