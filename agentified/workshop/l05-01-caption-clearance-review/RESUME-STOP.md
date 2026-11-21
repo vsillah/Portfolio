@@ -1,0 +1,9 @@
+# L05-01 caption-clearance stop
+
+Status: **STOP before push or PR update**. Local experiment commit `0bc54af1f40e2b1b5495a9a691413f65994c1212` is one commit ahead of draft PR #1293 head `b93450a8d98f1d325dd5914b5a4c2f50df640099`. The exact review-only padding candidate is draft PR #1290 head `d047960edcf58bc2c75b3a944fe22a5d8ad25bb4`; no candidate media was bound to learners.
+
+The L05-01 desktop cue at 19.314 seconds clears the “One request needs a visible path” panel and its border in `L05-01-1280-M-on.png`. The mobile cue is below the video in `L05-01-390-M-on.png`. The protected presenter opening remains native through 11.909 seconds, and the scene-bound band starts at 11.91 seconds.
+
+**First visual stop:** At the adjacent L05-02 start, 24.779 seconds, the native cue “Start with the real sequence on paper.” crosses the L05-02 teaching labels “Request enters” and “Morgan reviews” in `L05-01-1280-L05-02-start.png`. This adjacent-scene collision is outside the bounded L05-01 correction. Do not push the experiment as validated or silently extend the band into L05-02. Route an independently scoped L05-02 caption decision, then rerun the full adjacent-boundary and exact-commit matrix.
+
+The focused Vitest suite passed 82 tests; ESLint, syntax, and diff checks passed. The exact-commit Playwright verifier reported 38 learner and six fixed-candidate states passing, and the recorder produced four decoded MP4s. Those automated results are insufficient because the adjacent native caption is visibly over teaching content. The verifier checks track/band state but does not detect native-caption overlap with image text. `receipt.json` and `walkthrough-state.json` bind the source hashes, local code commit, candidate head, measured states, and recorded routes. No provider action, spend, merge, deployment, publication, release, or Human QA occurred.
