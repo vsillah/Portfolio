@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L13-02 unbound responsive review</title>
+<style>
+  body{margin:0;background:#071b2a;color:#f7ebd5;font:16px Arial,sans-serif}
+  main{max-width:1280px;margin:20px auto;padding:0 16px}
+  h1{font-size:20px}
+  video{display:block;width:100%;aspect-ratio:16/9;background:#071b2a}
+  .rail{display:none;align-items:center;gap:10px;margin-top:8px;padding:8px;border:1px solid #cba854;border-radius:8px}
+  .rail button,.settings button{background:#102939;color:#f7ebd5;border:1px solid #cba854;border-radius:5px;padding:8px 10px;font:inherit}
+  .rail input[type=range]{min-width:0;flex:1}
+  .band{min-height:24px;margin-top:8px;padding:10px 12px;background:#101827;text-align:center;line-height:1.35;white-space:pre-line;border-radius:7px}
+  .band[hidden]{display:none}
+  .settings{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .settings button[aria-pressed=true]{background:#b18d45;color:#071b2a}
+  .band[data-size=S]{font-size:15px}.band[data-size=M]{font-size:18px}.band[data-size=L]{font-size:22px}
+  @media(max-width:620px){main{margin:0;padding:16px}.rail{display:flex}.band[data-size=S]{font-size:14px}.band[data-size=M]{font-size:16px}.band[data-size=L]{font-size:18px}}
+</style>
+<main>
+  <h1>L13-02 review-only responsive candidate</h1>
+  <video id="video" preload="metadata" playsinline><source id="source" type="video/mp4"><track id="track" kind="subtitles" srclang="en" label="English" default></video>
+  <div class="rail" aria-label="Review player controls"><button id="play" type="button">Play</button><input id="seek" type="range" min="0" max="30.00" step="0.04" value="0" aria-label="Seek"><button id="mute" type="button">Mute</button></div>
+  <div id="band" class="band" role="status" aria-label="L13 caption" data-size="M"></div>
+  <div class="settings"><button id="toggle" type="button" aria-pressed="true">English captions on</button><button type="button" data-size="S" aria-pressed="false">Small</button><button type="button" data-size="M" aria-pressed="true">Medium</button><button type="button" data-size="L" aria-pressed="false">Large</button></div>
+</main>
+<script>
+  const query=new URLSearchParams(location.search);
+  const layout=query.get('layout')==='mobile'?'mobile':'desktop';
+  const revision=query.get('rev');
+  if(revision&&!/^[a-f0-9]{64}$/.test(revision))throw new Error('Invalid review revision');
+  const video=document.getElementById('video'),track=document.getElementById('track'),band=document.getElementById('band'),seek=document.getElementById('seek');
+  document.getElementById('source').src=`L13-02-${layout}-review.mp4${revision?`?rev=${revision}`:''}`;
+  track.src='L13-02-source-trim.vtt';
+  const desktop=matchMedia('(min-width:621px)');
+  const setControls=()=>{video.controls=desktop.matches};
+  desktop.addEventListener('change',setControls);setControls();
+  video.load();
+  let captionsOn=true;
+  const update=()=>{const cue=track.track.activeCues?.[0];band.textContent=captionsOn&&cue?cue.text:'';band.hidden=!captionsOn||!cue;seek.value=video.currentTime;document.getElementById('play').textContent=video.paused?'Play':'Pause';document.getElementById('mute').textContent=video.muted?'Unmute':'Mute'};
+  track.addEventListener('load',()=>{track.track.mode='hidden';track.track.addEventListener('cuechange',update);update()});
+  video.addEventListener('timeupdate',update);video.addEventListener('seeked',update);video.addEventListener('play',update);video.addEventListener('pause',update);
+  document.getElementById('play').onclick=()=>video.paused?video.play():video.pause();
+  document.getElementById('mute').onclick=()=>{video.muted=!video.muted;update()};
+  seek.oninput=()=>{video.currentTime=Number(seek.value);update()};
+  document.getElementById('toggle').onclick=event=>{captionsOn=!captionsOn;track.track.mode=captionsOn?'hidden':'disabled';event.currentTarget.textContent=`English captions ${captionsOn?'on':'off'}`;event.currentTarget.setAttribute('aria-pressed',String(captionsOn));update()};
+  document.querySelectorAll('.settings button[data-size]').forEach(button=>button.onclick=()=>{band.dataset.size=button.dataset.size;document.querySelectorAll('.settings button[data-size]').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));update()});
+</script>

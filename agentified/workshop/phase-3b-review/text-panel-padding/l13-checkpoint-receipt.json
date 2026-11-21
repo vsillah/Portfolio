@@ -1,0 +1,200 @@
+{
+  "status": "review_only_unbound",
+  "sourceVideoSha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f",
+  "sourceCaptionSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+  "proposalFrameReceiptSha256": "ec819e026d8a2721b1a72db2b3bebcc22eb3eb66b2a59750c8aa2b4b61e59e71",
+  "proposalClipReceiptSha256": "52706569069655cf99c46d0f72365540e42de93ac565d5a7746321a97ac32109",
+  "proposalClips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/L13-02-desktop-review.mp4",
+      "sha256": "6d75ebf871ae3dc482a339127f49bcd6d0f0b02ee4a92c9642c1c5512ee0f271",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/amina-complete.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/proposal-five-states.png",
+          "durationSeconds": 28.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "750"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1408"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "30.000000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/L13-02-mobile-review.mp4",
+      "sha256": "13dd42a7b0bdff2515e693131e9f9a770c203aecce7aea27e58c915077b57b3c",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/amina-complete.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/proposal-five-states.png",
+          "durationSeconds": 28.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "750"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1408"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "30.000000"
+        }
+      }
+    }
+  ],
+  "otherScenes": [
+    {
+      "scene": "L13-01",
+      "frameSha256": "34b482075ee5a29a40b44dc3f3026557687d51b58da67f930ba9ffadb9536001",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "8fd6bff99e0eeb135fc2973d4cb7674217851f909c7cfe56f4925237e04529b7",
+          "vttSha256": "c45f66284fa27c9b3e6103b860f32161dc93f12aa95c1259408ecc3462a3f746"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "3be29357f4426dca3ca007a06c0fd24203fd85396ebb1123719c80626d3dcd7b",
+          "vttSha256": "c45f66284fa27c9b3e6103b860f32161dc93f12aa95c1259408ecc3462a3f746"
+        }
+      ]
+    },
+    {
+      "scene": "L13-03",
+      "frameSha256": "40f8786a0b8b06a3c9f6aa6dcb3833213b205f3405c5577f4c45e46282a5632e",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "0b60d656329ebe55dcf1ba63437008c913e87a7f1c7996a9114832daeeaac520",
+          "vttSha256": "6932f56218ab05c8659eb4a5b8f96922d2405a6605f3e567e897f5627ae7efdb"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "a6731248772d2e1b6c37a94ecdf289e1bc19b0b2b0f5cb95417489a48f2977eb",
+          "vttSha256": "6932f56218ab05c8659eb4a5b8f96922d2405a6605f3e567e897f5627ae7efdb"
+        }
+      ]
+    },
+    {
+      "scene": "L13-04",
+      "frameSha256": "005488b6160ed8082eae543383e5e32cc95cb119e84f0c03f31715642d54379a",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "931c6ed7d26a9d4f21dfdc3c269883ca525d0c1700381b0317410e09137c09e9",
+          "vttSha256": "f547ec26de7d6d2a795e3e17bcaf8ca5152264098979ebb671629d038cb6d3c5"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "73decffb721fbc5aa11ff61b5b0d2bb165587f9b3d7013200ea5de33dcb40e64",
+          "vttSha256": "f547ec26de7d6d2a795e3e17bcaf8ca5152264098979ebb671629d038cb6d3c5"
+        }
+      ]
+    },
+    {
+      "scene": "L13-05",
+      "frameSha256": "f36adc50522c5573606a84d46e695dbd40cfbc702a6ce5de1ce256d220b6858e",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "64f755a6e1d1cc618399cdc38141dc22c33c724aa585ca7de19dd38c37c5192e",
+          "vttSha256": "e162f5080c694b59aa457caa04b180da184b4c951fc73fbd33bfdc1957a136a7"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "8effceb0c69321b265c4cffcbff706a31f7a260aa5765b182c00a91b44db553e",
+          "vttSha256": "e162f5080c694b59aa457caa04b180da184b4c951fc73fbd33bfdc1957a136a7"
+        }
+      ]
+    },
+    {
+      "scene": "L13-06",
+      "frameSha256": "dd4c7b86775db4e7f1aa3194ef8b60a3127fddd14b85e7a9505f2ae640704a6e",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "c6d18492c292fc07529907453e35013128f148bd9230c6e67e890fa46dcdfc63",
+          "vttSha256": "445146be0914bca15a9d0026a6b30f33c06f48d6bd4287f816e4f853bcc89fcd"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "ec8d4a49c5c6d019ab879af2c0a41df117791bd7e83865513c8c13b5e9d0fd4e",
+          "vttSha256": "445146be0914bca15a9d0026a6b30f33c06f48d6bd4287f816e4f853bcc89fcd"
+        }
+      ]
+    },
+    {
+      "scene": "L13-07",
+      "frameSha256": "7ece034c47e14d86a309570dd5ae9cb66913c4d1611f59a75fb1641fdf61e857",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "2b842e46a23d13f48d82d1f4e9aeda5cc3be02a48f8ec3e902ce1d4012816069",
+          "vttSha256": "8812742dc5ac7b013cee7586970c64ea05befce1907aca304d59488e6ab88dd1"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "54bb1ad01dec3f5e2bc509e0ebc4f94c210daff9efa42904d7d4d0d7b1f987fa",
+          "vttSha256": "8812742dc5ac7b013cee7586970c64ea05befce1907aca304d59488e6ab88dd1"
+        }
+      ]
+    },
+    {
+      "scene": "L13-08",
+      "frameSha256": "2c71b1a6de7d7faddfebde3390161277ceec3e7ca29a242d4b4d57b2253bdd8d",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "6127d4d10e3d867d8718640b42371245275a65c660072b09542c6fb88102beeb",
+          "vttSha256": "ef41601106c9a6e33cf333f16db3a59b1a6ddbc92335b71ee37ee6a8a1f807ec"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "413ae5cb187ba3b98b48fbf54de140e1691fce80fa5076e583cef437ef333703",
+          "vttSha256": "ef41601106c9a6e33cf333f16db3a59b1a6ddbc92335b71ee37ee6a8a1f807ec"
+        }
+      ]
+    }
+  ],
+  "limits": "Source audio/VTT unchanged; candidate clips are unbound. Full L13 learner-route and protected end presentation remain separate gates."
+}
