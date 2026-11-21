@@ -34,5 +34,16 @@
     "observation": "candidate card is visible at 266.72; React end-screen is present at 267.30 and 275.00 and obscures the intended eight-second resting card at both widths",
     "result": "FAIL; candidate remains unbound"
   },
+  "learnerRouteCandidateRecheck": {
+    "stackedCodeHead": "11fc4cb663028240016d144364e8ac4030b3372e",
+    "method": "read-only isolated exact-code preview with candidate media-response substitution; no learner binding edit",
+    "route": "/agentified/learningplan?lesson=L16&rev=11fc4cb663028240016d144364e8ac4030b3372e",
+    "viewports": ["1280x720", "390x844"],
+    "candidateDurationSeconds": 275.32,
+    "observed": "resting card visible past 267.222 without early overlay; one completion overlay after actual media end; replay clears overlay; captions off/on, Large/Medium Aa, and native controls exercised",
+    "desktopMp4Sha256": "090fb33d2f58e343024b8c65232548ce335a1e39d578efac2cb00c480d11b374",
+    "mobileMp4Sha256": "761edea00f152dd369f07f7d7a3562a1aae32d4a8556fc5ca321878b0c3a90cd",
+    "result": "PASS for bounded L16 UI handoff; candidate remains unbound; final rights unconfirmed"
+  },
   "learnerBindingChanged": false
 }
