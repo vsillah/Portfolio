@@ -24,6 +24,7 @@ const l07DesktopCaptionClearance = [
 const l01CaptionClearance = [
   { sceneId: 'L01-02', startSeconds: 34.585, endSeconds: 74.197 },
   { sceneId: 'L01-04', startSeconds: 114.358, endSeconds: 150.501 },
+  { sceneId: 'L01-05', startSeconds: 150.501, endSeconds: 183.059 },
 ] as const
 
 /** Video is an explicit future input. Without an approved source the hero is a static cover. */
