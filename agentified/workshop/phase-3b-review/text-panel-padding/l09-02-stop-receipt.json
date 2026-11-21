@@ -1,0 +1,42 @@
+{
+  "status": "stop_new_failure_class_source_narration_mismatch",
+  "firstQualifiedScene": "L09-01",
+  "firstQualifiedFrameSha256": "b384a3842a3507d09466f2a0a2f28276e69e4bf000bcf99439bff0971f290270",
+  "firstQualifiedClips": [
+    {
+      "layout": "desktop",
+      "sha256": "4fa321c6f70088f7c26f8607525afd8779ca9f9100f4fd634886f062cbc7562c",
+      "vttSha256": "699762271435476f2a47c2cc9ef8d35311dfa6c581ca9a61b33079954d238704"
+    },
+    {
+      "layout": "mobile",
+      "sha256": "494fa4893918cfc78c865d6f34e0b51c3919d0f84aafed476fdb138294bcee22",
+      "vttSha256": "699762271435476f2a47c2cc9ef8d35311dfa6c581ca9a61b33079954d238704"
+    }
+  ],
+  "stoppedScene": "L09-02",
+  "sceneStartSeconds": 31.82,
+  "sceneEndSeconds": 69.72,
+  "sourceVideoSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+  "sourceCaptionSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+  "approvedPlateSha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+  "rejectedCropSourcePx": [
+    950,
+    300,
+    2100,
+    1500
+  ],
+  "rejectedCandidateFrameSha256": "d802699291cd51a57ecffeb7a15d3584763fd3e23f6e79911560d070086c6bea",
+  "reason": "Approved SAM trust-layer plate has three sections and no narrated seven-rung metrics ladder; uncropping alone cannot teach the stated relationship.",
+  "nextGate": "Source illustration owner selects exact L09-02 visual treatment; resume full desktop/mobile route qualification after decision.",
+  "unqualifiedScenes": [
+    "L09-02",
+    "L09-03",
+    "L09-04",
+    "L09-05",
+    "L09-06",
+    "L09-07",
+    "L09-08"
+  ]
+}
