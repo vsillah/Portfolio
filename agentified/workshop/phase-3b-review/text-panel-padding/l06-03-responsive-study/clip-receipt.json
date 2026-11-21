@@ -1,0 +1,109 @@
+{
+  "status": "review_only_unbound",
+  "paddingHead": "5a0f156b0a9b8cdd8286bf0d37365b558f858bc5",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "scene": "L06-03",
+  "lessonStartSeconds": 65.532,
+  "durationSeconds": 31.95,
+  "sourceVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+  "sourceCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+  "trimmedCaptionPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/L06-03-source-trim.vtt",
+  "trimmedCaptionSha256": "8df0131c25b421d2e7d787a1d46d4a77a093ca1b53356dd6f86bc08b9d154677",
+  "frameReceiptPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/frame-receipt.json",
+  "frameReceiptSha256": "0f74ab2584512961ce346dfeda6654504e8c2c5cb4437e6a2de2ee19df7d3d24",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/L06-03-desktop-review.mp4",
+      "sha256": "6e9896056c95c73e884e2bd8e3a1d3bfa3e3cc9243956e23afd3e96a257da259",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png",
+          "durationSeconds": 31.95
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "799"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1499"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "12"
+          }
+        ],
+        "format": {
+          "duration": "31.960000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/L06-03-mobile-review.mp4",
+      "sha256": "a331ce9bf4af8b8a0ce46a644598b3cd7a66458bfcbdba391e02b01166481052",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png",
+          "durationSeconds": 1.2
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-01-prepare.png",
+          "durationSeconds": 1.25
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-02-recommend.png",
+          "durationSeconds": 1.25
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-03-route.png",
+          "durationSeconds": 1.25
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-04-stage.png",
+          "durationSeconds": 1.25
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-05-execute.png",
+          "durationSeconds": 1.35
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-01-prepare.png",
+          "durationSeconds": 24.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "799"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1499"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "12"
+          }
+        ],
+        "format": {
+          "duration": "31.960000"
+        }
+      }
+    }
+  ]
+}

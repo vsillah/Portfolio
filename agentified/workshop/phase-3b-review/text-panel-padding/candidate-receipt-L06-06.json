@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L06-06"
+  ],
+  "frames": [
+    {
+      "scene_id": "L06-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-06.png",
+      "frame_sha256": "de702f9b88543872bac7100e5cf96a3e3402f3b827be9833c9daa7028f3eef3b",
+      "visual_family": "L06-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Point to the exact boundary.",
+        "Permitted work",
+        "Closed action"
+      ],
+      "accessibility_text": "The learner identifies where authority stops. Visual: Brass gate and key as the exercise target.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner identifies where authority stops.",
+      "brief_sha256": "33af660cac564f0eaf8350d2e16ac14d93dad2d24e5be7402f29bf071e8cee55",
+      "original_frame_sha256": "41d6331a958e7a4e8fb9e8f6944bca860b89a674e8ae1152bfbd89030026f3cf",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 904,
+            "height": 116
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 848,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 371,
+            "height": 89
+          },
+          "glyph": {
+            "x": 146,
+            "y": 788,
+            "width": 315,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 340,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1180,
+            "y": 788,
+            "width": 284,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

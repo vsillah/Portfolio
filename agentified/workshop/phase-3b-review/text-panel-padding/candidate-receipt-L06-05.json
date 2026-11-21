@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L06-05"
+  ],
+  "frames": [
+    {
+      "scene_id": "L06-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-05.png",
+      "frame_sha256": "0453e0ff889afc7a4e4624fb96be83428167262299a2c3b68ccdc4bc04d4ad48",
+      "visual_family": "L06-operating-artifact:handoff:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Send proposals to a human owner.",
+        "Proposal",
+        "Human owner"
+      ],
+      "accessibility_text": "A documented disposition completes the handoff. Visual: Envelope crosses the gate to the owner token.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A documented disposition completes the handoff.",
+      "brief_sha256": "e9d7cafc6c2b8cc9b27b78d4141c66e03dc10f081e3055e1507d4c3ba295b085",
+      "original_frame_sha256": "0ca6c9ec6fa40f59bc11f367ce013a014d737ea6c67b2b3d6e98e0d4f10bce45",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1110,
+            "height": 116
+          },
+          "glyph": {
+            "x": 94,
+            "y": 79,
+            "width": 1054,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 120,
+            "y": 776,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 120,
+            "y": 776,
+            "width": 239,
+            "height": 97
+          },
+          "glyph": {
+            "x": 151,
+            "y": 808,
+            "width": 183,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1145,
+            "y": 776,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1145,
+            "y": 776,
+            "width": 345,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1176,
+            "y": 808,
+            "width": 289,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
