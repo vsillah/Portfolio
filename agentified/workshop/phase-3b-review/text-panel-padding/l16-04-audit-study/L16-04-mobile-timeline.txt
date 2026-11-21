@@ -1,5 +1,9 @@
 file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide.png'
-duration 1.600
-file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit.png'
-duration 26.400
-file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit.png'
+duration 4.200
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-roles.png'
+duration 7.300
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-prohibitions.png'
+duration 5.500
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-hold.png'
+duration 11.000
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-hold.png'

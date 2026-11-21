@@ -56,6 +56,17 @@ def put_plate(im, plate, box):
     return list(box)
 
 
+def mobile_audit_card(title, lines):
+    """Use full 16:9 width for a few spoken points at phone playback size."""
+    im = canvas()
+    draw = ImageDraw.Draw(im)
+    draw_text(draw, (80, 57), title, 94, '#f2d36f')
+    draw.rounded_rectangle((75, 190, 1845, 897), radius=32, fill='#102939', outline='#c99c35', width=5)
+    for i, line in enumerate(lines):
+        draw_text(draw, (135, 258 + i * 155), line, 88, '#f2d36f' if line.startswith('Hold') else '#fff7e8')
+    return im
+
+
 for scene, spec in SPECS.items():
     source = ROOT / spec['source']
     assert sha(source) == spec['sha']
@@ -80,6 +91,20 @@ for scene, spec in SPECS.items():
         frames.append({'kind': kind, 'path': str(path.relative_to(ROOT)), 'sha256': sha(path),
                        'mobilePreviewPath': str(preview.relative_to(ROOT)), 'mobilePreviewSha256': sha(preview),
                        'geometry': {'completePlatePx': box, 'narrationAudit': spec['lines'] if kind == 'audit' else []}})
+    if scene == 'L16-04':
+        for kind, title, lines in (
+            ('roles', 'Who owns each step?', ['Prepare: brief only', 'Morgan: recommends', 'Spend: separate owner']),
+            ('prohibitions', 'The agent must hold', ['No booking or sending', 'No buying', 'No team rule from draft']),
+            ('hold', 'The gate stays closed', ['Staffing: no evidence', 'Hold remains', 'Score cannot lift it', 'Human decides with evidence']),
+        ):
+            im = mobile_audit_card(title, lines)
+            path = out / f'mobile-{kind}.png'
+            im.save(path)
+            preview = out / f'{path.stem}-mobile-preview.png'
+            im.resize((390, 219), Image.Resampling.LANCZOS).save(preview)
+            frames.append({'kind': f'mobile_{kind}', 'path': str(path.relative_to(ROOT)), 'sha256': sha(path),
+                           'mobilePreviewPath': str(preview.relative_to(ROOT)), 'mobilePreviewSha256': sha(preview),
+                           'geometry': {'narrationAudit': lines, 'completePlatePx': None}})
     receipt = {'status': 'review_only_unbound', 'scene': scene,
                'approvedPlatePath': spec['source'], 'approvedPlateSha256': spec['sha'],
                'approvedPlatePx': list(spec['size']),

@@ -35,7 +35,11 @@ assert vtt.read_text().count(' --> ') == CUES
 
 clips = []
 for layout in ('desktop', 'mobile'):
-    timeline = [(OUT / 'overview-wide.png', 1.60), (OUT / 'audit.png', 26.40)]
+    if SCENE == 'L16-04' and layout == 'mobile':
+        timeline = [(OUT / 'overview-wide.png', 4.20), (OUT / 'mobile-roles.png', 7.30),
+                    (OUT / 'mobile-prohibitions.png', 5.50), (OUT / 'mobile-hold.png', 11.00)]
+    else:
+        timeline = [(OUT / 'overview-wide.png', 1.60), (OUT / 'audit.png', 26.40)]
     concat = OUT / f'{SCENE}-{layout}-timeline.txt'
     lines = []
     for frame, duration in timeline:

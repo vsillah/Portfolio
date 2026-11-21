@@ -9,7 +9,7 @@
   "sourceVideoSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
   "sourceCaptionSha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060",
   "trimmedCaptionSha256": "f7637cb0b26091db01a08c6125e7e297e718ead8df1660baf192dcc8f87ba804",
-  "frameReceiptSha256": "3fa3342ccd924e653f5153dc1005289e05316a38656fad3be048c640ea7bf5ec",
+  "frameReceiptSha256": "7195bd8045f10038d7272a80c896e3fddab2be1fed0ee3ca1c8f10c551b9a81c",
   "clips": [
     {
       "layout": "desktop",
@@ -52,15 +52,23 @@
     {
       "layout": "mobile",
       "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/L16-04-mobile-review.mp4",
-      "sha256": "0d9cbdd8965431afaf135474215ca1a0dfc0100efe3979cae3f4c9a3ecce08fb",
+      "sha256": "00b814f4cef019253544c02255d5a15f021547eeae63395021e550ff9a36e39e",
       "timeline": [
         {
           "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide.png",
-          "durationSeconds": 1.6
+          "durationSeconds": 4.2
         },
         {
-          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit.png",
-          "durationSeconds": 26.4
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-roles.png",
+          "durationSeconds": 7.3
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-prohibitions.png",
+          "durationSeconds": 5.5
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-hold.png",
+          "durationSeconds": 11.0
         }
       ],
       "probe": {
