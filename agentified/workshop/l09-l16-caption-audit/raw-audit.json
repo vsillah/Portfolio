@@ -1,0 +1,3360 @@
+{
+  "generatedAt": "2026-11-20T21:35:37.246Z",
+  "base": "http://127.0.0.1:3121",
+  "results": [
+    {
+      "scene": "L09-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 0,
+            "end": 3.58,
+            "text": "Harbor Learning Circle has three neat classroom briefs on a table."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-01",
+      "sample": "midpoint",
+      "time": 15.91,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 13.98,
+            "end": 17.2,
+            "text": "The third accurately says the facilitator is still under review."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 15.91,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-02",
+      "sample": "boundary",
+      "time": 33.32,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 31.82,
+            "end": 40.24,
+            "text": "Chapter Fifteen lays out seven rungs: activity, output, quality, behavior, outcome, learning, and authority."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 33.32,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-02",
+      "sample": "midpoint",
+      "time": 50.77,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 49.14,
+            "end": 53.66,
+            "text": "Behavior asks whether the preparer stopped at a stale note and respected the prepare-only gate."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 50.77,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-03",
+      "sample": "boundary",
+      "time": 71.22,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 69.72,
+            "end": 72.56,
+            "text": "The workbook adds cost and trust to the scorecard."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 71.22,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-03",
+      "sample": "midpoint",
+      "time": 86.37,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 79.8,
+            "end": 88.38,
+            "text": "For the paper case, the useful measures are source-supported claims, correct holds, Morgan's review burden, and whether a decision becomes clearer."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 86.37,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-04",
+      "sample": "boundary",
+      "time": 104.52,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 103.02,
+            "end": 106.82,
+            "text": "Chapter Sixteen asks us to choose a review posture for each action."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 104.52,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-04",
+      "sample": "midpoint",
+      "time": 120.55,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 117.96,
+            "end": 122.2,
+            "text": "Post-action audit checks low-stakes action after it happens, with a way to tighten the fence."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 120.55,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-05",
+      "sample": "boundary",
+      "time": 139.58,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 138.08,
+            "end": 147.12,
+            "text": "Give Morgan a review view that answers four questions: what changed, which sources support it, what is uncertain, and what happens if Morgan says yes."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 139.58,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-05",
+      "sample": "midpoint",
+      "time": 151.19,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 151.19,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-06",
+      "sample": "boundary",
+      "time": 165.8,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 165.8,
+            "end": 169.76,
+            "text": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 165.8,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-06",
+      "sample": "midpoint",
+      "time": 167.41,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 165.8,
+            "end": 169.76,
+            "text": "Which number would make Harbor look busy while hiding the unsupported facilitator claim?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 167.41,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-07",
+      "sample": "boundary",
+      "time": 172.02,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 170.52,
+            "end": 174.16,
+            "text": "Add an Agent Metrics Ladder and Review Postures card to your Operating File."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 172.02,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-07",
+      "sample": "midpoint",
+      "time": 211.79,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 211.79,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-08",
+      "sample": "boundary",
+      "time": 254.56,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 253.06,
+            "end": 254.82,
+            "text": "Save revision nine as a draft."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 254.56,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L09-08",
+      "sample": "midpoint",
+      "time": 262.95,
+      "lesson": "L09",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 259.38,
+            "end": 263.36,
+            "text": "Next we will put the same discipline around money and the final decision brief."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 262.95,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 0,
+            "end": 4.92,
+            "text": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-01",
+      "sample": "midpoint",
+      "time": 16.85,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 16.82,
+            "end": 17.96,
+            "text": "The amount sounds minor."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 16.85,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-02",
+      "sample": "boundary",
+      "time": 35.2,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 33.7,
+            "end": 41.88,
+            "text": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 35.2,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-02",
+      "sample": "midpoint",
+      "time": 51.35,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 47.58,
+            "end": 53.5,
+            "text": "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 51.35,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-03",
+      "sample": "boundary",
+      "time": 70.5,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 69,
+            "end": 71.22,
+            "text": "Harbor's preparation role has no payment authority."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 70.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-03",
+      "sample": "midpoint",
+      "time": 83.95,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 83.95,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-04",
+      "sample": "boundary",
+      "time": 100.4,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 98.9,
+            "end": 100.9,
+            "text": "Now write the decision Morgan actually owns."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 100.4,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-04",
+      "sample": "midpoint",
+      "time": 116.67,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 115.2,
+            "end": 119.32,
+            "text": "Option B is to hold the proposal and gather a fresh staffing commitment."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 116.67,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-05",
+      "sample": "boundary",
+      "time": 135.94,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 134.44,
+            "end": 136.32,
+            "text": "Put the spend question on its own line."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 135.94,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-05",
+      "sample": "midpoint",
+      "time": 150,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 149.88,
+            "end": 153.4,
+            "text": "A flyer sent into the community cannot be pulled back with the same ease."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 150,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-06",
+      "sample": "boundary",
+      "time": 167.06,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 166.68,
+            "end": 170.42,
+            "text": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 167.06,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-06",
+      "sample": "midpoint",
+      "time": 168.3,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 166.68,
+            "end": 170.42,
+            "text": "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 168.3,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-07",
+      "sample": "boundary",
+      "time": 172.54,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 171.04,
+            "end": 173.2,
+            "text": "Fill a Spend Envelope, then a Decision Brief."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 172.54,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-07",
+      "sample": "midpoint",
+      "time": 211.83,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 211.83,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-08",
+      "sample": "boundary",
+      "time": 254.12,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 252.62,
+            "end": 254.34,
+            "text": "Save revision ten as a draft."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 254.12,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L10-08",
+      "sample": "midpoint",
+      "time": 263.45,
+      "lesson": "L10",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 260.38,
+            "end": 266.02,
+            "text": "Next we will make the pending work visible without turning a phone notification into a second control room."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 263.45,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 0,
+            "end": 3.76,
+            "text": "Morgan comes to Harbor's Friday planning table with three open questions."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-01",
+      "sample": "midpoint",
+      "time": 13.04,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 9.76,
+            "end": 13.8,
+            "text": "If the answers live in three people's heads, Morgan becomes the operating system."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 13.04,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-02",
+      "sample": "boundary",
+      "time": 27.58,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 26.08,
+            "end": 28.24,
+            "text": "Chapter Nineteen calls this a cockpit."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 27.58,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-02",
+      "sample": "midpoint",
+      "time": 43.87,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 28.24,
+            "end": 44.7,
+            "text": "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 43.87,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-03",
+      "sample": "boundary",
+      "time": 63.16,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 61.66,
+            "end": 69.72,
+            "text": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 63.16,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-03",
+      "sample": "midpoint",
+      "time": 76.59,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 70.22,
+            "end": 80.84,
+            "text": "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 76.59,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-04",
+      "sample": "boundary",
+      "time": 93.02,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 91.52,
+            "end": 96.98,
+            "text": "Chapter Twenty gives us an Unblock Ladder: auto-run, notify, ask, escalate."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 93.02,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-04",
+      "sample": "midpoint",
+      "time": 106.77,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 106.56,
+            "end": 109.1,
+            "text": "The staffing gap is an ask to Morgan for direction."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 106.77,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-05",
+      "sample": "boundary",
+      "time": 123.52,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 122.02,
+            "end": 124.26,
+            "text": "The phone is a narrow doorway into the cockpit."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 123.52,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-05",
+      "sample": "midpoint",
+      "time": 135.7,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 135.04,
+            "end": 142.5,
+            "text": "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 135.7,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-06",
+      "sample": "boundary",
+      "time": 150.88,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 150.48,
+            "end": 155.32,
+            "text": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 150.88,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-06",
+      "sample": "midpoint",
+      "time": 152.75,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 150.48,
+            "end": 155.32,
+            "text": "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 152.75,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-07",
+      "sample": "boundary",
+      "time": 157.62,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 156.12,
+            "end": 161.86,
+            "text": "Sketch one Mission Control Cockpit card for Harbor and one mobile unblock message for the same held brief."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 157.62,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-07",
+      "sample": "midpoint",
+      "time": 195.48,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 195.48,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-08",
+      "sample": "boundary",
+      "time": 236.34,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 234.84,
+            "end": 236.4,
+            "text": "Save revision eleven as a draft."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 236.34,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L11-08",
+      "sample": "midpoint",
+      "time": 243.88,
+      "lesson": "L11",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 241.62,
+            "end": 248.46,
+            "text": "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 243.88,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 0,
+            "end": 6.08,
+            "text": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-01",
+      "sample": "midpoint",
+      "time": 13.65,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 9.2,
+            "end": 13.82,
+            "text": "That would reveal source notes and internal deliberation the board member did not request."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 13.65,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-02",
+      "sample": "boundary",
+      "time": 28.8,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 27.3,
+            "end": 35.96,
+            "text": "Chapter Twenty-One's Scoped Proof Loop has six fields: audience, scope, window, exclusions, export, and ledger."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 28.8,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-02",
+      "sample": "midpoint",
+      "time": 46.83,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 42.84,
+            "end": 52.4,
+            "text": "Include the permitted job, evidence-status summary, handoff result, the staffing hold, Morgan's paper disposition, and the still-unapproved print request."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 46.83,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-03",
+      "sample": "boundary",
+      "time": 67.86,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 66.36,
+            "end": 75.88,
+            "text": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 67.86,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-03",
+      "sample": "midpoint",
+      "time": 81.45,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 80.6,
+            "end": 83.5,
+            "text": "Morgan reviews the proposed proof packet before any sharing."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 81.45,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-04",
+      "sample": "boundary",
+      "time": 98.04,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 96.54,
+            "end": 102.74,
+            "text": "The same team then hears an idea: a tiny phone tool that helps volunteer coordinators compare workshop options."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 98.04,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-04",
+      "sample": "midpoint",
+      "time": 115.3,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 105.96,
+            "end": 116.84,
+            "text": "Chapter Twenty-Two asks for a Foundry Test first: demand, monetization, builder fit, build velocity, differentiation, release readiness, and approval gates."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 115.3,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-05",
+      "sample": "boundary",
+      "time": 135.56,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 134.06,
+            "end": 141.04,
+            "text": "Write the smallest safe next test: Morgan could ask for permission to research public demand and clarify who would pay."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 135.56,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-05",
+      "sample": "midpoint",
+      "time": 148.75,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 145.44,
+            "end": 152.76,
+            "text": "No repository, tester invite, user data collection, price, store listing, or public claim follows from this lesson."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 148.75,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-06",
+      "sample": "boundary",
+      "time": 164.94,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 164.92,
+            "end": 168.12,
+            "text": "What would you leave out of the board packet even if it helped tell a better story?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 164.94,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-06",
+      "sample": "midpoint",
+      "time": 166.15,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 164.92,
+            "end": 168.12,
+            "text": "What would you leave out of the board packet even if it helped tell a better story?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 166.15,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-07",
+      "sample": "boundary",
+      "time": 170.36,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 168.86,
+            "end": 172.24,
+            "text": "Draft a Client-Safe Proof Packet outline for the Harbor planning case."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 170.36,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-07",
+      "sample": "midpoint",
+      "time": 209.47,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 209.47,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-08",
+      "sample": "boundary",
+      "time": 251.58,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 250.08,
+            "end": 251.82,
+            "text": "Save revision twelve as a draft."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 251.58,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L12-08",
+      "sample": "midpoint",
+      "time": 259.1,
+      "lesson": "L12",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 259.1,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 0.26,
+            "end": 1.92,
+            "text": "Morgan opens Harbor's paper planning"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-01",
+      "sample": "midpoint",
+      "time": 13.334,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 12.676,
+            "end": 16.9,
+            "text": "It is tempting to let the preparation agent change the format and declare an improvement."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 13.334,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-02",
+      "sample": "boundary",
+      "time": 28.167,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 26.667,
+            "end": 33.792,
+            "text": "Chapter Twenty-Three separates five states: propose, not run, gate, trace, then approve or discard."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 28.167,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-02",
+      "sample": "midpoint",
+      "time": 41.627,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 41.627,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-03",
+      "sample": "boundary",
+      "time": 58.087,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 56.587,
+            "end": 68.278,
+            "text": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 58.087,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-03",
+      "sample": "midpoint",
+      "time": 73.479,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 71.577,
+            "end": 78.02,
+            "text": "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 73.479,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-04",
+      "sample": "boundary",
+      "time": 91.871,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 90.371,
+            "end": 94.339,
+            "text": "Morgan owns the review of the proposal because Morgan owns this planning decision."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 91.871,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-04",
+      "sample": "midpoint",
+      "time": 105.555,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 103.307,
+            "end": 110.048,
+            "text": "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 105.555,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-05",
+      "sample": "boundary",
+      "time": 122.24,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 120.74,
+            "end": 129.273,
+            "text": "Write a `not_run` reason that another person can act on: `No agreed comparison set or reviewer protocol; staffing hold remains unresolved.`"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 122.24,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-05",
+      "sample": "midpoint",
+      "time": 134.197,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 134.197,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-06",
+      "sample": "boundary",
+      "time": 149.155,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 149.155,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-06",
+      "sample": "midpoint",
+      "time": 150.27,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 149.533,
+            "end": 152.306,
+            "text": "What evidence would make your favorite improvement worth testing?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 150.27,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-07",
+      "sample": "boundary",
+      "time": 154.386,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 152.886,
+            "end": 154.764,
+            "text": "Draft one AutoResearch Proposal."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 154.386,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-07",
+      "sample": "midpoint",
+      "time": 193.233,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 181.113,
+            "end": 233.025,
+            "text": "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 193.233,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-08",
+      "sample": "boundary",
+      "time": 235.079,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 233.579,
+            "end": 235.414,
+            "text": "Save revision thirteen as a draft."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 235.079,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L13-08",
+      "sample": "midpoint",
+      "time": 244.411,
+      "lesson": "L13",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 243.847,
+            "end": 246.157,
+            "text": "inspect, and a clear record that nothing"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 244.411,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.18,
+            "text": "A Harbor board reviewer asks Morgan a"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-01",
+      "sample": "midpoint",
+      "time": 14.651,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 12.209,
+            "end": 15.793,
+            "text": "The first panel shows the queue, including held and rejected work."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 14.651,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-02",
+      "sample": "boundary",
+      "time": 30.802,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 30.326,
+            "end": 33.654,
+            "text": "One Session Option Brief is prepared, not proposed to the team."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 30.802,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-02",
+      "sample": "midpoint",
+      "time": 41.058,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 39.473,
+            "end": 43.484,
+            "text": "The research proposal is not run because its baseline and reviewer protocol are missing."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 41.058,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-03",
+      "sample": "boundary",
+      "time": 54.314,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 52.814,
+            "end": 54.521,
+            "text": "Open the trace for the held brief."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 54.314,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-03",
+      "sample": "midpoint",
+      "time": 65.576,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 65.575998,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-04",
+      "sample": "boundary",
+      "time": 79.838,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 79.838,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-04",
+      "sample": "midpoint",
+      "time": 91.532,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 91.312,
+            "end": 96.901,
+            "text": "The agent cannot promote it itself, and a single held example cannot become general truth by repetition."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 91.532,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-05",
+      "sample": "boundary",
+      "time": 106.226,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 104.726,
+            "end": 107.628,
+            "text": "The workbook asks what export a reviewer can take away."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 106.226,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-05",
+      "sample": "midpoint",
+      "time": 120.067,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 119.69,
+            "end": 122.25,
+            "text": "It would omit raw notes and unrelated records."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 120.067,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-06",
+      "sample": "boundary",
+      "time": 136.907,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 136.054,
+            "end": 140.015,
+            "text": "Which panel would expose the weakest part of your own proposed workflow first?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 136.907,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-06",
+      "sample": "midpoint",
+      "time": 138.06,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 136.054,
+            "end": 140.015,
+            "text": "Which panel would expose the weakest part of your own proposed workflow first?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 138.06,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-07",
+      "sample": "boundary",
+      "time": 142.213,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 140.713,
+            "end": 143.017,
+            "text": "Storyboard a Three-Panel Demo for your workflow."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 142.213,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-07",
+      "sample": "midpoint",
+      "time": 179.319,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 170.449,
+            "end": 217.412,
+            "text": "Do not use private operational data."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 179.319,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-08",
+      "sample": "boundary",
+      "time": 219.424,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 217.924,
+            "end": 219.886,
+            "text": "Save revision fourteen as a draft."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 219.424,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L14-08",
+      "sample": "midpoint",
+      "time": 229.843,
+      "lesson": "L14",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 227.397,
+            "end": 229.957,
+            "text": "Nothing about a clean storyboard lifts"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 229.843,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.37,
+            "text": "It is Friday at Harbor Learning Circle."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-01",
+      "sample": "midpoint",
+      "time": 14.391,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 12.48,
+            "end": 15.23,
+            "text": "The first line says prepared, not sent."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 14.391,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-02",
+      "sample": "boundary",
+      "time": 30.282,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 28.782,
+            "end": 30.403,
+            "text": "The Six-Beat Day begins with a brief."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 30.282,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-02",
+      "sample": "midpoint",
+      "time": 39.946,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 34.713,
+            "end": 41.881,
+            "text": "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 39.946,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-03",
+      "sample": "boundary",
+      "time": 52.609,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 52.609,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-03",
+      "sample": "midpoint",
+      "time": 62.886,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 61.417,
+            "end": 64.873,
+            "text": "The research question belongs to Morgan as owner of the brief format."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 62.886,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-04",
+      "sample": "boundary",
+      "time": 76.162,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 76.001,
+            "end": 79.713,
+            "text": "Morgan reads the brief beside its source-status summary and trace template."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 76.162,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-04",
+      "sample": "midpoint",
+      "time": 88.996,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 85.84,
+            "end": 89.509,
+            "text": "Morgan marks the claim unsupported and keeps the staffing hold in place."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 88.996,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-05",
+      "sample": "boundary",
+      "time": 104.83,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 104.83,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-05",
+      "sample": "midpoint",
+      "time": 120.954,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 119.349,
+            "end": 121.781,
+            "text": "There is no automatic retry or provider call."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 120.954,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-06",
+      "sample": "boundary",
+      "time": 140.078,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 138.578,
+            "end": 144.423,
+            "text": "At day's end, Morgan asks one uncomfortable question: what did I approve that I should have questioned?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 140.078,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-06",
+      "sample": "midpoint",
+      "time": 149.125,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 149.125,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-07",
+      "sample": "boundary",
+      "time": 161.171,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 159.671,
+            "end": 161.933,
+            "text": "Write a Six-Beat Day brief for your workflow."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 161.171,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-07",
+      "sample": "midpoint",
+      "time": 197.058,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 183.257,
+            "end": 233.932,
+            "text": "Do not use private operational data, open a live account, import a trace, or contact a person."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 197.058,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-08",
+      "sample": "boundary",
+      "time": 235.944,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 234.444,
+            "end": 236.151,
+            "text": "Save revision fifteen as a draft."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 235.944,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L15-08",
+      "sample": "midpoint",
+      "time": 244.915,
+      "lesson": "L15",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 244.574,
+            "end": 246.324,
+            "text": "make those boundaries routine."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 244.915,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 0.21,
+            "end": 2.18,
+            "text": "At the end of Harbor's Friday, Morgan"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 1.5,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-01",
+      "sample": "midpoint",
+      "time": 17.106,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 16.516,
+            "end": 19.716,
+            "text": "The file is impressive in one sense: its gaps are visible."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 17.106,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-02",
+      "sample": "boundary",
+      "time": 35.712,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 34.212,
+            "end": 40.74,
+            "text": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 35.712,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-02",
+      "sample": "midpoint",
+      "time": 48.478,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 48.138,
+            "end": 49.717,
+            "text": "When will someone revisit the rule?"
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 48.478,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-03",
+      "sample": "boundary",
+      "time": 64.245,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 64.245,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-03",
+      "sample": "midpoint",
+      "time": 76.216,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 72.362,
+            "end": 76.714,
+            "text": "The receipt describes a paper event shape; it does not certify that an agent ran."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 76.216,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-04",
+      "sample": "boundary",
+      "time": 91.187,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 89.687,
+            "end": 92.759,
+            "text": "Move to routing, action, approval, and cost."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 91.187,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-04",
+      "sample": "midpoint",
+      "time": 103.398,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 100.671,
+            "end": 105.578,
+            "text": "The agent cannot book, send, buy, or turn a proposal into a team rule."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 103.398,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-05",
+      "sample": "boundary",
+      "time": 118.609,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 117.109,
+            "end": 118.73,
+            "text": "Finish with export and rollback."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 118.609,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-05",
+      "sample": "midpoint",
+      "time": 131.464,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 129.845,
+            "end": 136.416,
+            "text": "If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 131.464,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-06",
+      "sample": "boundary",
+      "time": 147.319,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 146.886,
+            "end": 148.464,
+            "text": "Pick the weakest gate in your workflow."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 147.319,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-06",
+      "sample": "midpoint",
+      "time": 155.76,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 153.733,
+            "end": 157.232,
+            "text": "Name the human who can make that call and the evidence that person would need."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 155.76,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-07",
+      "sample": "boundary",
+      "time": 167.2,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 165.7,
+            "end": 168.303,
+            "text": "Present your Operating File as a one-page audit."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 167.2,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-07",
+      "sample": "midpoint",
+      "time": 206.963,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 195.162,
+            "end": 247.586,
+            "text": "This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 206.963,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-08",
+      "sample": "boundary",
+      "time": 249.726,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [
+          {
+            "start": 248.226,
+            "end": 249.89,
+            "text": "Save revision sixteen for review."
+          }
+        ],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 249.726,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "scene": "L16-08",
+      "sample": "midpoint",
+      "time": 257.768,
+      "lesson": "L16",
+      "on": {
+        "mode": "showing",
+        "cue": [],
+        "video": [
+          621,
+          349
+        ]
+      },
+      "off": {
+        "time": 257.767998,
+        "video": [
+          621,
+          349
+        ]
+      }
+    }
+  ]
+}

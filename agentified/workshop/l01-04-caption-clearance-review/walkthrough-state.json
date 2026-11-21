@@ -1,0 +1,394 @@
+{
+  "generatedAt": "2026-11-21T10:49:31.764Z",
+  "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+  "states": [
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-03 adjacent boundary",
+      "time": 113,
+      "mode": "showing",
+      "cue": [
+        "A useful agent job names the work it finishes and the work it leaves alone."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 Small band",
+      "time": 132,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 Medium band",
+      "time": 132,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 Large band",
+      "time": 132,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 captions off",
+      "time": 132,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 captions restored",
+      "time": 132,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 cue gap",
+      "time": 136.3,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-05 adjacent boundary",
+      "time": 152,
+      "mode": "showing",
+      "cue": [
+        "In our case, approval is ‘pending Morgan.’"
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-03 adjacent boundary",
+      "time": 113,
+      "mode": "hidden",
+      "cue": [
+        "A useful agent job names the work it finishes and the work it leaves alone."
+      ],
+      "band": "A useful agent job names the work it finishes and the work it leaves alone.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 Small band",
+      "time": 132,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 Medium band",
+      "time": 132,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 Large band",
+      "time": 132,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 captions off",
+      "time": 132,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 captions restored",
+      "time": 132,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-04 cue gap",
+      "time": 136.3,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "step": "L01-05 adjacent boundary",
+      "time": 152,
+      "mode": "hidden",
+      "cue": [
+        "In our case, approval is ‘pending Morgan.’"
+      ],
+      "band": "In our case, approval is ‘pending Morgan.’",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=desktop&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "Small band",
+      "time": 2.009348,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=desktop&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "Medium band",
+      "time": 2.009348,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=desktop&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "Large band",
+      "time": 2.009348,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=desktop&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "captions off",
+      "time": 2.009348,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=desktop&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "captions restored",
+      "time": 2.009348,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=mobile&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "Small band",
+      "time": 2.005246,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=mobile&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "Medium band",
+      "time": 2.005246,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=mobile&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "Large band",
+      "time": 2.005246,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=mobile&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "captions off",
+      "time": 2.005246,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-04-caption-clearance-review/candidate/review.html?layout=mobile&revision=e3462078",
+      "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+      "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+      "step": "captions restored",
+      "time": 2.005246,
+      "mode": "hidden",
+      "cue": [
+        "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "controls": true
+    }
+  ]
+}

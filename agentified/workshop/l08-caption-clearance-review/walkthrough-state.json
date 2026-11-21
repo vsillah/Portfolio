@@ -1,0 +1,1161 @@
+{
+  "generatedAt": "2026-11-20T21:43:20.140Z",
+  "states": [
+    {
+      "width": 1280,
+      "step": "L08-01 Small",
+      "size": "S",
+      "pressed": [
+        "Small captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 540.734375
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 540.734375
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 540.734375
+        }
+      },
+      "stored": "S",
+      "trackMode": "hidden",
+      "bandSize": "S",
+      "bandFont": "14px",
+      "bandText": "What does ‘maybe’ permit the drafter to"
+    },
+    {
+      "width": 1280,
+      "step": "L08-01 Medium",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "What does ‘maybe’ permit the drafter to"
+    },
+    {
+      "width": 1280,
+      "step": "L08-01 Large",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 554.234375
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 554.234375
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 554.234375
+        }
+      },
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "24px",
+      "bandText": "What does ‘maybe’ permit the drafter to"
+    },
+    {
+      "width": 1280,
+      "step": "L08-01 off",
+      "time": 12.717,
+      "groupCount": 0
+    },
+    {
+      "width": 1280,
+      "step": "L08-01 restored",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 554.234375
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 554.234375
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 554.234375
+        }
+      },
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "24px",
+      "bandText": "What does ‘maybe’ permit the drafter to"
+    },
+    {
+      "width": 1280,
+      "step": "L08-02 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 619.03125
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 619.03125
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 619.03125
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+    },
+    {
+      "width": 1280,
+      "step": "L08-03 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "The reason is staffing claim unsupported."
+    },
+    {
+      "width": 1280,
+      "step": "L08-04 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 594.734375
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 594.734375
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 594.734375
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+    },
+    {
+      "width": 1280,
+      "step": "L08-05 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 594.734375
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 594.734375
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 594.734375
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+    },
+    {
+      "width": 1280,
+      "step": "L08-06 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 570.4375
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 570.4375
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 570.4375
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+    },
+    {
+      "width": 1280,
+      "step": "L08-07 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 570.4375
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 570.4375
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 570.4375
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+    },
+    {
+      "width": 1280,
+      "step": "L08-08 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 546.140625
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "The next review should ask whether the"
+    },
+    {
+      "width": 390,
+      "step": "L08-01 Small",
+      "size": "S",
+      "pressed": [
+        "Small captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 355.328125
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 355.328125
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 355.328125
+        }
+      },
+      "stored": "S",
+      "trackMode": "hidden",
+      "bandSize": "S",
+      "bandFont": "14px",
+      "bandText": "What does ‘maybe’ permit the drafter to"
+    },
+    {
+      "width": 390,
+      "step": "L08-01 Medium",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "What does ‘maybe’ permit the drafter to"
+    },
+    {
+      "width": 390,
+      "step": "L08-01 Large",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.21875
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.21875
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.21875
+        }
+      },
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "24px",
+      "bandText": "What does ‘maybe’ permit the drafter to"
+    },
+    {
+      "width": 390,
+      "step": "L08-01 off",
+      "time": 12.717,
+      "groupCount": 0
+    },
+    {
+      "width": 390,
+      "step": "L08-01 restored",
+      "size": "L",
+      "pressed": [
+        "Large captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.21875
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.21875
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 401.21875
+        }
+      },
+      "stored": "L",
+      "trackMode": "hidden",
+      "bandSize": "L",
+      "bandFont": "24px",
+      "bandText": "What does ‘maybe’ permit the drafter to"
+    },
+    {
+      "width": 390,
+      "step": "L08-02 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 506.515625
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 506.515625
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 506.515625
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Payload: the three course source references,\nobservation and expiry checks, allowed claim\nfor each, open questions, and a trace\nreference."
+    },
+    {
+      "width": 390,
+      "step": "L08-03 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "The reason is staffing claim unsupported."
+    },
+    {
+      "width": 390,
+      "step": "L08-04 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 482.21875
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 482.21875
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 482.21875
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Capture the input IDs, contract and rubric\nversions, draft, test results, and Morgan's\ndisposition in a privacy-safe classroom record."
+    },
+    {
+      "width": 390,
+      "step": "L08-05 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 696.203125
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 696.203125
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 696.203125
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Case C: notes current, but the draft claims a\nteacher is confirmed; fail the wording check\nand return it."
+    },
+    {
+      "width": 390,
+      "step": "L08-06 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 433.625
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 433.625
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 433.625
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Which failed case would a neat-looking\ndashboard be most likely to hide?"
+    },
+    {
+      "width": 390,
+      "step": "L08-07 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 433.625
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 433.625
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 433.625
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "Write the Handoff Contract Card, then grade A,\nB, and C with a named rubric version."
+    },
+    {
+      "width": 390,
+      "step": "L08-08 below player",
+      "size": "M",
+      "pressed": [
+        "Medium captions"
+      ],
+      "hovered": [],
+      "previews": {
+        "Small": {
+          "text": "Aa",
+          "font": "14px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        },
+        "Medium": {
+          "text": "Aa",
+          "font": "18px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        },
+        "Large": {
+          "text": "Aa",
+          "font": "24px",
+          "family": "Arial, sans-serif",
+          "weight": "500",
+          "style": "normal",
+          "color": "rgb(18, 30, 49)",
+          "lineHeight": "24px",
+          "buttonWidth": 43,
+          "buttonHeight": 42,
+          "buttonY": 385.03125
+        }
+      },
+      "stored": "M",
+      "trackMode": "hidden",
+      "bandSize": "M",
+      "bandFont": "18px",
+      "bandText": "The next review should ask whether the"
+    }
+  ]
+}

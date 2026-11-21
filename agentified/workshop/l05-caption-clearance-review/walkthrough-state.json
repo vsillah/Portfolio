@@ -1,0 +1,2019 @@
+{
+  "generatedAt": "2026-11-21T14:22:32.904Z",
+  "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+  "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+  "states": [
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "protected native presenter",
+      "time": 8,
+      "mode": "showing",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter Small captions",
+      "time": 8,
+      "mode": "showing",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter Medium captions",
+      "time": 8,
+      "mode": "showing",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter Large captions",
+      "time": 8,
+      "mode": "hidden",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter captions off",
+      "time": 8,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter captions restored",
+      "time": 8,
+      "mode": "hidden",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter final frame",
+      "time": 11.909,
+      "mode": "showing",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "natural presenter-to-teaching transition",
+      "time": 12.513667,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "teaching transition",
+      "time": 11.91,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 midpoint",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 Small band",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 Medium band",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 Large band",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 captions off",
+      "time": 12.389,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 captions restored",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 midpoint",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 Small band",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 Medium band",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 Large band",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 captions off",
+      "time": 38.8,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 captions restored",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 midpoint",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 Small band",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 Medium band",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 Large band",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 captions off",
+      "time": 65.702,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 captions restored",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 midpoint",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 Small band",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 Medium band",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 Large band",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 captions off",
+      "time": 92.071,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 captions restored",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 midpoint",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 Small band",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 Medium band",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 Large band",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 captions off",
+      "time": 121.071,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 captions restored",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 midpoint",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 Small band",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 Medium band",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 Large band",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 captions off",
+      "time": 140.455,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 captions restored",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 midpoint",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 Small band",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 Medium band",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 Large band",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 captions off",
+      "time": 182.16,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 captions restored",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 midpoint",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 Small band",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 Medium band",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 Large band",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 captions off",
+      "time": 228.839,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 captions restored",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "last cue before end screen",
+      "time": 234.397,
+      "mode": "hidden",
+      "cue": [
+        "system."
+      ],
+      "band": "system.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "protected end-screen boundary",
+      "time": 234.398,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "protected end screen",
+      "time": 235,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "natural protected end-screen transition",
+      "time": 234.615294,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "protected native presenter",
+      "time": 8,
+      "mode": "hidden",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter Small captions",
+      "time": 8,
+      "mode": "hidden",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter Medium captions",
+      "time": 8,
+      "mode": "hidden",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter Large captions",
+      "time": 8,
+      "mode": "hidden",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter captions off",
+      "time": 8,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter captions restored",
+      "time": 8,
+      "mode": "hidden",
+      "cue": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "presenter final frame",
+      "time": 11.909,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "natural presenter-to-teaching transition",
+      "time": 12.502678,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "teaching transition",
+      "time": 11.91,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 midpoint",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 Small band",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 Medium band",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 Large band",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 captions off",
+      "time": 12.389,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-01 captions restored",
+      "time": 12.389,
+      "mode": "hidden",
+      "cue": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 midpoint",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 Small band",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 Medium band",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 Large band",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 captions off",
+      "time": 38.8,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-02 captions restored",
+      "time": 38.8,
+      "mode": "hidden",
+      "cue": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 midpoint",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 Small band",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 Medium band",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 Large band",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 captions off",
+      "time": 65.702,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-03 captions restored",
+      "time": 65.702,
+      "mode": "hidden",
+      "cue": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 midpoint",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 Small band",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 Medium band",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 Large band",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 captions off",
+      "time": 92.071,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-04 captions restored",
+      "time": 92.071,
+      "mode": "hidden",
+      "cue": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 midpoint",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 Small band",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 Medium band",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 Large band",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 captions off",
+      "time": 121.071,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-05 captions restored",
+      "time": 121.071,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 midpoint",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 Small band",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 Medium band",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 Large band",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 captions off",
+      "time": 140.455,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-06 captions restored",
+      "time": 140.455,
+      "mode": "hidden",
+      "cue": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 midpoint",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 Small band",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 Medium band",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 Large band",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 captions off",
+      "time": 182.16,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-07 captions restored",
+      "time": 182.16,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 midpoint",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 Small band",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "S",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 Medium band",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 Large band",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 captions off",
+      "time": 228.839,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "L05-08 captions restored",
+      "time": 228.839,
+      "mode": "hidden",
+      "cue": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "size": "L",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "last cue before end screen",
+      "time": 234.397,
+      "mode": "hidden",
+      "cue": [
+        "system."
+      ],
+      "band": "system.",
+      "size": "M",
+      "controls": true,
+      "endScreen": false
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "protected end-screen boundary",
+      "time": 234.398,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "protected end screen",
+      "time": 235,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L05&rev=914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "step": "natural protected end-screen transition",
+      "time": 234.604679,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true,
+      "endScreen": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Small band",
+      "time": 6.807667,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Medium band",
+      "time": 6.807667,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Large band",
+      "time": 6.807667,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "captions off",
+      "time": 6.807667,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=desktop&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "captions restored",
+      "time": 6.807667,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Small band",
+      "time": 6.812422,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Medium band",
+      "time": 6.812422,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "Large band",
+      "time": 6.812422,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "captions off",
+      "time": 6.812422,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l05-01-caption-clearance-review/candidate/review.html?layout=mobile&revision=d047960e",
+      "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+      "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+      "step": "captions restored",
+      "time": 6.812422,
+      "mode": "hidden",
+      "cue": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "controls": true
+    }
+  ]
+}

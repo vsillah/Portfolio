@@ -1,0 +1,5753 @@
+{
+  "generatedAt": "2026-11-21T14:20:58.422Z",
+  "codeCommit": "914096bd2e872b4ab0962d9b22e15c82e4c26efa",
+  "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+  "base": "http://127.0.0.1:3137",
+  "candidateBase": "http://127.0.0.1:8767",
+  "source": {
+    "video": "/agentified/lessons/l05/illustrated-aa9b234a/agentified-l05-illustrated-composite.mp4",
+    "captions": "/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-captions.vtt",
+    "videoHash": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061",
+    "captionsHash": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389"
+  },
+  "candidateHashes": {
+    "L05-01-desktop.mp4": "fdb92e85a0ffc2b12da31d57ca12f00aef71bb5619abf31a7be0f19e1670cd68",
+    "L05-01-desktop.vtt": "962fe1fc28dbf072d65bb32de683b0f97fb438cc84da1c54fb7f7749df1d4061",
+    "L05-01-mobile.mp4": "bc3bf65bc2fe31f87b5ab604ce6ec96cf58bbc0804691e1df5fe64892651c739",
+    "L05-01-mobile.vtt": "962fe1fc28dbf072d65bb32de683b0f97fb438cc84da1c54fb7f7749df1d4061"
+  },
+  "learner": [
+    {
+      "width": 1280,
+      "label": "protected-opening-cue-placement",
+      "openingCues": [
+        {
+          "start": 0,
+          "end": 1.6,
+          "text": "Friday arrives at Harbor Learning",
+          "line": 10,
+          "snapToLines": false
+        },
+        {
+          "start": 1.66,
+          "end": 2.12,
+          "text": "Circle.",
+          "line": 10,
+          "snapToLines": false
+        },
+        {
+          "start": 2.37,
+          "end": 4.26,
+          "text": "Morgan has a draft Session Option Brief",
+          "line": 10,
+          "snapToLines": false
+        },
+        {
+          "start": 4.32,
+          "end": 5.99,
+          "text": "and a careful correction from last week.",
+          "line": 10,
+          "snapToLines": false
+        },
+        {
+          "start": 6.26,
+          "end": 8.01,
+          "text": "But imagine Morgan is out for an hour.",
+          "line": 10,
+          "snapToLines": false
+        },
+        {
+          "start": 8.31,
+          "end": 9.15,
+          "text": "Where is the brief?",
+          "line": 10,
+          "snapToLines": false
+        },
+        {
+          "start": 9.51,
+          "end": 11.08,
+          "text": "Which source note did the preparation",
+          "line": 10,
+          "snapToLines": false
+        },
+        {
+          "start": 11.13,
+          "end": 11.64,
+          "text": "role read?",
+          "line": 10,
+          "snapToLines": false
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "label": "presenter",
+      "expectedTime": 8,
+      "size": "M",
+      "external": false,
+      "time": 8,
+      "mode": "showing",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 329.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "presenter-S-on",
+      "expectedTime": 8,
+      "size": "S",
+      "external": false,
+      "time": 8,
+      "mode": "showing",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "presenter-S-off",
+      "time": 8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "presenter-S-restored",
+      "expectedTime": 8,
+      "size": "S",
+      "external": false,
+      "time": 8,
+      "mode": "showing",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "presenter-M-on",
+      "expectedTime": 8,
+      "size": "M",
+      "external": false,
+      "time": 8,
+      "mode": "showing",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "presenter-M-off",
+      "time": 8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "presenter-M-restored",
+      "expectedTime": 8,
+      "size": "M",
+      "external": false,
+      "time": 8,
+      "mode": "showing",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "presenter-L-on",
+      "expectedTime": 8,
+      "size": "L",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "presenter-L-off",
+      "time": 8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "presenter-L-restored",
+      "expectedTime": 8,
+      "size": "L",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "presenter-end",
+      "expectedTime": 11.909,
+      "size": "M",
+      "external": false,
+      "time": 11.909,
+      "mode": "showing",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "teaching-start",
+      "expectedTime": 11.91,
+      "size": "M",
+      "external": true,
+      "time": 11.91,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-start",
+      "expectedTime": 11.91,
+      "size": "M",
+      "external": true,
+      "time": 11.91,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid",
+      "expectedTime": 12.389,
+      "size": "M",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-S-on",
+      "expectedTime": 12.389,
+      "size": "S",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-S-off",
+      "time": 12.389,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-S-restored",
+      "expectedTime": 12.389,
+      "size": "S",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-M-on",
+      "expectedTime": 12.389,
+      "size": "M",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-M-off",
+      "time": 12.389,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-M-restored",
+      "expectedTime": 12.389,
+      "size": "M",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-L-on",
+      "expectedTime": 12.389,
+      "size": "L",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-L-off",
+      "time": 12.389,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-mid-L-restored",
+      "expectedTime": 12.389,
+      "size": "L",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-01-end-minus",
+      "expectedTime": 24.778,
+      "size": "M",
+      "external": true,
+      "time": 24.778,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-start",
+      "expectedTime": 24.779,
+      "size": "M",
+      "external": true,
+      "time": 24.779,
+      "mode": "hidden",
+      "active": [
+        "Start with the real sequence on paper."
+      ],
+      "band": "Start with the real sequence on paper.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid",
+      "expectedTime": 38.8,
+      "size": "M",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-S-on",
+      "expectedTime": 38.8,
+      "size": "S",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-S-off",
+      "time": 38.8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-S-restored",
+      "expectedTime": 38.8,
+      "size": "S",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-M-on",
+      "expectedTime": 38.8,
+      "size": "M",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-M-off",
+      "time": 38.8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-M-restored",
+      "expectedTime": 38.8,
+      "size": "M",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-L-on",
+      "expectedTime": 38.8,
+      "size": "L",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-L-off",
+      "time": 38.8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-mid-L-restored",
+      "expectedTime": 38.8,
+      "size": "L",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-end-minus",
+      "expectedTime": 52.821000000000005,
+      "size": "M",
+      "external": true,
+      "time": 52.821,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-start",
+      "expectedTime": 52.822,
+      "size": "M",
+      "external": true,
+      "time": 52.822,
+      "mode": "hidden",
+      "active": [
+        "Chapter Eight gives the operating map five\ncolumns."
+      ],
+      "band": "Chapter Eight gives the operating map five\ncolumns.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid",
+      "expectedTime": 65.702,
+      "size": "M",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-S-on",
+      "expectedTime": 65.702,
+      "size": "S",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-S-off",
+      "time": 65.702,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-S-restored",
+      "expectedTime": 65.702,
+      "size": "S",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-M-on",
+      "expectedTime": 65.702,
+      "size": "M",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-M-off",
+      "time": 65.702,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-M-restored",
+      "expectedTime": 65.702,
+      "size": "M",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-L-on",
+      "expectedTime": 65.702,
+      "size": "L",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-L-off",
+      "time": 65.702,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-mid-L-restored",
+      "expectedTime": 65.702,
+      "size": "L",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-03-end-minus",
+      "expectedTime": 78.58099999999999,
+      "size": "M",
+      "external": true,
+      "time": 78.580999,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-start",
+      "expectedTime": 78.582,
+      "size": "M",
+      "external": true,
+      "time": 78.582,
+      "mode": "hidden",
+      "active": [
+        "Put the earlier lessons onto those rows."
+      ],
+      "band": "Put the earlier lessons onto those rows.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid",
+      "expectedTime": 92.071,
+      "size": "M",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-S-on",
+      "expectedTime": 92.071,
+      "size": "S",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-S-off",
+      "time": 92.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-S-restored",
+      "expectedTime": 92.071,
+      "size": "S",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-M-on",
+      "expectedTime": 92.071,
+      "size": "M",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-M-off",
+      "time": 92.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-M-restored",
+      "expectedTime": 92.071,
+      "size": "M",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-L-on",
+      "expectedTime": 92.071,
+      "size": "L",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-L-off",
+      "time": 92.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-mid-L-restored",
+      "expectedTime": 92.071,
+      "size": "L",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-04-end-minus",
+      "expectedTime": 105.559,
+      "size": "M",
+      "external": true,
+      "time": 105.559,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-start",
+      "expectedTime": 105.56,
+      "size": "M",
+      "external": true,
+      "time": 105.56,
+      "mode": "hidden",
+      "active": [
+        "The workbook also asks where approval, spend\nchecks, public-safe proof, and rollback sit."
+      ],
+      "band": "The workbook also asks where approval, spend\nchecks, public-safe proof, and rollback sit.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid",
+      "expectedTime": 121.071,
+      "size": "M",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-S-on",
+      "expectedTime": 121.071,
+      "size": "S",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-S-off",
+      "time": 121.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-S-restored",
+      "expectedTime": 121.071,
+      "size": "S",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-M-on",
+      "expectedTime": 121.071,
+      "size": "M",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-M-off",
+      "time": 121.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-M-restored",
+      "expectedTime": 121.071,
+      "size": "M",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-L-on",
+      "expectedTime": 121.071,
+      "size": "L",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-L-off",
+      "time": 121.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-mid-L-restored",
+      "expectedTime": 121.071,
+      "size": "L",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-05-end-minus",
+      "expectedTime": 136.57999999999998,
+      "size": "M",
+      "external": true,
+      "time": 136.579999,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-start",
+      "expectedTime": 136.581,
+      "size": "M",
+      "external": true,
+      "time": 136.581,
+      "mode": "hidden",
+      "active": [
+        "Pause."
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid",
+      "expectedTime": 140.455,
+      "size": "M",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-S-on",
+      "expectedTime": 140.455,
+      "size": "S",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-S-off",
+      "time": 140.455,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-S-restored",
+      "expectedTime": 140.455,
+      "size": "S",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-M-on",
+      "expectedTime": 140.455,
+      "size": "M",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-M-off",
+      "time": 140.455,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-M-restored",
+      "expectedTime": 140.455,
+      "size": "M",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-L-on",
+      "expectedTime": 140.455,
+      "size": "L",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-L-off",
+      "time": 140.455,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-mid-L-restored",
+      "expectedTime": 140.455,
+      "size": "L",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-06-end-minus",
+      "expectedTime": 144.328,
+      "size": "M",
+      "external": true,
+      "time": 144.328,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-start",
+      "expectedTime": 144.329,
+      "size": "M",
+      "external": true,
+      "time": 144.329,
+      "mode": "hidden",
+      "active": [
+        "Build the Operating Map in your Operating File."
+      ],
+      "band": "Build the Operating Map in your Operating File.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid",
+      "expectedTime": 182.16,
+      "size": "M",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-S-on",
+      "expectedTime": 182.16,
+      "size": "S",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-S-off",
+      "time": 182.16,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-S-restored",
+      "expectedTime": 182.16,
+      "size": "S",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-M-on",
+      "expectedTime": 182.16,
+      "size": "M",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-M-off",
+      "time": 182.16,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-M-restored",
+      "expectedTime": 182.16,
+      "size": "M",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-L-on",
+      "expectedTime": 182.16,
+      "size": "L",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-L-off",
+      "time": 182.16,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-mid-L-restored",
+      "expectedTime": 182.16,
+      "size": "L",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-07-end-minus",
+      "expectedTime": 219.99099999999999,
+      "size": "M",
+      "external": true,
+      "time": 219.991,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-start",
+      "expectedTime": 219.992,
+      "size": "M",
+      "external": true,
+      "time": 219.992,
+      "mode": "hidden",
+      "active": [
+        "Save revision five as a draft."
+      ],
+      "band": "Save revision five as a draft.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid",
+      "expectedTime": 228.839,
+      "size": "M",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-S-on",
+      "expectedTime": 228.839,
+      "size": "S",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-S-off",
+      "time": 228.839,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-S-restored",
+      "expectedTime": 228.839,
+      "size": "S",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-M-on",
+      "expectedTime": 228.839,
+      "size": "M",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-M-off",
+      "time": 228.839,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-M-restored",
+      "expectedTime": 228.839,
+      "size": "M",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-L-on",
+      "expectedTime": 228.839,
+      "size": "L",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-L-off",
+      "time": 228.839,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-mid-L-restored",
+      "expectedTime": 228.839,
+      "size": "L",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "L05-08-end-minus",
+      "expectedTime": 234.397,
+      "size": "M",
+      "external": true,
+      "time": 234.397,
+      "mode": "hidden",
+      "active": [
+        "system."
+      ],
+      "band": "system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "end",
+      "expectedTime": 234.398,
+      "size": "M",
+      "external": true,
+      "time": 234.398,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": true
+    },
+    {
+      "width": 1280,
+      "label": "end-after",
+      "expectedTime": 235,
+      "size": "M",
+      "external": true,
+      "time": 235,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": true
+    },
+    {
+      "width": 1280,
+      "label": "played-through-11.91",
+      "expectedTime": 12.11,
+      "size": "M",
+      "external": true,
+      "time": 12.130889,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "played-through-24.779",
+      "expectedTime": 24.979,
+      "size": "M",
+      "external": true,
+      "time": 24.981636,
+      "mode": "hidden",
+      "active": [
+        "Start with the real sequence on paper."
+      ],
+      "band": "Start with the real sequence on paper.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "played-through-52.822",
+      "expectedTime": 53.022000000000006,
+      "size": "M",
+      "external": true,
+      "time": 53.026327,
+      "mode": "hidden",
+      "active": [
+        "Chapter Eight gives the operating map five\ncolumns."
+      ],
+      "band": "Chapter Eight gives the operating map five\ncolumns.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "played-through-78.582",
+      "expectedTime": 78.782,
+      "size": "M",
+      "external": true,
+      "time": 78.785402,
+      "mode": "hidden",
+      "active": [
+        "Put the earlier lessons onto those rows."
+      ],
+      "band": "Put the earlier lessons onto those rows.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "played-through-105.56",
+      "expectedTime": 105.76,
+      "size": "M",
+      "external": true,
+      "time": 105.764114,
+      "mode": "hidden",
+      "active": [
+        "The workbook also asks where approval, spend\nchecks, public-safe proof, and rollback sit."
+      ],
+      "band": "The workbook also asks where approval, spend\nchecks, public-safe proof, and rollback sit.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "played-through-136.581",
+      "expectedTime": 136.78099999999998,
+      "size": "M",
+      "external": true,
+      "time": 136.791807,
+      "mode": "hidden",
+      "active": [
+        "Pause."
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "played-through-144.329",
+      "expectedTime": 144.529,
+      "size": "M",
+      "external": true,
+      "time": 144.531667,
+      "mode": "hidden",
+      "active": [
+        "Build the Operating Map in your Operating File."
+      ],
+      "band": "Build the Operating Map in your Operating File.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "played-through-219.992",
+      "expectedTime": 220.19199999999998,
+      "size": "M",
+      "external": true,
+      "time": 220.200218,
+      "mode": "hidden",
+      "active": [
+        "Save revision five as a draft."
+      ],
+      "band": "Save revision five as a draft.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 1280,
+      "label": "played-through-234.398",
+      "expectedTime": 234.59799999999998,
+      "size": "M",
+      "external": true,
+      "time": 234.605387,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": true
+    },
+    {
+      "width": 1280,
+      "label": "dark-theme",
+      "expectedTime": 92.3,
+      "size": "M",
+      "external": true,
+      "time": 92.307321,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "protected-opening-cue-placement",
+      "openingCues": [
+        {
+          "start": 0,
+          "end": 1.6,
+          "text": "Friday arrives at Harbor Learning",
+          "line": "auto",
+          "snapToLines": true
+        },
+        {
+          "start": 1.66,
+          "end": 2.12,
+          "text": "Circle.",
+          "line": "auto",
+          "snapToLines": true
+        },
+        {
+          "start": 2.37,
+          "end": 4.26,
+          "text": "Morgan has a draft Session Option Brief",
+          "line": "auto",
+          "snapToLines": true
+        },
+        {
+          "start": 4.32,
+          "end": 5.99,
+          "text": "and a careful correction from last week.",
+          "line": "auto",
+          "snapToLines": true
+        },
+        {
+          "start": 6.26,
+          "end": 8.01,
+          "text": "But imagine Morgan is out for an hour.",
+          "line": "auto",
+          "snapToLines": true
+        },
+        {
+          "start": 8.31,
+          "end": 9.15,
+          "text": "Where is the brief?",
+          "line": "auto",
+          "snapToLines": true
+        },
+        {
+          "start": 9.51,
+          "end": 11.08,
+          "text": "Which source note did the preparation",
+          "line": "auto",
+          "snapToLines": true
+        },
+        {
+          "start": 11.13,
+          "end": 11.64,
+          "text": "role read?",
+          "line": "auto",
+          "snapToLines": true
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "label": "presenter",
+      "expectedTime": 8,
+      "size": "M",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "presenter-S-on",
+      "expectedTime": 8,
+      "size": "S",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "presenter-S-off",
+      "time": 8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "presenter-S-restored",
+      "expectedTime": 8,
+      "size": "S",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "presenter-M-on",
+      "expectedTime": 8,
+      "size": "M",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "presenter-M-off",
+      "time": 8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "presenter-M-restored",
+      "expectedTime": 8,
+      "size": "M",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "presenter-L-on",
+      "expectedTime": 8,
+      "size": "L",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "presenter-L-off",
+      "time": 8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "presenter-L-restored",
+      "expectedTime": 8,
+      "size": "L",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "presenter-end",
+      "expectedTime": 11.909,
+      "size": "M",
+      "external": true,
+      "time": 11.909,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "teaching-start",
+      "expectedTime": 11.91,
+      "size": "M",
+      "external": true,
+      "time": 11.91,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-start",
+      "expectedTime": 11.91,
+      "size": "M",
+      "external": true,
+      "time": 11.91,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid",
+      "expectedTime": 12.389,
+      "size": "M",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-S-on",
+      "expectedTime": 12.389,
+      "size": "S",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-S-off",
+      "time": 12.389,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-S-restored",
+      "expectedTime": 12.389,
+      "size": "S",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-M-on",
+      "expectedTime": 12.389,
+      "size": "M",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-M-off",
+      "time": 12.389,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-M-restored",
+      "expectedTime": 12.389,
+      "size": "M",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-L-on",
+      "expectedTime": 12.389,
+      "size": "L",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-L-off",
+      "time": 12.389,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-01-mid-L-restored",
+      "expectedTime": 12.389,
+      "size": "L",
+      "external": true,
+      "time": 12.389,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-01-end-minus",
+      "expectedTime": 24.778,
+      "size": "M",
+      "external": true,
+      "time": 24.778,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-start",
+      "expectedTime": 24.779,
+      "size": "M",
+      "external": true,
+      "time": 24.779,
+      "mode": "hidden",
+      "active": [
+        "Start with the real sequence on paper."
+      ],
+      "band": "Start with the real sequence on paper.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid",
+      "expectedTime": 38.8,
+      "size": "M",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-S-on",
+      "expectedTime": 38.8,
+      "size": "S",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-S-off",
+      "time": 38.8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-S-restored",
+      "expectedTime": 38.8,
+      "size": "S",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-M-on",
+      "expectedTime": 38.8,
+      "size": "M",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-M-off",
+      "time": 38.8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-M-restored",
+      "expectedTime": 38.8,
+      "size": "M",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-L-on",
+      "expectedTime": 38.8,
+      "size": "L",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-L-off",
+      "time": 38.8,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-02-mid-L-restored",
+      "expectedTime": 38.8,
+      "size": "L",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-02-end-minus",
+      "expectedTime": 52.821000000000005,
+      "size": "M",
+      "external": true,
+      "time": 52.821,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-start",
+      "expectedTime": 52.822,
+      "size": "M",
+      "external": true,
+      "time": 52.822,
+      "mode": "hidden",
+      "active": [
+        "Chapter Eight gives the operating map five\ncolumns."
+      ],
+      "band": "Chapter Eight gives the operating map five\ncolumns.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid",
+      "expectedTime": 65.702,
+      "size": "M",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-S-on",
+      "expectedTime": 65.702,
+      "size": "S",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-S-off",
+      "time": 65.702,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-S-restored",
+      "expectedTime": 65.702,
+      "size": "S",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-M-on",
+      "expectedTime": 65.702,
+      "size": "M",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-M-off",
+      "time": 65.702,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-M-restored",
+      "expectedTime": 65.702,
+      "size": "M",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-L-on",
+      "expectedTime": 65.702,
+      "size": "L",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-L-off",
+      "time": 65.702,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-03-mid-L-restored",
+      "expectedTime": 65.702,
+      "size": "L",
+      "external": true,
+      "time": 65.702,
+      "mode": "hidden",
+      "active": [
+        "Handoff: who receives the work next, including\na refusal?"
+      ],
+      "band": "Handoff: who receives the work next, including\na refusal?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-03-end-minus",
+      "expectedTime": 78.58099999999999,
+      "size": "M",
+      "external": true,
+      "time": 78.580999,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-start",
+      "expectedTime": 78.582,
+      "size": "M",
+      "external": true,
+      "time": 78.582,
+      "mode": "hidden",
+      "active": [
+        "Put the earlier lessons onto those rows."
+      ],
+      "band": "Put the earlier lessons onto those rows.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid",
+      "expectedTime": 92.071,
+      "size": "M",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 310.125,
+      "videoBottom": 302.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-S-on",
+      "expectedTime": 92.071,
+      "size": "S",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 262.125,
+      "videoBottom": 254.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-S-off",
+      "time": 92.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-S-restored",
+      "expectedTime": 92.071,
+      "size": "S",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 262.125,
+      "videoBottom": 254.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-M-on",
+      "expectedTime": 92.071,
+      "size": "M",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 262.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-M-off",
+      "time": 92.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-M-restored",
+      "expectedTime": 92.071,
+      "size": "M",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 262.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-L-on",
+      "expectedTime": 92.071,
+      "size": "L",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 262.125,
+      "videoBottom": 254.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-L-off",
+      "time": 92.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-04-mid-L-restored",
+      "expectedTime": 92.071,
+      "size": "L",
+      "external": true,
+      "time": 92.071,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-04-end-minus",
+      "expectedTime": 105.559,
+      "size": "M",
+      "external": true,
+      "time": 105.559,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-start",
+      "expectedTime": 105.56,
+      "size": "M",
+      "external": true,
+      "time": 105.56,
+      "mode": "hidden",
+      "active": [
+        "The workbook also asks where approval, spend\nchecks, public-safe proof, and rollback sit."
+      ],
+      "band": "The workbook also asks where approval, spend\nchecks, public-safe proof, and rollback sit.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid",
+      "expectedTime": 121.071,
+      "size": "M",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-S-on",
+      "expectedTime": 121.071,
+      "size": "S",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-S-off",
+      "time": 121.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-S-restored",
+      "expectedTime": 121.071,
+      "size": "S",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-M-on",
+      "expectedTime": 121.071,
+      "size": "M",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-M-off",
+      "time": 121.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-M-restored",
+      "expectedTime": 121.071,
+      "size": "M",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-L-on",
+      "expectedTime": 121.071,
+      "size": "L",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-L-off",
+      "time": 121.071,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-05-mid-L-restored",
+      "expectedTime": 121.071,
+      "size": "L",
+      "external": true,
+      "time": 121.071,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-05-end-minus",
+      "expectedTime": 136.57999999999998,
+      "size": "M",
+      "external": true,
+      "time": 136.579999,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-start",
+      "expectedTime": 136.581,
+      "size": "M",
+      "external": true,
+      "time": 136.581,
+      "mode": "hidden",
+      "active": [
+        "Pause."
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid",
+      "expectedTime": 140.455,
+      "size": "M",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-S-on",
+      "expectedTime": 140.455,
+      "size": "S",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-S-off",
+      "time": 140.455,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-S-restored",
+      "expectedTime": 140.455,
+      "size": "S",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-M-on",
+      "expectedTime": 140.455,
+      "size": "M",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-M-off",
+      "time": 140.455,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-M-restored",
+      "expectedTime": 140.455,
+      "size": "M",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-L-on",
+      "expectedTime": 140.455,
+      "size": "L",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-L-off",
+      "time": 140.455,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-06-mid-L-restored",
+      "expectedTime": 140.455,
+      "size": "L",
+      "external": true,
+      "time": 140.455,
+      "mode": "hidden",
+      "active": [
+        "Could someone new find the current brief and\nits source check from this page alone?"
+      ],
+      "band": "Could someone new find the current brief and\nits source check from this page alone?",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-06-end-minus",
+      "expectedTime": 144.328,
+      "size": "M",
+      "external": true,
+      "time": 144.328,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-start",
+      "expectedTime": 144.329,
+      "size": "M",
+      "external": true,
+      "time": 144.329,
+      "mode": "hidden",
+      "active": [
+        "Build the Operating Map in your Operating File."
+      ],
+      "band": "Build the Operating Map in your Operating File.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid",
+      "expectedTime": 182.16,
+      "size": "M",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-S-on",
+      "expectedTime": 182.16,
+      "size": "S",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-S-off",
+      "time": 182.16,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-S-restored",
+      "expectedTime": 182.16,
+      "size": "S",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-M-on",
+      "expectedTime": 182.16,
+      "size": "M",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-M-off",
+      "time": 182.16,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-M-restored",
+      "expectedTime": 182.16,
+      "size": "M",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-L-on",
+      "expectedTime": 182.16,
+      "size": "L",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-L-off",
+      "time": 182.16,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-07-mid-L-restored",
+      "expectedTime": 182.16,
+      "size": "L",
+      "external": true,
+      "time": 182.16,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-07-end-minus",
+      "expectedTime": 219.99099999999999,
+      "size": "M",
+      "external": true,
+      "time": 219.991,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-start",
+      "expectedTime": 219.992,
+      "size": "M",
+      "external": true,
+      "time": 219.992,
+      "mode": "hidden",
+      "active": [
+        "Save revision five as a draft."
+      ],
+      "band": "Save revision five as a draft.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid",
+      "expectedTime": 228.839,
+      "size": "M",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-S-on",
+      "expectedTime": 228.839,
+      "size": "S",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-S-off",
+      "time": 228.839,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-S-restored",
+      "expectedTime": 228.839,
+      "size": "S",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-M-on",
+      "expectedTime": 228.839,
+      "size": "M",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-M-off",
+      "time": 228.839,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-M-restored",
+      "expectedTime": 228.839,
+      "size": "M",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-L-on",
+      "expectedTime": 228.839,
+      "size": "L",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-L-off",
+      "time": 228.839,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L05-08-mid-L-restored",
+      "expectedTime": 228.839,
+      "size": "L",
+      "external": true,
+      "time": 228.839,
+      "mode": "hidden",
+      "active": [
+        "Next we will write the permission slip"
+      ],
+      "band": "Next we will write the permission slip",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "L05-08-end-minus",
+      "expectedTime": 234.397,
+      "size": "M",
+      "external": true,
+      "time": 234.397,
+      "mode": "hidden",
+      "active": [
+        "system."
+      ],
+      "band": "system.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "end",
+      "expectedTime": 234.398,
+      "size": "M",
+      "external": true,
+      "time": 234.398,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": true
+    },
+    {
+      "width": 390,
+      "label": "end-after",
+      "expectedTime": 235,
+      "size": "M",
+      "external": true,
+      "time": 235,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": true
+    },
+    {
+      "width": 390,
+      "label": "played-through-11.91",
+      "expectedTime": 12.11,
+      "size": "M",
+      "external": true,
+      "time": 12.112625,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "played-through-24.779",
+      "expectedTime": 24.979,
+      "size": "M",
+      "external": true,
+      "time": 24.985685,
+      "mode": "hidden",
+      "active": [
+        "Start with the real sequence on paper."
+      ],
+      "band": "Start with the real sequence on paper.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "played-through-52.822",
+      "expectedTime": 53.022000000000006,
+      "size": "M",
+      "external": true,
+      "time": 53.031763,
+      "mode": "hidden",
+      "active": [
+        "Chapter Eight gives the operating map five\ncolumns."
+      ],
+      "band": "Chapter Eight gives the operating map five\ncolumns.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "played-through-78.582",
+      "expectedTime": 78.782,
+      "size": "M",
+      "external": true,
+      "time": 78.787175,
+      "mode": "hidden",
+      "active": [
+        "Put the earlier lessons onto those rows."
+      ],
+      "band": "Put the earlier lessons onto those rows.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "played-through-105.56",
+      "expectedTime": 105.76,
+      "size": "M",
+      "external": true,
+      "time": 105.762957,
+      "mode": "hidden",
+      "active": [
+        "The workbook also asks where approval, spend\nchecks, public-safe proof, and rollback sit."
+      ],
+      "band": "The workbook also asks where approval, spend\nchecks, public-safe proof, and rollback sit.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "played-through-136.581",
+      "expectedTime": 136.78099999999998,
+      "size": "M",
+      "external": true,
+      "time": 136.78386,
+      "mode": "hidden",
+      "active": [
+        "Pause."
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "played-through-144.329",
+      "expectedTime": 144.529,
+      "size": "M",
+      "external": true,
+      "time": 144.534485,
+      "mode": "hidden",
+      "active": [
+        "Build the Operating Map in your Operating File."
+      ],
+      "band": "Build the Operating Map in your Operating File.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "played-through-219.992",
+      "expectedTime": 220.19199999999998,
+      "size": "M",
+      "external": true,
+      "time": 220.198187,
+      "mode": "hidden",
+      "active": [
+        "Save revision five as a draft."
+      ],
+      "band": "Save revision five as a draft.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    },
+    {
+      "width": 390,
+      "label": "played-through-234.398",
+      "expectedTime": 234.59799999999998,
+      "size": "M",
+      "external": true,
+      "time": 234.602578,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 220.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": true
+    },
+    {
+      "width": 390,
+      "label": "dark-theme",
+      "expectedTime": 92.3,
+      "size": "M",
+      "external": true,
+      "time": 92.303048,
+      "mode": "hidden",
+      "active": [
+        "Last week's correction remains a memory\nproposal, pending Morgan's separate approval."
+      ],
+      "band": "Last week's correction remains a memory\nproposal, pending Morgan's separate approval.",
+      "bandCount": 1,
+      "bandTop": 228.125,
+      "videoBottom": 220.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392,
+      "endScreen": false
+    }
+  ],
+  "candidate": [
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "S",
+      "on": {
+        "time": 6.805879,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 540,
+        "videoBottom": 532,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "M",
+      "on": {
+        "time": 6.805879,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 540,
+        "videoBottom": 532,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "L",
+      "on": {
+        "time": 6.805879,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 522,
+        "videoBottom": 514,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "S",
+      "on": {
+        "time": 6.804888,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 648.65625,
+        "videoBottom": 640.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "M",
+      "on": {
+        "time": 6.804888,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 648.65625,
+        "videoBottom": 640.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "L",
+      "on": {
+        "time": 6.804888,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 576.65625,
+        "videoBottom": 568.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    }
+  ]
+}

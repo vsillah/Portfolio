@@ -1,0 +1,1055 @@
+{
+  "generatedAt": "2026-11-21T13:21:23.693Z",
+  "codeCommit": "0bc54af1f40e2b1b5495a9a691413f65994c1212",
+  "candidateCommit": "d047960edcf58bc2c75b3a944fe22a5d8ad25bb4",
+  "base": "http://127.0.0.1:3137",
+  "candidateBase": "http://127.0.0.1:8767",
+  "source": {
+    "video": "/agentified/lessons/l05/illustrated-aa9b234a/agentified-l05-illustrated-composite.mp4",
+    "captions": "/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-captions.vtt",
+    "videoHash": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061",
+    "captionsHash": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389"
+  },
+  "candidateHashes": {
+    "L05-01-desktop.mp4": "fdb92e85a0ffc2b12da31d57ca12f00aef71bb5619abf31a7be0f19e1670cd68",
+    "L05-01-desktop.vtt": "962fe1fc28dbf072d65bb32de683b0f97fb438cc84da1c54fb7f7749df1d4061",
+    "L05-01-mobile.mp4": "bc3bf65bc2fe31f87b5ab604ce6ec96cf58bbc0804691e1df5fe64892651c739",
+    "L05-01-mobile.vtt": "962fe1fc28dbf072d65bb32de683b0f97fb438cc84da1c54fb7f7749df1d4061"
+  },
+  "learner": [
+    {
+      "width": 1280,
+      "label": "presenter",
+      "expectedTime": 8,
+      "size": "M",
+      "external": false,
+      "time": 8,
+      "mode": "showing",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 329.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "presenter-end",
+      "expectedTime": 11.909,
+      "size": "M",
+      "external": false,
+      "time": 11.909,
+      "mode": "showing",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 329.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "teaching-start",
+      "expectedTime": 11.91,
+      "size": "M",
+      "external": true,
+      "time": 11.91,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "first-teaching-cue",
+      "expectedTime": 12.5,
+      "size": "M",
+      "external": true,
+      "time": 12.5,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "panel-collision",
+      "expectedTime": 19.314,
+      "size": "M",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "S-on",
+      "expectedTime": 19.314,
+      "size": "S",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "S-off",
+      "time": 19.314,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "S-restored",
+      "expectedTime": 19.314,
+      "size": "S",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "14px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "M-on",
+      "expectedTime": 19.314,
+      "size": "M",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "M-off",
+      "time": 19.314,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "M-restored",
+      "expectedTime": 19.314,
+      "size": "M",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "L-on",
+      "expectedTime": 19.314,
+      "size": "L",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "L-off",
+      "time": 19.314,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 1280,
+      "label": "L-restored",
+      "expectedTime": 19.314,
+      "size": "L",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "24px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "cue-gap",
+      "expectedTime": 21.7,
+      "size": "M",
+      "external": true,
+      "time": 21.7,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "scene-end-minus",
+      "expectedTime": 24.778,
+      "size": "M",
+      "external": true,
+      "time": 24.778,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-start",
+      "expectedTime": 24.779,
+      "size": "M",
+      "external": false,
+      "time": 24.779,
+      "mode": "showing",
+      "active": [
+        "Start with the real sequence on paper."
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "L05-02-midpoint",
+      "expectedTime": 38.8,
+      "size": "M",
+      "external": false,
+      "time": 38.8,
+      "mode": "showing",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "font": null,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "label": "dark-theme",
+      "expectedTime": 19.5,
+      "size": "M",
+      "external": true,
+      "time": 19.511976,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "font": "18px",
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 390,
+      "label": "presenter",
+      "expectedTime": 8,
+      "size": "M",
+      "external": true,
+      "time": 8,
+      "mode": "hidden",
+      "active": [
+        "But imagine Morgan is out for an hour."
+      ],
+      "band": "But imagine Morgan is out for an hour.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "presenter-end",
+      "expectedTime": 11.909,
+      "size": "M",
+      "external": true,
+      "time": 11.909,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "teaching-start",
+      "expectedTime": 11.91,
+      "size": "M",
+      "external": true,
+      "time": 11.91,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "first-teaching-cue",
+      "expectedTime": 12.5,
+      "size": "M",
+      "external": true,
+      "time": 12.5,
+      "mode": "hidden",
+      "active": [
+        "Who can answer a question about the unconfirmed\nfacilitator?"
+      ],
+      "band": "Who can answer a question about the unconfirmed\nfacilitator?",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "panel-collision",
+      "expectedTime": 19.314,
+      "size": "M",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "S-on",
+      "expectedTime": 19.314,
+      "size": "S",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "S-off",
+      "time": 19.314,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "S-restored",
+      "expectedTime": 19.314,
+      "size": "S",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "14px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "M-on",
+      "expectedTime": 19.314,
+      "size": "M",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "M-off",
+      "time": 19.314,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "M-restored",
+      "expectedTime": 19.314,
+      "size": "M",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "L-on",
+      "expectedTime": 19.314,
+      "size": "L",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "L-off",
+      "time": 19.314,
+      "off": {
+        "mode": "disabled",
+        "bands": 0,
+        "sizes": 0
+      }
+    },
+    {
+      "width": 390,
+      "label": "L-restored",
+      "expectedTime": 19.314,
+      "size": "L",
+      "external": true,
+      "time": 19.314,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "24px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "cue-gap",
+      "expectedTime": 21.7,
+      "size": "M",
+      "external": true,
+      "time": 21.7,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "scene-end-minus",
+      "expectedTime": 24.778,
+      "size": "M",
+      "external": true,
+      "time": 24.778,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 315.125,
+      "font": null,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "L05-02-start",
+      "expectedTime": 24.779,
+      "size": "M",
+      "external": true,
+      "time": 24.779,
+      "mode": "hidden",
+      "active": [
+        "Start with the real sequence on paper."
+      ],
+      "band": "Start with the real sequence on paper.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "L05-02-midpoint",
+      "expectedTime": 38.8,
+      "size": "M",
+      "external": true,
+      "time": 38.8,
+      "mode": "hidden",
+      "active": [
+        "The draft and its short trace wait for Morgan."
+      ],
+      "band": "The draft and its short trace wait for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    },
+    {
+      "width": 390,
+      "label": "dark-theme",
+      "expectedTime": 19.5,
+      "size": "M",
+      "external": true,
+      "time": 19.505477,
+      "mode": "hidden",
+      "active": [
+        "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+      ],
+      "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 315.125,
+      "font": "18px",
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 392
+    }
+  ],
+  "candidate": [
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "S",
+      "on": {
+        "time": 6.807798,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 540,
+        "videoBottom": 532,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "M",
+      "on": {
+        "time": 6.807798,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 540,
+        "videoBottom": 532,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "L",
+      "on": {
+        "time": 6.807798,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 522,
+        "videoBottom": 514,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "S",
+      "on": {
+        "time": 6.805408,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 648.65625,
+        "videoBottom": 640.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "M",
+      "on": {
+        "time": 6.805408,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 648.65625,
+        "videoBottom": 640.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "L",
+      "on": {
+        "time": 6.805408,
+        "mode": "hidden",
+        "active": [
+          "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+        ],
+        "band": "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system.",
+        "top": 576.65625,
+        "videoBottom": 568.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "hidden": true
+      }
+    }
+  ]
+}

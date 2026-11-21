@@ -6,6 +6,7 @@ import { GUEST_PROGRESS_KEY as ACCELERATED_GUEST_KEY } from '@/lib/accelerated-m
 import illustrated from '@/lib/agentified-illustrated-bindings.json'
 import { supabase } from '@/lib/supabase'
 import { AgentifiedWorkshop } from './AgentifiedWorkshop'
+import { CAPTION_SIZE_STORAGE_KEY } from '@/lib/caption-size-preference'
 
 vi.mock('next/image', () => ({ default: ({ alt, src, priority: _priority, ...props }: ImgHTMLAttributes<HTMLImageElement> & { src: string; priority?: boolean }) => (
   // eslint-disable-next-line @next/next/no-img-element
@@ -23,6 +24,27 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     localStorage.clear()
     window.history.replaceState(null, '', '/agentified/learningplan')
     window.matchMedia = vi.fn().mockReturnValue({ matches: false })
+  })
+
+  it('shares the chosen caption size across lessons and a reload', async () => {
+    const view = render(<AgentifiedWorkshop mode="plan" />)
+    const first = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
+    expect(first).toHaveAttribute('data-caption-size', 'M')
+    fireEvent.click(screen.getByRole('button', { name: 'Large captions' }))
+    expect(first).toHaveAttribute('data-caption-size', 'L')
+    expect(localStorage.getItem(CAPTION_SIZE_STORAGE_KEY)).toBe('L')
+    fireEvent.click(screen.getByRole('button', { name: 'English captions on' }))
+    expect(screen.queryByRole('group', { name: 'Caption size' })).not.toBeInTheDocument()
+    expect(localStorage.getItem(CAPTION_SIZE_STORAGE_KEY)).toBe('L')
+    fireEvent.click(screen.getByRole('button', { name: 'English captions off' }))
+    expect(screen.getByRole('group', { name: 'Caption size' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Large captions' })).toHaveAttribute('aria-pressed', 'true')
+    expect(first).toHaveAttribute('data-caption-size', 'L')
+    fireEvent.click(screen.getByRole('button', { name: /^L05:/ }))
+    expect(await screen.findByLabelText(/^L05 .* guided video$/)).toHaveAttribute('data-caption-size', 'L')
+    view.unmount()
+    render(<AgentifiedWorkshop mode="plan" />)
+    expect(await screen.findByLabelText(/^L05 .* guided video$/)).toHaveAttribute('data-caption-size', 'L')
   })
 
   it('keeps the exact L01 source playable with its corrected duration and L02 resting handoff', async () => {
@@ -44,7 +66,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     expect(container.querySelector('video')).toBe(video)
   })
 
-  it.each(['L01', 'L10', 'L16'])('keeps %s caption status aligned with the native track while paused and ended', async (id) => {
+  it.each(['L01', 'L10', 'L16'])('keeps %s caption status aligned with the selected caption surface while paused and ended', async (id) => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const track = { mode: 'disabled' }
     const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
@@ -53,17 +75,20 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
     fireEvent.loadedMetadata(video)
-    expect(track.mode).toBe('showing')
+    expect(track.mode).toBe(id === 'L01' ? 'showing' : 'hidden')
     expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
     track.mode = 'disabled'
     act(() => { tracks.dispatchEvent(new Event('change')) })
     fireEvent.pause(video)
     expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Caption size' })).not.toBeInTheDocument()
     fireEvent.ended(video)
     expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
     track.mode = 'showing'
     act(() => { tracks.dispatchEvent(new Event('change')) })
+    expect(track.mode).toBe('hidden')
     expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'Caption size' })).toBeInTheDocument()
     if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
   })
 

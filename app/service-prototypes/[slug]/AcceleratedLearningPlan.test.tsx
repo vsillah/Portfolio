@@ -8,6 +8,7 @@ import { GUEST_PROGRESS_KEY } from '@/lib/accelerated-member-progress'
 import { lessonPosters } from '@/lib/accelerated-lesson-posters'
 import contextualBindings from '@/lib/accelerated-contextual-bindings.json'
 import signalsV9Bindings from '@/lib/accelerated-signals-v9-bindings.json'
+import { CAPTION_SIZE_STORAGE_KEY } from '@/lib/caption-size-preference'
 
 const authMocks = vi.hoisted(() => ({
   getSession: vi.fn(),
@@ -33,6 +34,17 @@ describe('Accelerated learning plan', () => {
     localStorage.removeItem(GUEST_PROGRESS_KEY)
     authMocks.getSession.mockResolvedValue({ data: { session: null } })
     authMocks.onAuthStateChange.mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } })
+  })
+  it('uses the shared caption size across Accelerated lessons', async () => {
+    localStorage.setItem(CAPTION_SIZE_STORAGE_KEY, 'S')
+    render(<AcceleratedLearningPlan />)
+    const video = await screen.findByLabelText('L01 Build smarter, stay human guided video')
+    expect(video).toHaveAttribute('data-caption-size', 'S')
+    fireEvent.click(screen.getByRole('button', { name: 'Large captions' }))
+    expect(video).toHaveAttribute('data-caption-size', 'L')
+    expect(localStorage.getItem(CAPTION_SIZE_STORAGE_KEY)).toBe('L')
+    fireEvent.click(screen.getByRole('button', { name: /L09:/ }))
+    expect(await screen.findByLabelText(/^L09 .* guided video$/)).toHaveAttribute('data-caption-size', 'L')
   })
   it('restores one local worksheet across lessons and requires review, redaction, and consent', async () => {
     localStorage.removeItem(DECISION_FILE_STORAGE_KEY)
@@ -500,9 +512,18 @@ describe('Accelerated learning plan', () => {
     Object.defineProperty(video, 'textTracks', { configurable: true, value: [track] })
     fireEvent.loadedMetadata(video)
     expect(track.mode).toBe('hidden')
+    fireEvent.click(screen.getByRole('button', { name: 'Large captions' }))
+    expect(localStorage.getItem('amadutown.caption-size.v1')).toBe('L')
     fireEvent.click(screen.getByRole('button', { name: 'English captions on' }))
     expect(track.mode).toBe('disabled')
     expect(screen.getByRole('button', { name: 'English captions off' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.queryByRole('group', { name: 'Caption size' })).not.toBeInTheDocument()
+    expect(localStorage.getItem('amadutown.caption-size.v1')).toBe('L')
+    fireEvent.click(screen.getByRole('button', { name: 'English captions off' }))
+    expect(track.mode).toBe('hidden')
+    expect(screen.getByRole('group', { name: 'Caption size' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Large captions' })).toHaveAttribute('aria-pressed', 'true')
+    expect(video).toHaveAttribute('data-caption-size', 'L')
     fireEvent.click(screen.getByRole('button', { name: /L02: Prioritize before generating/ }))
     expect(screen.queryByLabelText('L01 Build smarter, stay human guided video')).not.toBeInTheDocument()
     expect(screen.getByLabelText('L02 Prioritize before generating guided video')).toHaveAttribute('controls')

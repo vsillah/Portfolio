@@ -1,0 +1,1997 @@
+{
+  "generatedAt": "2026-11-21T11:53:15.655Z",
+  "codeCommit": "85cadf493669e91245ce3d9eafa75df759081304",
+  "candidateCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+  "base": "http://127.0.0.1:3137",
+  "candidateBase": "http://127.0.0.1:8767",
+  "source": {
+    "video": "/agentified/lessons/l01/illustrated-1eeaa68b/agentified-l01-illustrated-composite.mp4",
+    "videoHash": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+    "captions": "/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-captions.vtt",
+    "captionsHash": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e"
+  },
+  "candidateHashes": {
+    "L01-05-desktop.mp4": "5ec18b955e298319b1592809147642196f657cbf37f0c684fd80683c4ac4cd25",
+    "L01-05-desktop.vtt": "175353093eb63a7b21d1071597d63e03f5ae63a5f62c157d59ef4a83799bd597",
+    "L01-05-mobile.mp4": "5ec614c3bc409b47c9df362409d414b7ae19765b812ea594be8ea2ebb1016157",
+    "L01-05-mobile.vtt": "175353093eb63a7b21d1071597d63e03f5ae63a5f62c157d59ef4a83799bd597"
+  },
+  "learner": [
+    {
+      "width": 1280,
+      "scene": "L01-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 0.2,
+          "end": 1.699,
+          "text": "Friday afternoon."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 329.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-01",
+      "sample": "midpoint",
+      "time": 25.568999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 329.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-02",
+      "sample": "boundary",
+      "time": 36.084999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 34.585,
+          "end": 39.18,
+          "text": "Our job today is small: design one preparation role and one receipt."
+        }
+      ],
+      "band": "Our job today is small: design one preparation role and one receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 337.84375,
+      "videoBottom": 329.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-02",
+      "sample": "midpoint",
+      "time": 55.999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 329.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-03",
+      "sample": "boundary",
+      "time": 75.697,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 74.197,
+          "end": 83.794,
+          "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’"
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 329.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-03",
+      "sample": "midpoint",
+      "time": 91.979,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 329.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "boundary",
+      "time": 115.858,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 114.358,
+          "end": 116.264,
+          "text": "Now attach the receipt."
+        }
+      ],
+      "band": "Now attach the receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 337.84375,
+      "videoBottom": 329.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "midpoint",
+      "time": 135.205,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "boundary",
+      "time": 152.001,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": "In our case, approval is ‘pending Morgan.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "midpoint",
+      "time": 166.779999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 165.389,
+          "end": 169.381,
+          "text": "If the source for room capacity is missing, mark the brief blocked."
+        }
+      ],
+      "band": "If the source for room capacity is missing, mark the brief blocked.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-06",
+      "sample": "boundary",
+      "time": 184.558999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-06",
+      "sample": "midpoint",
+      "time": 193.058999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 192.165,
+          "end": 194.678,
+          "text": "Use a fictional or approved example."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-07",
+      "sample": "boundary",
+      "time": 204.558999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 203.059,
+          "end": 205.537,
+          "text": "Fill the Job and Receipt boxes."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-07",
+      "sample": "midpoint",
+      "time": 273.058999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-08",
+      "sample": "boundary",
+      "time": 344.558999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 343.059,
+          "end": 346.984,
+          "text": "Save those two boxes in your Agentified Operating File as a draft."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-08",
+      "sample": "midpoint",
+      "time": 360.558999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05-boundary",
+      "sample": "before",
+      "time": 149,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 144.099,
+          "end": 149.701,
+          "text": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it."
+        }
+      ],
+      "band": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05-boundary",
+      "sample": "start-minus",
+      "time": 150.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05-boundary",
+      "sample": "start",
+      "time": 150.501,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": "In our case, approval is ‘pending Morgan.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05-boundary",
+      "sample": "collision",
+      "time": 162.78,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "collision",
+      "time": 162.78,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "restored",
+      "time": 162.78,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "off",
+      "size": "S",
+      "off": {
+        "time": 162.78,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "collision",
+      "time": 162.78,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "restored",
+      "time": 162.78,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "off",
+      "size": "M",
+      "off": {
+        "time": 162.78,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "collision",
+      "time": 162.78,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "restored",
+      "time": 162.78,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "off",
+      "size": "L",
+      "off": {
+        "time": 162.78,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05-boundary",
+      "sample": "gap",
+      "time": 164.8,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05-boundary",
+      "sample": "end-minus",
+      "time": 183.058,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05-boundary",
+      "sample": "end",
+      "time": 183.059,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 183.059,
+          "end": 184.076,
+          "text": "Take a moment."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05-boundary",
+      "sample": "after",
+      "time": 185,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 184.885,
+          "end": 187.412,
+          "text": "Picture one workflow in your own work."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 390,
+      "scene": "L01-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 0.2,
+          "end": 1.699,
+          "text": "Friday afternoon."
+        }
+      ],
+      "band": "Friday afternoon.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-01",
+      "sample": "midpoint",
+      "time": 25.568999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-02",
+      "sample": "boundary",
+      "time": 36.084999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 34.585,
+          "end": 39.18,
+          "text": "Our job today is small: design one preparation role and one receipt."
+        }
+      ],
+      "band": "Our job today is small: design one preparation role and one receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-02",
+      "sample": "midpoint",
+      "time": 55.999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-03",
+      "sample": "boundary",
+      "time": 75.697,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 74.197,
+          "end": 83.794,
+          "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’"
+        }
+      ],
+      "band": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-03",
+      "sample": "midpoint",
+      "time": 91.979,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "boundary",
+      "time": 115.858,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 114.358,
+          "end": 116.264,
+          "text": "Now attach the receipt."
+        }
+      ],
+      "band": "Now attach the receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "midpoint",
+      "time": 135.205,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "boundary",
+      "time": 152.001,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": "In our case, approval is ‘pending Morgan.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "midpoint",
+      "time": 166.779999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 165.389,
+          "end": 169.381,
+          "text": "If the source for room capacity is missing, mark the brief blocked."
+        }
+      ],
+      "band": "If the source for room capacity is missing, mark the brief blocked.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-06",
+      "sample": "boundary",
+      "time": 184.558999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-06",
+      "sample": "midpoint",
+      "time": 193.058999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 192.165,
+          "end": 194.678,
+          "text": "Use a fictional or approved example."
+        }
+      ],
+      "band": "Use a fictional or approved example.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-07",
+      "sample": "boundary",
+      "time": 204.558999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 203.059,
+          "end": 205.537,
+          "text": "Fill the Job and Receipt boxes."
+        }
+      ],
+      "band": "Fill the Job and Receipt boxes.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-07",
+      "sample": "midpoint",
+      "time": 273.058999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-08",
+      "sample": "boundary",
+      "time": 344.558999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 343.059,
+          "end": 346.984,
+          "text": "Save those two boxes in your Agentified Operating File as a draft."
+        }
+      ],
+      "band": "Save those two boxes in your Agentified Operating File as a draft.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-08",
+      "sample": "midpoint",
+      "time": 360.558999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05-boundary",
+      "sample": "before",
+      "time": 149,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 144.099,
+          "end": 149.701,
+          "text": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it."
+        }
+      ],
+      "band": "The first receipt is a handoff a busy person can understand; the engineering log can remain behind it.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05-boundary",
+      "sample": "start-minus",
+      "time": 150.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05-boundary",
+      "sample": "start",
+      "time": 150.501,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": "In our case, approval is ‘pending Morgan.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05-boundary",
+      "sample": "collision",
+      "time": 162.78,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "collision",
+      "time": 162.78,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "restored",
+      "time": 162.78,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "off",
+      "size": "S",
+      "off": {
+        "time": 162.78,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "collision",
+      "time": 162.78,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "restored",
+      "time": 162.78,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "off",
+      "size": "M",
+      "off": {
+        "time": 162.78,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "collision",
+      "time": 162.78,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 400.125,
+      "videoBottom": 392.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "restored",
+      "time": 162.78,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 157.75,
+          "end": 164.589,
+          "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+        }
+      ],
+      "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 381.125,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "off",
+      "size": "L",
+      "off": {
+        "time": 162.78,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L01-05-boundary",
+      "sample": "gap",
+      "time": 164.8,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05-boundary",
+      "sample": "end-minus",
+      "time": 183.058,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05-boundary",
+      "sample": "end",
+      "time": 183.059,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 183.059,
+          "end": 184.076,
+          "text": "Take a moment."
+        }
+      ],
+      "band": "Take a moment.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 381.125,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05-boundary",
+      "sample": "after",
+      "time": 185,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 184.885,
+          "end": 187.412,
+          "text": "Picture one workflow in your own work."
+        }
+      ],
+      "band": "Picture one workflow in your own work.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 381.125,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    }
+  ],
+  "candidate": [
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "S",
+      "on": {
+        "time": 0.803204,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0,
+            "end": 1.809,
+            "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+          }
+        ],
+        "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+        "bandTop": 582,
+        "videoBottom": 574,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 0.803204
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "M",
+      "on": {
+        "time": 0.803204,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0,
+            "end": 1.809,
+            "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+          }
+        ],
+        "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+        "bandTop": 629,
+        "videoBottom": 621,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 0.803204
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "L",
+      "on": {
+        "time": 0.803204,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0,
+            "end": 1.809,
+            "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+          }
+        ],
+        "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+        "bandTop": 623,
+        "videoBottom": 615,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 0.803204
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "S",
+      "on": {
+        "time": 0.803833,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0,
+            "end": 1.809,
+            "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+          }
+        ],
+        "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+        "bandTop": 669.65625,
+        "videoBottom": 661.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 0.803833
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "M",
+      "on": {
+        "time": 0.803833,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0,
+            "end": 1.809,
+            "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+          }
+        ],
+        "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+        "bandTop": 731.65625,
+        "videoBottom": 723.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 0.803833
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "L",
+      "on": {
+        "time": 0.803833,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 0,
+            "end": 1.809,
+            "text": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’"
+          }
+        ],
+        "band": "The rollback is ‘withdraw the draft from the review folder and mark it superseded.’",
+        "bandTop": 630.65625,
+        "videoBottom": 622.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 0.803833
+      }
+    }
+  ]
+}
