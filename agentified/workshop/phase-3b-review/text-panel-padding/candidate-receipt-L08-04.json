@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L08-04"
+  ],
+  "frames": [
+    {
+      "scene_id": "L08-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L08-04.png",
+      "frame_sha256": "c3e656877263c25473da90f36ad963bd9cac9262c54d12d1e33ed53a6c32ed8c",
+      "visual_family": "L08-operating-artifact:sequence:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Human review follows evaluation.",
+        "Evaluate",
+        "Human sample"
+      ],
+      "accessibility_text": "A test result cannot promote itself. Visual: Green, amber, and red cases before a human seal.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A test result cannot promote itself.",
+      "brief_sha256": "0b022480d79cc8bc7bfaf3d62bd7934342da92bc8afd90bdeca22e646c8b1e75",
+      "original_frame_sha256": "713e1b99ea394ccbac1257c4c4734ebbf86bef73dfffb7011bb20e444fc07730",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1072,
+            "height": 104
+          },
+          "glyph": {
+            "x": 96,
+            "y": 79,
+            "width": 1016,
+            "height": 48
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 95,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 95,
+            "y": 801,
+            "width": 233,
+            "height": 89
+          },
+          "glyph": {
+            "x": 126,
+            "y": 833,
+            "width": 177,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1190,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 1190,
+            "y": 801,
+            "width": 365,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1221,
+            "y": 833,
+            "width": 309,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

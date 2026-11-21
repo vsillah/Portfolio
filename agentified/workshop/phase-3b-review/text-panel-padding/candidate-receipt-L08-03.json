@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L08-03"
+  ],
+  "frames": [
+    {
+      "scene_id": "L08-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L08-03.png",
+      "frame_sha256": "58c671747283d1eb6a5d1fa611565cfe9d569b79fc2a9bdb14be6eae0b252104",
+      "visual_family": "L08-operating-artifact:hold:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Reject the unsupported claim.",
+        "Staffing claim",
+        "Morgan receives hold"
+      ],
+      "accessibility_text": "The receiving person gets a useful hold reason. Visual: Red test card beside the receiver hand.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The receiving person gets a useful hold reason.",
+      "brief_sha256": "c5ae45911d7f07afda95293dc8be86b5761f2c7f8c22c9f3f1f644e09b502ca4",
+      "original_frame_sha256": "fb9ee5ec828b6dea4d79a93c1b742e18c223d509451e2aa734c61dcdd9e08986",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 62,
+            "y": 195,
+            "width": 690,
+            "height": 625
+          },
+          "box": {
+            "x": 62,
+            "y": 195,
+            "width": 657,
+            "height": 193
+          },
+          "glyph": {
+            "x": 112,
+            "y": 272,
+            "width": 601,
+            "height": 137
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 875,
+            "y": 811,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 875,
+            "y": 811,
+            "width": 341,
+            "height": 98
+          },
+          "glyph": {
+            "x": 904,
+            "y": 843,
+            "width": 285,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

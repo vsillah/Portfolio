@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L08-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L08-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L08-01.png",
+      "frame_sha256": "af91c89f1d24d8eef935296b876f1a6294eb7505dbe036b7dc17298ab617f788",
+      "visual_family": "L08-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A handoff must be testable."
+      ],
+      "accessibility_text": "A sealed payload passes between accountable people. Visual: Handoff envelope between two hands and test cards.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A sealed payload passes between accountable people.",
+      "brief_sha256": "5cd761f7dae1fa3a9f7d3b54de45f2a7c17711985aac7e876cd4288ed9d9ef25",
+      "original_frame_sha256": "65132c2fd5298ad0bd8eb2d73c51621fe21807697d2b6b7a592d1508a18b4add",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 993,
+            "height": 110
+          },
+          "glyph": {
+            "x": 104,
+            "y": 705,
+            "width": 937,
+            "height": 54
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}
