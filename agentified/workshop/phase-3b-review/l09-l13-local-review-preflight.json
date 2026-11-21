@@ -61,19 +61,19 @@
       },
       "candidateVideo": {
         "path": "agentified/workshop/phase-3b-review/L13/agentified-l13-unknown-content-aware-candidate.mp4",
-        "sha256": "d0ee71135484f5c1d7aae8cd935f2026ffe2e54f45b04377db49bfdc592c6d82",
-        "bytes": 14307503
+        "sha256": "878d262919c6e7f93997c1289aa9f22ff7dee9c8893b329b4920e8ef6d10ec02",
+        "bytes": 14343920
       },
       "captionedReviewClips": [
         {
           "path": "agentified/workshop/phase-3b-review/L13/context/L13-desktop-captioned.mp4",
-          "sha256": "c86dfa83e65f0e587afef707843f1d8dd9bf01302ab0361f69384eda31bef546",
-          "bytes": 791895
+          "sha256": "1476647d4a185a3d7c1b603e42fe95a6fe1aed6e12a3506fb2ff7cfeaba6d0b5",
+          "bytes": 799383
         },
         {
           "path": "agentified/workshop/phase-3b-review/L13/context/L13-mobile-captioned.mp4",
-          "sha256": "728fb8e579a75c008910ab8af81efe64b92ac4d2f71e9342e0e603009601ec64",
-          "bytes": 492760
+          "sha256": "b551698620d5ee60e3fa76acc33bef181596eb562a549c21fa8da6ad25664f22",
+          "bytes": 493271
         }
       ],
       "sourceUnknownSample": {
@@ -131,8 +131,8 @@
       ],
       "contentAwareFrame": {
         "path": "agentified/workshop/phase-3b-review/L13/L13-03-content-aware.png",
-        "sha256": "63b784ce6ede9d9fea609e90c688534d6f1a57b5de43fb42dd686cf5cb395977",
-        "bytes": 4268801,
+        "sha256": "40f8786a0b8b06a3c9f6aa6dcb3833213b205f3405c5577f4c45e46282a5632e",
+        "bytes": 4388093,
         "sourceRender": "agentified/workshop/presentation-illustration-audit/render-semantic-visuals.mjs",
         "localReproductionScript": "agentified/workshop/phase-3b-review/L13/render-content-aware-frame.mjs",
         "originalFrameSha256": "a6b16e793fe6659d93f120b9aa4405e5fe493b112ef1d3fe348a3ab73269a672",
@@ -145,12 +145,12 @@
         "revisedPanelPx": {
           "x": 62,
           "y": 195,
-          "width": 690,
-          "height": 252
+          "width": 637,
+          "height": 181
         },
         "changedPixelBounds": [
           60,
-          263,
+          193,
           754,
           822
         ],
@@ -171,11 +171,11 @@
     "L13 candidate focused ASR recognizes unknown",
     "desktop and 390x844 contextual MP4s decoded cleanly and stills visually inspected",
     "L13 candidate audio stream duration 255.243 seconds matches source metadata after end trim",
-    "L13-03 content-aware panel reduced from 625 to 252 px with original type and source art",
+    "L13-03 content-aware panel measured at 581x125 px and fitted to 637x181 px with 28 px padding with original type and source art",
     "desktop 1280x720 and mobile 390x844 caption-off/on stills visually clear; native-controls bottom zone remains separate",
     "L13 desktop QA caption relocated into y=12-100 top clearance; teaching panel begins y=129 and baseline label occupies y=541-603",
     "L13 desktop prior/new audio and subtitle elementary streams and 16-second/400-frame timing are identical",
-    "L13 mobile review artifact hash unchanged after regeneration"
+    "L13 desktop/mobile review artifacts regenerated for the tighter panel; audio and subtitle streams unchanged"
   ],
   "openGate": "Combined Human QA must judge the L13 content-aware panel and direct source-to-insert/insert-to-source audio joins, speaker timbre, pitch, pacing, and sentence flow. This runtime cannot accept audio for direct listening. The review correction does not authorize learner binding, merge, deployment, publication, or release.",
   "boundary": "No source media/caption/script binding, provider contact, spend, merge, deployment, publication, release, or learner-data mutation.",
@@ -201,7 +201,7 @@
   "reviewCaptionCorrection": {
     "scope": "L13 desktop burned-caption QA copy only",
     "priorDesktopClipSha256": "35919f3974a5e85cd964db8c4583afe75875c9118c457a3b685cbf44e8031a43",
-    "correctedDesktopClipSha256": "c86dfa83e65f0e587afef707843f1d8dd9bf01302ab0361f69384eda31bef546",
+    "correctedDesktopClipSha256": "1476647d4a185a3d7c1b603e42fe95a6fe1aed6e12a3506fb2ff7cfeaba6d0b5",
     "sourceVttUnchanged": true,
     "cueTextAndTimingUnchanged": true,
     "priorCaptionBoxPx": [
@@ -227,6 +227,41 @@
     "desktopAudioStreamSha256": "a4c3b809e53c846c6a3e0615c4c8446f32f8771544af58b47763e0d5fc28ee99",
     "desktopSubtitleStreamSha256": "23cf5da93148d68a0120927fbba8ac4aa09375e11fa7cb7585d9cf8c86faf8b3",
     "outputGeometry": "1280x720 desktop and 390x844 mobile unchanged; all contextual clips 16.000 s for L13",
-    "learnerRouteChanged": false
+    "learnerRouteChanged": false,
+    "correctedMobileClipSha256": "b551698620d5ee60e3fa76acc33bef181596eb562a549c21fa8da6ad25664f22"
+  },
+  "panelCorrection": {
+    "scope": "L13-03 review-only visual panel; candidate remains unbound",
+    "humanQaFinding": "The prior 690x252 panel retained excessive blank space around the two-line headline.",
+    "headlineLines": [
+      "Leave the baseline",
+      "unknown."
+    ],
+    "measuredHeadlinePx": {
+      "width": 581,
+      "height": 125
+    },
+    "paddingPx": 28,
+    "priorPanelPx": {
+      "x": 62,
+      "y": 195,
+      "width": 690,
+      "height": 252
+    },
+    "revisedPanelPx": {
+      "x": 62,
+      "y": 195,
+      "width": 637,
+      "height": 181
+    },
+    "priorFrameSha256": "63b784ce6ede9d9fea609e90c688534d6f1a57b5de43fb42dd686cf5cb395977",
+    "priorCandidateVideoSha256": "d0ee71135484f5c1d7aae8cd935f2026ffe2e54f45b04377db49bfdc592c6d82",
+    "priorDesktopClipSha256": "c86dfa83e65f0e587afef707843f1d8dd9bf01302ab0361f69384eda31bef546",
+    "priorMobileClipSha256": "728fb8e579a75c008910ab8af81efe64b92ac4d2f71e9342e0e603009601ec64",
+    "candidateAudioStreamSha256": "c01585a1bbd37e18b26b6d92502e13825c8be0d01c4a4514c83125026ff7d543",
+    "candidateSubtitleStreamSha256": "a5a6ca90b5569f046cae5e7292c2aefb452f383e2179ae905190dcda0df60cb4",
+    "contextAudioStreamSha256": "a4c3b809e53c846c6a3e0615c4c8446f32f8771544af58b47763e0d5fc28ee99",
+    "contextSubtitleStreamSha256": "23cf5da93148d68a0120927fbba8ac4aa09375e11fa7cb7585d9cf8c86faf8b3",
+    "visualReview": "Inspected 1920x1080 source frame and first-cue desktop 1280x720 and mobile 390x844 contextual stills; panel, caption bands, HOLD marker, baseline label, and controls clear."
   }
 }

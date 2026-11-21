@@ -75,6 +75,20 @@ video = next(stream for stream in meta['streams'] if stream['codec_type'] == 'vi
 audio = next(stream for stream in meta['streams'] if stream['codec_type'] == 'audio')
 assert (video['width'], video['height'], video['nb_frames'], video['duration']) == (1920, 1080, '6368', '254.720000')
 assert audio['duration'] == '255.243000'
+panel = receipt['panelCorrection']
+measured = panel['measuredHeadlinePx']
+revised = panel['revisedPanelPx']
+prior = panel['priorPanelPx']
+assert (revised['width'], revised['height']) == (
+    measured['width'] + 2 * panel['paddingPx'],
+    measured['height'] + 2 * panel['paddingPx'],
+)
+assert 24 <= panel['paddingPx'] <= 32
+assert revised['width'] < prior['width'] and revised['height'] < prior['height']
+assert revised['x'] == prior['x'] and revised['y'] == prior['y']
+assert panel['headlineLines'] == ['Leave the baseline', 'unknown.']
+assert stream_hash(verified_asset(l13['candidateVideo']), '0:a:0') == 'SHA256=' + panel['candidateAudioStreamSha256']
+assert stream_hash(verified_asset(l13['candidateVideo']), '0:s:0') == 'SHA256=' + panel['candidateSubtitleStreamSha256']
 correction = receipt['reviewCaptionCorrection']
 desktop = next(clip for clip in l13['captionedReviewClips'] if 'desktop' in clip['path'])
 mobile = next(clip for clip in l13['captionedReviewClips'] if 'mobile' in clip['path'])
@@ -86,7 +100,13 @@ assert correction['correctedCaptionBoxMaxPx'][3] < correction['teachingPanelStar
 assert correction['correctedCaptionBoxMaxPx'][3] < correction['baselineLabelYPx'][0]
 assert correction['correctedCaptionBoxMaxPx'][3] < correction['nativeControlsBottomZoneStartsAtYPx']
 assert correction['mobileCaptionStartsAtYPx'] > correction['mobileVideoEndsAtYPx']
-assert mobile['sha256'] == '728fb8e579a75c008910ab8af81efe64b92ac4d2f71e9342e0e603009601ec64'
+assert mobile['sha256'] == correction['correctedMobileClipSha256']
+assert (revised['y'] + revised['height']) * (1280 / 1920) < correction['baselineLabelYPx'][0]
+assert revised['y'] * (1280 / 1920) > correction['correctedCaptionBoxMaxPx'][3]
+for clip in (desktop, mobile):
+    path = verified_asset(clip)
+    assert stream_hash(path, '0:a:0') == 'SHA256=' + panel['contextAudioStreamSha256']
+    assert stream_hash(path, '0:s:0') == 'SHA256=' + panel['contextSubtitleStreamSha256']
 subtitle = subprocess.check_output([
     'ffmpeg', '-v', 'error', '-i', str(verified_asset(desktop)), '-map', '0:s:0', '-f', 'webvtt', '-'
 ], text=True)

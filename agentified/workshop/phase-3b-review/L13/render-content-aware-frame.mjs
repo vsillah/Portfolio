@@ -23,12 +23,27 @@ const rect=(x,y,w,h,fill,stroke='none',radius=20)=>`<rect x="${x}" y="${y}" widt
 const label=(s,x,y,w=520)=>`${rect(x,y-64,w,94,'#0b2635ee','#cba854',16)}${text(s,x+28,y,44,Math.floor(w/25),'#f7ebd5')}`
 const progress=id=>{const n=Number(id.slice(-2));return `${rect(80,1020,1760,11,'#24424f','none',6)}${rect(80,1020,Math.round(1760*n/8),11,'#d7ad56','none',6)}`}
 const baseOverlay=id=>`<rect width="1920" height="1080" fill="none" stroke="#d6ad56" stroke-width="3"/>${progress(id)}`
+const headlineLines=lineWrap(brief.headline,18)
+const measureHeadline=async()=>{
+ const testX=100,testBaseline=200,size=66,lineHeight=size*1.15
+ const svg=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="500">${text(brief.headline,testX,testBaseline,size,18,'#ffffff')}</svg>`)
+ const {data,info}=await sharp(svg).ensureAlpha().raw().toBuffer({resolveWithObject:true})
+ let left=info.width,top=info.height,right=0,bottom=0
+ for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++)if(data[(y*info.width+x)*info.channels+3]){
+  left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x+1);bottom=Math.max(bottom,y+1)
+ }
+ assert(right>left && bottom>top,'headline did not render')
+ return {left,top,right,bottom,testX,testBaseline,lineHeight}
+}
+const measured=await measureHeadline()
+const padding=28
+const compactPanel={x:62,y:195,width:measured.right-measured.left+padding*2,height:measured.bottom-measured.top+padding*2}
+const compactText={x:compactPanel.x+padding-(measured.left-measured.testX),baseline:compactPanel.y+padding-(measured.top-measured.testBaseline)}
 const holdBody=(compact)=>{
  const [a]=brief.visible_labels,headline=brief.headline
- const lines=lineWrap(headline,18)
- const height=compact?Math.round(lines.length*66*1.15+100):625
- const baseline=compact?195+50+66:320
- return `${rect(62,195,690,height,'#101f2cf2','#dfad66',24)}${text(headline,108,baseline,66,18)}<circle cx="1370" cy="560" r="170" fill="#092636dc" stroke="#d2a45f" stroke-width="17"/>${text('HOLD',1245,590,72,10,'#f3dfba')}${a?label(a,875,875,520):''}`
+ const panel=compact?compactPanel:{x:62,y:195,width:690,height:625}
+ const x=compact?compactText.x:108,baseline=compact?compactText.baseline:320
+ return `${rect(panel.x,panel.y,panel.width,panel.height,'#101f2cf2','#dfad66',24)}${text(headline,x,baseline,66,18)}<circle cx="1370" cy="560" r="170" fill="#092636dc" stroke="#d2a45f" stroke-width="17"/>${text('HOLD',1245,590,72,10,'#f3dfba')}${a?label(a,875,875,520):''}`
 }
 const overlay=compact=>Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080">${baseOverlay(brief.scene_id)}${holdBody(compact)}</svg>`)
 const large=await sharp(source).resize(2592,1458,{fit:'cover',position:'centre'}).png().toBuffer()
@@ -39,4 +54,4 @@ assert.equal(sha(reproduced),receipt.frame_sha256,'original source frame did not
 const candidate=await render(true)
 const output=path.join(here,'L13-03-content-aware.png')
 writeFileSync(output,candidate)
-console.log(JSON.stringify({originalFrameSha256:receipt.frame_sha256,candidateFrameSha256:sha(candidate),headline:brief.headline,sourceMasterSha256:brief.master_source.sha256,originalPanel:{x:62,y:195,width:690,height:625},candidatePanel:{x:62,y:195,width:690,height:Math.round(lineWrap(brief.headline,18).length*66*1.15+100)},output}))
+console.log(JSON.stringify({originalFrameSha256:receipt.frame_sha256,candidateFrameSha256:sha(candidate),headline:brief.headline,headlineLines,measuredTextPx:{width:measured.right-measured.left,height:measured.bottom-measured.top},paddingPx:padding,sourceMasterSha256:brief.master_source.sha256,originalPanel:{x:62,y:195,width:690,height:625},candidatePanel:compactPanel,output}))
