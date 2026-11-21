@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L01-02"
+  ],
+  "frames": [
+    {
+      "scene_id": "L01-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L01-02.png",
+      "frame_sha256": "fb8636d30fa85f14402fa60931fcfde03a2081674a792b6b43aba52c78a34ccd",
+      "visual_family": "L01-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/l01-paper-source-table-v1.png",
+      "source_sha256": "22460c3f1a9796060eb8381cbe278bf04da7871ec902262c5f8747fbfcdb6989",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Give Morgan one scoped job.",
+        "Prepare one brief",
+        "Morgan decides"
+      ],
+      "accessibility_text": "The agent prepares; Morgan owns the choice. Visual: Job slip beside the still-open brief.",
+      "continuity": {
+        "id": "L01-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The agent prepares; Morgan owns the choice.",
+      "brief_sha256": "a3bf842408d9566033e74a6430d9508394ab9041179816a3408d38a2ddfe7f65",
+      "original_frame_sha256": "b2e8df3b154028e0d00936363f64c218c105ae0e2c31b4780a502a462adf1562",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 596,
+            "height": 197
+          },
+          "glyph": {
+            "x": 95,
+            "y": 265,
+            "width": 540,
+            "height": 141
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 856,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 856,
+            "width": 417,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 888,
+            "width": 361,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 736,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 736,
+            "width": 386,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 768,
+            "width": 330,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

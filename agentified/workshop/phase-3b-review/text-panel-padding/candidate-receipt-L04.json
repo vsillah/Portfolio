@@ -1,0 +1,660 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L04-01",
+    "L04-02",
+    "L04-03",
+    "L04-04",
+    "L04-05",
+    "L04-06",
+    "L04-07",
+    "L04-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L04-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L04-01.png",
+      "frame_sha256": "8559535d1fbc33eb18419825b50203a51b6c304e1dfce706c44bcbb6264d546f",
+      "visual_family": "L04-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A correction is not yet memory."
+      ],
+      "accessibility_text": "Feedback enters a review path. Visual: Blank correction card before five archival trays.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Feedback enters a review path.",
+      "brief_sha256": "d4a0bf9b4d91fac92f7559054f99ac9fe640d762264b4c08c8d3f2257f00e722",
+      "original_frame_sha256": "515ebac3045767cb598db6923f7f32257b46fa5e998ae24f1c41aba96c31a544",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 813,
+            "height": 206
+          },
+          "glyph": {
+            "x": 104,
+            "y": 706,
+            "width": 757,
+            "height": 150
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L04-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L04-02.png",
+      "frame_sha256": "d12bfba8a8b3bf42a452f56d6d34e393fbc7dac19450e8d3b6c124361e9ddbc3",
+      "visual_family": "L04-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Move feedback through review.",
+        "Proposal only",
+        "Human approval"
+      ],
+      "accessibility_text": "A proposal waits before the locked archive. Visual: Source, event, proposal, approval, and memory trays.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A proposal waits before the locked archive.",
+      "brief_sha256": "3aefd372ae3c977519494a5caae57f3a828cbf74d026d70530b75999472d6986",
+      "original_frame_sha256": "2c77497dadb3da472f1fc4449066865c59b52f8130c86b776b502ba6073127e7",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 999,
+            "height": 117
+          },
+          "glyph": {
+            "x": 96,
+            "y": 79,
+            "width": 943,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 95,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 95,
+            "y": 801,
+            "width": 344,
+            "height": 98
+          },
+          "glyph": {
+            "x": 126,
+            "y": 833,
+            "width": 288,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1190,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 1190,
+            "y": 801,
+            "width": 395,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1221,
+            "y": 833,
+            "width": 339,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L04-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L04-03.png",
+      "frame_sha256": "3891af96521914417fd951805a06bb5faf0ab38f208ce089bef62dfb902806bc",
+      "visual_family": "L04-operating-artifact:compare:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Reject the unsupported inference.",
+        "Narrow correction",
+        "Inference rejected"
+      ],
+      "accessibility_text": "A narrow correction survives; speculation does not. Visual: Proposal envelope separated from a rejected inference card.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A narrow correction survives; speculation does not.",
+      "brief_sha256": "0a8613e4f71c085fb572c4299cfdd0f657cd87b7d0445588308921bb0dadc427",
+      "original_frame_sha256": "d9e2e4aaaa225e6a3ea5dd4ff0868d6bc238f31349c41f1f194d529deecd79c6",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1083,
+            "height": 117
+          },
+          "glyph": {
+            "x": 96,
+            "y": 79,
+            "width": 1027,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 430,
+            "height": 89
+          },
+          "glyph": {
+            "x": 141,
+            "y": 878,
+            "width": 374,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 427,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1121,
+            "y": 878,
+            "width": 371,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L04-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L04-04.png",
+      "frame_sha256": "5d070194bcc3eecdbaff5332b2d084e22faa1674232713ab41282b4e1fe2e3b7",
+      "visual_family": "L04-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+      "source_sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          650,
+          500,
+          2300,
+          1600
+        ],
+        "crop_safety": {
+          "insets_px": [
+            320,
+            70,
+            300,
+            220
+          ],
+          "feather_px": 40,
+          "focus": "Signals plate",
+          "edge_risk": "Momentum and Alignment labels at opposite edges and partial lower ring",
+          "mask_sha256": "c26b3758de41f56a410d08f3454a23bbdb9b87a4469f2a2e0b5aebaafeabb983"
+        }
+      },
+      "display_copy": [
+        "Keep messaging outside the route.",
+        "Assignment",
+        "No message"
+      ],
+      "accessibility_text": "An assignment path does not authorize sending. Visual: Approved Amina plate focused on the governed gate.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "An assignment path does not authorize sending.",
+      "brief_sha256": "85a1a9168cb8df20bcdb1c7fe01fe7be0719aed0f674d49e3f4ad7f5d305fe64",
+      "original_frame_sha256": "78a6b81702b6902811d40380738b36388003b77f7e8a0dadcf20b1fb3961fa26",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 612,
+            "height": 182
+          },
+          "glyph": {
+            "x": 96,
+            "y": 266,
+            "width": 556,
+            "height": 126
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 755,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          },
+          "box": {
+            "x": 755,
+            "y": 837,
+            "width": 308,
+            "height": 98
+          },
+          "glyph": {
+            "x": 783,
+            "y": 868,
+            "width": 252,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1300,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          },
+          "box": {
+            "x": 1300,
+            "y": 837,
+            "width": 311,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1331,
+            "y": 868,
+            "width": 255,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L04-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L04-05.png",
+      "frame_sha256": "a032b57e3dfaabcc17ac392244f9bb47f0f7d16252348d24903064bf8f680f1d",
+      "visual_family": "L04-operating-artifact:boundary:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Use a written routing rule.",
+        "Written rule",
+        "Human fallback"
+      ],
+      "accessibility_text": "Without a rule, hand the work to a person. Visual: Empty rule tray beside the human seal.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Without a rule, hand the work to a person.",
+      "brief_sha256": "e95ae008ee5737bd09bb2daf2cc9165f25a3703fbd1651d37f8f4921695838e3",
+      "original_frame_sha256": "2ec5b03c6f66786e5b81b00f924b201821f21397531a889c1953a5ad0109f1a3",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 42,
+            "y": 700,
+            "width": 1560,
+            "height": 265
+          },
+          "box": {
+            "x": 42,
+            "y": 700,
+            "width": 887,
+            "height": 120
+          },
+          "glyph": {
+            "x": 99,
+            "y": 761,
+            "width": 831,
+            "height": 64
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 296,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 296,
+            "width": 298,
+            "height": 89
+          },
+          "glyph": {
+            "x": 968,
+            "y": 328,
+            "width": 242,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 436,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 436,
+            "width": 378,
+            "height": 89
+          },
+          "glyph": {
+            "x": 971,
+            "y": 468,
+            "width": 322,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L04-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L04-06.png",
+      "frame_sha256": "ff1c4409bbc19028366954b0966f3952399fdc4475969883cfa60e77b1f8c650",
+      "visual_family": "L04-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Choose what may persist.",
+        "Keep correction",
+        "Reject inference"
+      ],
+      "accessibility_text": "The learner separates correction from inference. Visual: Two correction slips before the closed archive.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner separates correction from inference.",
+      "brief_sha256": "089b853004c7158d8600e4cae69a106da9ab1b4283ebb885230f7fcd26bd5708",
+      "original_frame_sha256": "a67dfc0f967b18a0ea3132fc6f1f8a249cdec550a1aa5a2423350b4081c446a7",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 839,
+            "height": 117
+          },
+          "glyph": {
+            "x": 95,
+            "y": 79,
+            "width": 783,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 386,
+            "height": 97
+          },
+          "glyph": {
+            "x": 146,
+            "y": 788,
+            "width": 330,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 392,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 336,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L04-07",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L04-07.png",
+      "frame_sha256": "90a448b74b769a5676d33d03cbde36e73cfa0080c497cb3f2f4fb7b3f64942c7",
+      "visual_family": "L04-operating-artifact:worksheet:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Record the memory proposal.",
+        "Source",
+        "Owner"
+      ],
+      "accessibility_text": "The learner names source, owner, and status. Visual: Governed-memory worksheet before the lockbox.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner names source, owner, and status.",
+      "brief_sha256": "15f8466cc77e1fc615cc272510c719c33923777c3d0ab63cefe2030c16570c7e",
+      "original_frame_sha256": "90a448b74b769a5676d33d03cbde36e73cfa0080c497cb3f2f4fb7b3f64942c7",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L04-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L04-08.png",
+      "frame_sha256": "3eaef67c922e34a1d45551794542a33e593ee13a19c8e81222666fbef200c79e",
+      "visual_family": "L04-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L04.png",
+      "source_sha256": "d2e9dd9c94202974b37fa36d4031e34aa1c8b18a3b13e57fe178be0fa9741c29",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "File memory and route together.",
+        "Memory",
+        "Route"
+      ],
+      "accessibility_text": "The Operating File gains two governed records. Visual: Memory box and routing envelope in one binder.",
+      "continuity": {
+        "id": "L04-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File gains two governed records.",
+      "brief_sha256": "c76b2b847953b05bb3ce2666ade29e4e73b9cc09153d7b6c72b39f864506148f",
+      "original_frame_sha256": "2c83cc87e463b4be535c3579edabf57daa374b7e1a17d7dbcbab449afa597c50",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 221,
+            "height": 98
+          },
+          "glyph": {
+            "x": 171,
+            "y": 618,
+            "width": 165,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 176,
+            "height": 89
+          },
+          "glyph": {
+            "x": 171,
+            "y": 783,
+            "width": 120,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

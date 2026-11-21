@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L03-07"
+  ],
+  "frames": [
+    {
+      "scene_id": "L03-07",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L03-07.png",
+      "frame_sha256": "9b2b57387b74ab3e40e24bd10b19af9ef3351538afb66d331e0342df0e98ef01",
+      "visual_family": "L03-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Trace the claim to its source.",
+        "Citation",
+        "Reviewer"
+      ],
+      "accessibility_text": "The learner records citation and reviewer. Visual: Source-trace worksheet over the seating plan.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records citation and reviewer.",
+      "brief_sha256": "8d9f625751e586b2246ed80b0a270754a2f6994d713ddc0121290c8c70b397f1",
+      "original_frame_sha256": "9b2b57387b74ab3e40e24bd10b19af9ef3351538afb66d331e0342df0e98ef01",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    }
+  ]
+}

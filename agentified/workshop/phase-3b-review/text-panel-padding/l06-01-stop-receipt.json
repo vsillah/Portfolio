@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "status": "stopped_caption_art_collision",
+  "sceneId": "L06-01",
+  "paddingPr": 1290,
+  "paddingBaseHead": "fab07bad364f2e658e3f384cd7eb754eec989f95",
+  "captionPr": 1293,
+  "captionHead": "46b2c166ec012a06b8e0a458d6c189c5911f4a03",
+  "learnerRoute": "http://127.0.0.1:3137/agentified/learningplan?lesson=L06",
+  "sourceVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+  "sourceCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+  "candidateReceiptSha256": "d92f25e179e5a65362f8753be34e90ed5207045d4fadbf11af68e9c0ee52b9e3",
+  "candidateFrameSha256": "9f042b9ec24e1c3a78bc1668775d879d05757aa89e5c4649ee88d18c537b76c1",
+  "reviewClipStartSeconds": 17.1395,
+  "reviewClipDurationSeconds": 8,
+  "desktopReviewClipSha256": "b2252f7c0ca0dd3f08592e5604a08464cfb690164dc6304915f25b5f7144435c",
+  "mobileReviewClipSha256": "a434aa795bc2786b56f282f0241df203194f4e6b08f37b72d9ccb3af45e52e7d",
+  "reviewClipVttSha256": "1e070e026e7ac87418ed9252ed4dbc13247c183a13fd20b2be1a30827806f4ec",
+  "firstFailure": {
+    "surface": "source learner route",
+    "viewport": "desktop Chrome",
+    "captions": "on, medium",
+    "pausedAtSeconds": 20.7168,
+    "cueBegins": "If the agent quietly treats that as permission",
+    "collision": "three-line native caption crosses the lower-left permission-slip headline",
+    "observation": "computer-use browser screenshot in this task trace",
+    "candidateBoundToLearner": false
+  },
+  "nextSceneBlocked": "L06-02"
+}

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L03-04"
+  ],
+  "frames": [
+    {
+      "scene_id": "L03-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L03-04.png",
+      "frame_sha256": "35a182d8d6c18abeaf5e7b6507de36cce45a9dd694824b65622a033c26f2c9b5",
+      "visual_family": "L03-operating-artifact:boundary:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Classify the source before use.",
+        "Use tier",
+        "Unknown means hold"
+      ],
+      "accessibility_text": "Private and public records require different handling. Visual: Four physical record sleeves around the seating plan.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Private and public records require different handling.",
+      "brief_sha256": "e18488c49ee3929e905af79706e7b4d70fcc464e5cd9832a71f7f21509d86f41",
+      "original_frame_sha256": "3890d257e7cf043723ddac8e91caefac68fa66a3b49e1e5edfaa4f67835e7d95",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 42,
+            "y": 700,
+            "width": 1560,
+            "height": 265
+          },
+          "box": {
+            "x": 42,
+            "y": 700,
+            "width": 1054,
+            "height": 121
+          },
+          "glyph": {
+            "x": 98,
+            "y": 760,
+            "width": 998,
+            "height": 65
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 296,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 296,
+            "width": 215,
+            "height": 89
+          },
+          "glyph": {
+            "x": 971,
+            "y": 328,
+            "width": 159,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 436,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 436,
+            "width": 505,
+            "height": 89
+          },
+          "glyph": {
+            "x": 971,
+            "y": 468,
+            "width": 449,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

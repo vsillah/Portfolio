@@ -1,0 +1,38 @@
+{
+  "status": "STOP",
+  "scene": "L05-01",
+  "layout": "desktop",
+  "baseHead": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+  "captionCodeHead": "b93450a8d98f1d325dd5914b5a4c2f50df640099",
+  "route": "http://127.0.0.1:8768/review.html?scene=L05-01&layout=desktop&revision=55ebd09cba902ccc681a1289601e8f8c773d38a8",
+  "sourceVideo": {
+    "path": "public/agentified/lessons/l05/illustrated-aa9b234a/agentified-l05-illustrated-composite.mp4",
+    "sha256": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061"
+  },
+  "sourceCaption": {
+    "path": "public/agentified/lessons/l05/continuous-1cd79d31/agentified-l05-continuous-narration-captions.vtt",
+    "sha256": "25e7735ad4209bce2bcf50098d10846da39f655a35468526b559123d34700389"
+  },
+  "candidateFrame": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L05-01.png",
+    "sha256": "e9decf91c57afc00d9a85517546b20660ef69e3fe6e094f1c7bfa1971dbe880f"
+  },
+  "reviewClip": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L05-01-desktop.mp4",
+    "sha256": "fdb92e85a0ffc2b12da31d57ca12f00aef71bb5619abf31a7be0f19e1670cd68",
+    "startSeconds": 12.5
+  },
+  "screenshot": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L05-01-desktop-caption-panel-overlap.png",
+    "sha256": "6e20fce45c9f6335a61049b934be5eb9a4be80f6db24cdc15d1ec5e0f226affd"
+  },
+  "state": {
+    "time": 6.81453,
+    "mode": "showing",
+    "activeCue": [
+      "If the answer lives only in Morgan's head, our\ncarefully designed pieces still do not make an\noperating system."
+    ],
+    "controls": true
+  },
+  "finding": "Native desktop caption crosses the fitted headline panel bottom border. Review-only and unbound."
+}

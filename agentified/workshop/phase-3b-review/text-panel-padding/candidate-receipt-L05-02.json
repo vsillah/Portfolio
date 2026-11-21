@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L05-02"
+  ],
+  "frames": [
+    {
+      "scene_id": "L05-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L05-02.png",
+      "frame_sha256": "e736365e187de92f799234ca85024b67df662431edafe009904661ae6e9e2d5d",
+      "visual_family": "L05-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Route the request to Morgan.",
+        "Request enters",
+        "Morgan reviews"
+      ],
+      "accessibility_text": "The path ends at a human decision. Visual: Physical stations across the bounded operating lane.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The path ends at a human decision.",
+      "brief_sha256": "eb558be1f037929a9055db6c5b089c1bc0afcdb3a6418b2499cc27d8c7521f3c",
+      "original_frame_sha256": "1a788dec496d9f26ce55b9d98a819900aef25308eafd1e6938410beb6ba35322",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 937,
+            "height": 116
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 881,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 95,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 95,
+            "y": 801,
+            "width": 369,
+            "height": 97
+          },
+          "glyph": {
+            "x": 126,
+            "y": 833,
+            "width": 313,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1190,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 1190,
+            "y": 801,
+            "width": 384,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1221,
+            "y": 833,
+            "width": 328,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

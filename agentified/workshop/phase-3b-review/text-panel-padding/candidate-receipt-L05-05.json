@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L05-05"
+  ],
+  "frames": [
+    {
+      "scene_id": "L05-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L05-05.png",
+      "frame_sha256": "1b14a4d3c654c60d64a4eaa8e6ff043eedcceedd3e4c2f3302d33a7824541bc4",
+      "visual_family": "L05-operating-artifact:boundary:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L05.png",
+      "source_sha256": "42ec4c28115da9e43f9bea010065ed69ad15261478ecf9f9a7de4e2e3dfdcbf1",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep spend and public proof closed.",
+        "Spend closed",
+        "Proof closed"
+      ],
+      "accessibility_text": "Drafting authority does not release external action. Visual: Red boundary enclosing the operating route.",
+      "continuity": {
+        "id": "L05-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Drafting authority does not release external action.",
+      "brief_sha256": "8b3d922b01cb553c737816d8909146d0bdec0e0e0b05c8f2d236518fa8a058e2",
+      "original_frame_sha256": "0749b4ead1c344b763453d51e78e21805b019df9f17fbde0e3fcbb6e42562b0e",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 42,
+            "y": 700,
+            "width": 1560,
+            "height": 265
+          },
+          "box": {
+            "x": 42,
+            "y": 700,
+            "width": 1237,
+            "height": 120
+          },
+          "glyph": {
+            "x": 100,
+            "y": 760,
+            "width": 1181,
+            "height": 64
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 296,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 296,
+            "width": 339,
+            "height": 97
+          },
+          "glyph": {
+            "x": 969,
+            "y": 328,
+            "width": 283,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 436,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 436,
+            "width": 317,
+            "height": 89
+          },
+          "glyph": {
+            "x": 971,
+            "y": 468,
+            "width": 261,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

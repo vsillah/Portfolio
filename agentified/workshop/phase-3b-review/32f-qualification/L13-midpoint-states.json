@@ -1,0 +1,198 @@
+{
+  "stackedHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+  "lessonId": "L13",
+  "states": [
+    {
+      "scene": "L13-01",
+      "kind": "desktop",
+      "expected": 13.3335,
+      "time": 13.3335,
+      "mode": "hidden",
+      "active": [
+        "It is tempting to let the preparation agent change the format and declare an improvement."
+      ],
+      "band": [
+        "It is tempting to let the preparation agent change the format and declare an improvement."
+      ]
+    },
+    {
+      "scene": "L13-02",
+      "kind": "desktop",
+      "expected": 41.627,
+      "time": 41.627,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L13-03",
+      "kind": "desktop",
+      "expected": 73.479,
+      "time": 73.479,
+      "mode": "hidden",
+      "active": [
+        "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation."
+      ],
+      "band": [
+        "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation."
+      ]
+    },
+    {
+      "scene": "L13-04",
+      "kind": "desktop",
+      "expected": 105.5555,
+      "time": 105.5555,
+      "mode": "hidden",
+      "active": [
+        "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test."
+      ],
+      "band": [
+        "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test."
+      ]
+    },
+    {
+      "scene": "L13-05",
+      "kind": "desktop",
+      "expected": 134.1975,
+      "time": 134.197499,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L13-06",
+      "kind": "desktop",
+      "expected": 150.2705,
+      "time": 150.2705,
+      "mode": "hidden",
+      "active": [
+        "What evidence would make your favorite improvement worth testing?"
+      ],
+      "band": [
+        "What evidence would make your favorite improvement worth testing?"
+      ]
+    },
+    {
+      "scene": "L13-07",
+      "kind": "desktop",
+      "expected": 193.23250000000002,
+      "time": 193.2325,
+      "mode": "hidden",
+      "active": [
+        "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding."
+      ],
+      "band": [
+        "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding."
+      ]
+    },
+    {
+      "scene": "L13-08",
+      "kind": "desktop",
+      "expected": 244.411,
+      "time": 244.411,
+      "mode": "hidden",
+      "active": [
+        "inspect, and a clear record that nothing"
+      ],
+      "band": [
+        "inspect, and a clear record that nothing"
+      ]
+    },
+    {
+      "scene": "L13-01",
+      "kind": "mobile",
+      "expected": 13.3335,
+      "time": 13.3335,
+      "mode": "hidden",
+      "active": [
+        "It is tempting to let the preparation agent change the format and declare an improvement."
+      ],
+      "band": [
+        "It is tempting to let the preparation agent change the format and declare an improvement."
+      ]
+    },
+    {
+      "scene": "L13-02",
+      "kind": "mobile",
+      "expected": 41.627,
+      "time": 41.627,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L13-03",
+      "kind": "mobile",
+      "expected": 73.479,
+      "time": 73.479,
+      "mode": "hidden",
+      "active": [
+        "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation."
+      ],
+      "band": [
+        "The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation."
+      ]
+    },
+    {
+      "scene": "L13-04",
+      "kind": "mobile",
+      "expected": 105.5555,
+      "time": 105.5555,
+      "mode": "hidden",
+      "active": [
+        "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test."
+      ],
+      "band": [
+        "In the paper scenario, Morgan can reject the idea, ask for a clearer baseline, or authorize a later bounded test."
+      ]
+    },
+    {
+      "scene": "L13-05",
+      "kind": "mobile",
+      "expected": 134.1975,
+      "time": 134.197499,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L13-06",
+      "kind": "mobile",
+      "expected": 150.2705,
+      "time": 150.2705,
+      "mode": "hidden",
+      "active": [
+        "What evidence would make your favorite improvement worth testing?"
+      ],
+      "band": [
+        "What evidence would make your favorite improvement worth testing?"
+      ]
+    },
+    {
+      "scene": "L13-07",
+      "kind": "mobile",
+      "expected": 193.23250000000002,
+      "time": 193.2325,
+      "mode": "hidden",
+      "active": [
+        "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding."
+      ],
+      "band": [
+        "Do not use private operational data, run a provider, contact anyone, change a setting, or promote a finding."
+      ]
+    },
+    {
+      "scene": "L13-08",
+      "kind": "mobile",
+      "expected": 244.411,
+      "time": 244.411,
+      "mode": "hidden",
+      "active": [
+        "inspect, and a clear record that nothing"
+      ],
+      "band": [
+        "inspect, and a clear record that nothing"
+      ]
+    }
+  ]
+}

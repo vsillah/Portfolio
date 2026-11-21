@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L03-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L03-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L03-01.png",
+      "frame_sha256": "ac18072b40d7c82794b6e61e71e86a5f8f130c36239fb74217c96da93f1ef566",
+      "visual_family": "L03-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Can Morgan defend room capacity?"
+      ],
+      "accessibility_text": "Twenty chairs need a current source. Visual: Seating plan tied to local records by a magnifier.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Twenty chairs need a current source.",
+      "brief_sha256": "03860b26d402f1a93d189f6ed5dc58daa053edd406ec0658b3e96a2d206a134c",
+      "original_frame_sha256": "0ffeefc2ed31f1d1676c988f3b8a3bc257772d14e2b04eeff8e35297ff3536e6",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 922,
+            "height": 207
+          },
+          "glyph": {
+            "x": 106,
+            "y": 705,
+            "width": 866,
+            "height": 151
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

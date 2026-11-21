@@ -1,0 +1,393 @@
+{
+  "schemaVersion": 1,
+  "lessonId": "L01",
+  "scope": "local_machine_speech_recognition_only",
+  "qualificationStatus": "open_direct_whole_lesson_listening_required",
+  "sourceMapSha256": "6316aa15a232e99019f938ccbaae397e5314f5d4035a626346caad5f6b8aebad",
+  "video": {
+    "path": "public/agentified/lessons/l01/illustrated-1eeaa68b/agentified-l01-illustrated-composite.mp4",
+    "sha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775"
+  },
+  "caption": {
+    "path": "public/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-captions.vtt",
+    "sha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e"
+  },
+  "versionedTranscript": {
+    "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L01-c600f29d7fcc.txt",
+    "sha256": "5dcf6d2c47b55aa2a40daccc61b53293b35db50fbc5fb63c457f6a253e96f71f",
+    "sourceScriptSha256": "c600f29d7fcc6c2a50d3bcb2d07f92a9d0f45225520e300d865c188d75cdaa26",
+    "boundCaptionSha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+    "normalizedWordCount": 589,
+    "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+  },
+  "audioExtraction": "ffmpeg -i <currentVideo> -vn -ac 1 -ar 16000 -c:a pcm_s16le",
+  "model": "Systran/faster-whisper-small.en local cached snapshot d1d751a5f8271d482d14ca55d9e2deeebbae577f; faster-whisper 1.2.1; CPU int8; beam 5; word timestamps; VAD; no previous-text conditioning",
+  "recognizedWordCount": 592,
+  "scriptWordCount": 589,
+  "sequenceSimilarity": 0.992379,
+  "firstRecognized": {
+    "startSeconds": 0.0,
+    "text": " Friday afternoon, Morgan runs a small community learning program. For this course, we'll follow"
+  },
+  "lastRecognized": {
+    "endSeconds": 359.49,
+    "text": " the draft stays on paper. Next we will name the decision Morgan actually owns."
+  },
+  "differences": [
+    {
+      "type": "replace",
+      "scriptWords": "we\u2019ll",
+      "recognizedWords": "we'll",
+      "scriptContext": "learning program for this course we\u2019ll follow harbor learning circle an",
+      "recognizedContext": "learning program for this course we'll follow harbor learning circle an"
+    },
+    {
+      "type": "insert",
+      "scriptWords": "",
+      "recognizedWords": "next",
+      "scriptContext": "digital skills session next month three notes are on the",
+      "recognizedContext": "digital skills session next month next three notes are on the"
+    },
+    {
+      "type": "insert",
+      "scriptWords": "",
+      "recognizedWords": "to",
+      "scriptContext": "assistant can turn those into a neat recommendation in seconds",
+      "recognizedContext": "assistant can turn those into to a neat recommendation in seconds"
+    },
+    {
+      "type": "replace",
+      "scriptWords": "twenty",
+      "recognizedWords": "20",
+      "scriptContext": "says the room can hold twenty people morgan needs to see",
+      "recognizedContext": "says the room can hold 20 people morgan needs to see"
+    },
+    {
+      "type": "insert",
+      "scriptWords": "",
+      "recognizedWords": "after",
+      "scriptContext": "morgan the outcome is draft prepared no session selected the",
+      "recognizedContext": "morgan the outcome is draft after prepared no session selected the"
+    },
+    {
+      "type": "replace",
+      "scriptWords": "agentified",
+      "recognizedWords": "identified",
+      "scriptContext": "those two boxes in your agentified operating file as a draft",
+      "recognizedContext": "those two boxes in your identified operating file as a draft"
+    }
+  ],
+  "segments": [
+    {
+      "startSeconds": 0.0,
+      "endSeconds": 5.38,
+      "text": " Friday afternoon, Morgan runs a small community learning program. For this course, we'll follow"
+    },
+    {
+      "startSeconds": 5.38,
+      "endSeconds": 11.02,
+      "text": " Harbor Learning Circle, an illustrative case built from fictional records. Someone suggests adding a"
+    },
+    {
+      "startSeconds": 11.02,
+      "endSeconds": 16.32,
+      "text": " free digital skills session next month. Next three notes are on the table, an attendance count,"
+    },
+    {
+      "startSeconds": 16.8,
+      "endSeconds": 22.86,
+      "text": " a facilitator availability note, and a room capacity note. An assistant can turn those into"
+    },
+    {
+      "startSeconds": 22.86,
+      "endSeconds": 24.9,
+      "text": " to a neat recommendation in seconds."
+    },
+    {
+      "startSeconds": 26.0,
+      "endSeconds": 28.44,
+      "text": " But if Morgan asks, where did this come from?"
+    },
+    {
+      "startSeconds": 29.58,
+      "endSeconds": 31.72,
+      "text": " A polished paragraph is thin protection."
+    },
+    {
+      "startSeconds": 32.76,
+      "endSeconds": 33.8,
+      "text": " The work needs a trail."
+    },
+    {
+      "startSeconds": 34.64,
+      "endSeconds": 36.06,
+      "text": " Our job today is small."
+    },
+    {
+      "startSeconds": 36.62,
+      "endSeconds": 39.06,
+      "text": " Design one preparation role and one receipt."
+    },
+    {
+      "startSeconds": 40.04,
+      "endSeconds": 42.64,
+      "text": " The agent does not decide whether the session happens."
+    },
+    {
+      "startSeconds": 43.68,
+      "endSeconds": 46.56,
+      "text": " It prepares a session option brief for Morgan to review."
+    },
+    {
+      "startSeconds": 47.64,
+      "endSeconds": 48.92,
+      "text": " That distinction matters."
+    },
+    {
+      "startSeconds": 49.92,
+      "endSeconds": 51.76,
+      "text": " If we give the system a loose command"
+    },
+    {
+      "startSeconds": 51.76,
+      "endSeconds": 55.32,
+      "text": " like run the workshop program, we have no useful boundary."
+    },
+    {
+      "startSeconds": 56.76,
+      "endSeconds": 58.16,
+      "text": " What exactly begins its work?"
+    },
+    {
+      "startSeconds": 59.28,
+      "endSeconds": 60.16,
+      "text": " What can it read?"
+    },
+    {
+      "startSeconds": 61.46,
+      "endSeconds": 62.6,
+      "text": " What must it hand back?"
+    },
+    {
+      "startSeconds": 63.74,
+      "endSeconds": 64.94,
+      "text": " Who owns the outcome?"
+    },
+    {
+      "startSeconds": 66.26,
+      "endSeconds": 68.28,
+      "text": " These are ordinary management questions."
+    },
+    {
+      "startSeconds": 69.52,
+      "endSeconds": 73.44,
+      "text": " They become more urgent when a tool can produce work while nobody is watching."
+    },
+    {
+      "startSeconds": 74.42,
+      "endSeconds": 78.66,
+      "text": " Write the job in one sentence. When Morgan requests a monthly session review,"
+    },
+    {
+      "startSeconds": 78.66,
+      "endSeconds": 81.78,
+      "text": " prepare one brief comparing a proposed free session"
+    },
+    {
+      "startSeconds": 81.78,
+      "endSeconds": 83.52,
+      "text": " against the three cleared inputs."
+    },
+    {
+      "startSeconds": 84.96,
+      "endSeconds": 86.64,
+      "text": " The trigger is Morgan's request."
+    },
+    {
+      "startSeconds": 87.9,
+      "endSeconds": 89.6,
+      "text": " The output is a draft brief."
+    },
+    {
+      "startSeconds": 90.86,
+      "endSeconds": 93.02,
+      "text": " The manager is Morgan."
+    },
+    {
+      "startSeconds": 93.62,
+      "endSeconds": 95.96,
+      "text": " The measure is whether Morgan can check the claim"
+    },
+    {
+      "startSeconds": 95.96,
+      "endSeconds": 97.74,
+      "text": " and source for every recommendation"
+    },
+    {
+      "startSeconds": 97.74,
+      "endSeconds": 99.88,
+      "text": " without chasing the agent through a log."
+    },
+    {
+      "startSeconds": 101.18,
+      "endSeconds": 103.4,
+      "text": " The forbidden actions are just as plain."
+    },
+    {
+      "startSeconds": 103.82,
+      "endSeconds": 105.44,
+      "text": " No booking, no announcement,"
+    },
+    {
+      "startSeconds": 105.9,
+      "endSeconds": 107.16,
+      "text": " no message to participants,"
+    },
+    {
+      "startSeconds": 107.92,
+      "endSeconds": 113.34,
+      "text": " no spending. A useful agent job names the work it finishes and the work it leaves"
+    },
+    {
+      "startSeconds": 113.34,
+      "endSeconds": 120.2,
+      "text": " alone. Now attach the receipt. Imagine the brief says the room can hold 20 people."
+    },
+    {
+      "startSeconds": 121.74,
+      "endSeconds": 125.58,
+      "text": " Morgan needs to see which note supplied that number, when the brief was prepared,"
+    },
+    {
+      "startSeconds": 125.78,
+      "endSeconds": 131.38,
+      "text": " what the agent actually did, and whether anyone approved it. The receipt also"
+    },
+    {
+      "startSeconds": 131.38,
+      "endSeconds": 137.92,
+      "text": " records cost or resource use, outcome, and how to pull the draft back. A blank field"
+    },
+    {
+      "startSeconds": 137.92,
+      "endSeconds": 144.62,
+      "text": " stays blank and gets an owner. We never fill a gap with a confident guess. The"
+    },
+    {
+      "startSeconds": 144.62,
+      "endSeconds": 149.0,
+      "text": " first receipt is a handoff a busy person can understand. The engineering log can"
+    },
+    {
+      "startSeconds": 149.0,
+      "endSeconds": 156.46,
+      "text": " remain behind it. In our case, approval is pending Morgan. The outcome is draft"
+    },
+    {
+      "startSeconds": 156.46,
+      "endSeconds": 159.1,
+      "text": " After prepared, no session selected."
+    },
+    {
+      "startSeconds": 159.6,
+      "endSeconds": 164.48,
+      "text": " The rollback is withdraw the draft from the review folder and mark it superseded."
+    },
+    {
+      "startSeconds": 165.88,
+      "endSeconds": 169.2,
+      "text": " If the source for room capacity is missing, mark the brief blocked."
+    },
+    {
+      "startSeconds": 170.38,
+      "endSeconds": 176.18,
+      "text": " A complete-looking card without a source can move bad information faster than an obviously"
+    },
+    {
+      "startSeconds": 176.18,
+      "endSeconds": 177.02,
+      "text": " unfinished one."
+    },
+    {
+      "startSeconds": 178.26,
+      "endSeconds": 182.34,
+      "text": " The receipt makes that gap visible before anyone treats the draft as a decision."
+    },
+    {
+      "startSeconds": 182.34,
+      "endSeconds": 184.02,
+      "text": " Take a moment."
+    },
+    {
+      "startSeconds": 185.42,
+      "endSeconds": 187.58,
+      "text": " Picture one workflow in your own work."
+    },
+    {
+      "startSeconds": 188.52,
+      "endSeconds": 191.4,
+      "text": " Keep this exercise on paper or in a local draft."
+    },
+    {
+      "startSeconds": 192.6,
+      "endSeconds": 194.68,
+      "text": " Use a fictional or approved example."
+    },
+    {
+      "startSeconds": 195.82,
+      "endSeconds": 198.12,
+      "text": " Do not use private operational data."
+    },
+    {
+      "startSeconds": 199.2,
+      "endSeconds": 202.54,
+      "text": " What is the one useful output and who would have to defend it?"
+    },
+    {
+      "startSeconds": 203.38,
+      "endSeconds": 205.36,
+      "text": " Fill the job and receipt boxes."
+    },
+    {
+      "startSeconds": 206.2,
+      "endSeconds": 211.84,
+      "text": " Name the trigger, permitted inputs, output, human manager, success check,"
+    },
+    {
+      "startSeconds": 211.84,
+      "endSeconds": 217.62,
+      "text": " and three forbidden actions, then fill the nine receipt fields for one"
+    },
+    {
+      "startSeconds": 217.62,
+      "endSeconds": 222.98,
+      "text": " imaginary run. If you cannot name a source, approval state, or rollback, write"
+    },
+    {
+      "startSeconds": 222.98,
+      "endSeconds": 227.82,
+      "text": " unknown and the person who must resolve it. Do not open a real system to complete"
+    },
+    {
+      "startSeconds": 227.82,
+      "endSeconds": 232.18,
+      "text": " this exercise. The point is to see the shape of the work before asking a tool"
+    },
+    {
+      "startSeconds": 232.18,
+      "endSeconds": 346.85,
+      "text": " to do it. Save those two boxes in your identified operating file as a draft."
+    },
+    {
+      "startSeconds": 349.26,
+      "endSeconds": 353.52,
+      "text": " Your stop condition is simple. If the owner, source, or review gate is missing,"
+    },
+    {
+      "startSeconds": 353.52,
+      "endSeconds": 359.49,
+      "text": " the draft stays on paper. Next we will name the decision Morgan actually owns."
+    }
+  ],
+  "limits": "Automated recognition can insert, omit, or substitute words and cannot confirm actual speech quality, exact sync, or complete silence. Preserve these differences for direct listening; no full-audio pass claimed."
+}

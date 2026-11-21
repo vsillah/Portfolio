@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "status": "STOP: L01-08 midpoint context overlaps protected approved branded end screen",
+  "paddingBasePr": 1290,
+  "paddingBaseCommit": "ff17e8a0e4ad6e38f2bfa62376fd8d63e2940496",
+  "captionDependencyPr": 1293,
+  "captionDependencyCommit": "77eb44c6232bf1095e267a24fcf6c6ec52aeaf00",
+  "sourceVideoSha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+  "sourceCaptionSha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+  "frames": [
+    {
+      "sceneId": "L01-06",
+      "candidateFrameSha256": "8e9f693376b77b375b9a92f7e99fd3e211ea58f5f55c675084869df156d961b8",
+      "changedPixelBounds": [
+        48,
+        38,
+        1802,
+        856
+      ],
+      "outsidePanelPixelsIdentical": true
+    },
+    {
+      "sceneId": "L01-07",
+      "candidateFrameSha256": "ab5d59c04584162e7820a3ae336df4013f28f749f89edcba5ca56fc9f59fdcd1",
+      "changedPixelBounds": null,
+      "outsidePanelPixelsIdentical": true
+    },
+    {
+      "sceneId": "L01-08",
+      "candidateFrameSha256": "f7b0c6a23e8167bfa6d4637a828d18d64ae04e3bfef5d0af66425a4b5aef363a",
+      "changedPixelBounds": [
+        138,
+        584,
+        932,
+        850
+      ],
+      "outsidePanelPixelsIdentical": true
+    }
+  ],
+  "clips": [
+    {
+      "sceneId": "L01-06",
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-06-desktop.mp4",
+      "sha256": "e14f299ef0987925fff00b73ead765732c453bffdb806c9a212be0ff1bdd8a2e",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-06-desktop.vtt",
+      "vttSha256": "2ff38aadd03a148014d64883086beb1146db950a681b5b1559aab74bda222177",
+      "dimensionsPx": [
+        1280,
+        720
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    },
+    {
+      "sceneId": "L01-06",
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-06-mobile.mp4",
+      "sha256": "aa3d0567d96405784a18c1fe56aedc15c213dc96024c2bf55445347acf5f5505",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-06-mobile.vtt",
+      "vttSha256": "2ff38aadd03a148014d64883086beb1146db950a681b5b1559aab74bda222177",
+      "dimensionsPx": [
+        390,
+        844
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    },
+    {
+      "sceneId": "L01-07",
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-07-desktop.mp4",
+      "sha256": "29927ce7eafe178f8be9a874efc526a83ee573d8faa71a0571d53d6bb683d5c2",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-07-desktop.vtt",
+      "vttSha256": "73420fdc06730575e08b8a09b5b3824e0f2a9d2dd742640613490ef3abac2bd0",
+      "dimensionsPx": [
+        1280,
+        720
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    },
+    {
+      "sceneId": "L01-07",
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-07-mobile.mp4",
+      "sha256": "26c0c1e1fb3c282c9881894361a4c4e2c10a60ed6342c74885841656dc0c95f0",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-07-mobile.vtt",
+      "vttSha256": "73420fdc06730575e08b8a09b5b3824e0f2a9d2dd742640613490ef3abac2bd0",
+      "dimensionsPx": [
+        390,
+        844
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    }
+  ],
+  "browserEvidence": {
+    "desktop": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-06-desktop-caption-on.png",
+      "sha256": "0c01b1feba654659dffda07be37ce7cb09544d0a91b3106ad1a49bdc10459757"
+    },
+    "mobile": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-06-mobile-caption-on.png",
+      "sha256": "4d54fd81b5100e5666b378bc58a77ed68f0456ebd6f758d40a5ad688373ab5fd"
+    }
+  },
+  "unqualified": [
+    "L01-06 candidate caption-off, Aa, theme, and control-interaction states",
+    "L01-07 whole-scene context",
+    "L01-08 context and later scenes"
+  ],
+  "failedCheck": {
+    "command": "python3 agentified/workshop/phase-3b-review/text-panel-padding/render-scene-context.py L01-08 desktop",
+    "assertion": "L01-08: overlaps protected approved branded end screen",
+    "candidateWindowSeconds": [
+      356.55899999999974,
+      364.55899999999974
+    ],
+    "protectedWindowSeconds": [
+      359.64499999999975,
+      378.05899999999997
+    ],
+    "protectedKind": "approved branded end screen",
+    "mobileSameFailure": true
+  },
+  "boundary": "Review-only unbound; no L01-08 clip, learner media, or approved frame replaced; no later scene qualified."
+}

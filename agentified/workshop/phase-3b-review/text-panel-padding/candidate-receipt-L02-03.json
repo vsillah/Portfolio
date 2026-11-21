@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L02-03"
+  ],
+  "frames": [
+    {
+      "scene_id": "L02-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L02-03.png",
+      "frame_sha256": "2ab6a3b84836a721372e83edcb29e57316c8e87ee5eab6cf9f2e8a4031249492",
+      "visual_family": "L02-operating-artifact:compare:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Staff time and trust are at stake.",
+        "Staff time",
+        "Trust"
+      ],
+      "accessibility_text": "A reversible proposal still carries consequences. Visual: The marked-up folder under a time-and-trust scale.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A reversible proposal still carries consequences.",
+      "brief_sha256": "10fe5a711e65549db06bc4bebd0d51ef2b85e3bb03061f5e83107477194f7e09",
+      "original_frame_sha256": "958568aa553126376655319d182c5b89b1efd5aa0cf31a989f006c75adc816a7",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1021,
+            "height": 104
+          },
+          "glyph": {
+            "x": 94,
+            "y": 79,
+            "width": 965,
+            "height": 48
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 254,
+            "height": 89
+          },
+          "glyph": {
+            "x": 139,
+            "y": 878,
+            "width": 198,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 164,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1118,
+            "y": 878,
+            "width": 108,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

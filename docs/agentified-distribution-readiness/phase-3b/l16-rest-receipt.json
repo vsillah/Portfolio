@@ -1,0 +1,49 @@
+{
+  "lessonId": "L16",
+  "status": "review_only_unbound",
+  "originalVideoPath": "public/agentified/lessons/l16/illustrated-4283c8d8/agentified-l16-illustrated-composite.mp4",
+  "originalVideoSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+  "sourceBoundCardPath": "agentified/workshop/presentation-illustration-audit/frames/illustrated/L16-08.png",
+  "sourceBoundCardSha256": "de03f55bf5c6472d53b540ba3c0de023fb9dda4ccba83008c89b0ed85982f015",
+  "sourceAuthority": [
+    "agentified/workshop/l13-l16-continuous-preflight/l16-request-candidate.json: closing_card.overlay_on_final_presenter_passage=true",
+    "agentified/workshop/l13-l16-native-composite/l16-composite-timeline.json: provider_free_closing_card.start=258.262 and overlay_on_final_presenter_passage=true"
+  ],
+  "visualTransitionSeconds": 266.68,
+  "originalVideoFrames": 6667,
+  "candidateVideoFrames": 6883,
+  "originalVideoElementaryStreamSha256": "5cc40ac20398d5c40159e06005579d99d5cc918b0e7e6d132e2deccc4f99548c",
+  "candidateFirst6667VideoFramesSha256": "5cc40ac20398d5c40159e06005579d99d5cc918b0e7e6d132e2deccc4f99548c",
+  "originalAudioElementaryStreamSha256": "e5dee4f45e775ed1b253641c5a702893462d72ca59c062223453188d6d3a9924",
+  "candidateAudioElementaryStreamSha256": "e5dee4f45e775ed1b253641c5a702893462d72ca59c062223453188d6d3a9924",
+  "lastCaptionEndSeconds": 267.222,
+  "originalAudioEndSeconds": 267.309,
+  "candidateEndSeconds": 275.32,
+  "silentRestAfterAudioSeconds": 8.011,
+  "visibleRestAfterCueSeconds": 8.098,
+  "candidatePath": "agentified/workshop/phase-3b-review/L16/agentified-l16-resting-composite.mp4",
+  "candidateSha256": "5e5159a626a3cc3c5ef43ce679fcd451140895b0717db572b01fb1ed01496a3c",
+  "review": "final card inspected at 266.72, 267.30, and 275.00 seconds; moving presenter remains unchanged before 266.68; exact learner-route candidate check failed at both viewports because the existing end-screen overlays the resting card from 267.222 seconds",
+  "learnerRouteCandidateCheck": {
+    "stackedCodeHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+    "method": "read-only Playwright media-response substitution of the unbound candidate on the exact L16 learner route; no source or binding edit",
+    "route": "/agentified/learningplan?lesson=L16&rev=32f44fb9-candidate",
+    "viewports": ["1280x720", "390x844"],
+    "candidateDurationSeconds": 275.32,
+    "existingEndScreenStartSeconds": 267.222,
+    "observation": "candidate card is visible at 266.72; React end-screen is present at 267.30 and 275.00 and obscures the intended eight-second resting card at both widths",
+    "result": "FAIL; candidate remains unbound"
+  },
+  "learnerRouteCandidateRecheck": {
+    "stackedCodeHead": "11fc4cb663028240016d144364e8ac4030b3372e",
+    "method": "read-only isolated exact-code preview with candidate media-response substitution; no learner binding edit",
+    "route": "/agentified/learningplan?lesson=L16&rev=11fc4cb663028240016d144364e8ac4030b3372e",
+    "viewports": ["1280x720", "390x844"],
+    "candidateDurationSeconds": 275.32,
+    "observed": "resting card visible past 267.222 without early overlay; one completion overlay after actual media end; replay clears overlay; captions off/on, Large/Medium Aa, and native controls exercised",
+    "desktopMp4Sha256": "090fb33d2f58e343024b8c65232548ce335a1e39d578efac2cb00c480d11b374",
+    "mobileMp4Sha256": "761edea00f152dd369f07f7d7a3562a1aae32d4a8556fc5ca321878b0c3a90cd",
+    "result": "PASS for bounded L16 UI handoff; candidate remains unbound; final rights unconfirmed"
+  },
+  "learnerBindingChanged": false
+}

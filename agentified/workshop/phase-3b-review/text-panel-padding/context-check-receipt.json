@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "status": "STOP: L06-03 desktop caption covers Prepare and Human gate",
+  "reviewOnlyUnbound": true,
+  "frames": [
+    {
+      "sceneId": "L06-03",
+      "originalSha256": "3d8dcec08c8da382e6b3109a3e241c002da6fb1934129397e5ca8afe1c54cbfa",
+      "candidateSha256": "5fb529f1f5664160fbd57ef108237b9061076b6b4b4dae279fc875dd9dc9393d",
+      "oldBoxPx": {
+        "x": 44,
+        "y": 172,
+        "width": 690,
+        "height": 700
+      },
+      "fittedBoxPx": {
+        "x": 44,
+        "y": 172,
+        "width": 711,
+        "height": 183
+      },
+      "paddingPx": 28,
+      "changedPixelBounds": [
+        42,
+        170,
+        757,
+        874
+      ],
+      "outsideHeadlinePixelsIdentical": true
+    },
+    {
+      "sceneId": "L10-03",
+      "originalSha256": "beca1283fd816611b2dea0c5656998f5bb97600345d4c7540fb1d9476c2805b0",
+      "candidateSha256": "10db420f1ebc8d274babb78cb89067cfc28564f0a90a6315688e996b575d3f7c",
+      "oldBoxPx": {
+        "x": 44,
+        "y": 172,
+        "width": 690,
+        "height": 700
+      },
+      "fittedBoxPx": {
+        "x": 44,
+        "y": 172,
+        "width": 712,
+        "height": 183
+      },
+      "paddingPx": 28,
+      "changedPixelBounds": [
+        42,
+        170,
+        758,
+        874
+      ],
+      "outsideHeadlinePixelsIdentical": true
+    }
+  ],
+  "clips": [
+    {
+      "sceneId": "L06-03",
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/L06-03-desktop.mp4",
+      "sha256": "fe43edac9b88b6d381de36e81cdadd6ae558fa74b6982d502df6f58ee85b4f80",
+      "sourceVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+      "sourceCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+      "durationSeconds": 8,
+      "dimensionsPx": [
+        1280,
+        720
+      ],
+      "nativeCaptionTrack": true,
+      "technicalDecode": "pass"
+    },
+    {
+      "sceneId": "L06-03",
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/L06-03-mobile.mp4",
+      "sha256": "475535fe5c92f87202cfc78e5b732780eb7a831c2b6594ea3378c3383460ad59",
+      "sourceVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+      "sourceCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+      "durationSeconds": 8,
+      "dimensionsPx": [
+        390,
+        844
+      ],
+      "nativeCaptionTrack": true,
+      "technicalDecode": "pass"
+    },
+    {
+      "sceneId": "L10-03",
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/L10-03-desktop.mp4",
+      "sha256": "d01c91555b3506fd9bd694f63151bc95f0c5b540e189be13e2f4b2189499eb44",
+      "sourceVideoSha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+      "sourceCaptionSha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+      "durationSeconds": 8,
+      "dimensionsPx": [
+        1280,
+        720
+      ],
+      "nativeCaptionTrack": true,
+      "technicalDecode": "pass"
+    },
+    {
+      "sceneId": "L10-03",
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/L10-03-mobile.mp4",
+      "sha256": "5910858aeca3b8608046ba02eb2286f509eb8ed6e49dd481e9be39d5e04c9031",
+      "sourceVideoSha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+      "sourceCaptionSha256": "e54bdfb260e186474ec496a72e2031716a8ddab89594eff6fdc940f1e35df1b8",
+      "durationSeconds": 8,
+      "dimensionsPx": [
+        390,
+        844
+      ],
+      "nativeCaptionTrack": true,
+      "technicalDecode": "pass"
+    }
+  ],
+  "browserEvidence": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/L06-03-desktop-caption-on-stop.png",
+    "sha256": "9fac6521e0a4c10d65eee68a9d9d7481b2019553d8058899f199b88292d0af25",
+    "reviewClipOffsetSeconds": 2,
+    "lessonTimeSecondsApprox": 77
+  },
+  "boundary": "No approved frames or learner media replaced; no broader lesson pass or Human QA."
+}

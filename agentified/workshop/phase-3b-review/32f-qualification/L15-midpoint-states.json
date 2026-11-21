@@ -1,0 +1,206 @@
+{
+  "stackedHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+  "lessonId": "L15",
+  "states": [
+    {
+      "scene": "L15-01",
+      "kind": "desktop",
+      "expected": 14.391,
+      "time": 14.391,
+      "mode": "hidden",
+      "active": [
+        "The first line says prepared, not sent."
+      ],
+      "band": [
+        "The first line says prepared, not sent."
+      ]
+    },
+    {
+      "scene": "L15-02",
+      "kind": "desktop",
+      "expected": 39.9455,
+      "time": 39.9455,
+      "mode": "hidden",
+      "active": [
+        "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test."
+      ],
+      "band": [
+        "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test."
+      ]
+    },
+    {
+      "scene": "L15-03",
+      "kind": "desktop",
+      "expected": 62.88550000000001,
+      "time": 62.8855,
+      "mode": "hidden",
+      "active": [
+        "The research question belongs to Morgan as owner of the brief format."
+      ],
+      "band": [
+        "The research question belongs to Morgan as owner of the brief format."
+      ]
+    },
+    {
+      "scene": "L15-04",
+      "kind": "desktop",
+      "expected": 88.99600000000001,
+      "time": 88.996,
+      "mode": "hidden",
+      "active": [
+        "Morgan marks the claim unsupported and keeps the staffing hold in place."
+      ],
+      "band": [
+        "Morgan marks the claim unsupported and keeps the staffing hold in place."
+      ]
+    },
+    {
+      "scene": "L15-05",
+      "kind": "desktop",
+      "expected": 120.95400000000001,
+      "time": 120.954,
+      "mode": "hidden",
+      "active": [
+        "There is no automatic retry or provider call."
+      ],
+      "band": [
+        "There is no automatic retry or provider call."
+      ]
+    },
+    {
+      "scene": "L15-06",
+      "kind": "desktop",
+      "expected": 149.1245,
+      "time": 149.1245,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L15-07",
+      "kind": "desktop",
+      "expected": 197.0575,
+      "time": 197.0575,
+      "mode": "hidden",
+      "active": [
+        "Do not use private operational data, open a live account, import a trace, or contact a person."
+      ],
+      "band": [
+        "Do not use private operational data, open a live account, import a trace, or contact a person."
+      ]
+    },
+    {
+      "scene": "L15-08",
+      "kind": "desktop",
+      "expected": 244.915,
+      "time": 244.915,
+      "mode": "hidden",
+      "active": [
+        "make those boundaries routine."
+      ],
+      "band": [
+        "make those boundaries routine."
+      ]
+    },
+    {
+      "scene": "L15-01",
+      "kind": "mobile",
+      "expected": 14.391,
+      "time": 14.391,
+      "mode": "hidden",
+      "active": [
+        "The first line says prepared, not sent."
+      ],
+      "band": [
+        "The first line says prepared, not sent."
+      ]
+    },
+    {
+      "scene": "L15-02",
+      "kind": "mobile",
+      "expected": 39.9455,
+      "time": 39.9455,
+      "mode": "hidden",
+      "active": [
+        "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test."
+      ],
+      "band": [
+        "Harbor's answer is short: one paper brief was drafted; staffing and spend need decisions; a layout question may deserve a test."
+      ]
+    },
+    {
+      "scene": "L15-03",
+      "kind": "mobile",
+      "expected": 62.88550000000001,
+      "time": 62.8855,
+      "mode": "hidden",
+      "active": [
+        "The research question belongs to Morgan as owner of the brief format."
+      ],
+      "band": [
+        "The research question belongs to Morgan as owner of the brief format."
+      ]
+    },
+    {
+      "scene": "L15-04",
+      "kind": "mobile",
+      "expected": 88.99600000000001,
+      "time": 88.996,
+      "mode": "hidden",
+      "active": [
+        "Morgan marks the claim unsupported and keeps the staffing hold in place."
+      ],
+      "band": [
+        "Morgan marks the claim unsupported and keeps the staffing hold in place."
+      ]
+    },
+    {
+      "scene": "L15-05",
+      "kind": "mobile",
+      "expected": 120.95400000000001,
+      "time": 120.954,
+      "mode": "hidden",
+      "active": [
+        "There is no automatic retry or provider call."
+      ],
+      "band": [
+        "There is no automatic retry or provider call."
+      ]
+    },
+    {
+      "scene": "L15-06",
+      "kind": "mobile",
+      "expected": 149.1245,
+      "time": 149.1245,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L15-07",
+      "kind": "mobile",
+      "expected": 197.0575,
+      "time": 197.0575,
+      "mode": "hidden",
+      "active": [
+        "Do not use private operational data, open a live account, import a trace, or contact a person."
+      ],
+      "band": [
+        "Do not use private operational data, open a live account, import a trace, or contact a person."
+      ]
+    },
+    {
+      "scene": "L15-08",
+      "kind": "mobile",
+      "expected": 244.915,
+      "time": 244.915,
+      "mode": "hidden",
+      "active": [
+        "make those boundaries routine."
+      ],
+      "band": [
+        "make those boundaries routine."
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { AnchorHTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AGENTIFIED_GUEST_KEY } from '@/lib/agentified-workshop'
@@ -23,6 +23,48 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     localStorage.clear()
     window.history.replaceState(null, '', '/agentified/learningplan')
     window.matchMedia = vi.fn().mockReturnValue({ matches: false })
+  })
+
+  it('keeps the exact L01 source playable with its corrected duration and L02 resting handoff', async () => {
+    const { container } = render(<AgentifiedWorkshop mode="plan" />)
+    const video = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
+    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings.L01.video)
+    expect(video).toHaveAttribute('controls')
+    expect(screen.getByText('Ready · 06:18')).toBeInTheDocument()
+    let currentTime = 359.644
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+    fireEvent.timeUpdate(video)
+    expect(screen.queryByText('UP NEXT · L02')).toBeNull()
+    currentTime = 359.645
+    fireEvent.seeking(video)
+    expect(screen.getByText('UP NEXT · L02')).toBeInTheDocument()
+    currentTime = 90
+    fireEvent.seeking(video)
+    expect(screen.queryByText('UP NEXT · L02')).toBeNull()
+    expect(container.querySelector('video')).toBe(video)
+  })
+
+  it.each(['L01', 'L10', 'L16'])('keeps %s caption status aligned with the native track while paused and ended', async (id) => {
+    window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
+    const track = { mode: 'disabled' }
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    render(<AgentifiedWorkshop mode="plan" />)
+    const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
+    fireEvent.loadedMetadata(video)
+    expect(track.mode).toBe('showing')
+    expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    track.mode = 'disabled'
+    act(() => { tracks.dispatchEvent(new Event('change')) })
+    fireEvent.pause(video)
+    expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    fireEvent.ended(video)
+    expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    track.mode = 'showing'
+    act(() => { tracks.dispatchEvent(new Event('change')) })
+    expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
   })
 
   it.each([['L01', 540], ['L05', 237.687], ['L09', 272.84], ['L13', 255.243]] as const)('restores claimed member playback for %s without claiming guest progress', async (id, duration) => {

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "status": "rejected_review_only_unbound",
+  "sceneId": "L06-01",
+  "variant": "l06-01-mobile-panel-only",
+  "sourcePath": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+  "sourceSha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+  "desktopCandidateSha256": "9f042b9ec24e1c3a78bc1668775d879d05757aa89e5c4649ee88d18c537b76c1",
+  "outputPath": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-01-mobile-panel-only.png",
+  "outputSha256": "c4d14d635af774bf60d4e69f3301ece9ad06c2210295c7a0de6d647216e9d570",
+  "displayCopy": [
+    "A role needs a permission slip."
+  ],
+  "paddingDecisions": [
+    {
+      "kind": "headline",
+      "action": "mobile_reflow",
+      "old": {
+        "x": 46,
+        "y": 624,
+        "width": 1120,
+        "height": 335
+      },
+      "box": {
+        "x": 46,
+        "y": 20,
+        "width": 490,
+        "height": 370
+      },
+      "paddingPx": 28,
+      "lines": [
+        "A role",
+        "needs a",
+        "permission",
+        "slip."
+      ],
+      "fontSizePx": 72
+    }
+  ]
+}

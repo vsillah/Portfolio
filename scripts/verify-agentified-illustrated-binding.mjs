@@ -24,7 +24,15 @@ for (const [index, row] of receipts.composites.entries()) {
   assert.equal(binding.sourceSha256, row.source_sha256)
   assert.equal(binding.sourceVideo, media.video)
   assert.equal(binding.captions, media.captions)
-  assert.equal(binding.durationSeconds, media.durationSeconds)
+  if (id === 'L01') {
+    // Phase 3B reconciles the historical 378.059 s declaration to the encoded
+    // 378.285 s container without replacing either immutable media asset.
+    assert.equal(media.durationSeconds, 378.059)
+    assert.equal(binding.durationSeconds, 378.285)
+    assert.equal(binding.compositeSha256, '1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775')
+  } else {
+    assert.equal(binding.durationSeconds, media.durationSeconds)
+  }
   assert.equal(binding.captionsSha256, sha(`public${media.captions}`), `${id}: caption hash drift`)
   assert.equal(binding.transcriptSha256, createHash('sha256').update(JSON.stringify(media.spokenCues)).digest('hex'), `${id}: transcript hash drift`)
   assert.equal(binding.compositeSha256, row.output_sha256)
