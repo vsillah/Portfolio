@@ -486,6 +486,74 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
+  it('clears L01-08 captions before the protected completion boundary', () => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    const cue = { startTime: 348.879, endTime: 355.004, text: 'Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.' }
+    const lastCue = { startTime: 356.899, endTime: 359.645, text: 'Next we will name the decision Morgan actually owns.' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [cue, lastCue] })
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const mobileMedia = Object.assign(new EventTarget(), { matches: false })
+    HTMLMediaElement.prototype.pause = vi.fn()
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    vi.stubGlobal('matchMedia', vi.fn(() => mobileMedia))
+    const props = { lessonId: 'L01', title: 'Scoped job', poster: '/agentified/posters/l01-poster.webp', videoSrc: '/approved-l01.mp4', captionsSrc: '/approved-l01.vtt', endScreen: { startSeconds: 359.645, progress: 1 } }
+    try {
+      const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      const video = container.querySelector('video')!
+      let currentTime = 343.058
+      Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+      fireEvent.loadedMetadata(video)
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('showing')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      currentTime = 350
+      fireEvent.seeking(video)
+      fireEvent.pause(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveTextContent(cue.text)
+      for (const size of ['S', 'L', 'M'] as const) {
+        rerender(<AgentifiedLessonHero {...props} captionSize={size} captionsOn />)
+        expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveAttribute('data-caption-size', size)
+      }
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn={false} />)
+      expect(track.mode).toBe('disabled')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveTextContent(cue.text)
+      currentTime = 356.5
+      fireEvent.seeking(video)
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      currentTime = 359.644
+      fireEvent.seeking(video)
+      expect(screen.getByRole('status', { name: 'L01 caption' })).toHaveTextContent(lastCue.text)
+      currentTime = 359.645
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('showing')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      expect(screen.getByRole('status', { name: 'L01 complete. Agentified course complete.' })).toBeInTheDocument()
+      act(() => { mobileMedia.matches = true; mobileMedia.dispatchEvent(new Event('change')) })
+      expect(track.mode).toBe('hidden')
+      expect(screen.queryByRole('status', { name: 'L01 caption' })).toBeNull()
+      expect([cue, lastCue]).toEqual([
+        { startTime: 348.879, endTime: 355.004, text: cue.text },
+        { startTime: 356.899, endTime: 359.645, text: lastCue.text },
+      ])
+      expect(video).toHaveAttribute('controls')
+      unmount()
+    } finally {
+      if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
+      else Reflect.deleteProperty(HTMLMediaElement.prototype, 'textTracks')
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('shows the exact mobile cue outside the player and restores it while paused', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     HTMLMediaElement.prototype.pause = vi.fn()
