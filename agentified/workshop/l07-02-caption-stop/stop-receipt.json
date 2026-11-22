@@ -1,0 +1,42 @@
+{
+  "status": "stopped_out_of_scope_adjacent_caption_overlap",
+  "observedAt": "2026-11-22T17:15:33.095974+00:00",
+  "captionRemoteHead": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "localCodeCommit": "ecda02d8d",
+  "preservedL0701Commits": [
+    "da00fba64",
+    "2038a3b77"
+  ],
+  "candidateHead": "b11360d1dc0b63a1d9c7ea126aa50dea196fa649",
+  "candidateSha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "vttSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+  "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=ecda02d8d-b9016102",
+  "viewports": [
+    [
+      1280,
+      844
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "clearedSampleSeconds": [
+    28.2,
+    46.742
+  ],
+  "stopSampleSeconds": [
+    65.494,
+    79.082
+  ],
+  "stopFinding": "L07-03 native desktop caption crosses HOLD and Test failed teaching content",
+  "screenshots": {
+    "L07-02-1280-clear.png": "02a8a035039ada1b61fd136cc570147079d1045d792ede31fa73a22588c07cdf",
+    "L07-02-390-clear.png": "479b258740ce3438be416af164196d97888174df26c50d306310b92808e22510",
+    "L07-03-1280-boundary-overlap.png": "aa0e9280b20c04a54c5adfc53663520d626fbc0ad543ebeea92593e73b606d46",
+    "L07-03-1280-midpoint-overlap.png": "c604962221eaa6d2851f01d0dd7de08d0ae69817c10f4f1e28a087e262a449bc"
+  },
+  "temporaryBindingRestored": true,
+  "pushPerformed": false
+}
