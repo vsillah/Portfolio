@@ -1,0 +1,29 @@
+{
+  "recorded_at_utc": "2026-11-22T02:27:03Z",
+  "status": "STOP_at_L07-01_presenter_art_overlap",
+  "scope": "L07-L16 full scene-by-scene desktop and 390x844 learner-route qualification",
+  "candidate_pr": 1290,
+  "candidate_head": "7a1da8364f52275623be3597c968651365f9fa52",
+  "caption_commit": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "player_head": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "first_failed_scene": "L07-01",
+  "viewport": "390x844",
+  "temporary_exact_route": "http://127.0.0.1:3141/agentified/learningplan?lesson=L07&rev=7a1da8364-full-matrix",
+  "observation": "At 0:00 the native presenter area appears as an opaque blank inset over the people-and-checklist illustration. At 0:03 the presenter appears in the same position, covering part of the illustration. The underlying L07-01 art continues through the presenter area, violating the course presenter composition rule's distinct, non-overlapping presenter and illustration regions.",
+  "source_illustration": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L07-01.png",
+  "evidence": [
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-01-presenter-overlap-mobile.mp4",
+      "sha256": "1d616f37b1e18ba7860842d4d1a7c9fb21d50687e3f2ab7cb3ccabc7d621af17",
+      "details": "Six-second excerpt of the exact temporary L07 composite loaded on the mobile learner route; H.264/AAC, 1920x1080 source media, decode passed."
+    },
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-01-presenter-overlap-mobile.png",
+      "sha256": "4ba5d498d73f96dc2dcae1d883e2a7eeb2bdca3aae2779c929b3477c22764e59",
+      "details": "Frame at 0:03 from the same composite."
+    }
+  ],
+  "qualification": "Stopped at the first reproducible visual regression. L07 later scenes, desktop interaction, and L08-L16 full scene-by-scene routes remain untested in this pass. Earlier targeted checkpoint receipts remain observations only and do not establish full qualification. Human QA is not ready.",
+  "bindings": "Temporary local L07 manifest and player overlays only; no repository product binding changed.",
+  "next_gate": "Return L07-01 authored composition to its source author for a distinct presenter-safe region, then rerun the full scene-by-scene matrix from L07."
+}
