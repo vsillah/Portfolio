@@ -66,9 +66,10 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const [posterRevealed, setPosterRevealed] = useState(false)
   const [endScreenVisible, setEndScreenVisible] = useState(false)
   const [activeTeachingScene, setActiveTeachingScene] = useState<string | null>(null)
+  const [captionTime, setCaptionTime] = useState(0)
   const [mobileWidth, setMobileWidth] = useState(false)
   const [mobileCaption, setMobileCaption] = useState('')
-  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId) || (lessonId === 'L07' && l07ExternalCaptionClearance.some((scene) => scene.sceneId === activeTeachingScene)) || (lessonId === 'L06' && (endScreenVisible || l06CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))) || (lessonId === 'L01' && (endScreenVisible || l01CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))) || (lessonId === 'L05' && (endScreenVisible || l05CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene)))
+  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId) || (lessonId === 'L07' && l07ExternalCaptionClearance.some((scene) => captionTime >= scene.startSeconds && captionTime < scene.endSeconds)) || (lessonId === 'L06' && (endScreenVisible || l06CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))) || (lessonId === 'L01' && (endScreenVisible || l01CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))) || (lessonId === 'L05' && (endScreenVisible || l05CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene)))
   const cueCacheRef = useRef<Array<{ startTime: number; endTime: number; text: string }>>([])
   const endScreenStart = endScreen?.startSeconds
   const captionsChangeRef = useRef(onCaptionsChange)
@@ -201,9 +202,43 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   }
   const lessonTeachingScenes = mobileTeachingDetails.scenes.filter((scene) => scene.lessonId === lessonId)
   const syncScene = (currentTime: number) => {
-    setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? (lessonId === 'L01' ? l01CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : lessonId === 'L05' ? l05CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : lessonId === 'L06' ? l06CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : lessonId === 'L07' ? l07ExternalCaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : null))
+    setCaptionTime(currentTime)
+    setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? (lessonId === 'L01' ? l01CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : lessonId === 'L05' ? l05CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : lessonId === 'L06' ? l06CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : null))
   }
   const teachingScene = lessonTeachingScenes.find((scene) => scene.sceneId === activeTeachingScene)
+  useEffect(() => {
+    if (lessonId !== 'L07' || !videoSrc) return
+    const video = videoRef.current
+    const gate = mobileTeachingDetails.scenes.find((scene) => scene.sceneId === 'L07-07')
+    if (!video || !gate) return
+    let frame = 0
+    const syncGate = () => {
+      const inside = video.currentTime >= gate.startSeconds && video.currentTime < gate.endSeconds
+      setActiveTeachingScene((current) => inside ? gate.sceneId : current === gate.sceneId ? null : current)
+    }
+    const tick = () => {
+      syncGate()
+      if (!video.paused && !video.ended) frame = requestAnimationFrame(tick)
+    }
+    const start = () => {
+      cancelAnimationFrame(frame)
+      tick()
+    }
+    const stop = () => {
+      cancelAnimationFrame(frame)
+      syncGate()
+    }
+    video.addEventListener('playing', start)
+    video.addEventListener('pause', stop)
+    video.addEventListener('seeked', syncGate)
+    if (!video.paused) start()
+    return () => {
+      cancelAnimationFrame(frame)
+      video.removeEventListener('playing', start)
+      video.removeEventListener('pause', stop)
+      video.removeEventListener('seeked', syncGate)
+    }
+  }, [lessonId, videoSrc])
   return <><div className={styles.coverStage} aria-label={label}>
     {videoSrc ? <video ref={videoRef} data-caption-size={captionSize} className={`${styles.lessonVideo} ${captionStyles.nativeVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = captionsOn ? externalCaption || ((lessonId === 'L01' || lessonId === 'L05') && endScreen && event.currentTarget.currentTime >= endScreen.startSeconds) ? 'hidden' : 'showing' : 'disabled'; captionsChangeRef.current?.(captionsOn); syncMobileCaption() }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption(); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption() }} onSeeked={() => syncMobileCaption()} onPause={(event) => { syncMobileCaption(); onProgress?.(Math.floor(event.currentTarget.currentTime)) }} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); setActiveTeachingScene(null); setMobileCaption(''); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false); setActiveTeachingScene(null); setMobileCaption('') }}>
       <source src={videoSrc} type="video/mp4" />
