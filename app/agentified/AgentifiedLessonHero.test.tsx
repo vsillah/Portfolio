@@ -207,7 +207,7 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
-  it('routes every L07-01 desktop cue below the player and restores L07-02 native captions', () => {
+  it('routes L07-01 and L07-02 desktop cues below the player and restores L07-03 native captions', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
     const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
@@ -215,7 +215,8 @@ describe('Agentified lesson media gate', () => {
     const presenter = { startTime: 7.3, endTime: 9.27, text: 'The source said available for review.' }
     const last = { startTime: 24.619, endTime: 27.67, text: 'A paper agent design needs those answers written down.' }
     const next = { startTime: 27.99, endTime: 31.884, text: 'Chapter Eleven turns the request into an Agentic PRD Packet.' }
-    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [opening, presenter, last, next] })
+    const after = { startTime: 65.494, endTime: 67.125, text: 'Reversal is modest here.' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [opening, presenter, last, next, after] })
     const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
     const mobileMedia = Object.assign(new EventTarget(), { matches: false })
     HTMLMediaElement.prototype.pause = vi.fn()
@@ -251,6 +252,10 @@ describe('Agentified lesson media gate', () => {
       fireEvent.seeking(video)
       expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(last.text)
       currentTime = 27.99
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(next.text)
+      currentTime = 65.494
       fireEvent.seeking(video)
       expect(track.mode).toBe('showing')
       expect(screen.queryByRole('status', { name: 'L07 caption' })).toBeNull()

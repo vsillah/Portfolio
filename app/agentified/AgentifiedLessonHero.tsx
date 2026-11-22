@@ -23,6 +23,7 @@ const l07DesktopCaptionClearance = [
 
 const l07ExternalCaptionClearance = [
   { sceneId: 'L07-01', startSeconds: 0, endSeconds: 27.99 },
+  { sceneId: 'L07-02', startSeconds: 27.99, endSeconds: 65.494 },
   { sceneId: 'L07-05', startSeconds: 127.108, endSeconds: 153.479 },
 ] as const
 
