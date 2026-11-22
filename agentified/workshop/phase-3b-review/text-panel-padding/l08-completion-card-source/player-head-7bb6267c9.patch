@@ -1,0 +1,149 @@
+diff --git a/app/agentified/AgentifiedLessonHero.test.tsx b/app/agentified/AgentifiedLessonHero.test.tsx
+index b987d773a..28edad499 100644
+--- a/app/agentified/AgentifiedLessonHero.test.tsx
++++ b/app/agentified/AgentifiedLessonHero.test.tsx
+@@ -221,6 +221,10 @@ describe('Agentified lesson media gate', () => {
+         { startTime: 75.572, endTime: 83.679, text: protectedCue.text },
+         { startTime: 97.482, endTime: 100.31, text: after.text },
+       ])
++      expect(video).not.toHaveAttribute('controls')
++      expect(screen.getByRole('group', { name: 'L06 video controls' })).toBeInTheDocument()
++      currentTime = 98.5
++      fireEvent.seeking(video)
+       expect(video).toHaveAttribute('controls')
+       unmount()
+     } finally {
+@@ -822,14 +826,19 @@ describe('Agentified lesson media gate', () => {
+     Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime, set: (value) => { currentTime = value } })
+     fireEvent.timeUpdate(video)
+     expect(screen.queryByRole('status')).toBeNull()
++    expect(video).toHaveAttribute('controls')
+     currentTime = 504
+     fireEvent.timeUpdate(video)
+     expect(screen.getByRole('status', { name: 'L02 complete. Up next, L03: Trace the work and grade the sources.' })).toBeInTheDocument()
+     expect(screen.getByText('UP NEXT · L03')).toBeInTheDocument()
+     expect(container.querySelector(`img[src="/agentified/posters/l03-poster.webp"]`)).toBeInTheDocument()
++    expect(video).not.toHaveAttribute('controls')
++    expect(screen.getByRole('group', { name: 'L02 video controls' })).toBeInTheDocument()
+     currentTime = 120
+     fireEvent.seeking(video)
+     expect(screen.queryByRole('status')).toBeNull()
++    expect(video).toHaveAttribute('controls')
++    expect(screen.queryByRole('group', { name: 'L02 video controls' })).toBeNull()
+   })
+ 
+   it('keeps a course-complete state visible when L16 ends without extending the media', () => {
+@@ -904,7 +913,8 @@ describe('Agentified lesson media gate', () => {
+     expect(css).toMatch(/\.coverStage \.videoReveal\{animation:agentifiedPosterToVideo 340ms ease-out both\}/)
+     expect(css).toMatch(/\.lessonVideo\{[^}]*width:100%;max-width:100%/)
+     expect(css).toMatch(/\.coverStage\{--native-control-clearance:clamp\(64px,9\.5cqw,96px\)/)
+-    expect(css).toMatch(/\.endScreen\{[^}]*inset:0 0 var\(--native-control-clearance\)/)
++    expect(css).toMatch(/\.coverStageResting video\{visibility:hidden\}/)
++    expect(css).toMatch(/\.endScreen\{[^}]*inset:0;/)
+     expect(css).toMatch(/container:lesson-cover\/inline-size/)
+     expect(css).toMatch(/@container lesson-cover \(max-width:900px\)/)
+     expect(css).toMatch(/@container lesson-cover \(max-width:400px\)/)
+diff --git a/app/agentified/AgentifiedLessonHero.tsx b/app/agentified/AgentifiedLessonHero.tsx
+index c0c1c9861..0eedadfc8 100644
+--- a/app/agentified/AgentifiedLessonHero.tsx
++++ b/app/agentified/AgentifiedLessonHero.tsx
+@@ -255,8 +255,8 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
+     setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? (lessonId === 'L01' ? l01CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : lessonId === 'L05' ? l05CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : lessonId === 'L06' ? l06CaptionClearance.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null : null))
+   }
+   const teachingScene = lessonTeachingScenes.find((scene) => scene.sceneId === activeTeachingScene)
+-  return <><div ref={playerRef} className={styles.playerShell}><div className={styles.coverStage} aria-label={label}>
+-    {videoSrc ? <video ref={videoRef} data-caption-size={captionSize} className={`${styles.lessonVideo} ${captionStyles.nativeVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls={!mobileWidth} playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; setMediaDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : durationSeconds ?? 0); setPosition(event.currentTarget.currentTime); syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = captionsOn ? externalCaption || ((lessonId === 'L01' || lessonId === 'L05') && endScreen && event.currentTarget.currentTime >= endScreen.startSeconds) ? 'hidden' : 'showing' : 'disabled'; captionsChangeRef.current?.(captionsOn); syncMobileCaption() }} onTimeUpdate={(event) => { setPosition(event.currentTarget.currentTime); syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption(); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { setPosition(event.currentTarget.currentTime); syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption() }} onSeeked={() => syncMobileCaption()} onPause={(event) => { setPlaying(false); syncMobileCaption(); onProgress?.(Math.floor(event.currentTarget.currentTime)) }} onEnded={(event) => { setPlaying(false); setPosition(event.currentTarget.duration || durationSeconds || 0); setEndScreenVisible(Boolean(endScreen)); setActiveTeachingScene(null); setMobileCaption(''); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => { setPlaying(true); setPosterRevealed(true) }} onVolumeChange={(event) => { setMuted(event.currentTarget.muted); setVolume(event.currentTarget.volume) }} onError={() => setPlayerMessage('Video could not load. Use the transcript below while the lesson is unavailable.')} onEmptied={() => { setPlaying(false); setPosterRevealed(false); setEndScreenVisible(false); setActiveTeachingScene(null); setMobileCaption('') }}>
++  return <><div ref={playerRef} className={`${styles.playerShell}${endScreenVisible ? ` ${styles.playerShellResting}` : ''}`}><div className={`${styles.coverStage}${endScreenVisible ? ` ${styles.coverStageResting}` : ''}`} aria-label={label}>
++    {videoSrc ? <video ref={videoRef} data-caption-size={captionSize} className={`${styles.lessonVideo} ${captionStyles.nativeVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls={!mobileWidth && !endScreenVisible} playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; setMediaDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : durationSeconds ?? 0); setPosition(event.currentTarget.currentTime); syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = captionsOn ? externalCaption || ((lessonId === 'L01' || lessonId === 'L05') && endScreen && event.currentTarget.currentTime >= endScreen.startSeconds) ? 'hidden' : 'showing' : 'disabled'; captionsChangeRef.current?.(captionsOn); syncMobileCaption() }} onTimeUpdate={(event) => { setPosition(event.currentTarget.currentTime); syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption(); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { setPosition(event.currentTarget.currentTime); syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); syncMobileCaption() }} onSeeked={() => syncMobileCaption()} onPause={(event) => { setPlaying(false); syncMobileCaption(); onProgress?.(Math.floor(event.currentTarget.currentTime)) }} onEnded={(event) => { setPlaying(false); setPosition(event.currentTarget.duration || durationSeconds || 0); setEndScreenVisible(Boolean(endScreen)); setActiveTeachingScene(null); setMobileCaption(''); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => { setPlaying(true); setPosterRevealed(true) }} onVolumeChange={(event) => { setMuted(event.currentTarget.muted); setVolume(event.currentTarget.volume) }} onError={() => setPlayerMessage('Video could not load. Use the transcript below while the lesson is unavailable.')} onEmptied={() => { setPlaying(false); setPosterRevealed(false); setEndScreenVisible(false); setActiveTeachingScene(null); setMobileCaption('') }}>
+       <source src={videoSrc} type="video/mp4" />
+       {captionsSrc && <track kind="captions" src={captionsSrc} srcLang="en" label="English" default onLoad={() => syncMobileCaption()} />}
+       Your browser cannot play this video. The read-along transcript is available below.
+@@ -279,7 +279,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
+         <strong>Review your Operating File</strong>
+       </div>}
+     </div>}
+-  </div>{videoSrc && mobileWidth && <div className={styles.mobilePlayerRail} role="group" aria-label={`${lessonId} video controls`}>
++  </div>{videoSrc && (mobileWidth || endScreenVisible) && <div className={styles.mobilePlayerRail} role="group" aria-label={`${lessonId} video controls`}>
+     <button type="button" onClick={togglePlayback} aria-label={playing ? 'Pause video' : 'Play video'}>{playing ? <Pause aria-hidden="true" size={19} fill="currentColor" /> : <Play aria-hidden="true" size={19} fill="currentColor" />}</button>
+     <input className={styles.playerSeek} type="range" min="0" max={Math.max(1, mediaDuration)} step="0.1" value={Math.min(position, Math.max(1, mediaDuration))} disabled={mediaDuration <= 0} aria-label="Seek video" aria-valuetext={`${formatTime(position)} of ${formatTime(mediaDuration)}`} onChange={(event) => { const video = videoRef.current; if (video) { video.currentTime = Number(event.currentTarget.value); setPosition(video.currentTime) } }} />
+     <output className={styles.playerTime} aria-hidden="true">{formatTime(position)}<span>/</span>{formatTime(mediaDuration)}</output>
+diff --git a/app/agentified/workshop.module.css b/app/agentified/workshop.module.css
+index d1b1c0472..d54bb1fc0 100644
+--- a/app/agentified/workshop.module.css
++++ b/app/agentified/workshop.module.css
+@@ -90,27 +90,30 @@
+ .coverStage img,.coverStage video{display:block;width:100%;height:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
+ .lessonVideo{display:block;width:100%;max-width:100%;height:100%;aspect-ratio:16/9;object-fit:cover;border-radius:7px}
+ .coverStage .videoReveal{animation:agentifiedPosterToVideo 340ms ease-out both}
+-.playerShell{width:100%;min-width:0}
+-.mobilePlayerRail{display:none}
++.playerShell{position:relative;width:100%;min-width:0}
++.coverStageResting video{visibility:hidden}
++.mobilePlayerRail{display:none;grid-template-columns:44px minmax(32px,1fr) 57px 88px 44px;align-items:center;gap:0;margin-top:6px;padding:3px;border:1px solid #486172;border-radius:8px;background:#102b3b;color:#f8f1e2;height:52px}
++.mobilePlayerRail button{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:5px;background:transparent;color:#f8f1e2;cursor:pointer}
++.mobilePlayerRail>button:hover,.playerSound:hover{background:#254758}
++.mobilePlayerRail button:focus-visible,.mobilePlayerRail input:focus-visible,.playerWaves:focus-visible{outline:3px solid #f3cc66;outline-offset:-3px}
++.playerSeek{width:100%;min-width:0;height:44px;margin:0;accent-color:#e2b54d;cursor:pointer}
++.playerTime{overflow:hidden;white-space:nowrap;text-align:center;font-size:10px;font-variant-numeric:tabular-nums}
++.playerTime span{padding:0 1px;color:#bbcad0}
++.playerSound{position:relative;display:grid;grid-template-columns:44px 44px;width:88px;height:44px;border:0;outline:1px solid #77909a;outline-offset:-1px;border-radius:6px;background:#183747;overflow:hidden}
++.playerSound svg{position:absolute;inset:0;width:88px;height:44px;fill:none;stroke:#8296a2;stroke-width:3;stroke-linecap:round;pointer-events:none}
++.playerSound .soundSpeaker{fill:#f8f1e2;stroke:#f8f1e2;stroke-width:1.5}
++.playerSound .soundMuted{stroke:#e2b54d}
++.playerSound .soundHidden{display:none}
++.playerSound .waveActive{stroke:#e2b54d}
++.playerSound button,.playerWaves{position:relative;width:44px;height:44px;border:0;border-radius:0;background:transparent;cursor:pointer}
++.playerSound button:hover,.playerWaves:hover{background:transparent}
++.playerMessage{display:block;margin-top:4px;padding:6px 8px;border-radius:5px;background:#1f3542;color:#ffe7a8;font-size:12px}
++@media(min-width:621px){
++  .playerShellResting .mobilePlayerRail{display:grid;position:absolute;z-index:3;left:12px;right:12px;bottom:8px;margin:0}
++}
+ @media(max-width:620px){
+-  .mobilePlayerRail{display:grid;grid-template-columns:44px minmax(32px,1fr) 57px 88px 44px;align-items:center;gap:0;margin-top:6px;padding:3px;border:1px solid #486172;border-radius:8px;background:#102b3b;color:#f8f1e2;height:52px}
+-  .mobilePlayerRail button{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:5px;background:transparent;color:#f8f1e2;cursor:pointer}
+-  .mobilePlayerRail>button:hover,.playerSound:hover{background:#254758}
+-  .mobilePlayerRail button:focus-visible,.mobilePlayerRail input:focus-visible,.playerWaves:focus-visible{outline:3px solid #f3cc66;outline-offset:-3px}
+-  .playerSeek{width:100%;min-width:0;height:44px;margin:0;accent-color:#e2b54d;cursor:pointer}
+-  .playerTime{overflow:hidden;white-space:nowrap;text-align:center;font-size:10px;font-variant-numeric:tabular-nums}
+-  .playerTime span{padding:0 1px;color:#bbcad0}
+-  .playerSound{position:relative;display:grid;grid-template-columns:44px 44px;width:88px;height:44px;border:0;outline:1px solid #77909a;outline-offset:-1px;border-radius:6px;background:#183747;overflow:hidden}
+-  .playerSound svg{position:absolute;inset:0;width:88px;height:44px;fill:none;stroke:#8296a2;stroke-width:3;stroke-linecap:round;pointer-events:none}
+-  .playerSound .soundSpeaker{fill:#f8f1e2;stroke:#f8f1e2;stroke-width:1.5}
+-  .playerSound .soundMuted{stroke:#e2b54d}
+-  .playerSound .soundHidden{display:none}
+-  .playerSound .waveActive{stroke:#e2b54d}
+-  .playerSound button,.playerWaves{position:relative;width:44px;height:44px;border:0;border-radius:0;background:transparent;cursor:pointer}
+-  .playerSound button:hover,.playerWaves:hover{background:transparent}
+-  .playerMessage{display:block;margin-top:4px;padding:6px 8px;border-radius:5px;background:#1f3542;color:#ffe7a8;font-size:12px}
++  .mobilePlayerRail{display:grid}
+   .coverStage video::-webkit-media-controls{display:none!important}
+-  .coverStage .endScreen{inset:0}
+   .playerShell:fullscreen{display:flex;flex-direction:column;justify-content:center;gap:8px;padding:12px;background:#081a26;overflow:auto}
+   .playerShell:fullscreen .coverStage{width:min(100%,calc((100dvh - 80px)*16/9));height:auto;flex:none;margin:0 auto}
+   .playerShell:fullscreen .mobilePlayerRail,.playerShell:fullscreen .mobileCaptionBand{width:min(100%,calc((100dvh - 80px)*16/9));margin:0 auto}
+@@ -121,7 +124,7 @@
+ .captionTools .mobileCaptionToggle{display:inline-flex;align-items:center;min-height:32px;padding:4px 9px;border:1px solid #9f7420;border-radius:6px;background:#c89b35;color:#132b35;font-size:12px;font-weight:800}
+ .captionStatus{color:var(--muted-foreground)}
+ .mobileTeachingDetails{display:none}
+-.endScreen{position:absolute;z-index:2;inset:0 0 var(--native-control-clearance);display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.92fr);gap:24px;padding:clamp(18px,3.3vw,46px);overflow:hidden;background:#071b2a;color:#f5eddb;pointer-events:none;animation:agentifiedEndScreen 340ms ease-out both}
++.endScreen{--screen-pad:clamp(18px,3.3vw,46px);position:absolute;z-index:2;inset:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.92fr);gap:24px;padding:var(--screen-pad);overflow:hidden;background:#071b2a;color:#f5eddb;pointer-events:none;animation:agentifiedEndScreen 340ms ease-out both}
+ .endScreen::before,.endScreen::after{position:absolute;left:0;right:0;height:1px;content:"";background:#ddb44d;opacity:.48}
+ .endScreen::before{top:9%}.endScreen::after{bottom:9%}
+ .endScreenSummary,.endScreenNext,.endScreenComplete{position:relative;z-index:1;min-width:0}
+@@ -133,12 +136,13 @@
+ .endScreenProgress{width:min(100%,360px);height:7px;margin-top:8px;overflow:hidden;border-radius:8px;background:#315263}
+ .endScreenProgress span{display:block;height:100%;border-radius:inherit;background:#ddb44d}
+ .endScreenNext,.endScreenComplete{align-self:center;border:2px solid #ddb44d;border-radius:7px;background:#102f40;padding:clamp(10px,1.5vw,18px)}
+-.endScreenNext img{width:100%;height:auto;aspect-ratio:16/9;border-radius:4px;object-fit:cover}
++.endScreenNext img{display:block;width:100%;height:auto;aspect-ratio:16/9;margin-inline:auto;border-radius:4px;object-fit:contain}
+ .endScreenNext strong,.endScreenComplete strong{font-size:clamp(17px,2.2vw,30px)}
+ .endScreenComplete{display:grid;place-items:center;text-align:center}
+ .endScreenComplete img{width:clamp(50px,7vw,88px);height:auto;aspect-ratio:auto;object-fit:contain}
+-@container lesson-cover (max-width:900px){.endScreen{grid-template-columns:minmax(0,.92fr) minmax(132px,1.08fr);gap:10px;padding:14px}.endScreenSummary strong{font-size:18px;line-height:1.02}.endScreenNext,.endScreenComplete{padding:7px}.endScreenNext img{max-height:84px;object-fit:cover}.endScreenNext strong,.endScreenComplete strong{font-size:15px;line-height:1.04}.endScreen p{margin:5px 0 4px;font-size:8px}.endScreen small{margin-top:8px;font-size:8px}.endScreenProgress{height:5px}.endScreenCheck{width:24px;height:24px;font-size:15px}}
+-@container lesson-cover (max-width:400px){.endScreen{grid-template-columns:minmax(0,.68fr) minmax(150px,1.32fr);gap:6px;padding:8px}.endScreenSummary strong{display:none}.endScreenCheck{width:20px;height:20px;font-size:13px}.endScreen p{margin:3px 0 2px;font-size:7px}.endScreen small{margin-top:4px;font-size:7px}.endScreenProgress{height:3px;margin-top:3px}.endScreenNext,.endScreenComplete{padding:4px}.endScreenNext img{max-height:40px}.endScreenNext strong,.endScreenComplete strong{font-size:10px;line-height:1.05}.endScreenComplete img{width:28px}.endScreenComplete p{margin-top:2px}}
++@container lesson-cover (max-width:900px){.endScreen{--screen-pad:14px;grid-template-columns:minmax(0,.92fr) minmax(132px,1.08fr);gap:10px}.endScreenSummary strong{font-size:18px;line-height:1.02}.endScreenNext,.endScreenComplete{padding:7px}.endScreenNext img{width:auto;max-width:100%;height:min(22cqw,140px)}.endScreenNext strong,.endScreenComplete strong{font-size:15px;line-height:1.04}.endScreen p{margin:5px 0 4px;font-size:8px}.endScreen small{margin-top:8px;font-size:8px}.endScreenProgress{height:5px}.endScreenCheck{width:24px;height:24px;font-size:15px}}
++@container lesson-cover (max-width:400px){.endScreen{--screen-pad:8px;grid-template-columns:minmax(0,.68fr) minmax(150px,1.32fr);gap:6px}.endScreenSummary strong{display:none}.endScreenCheck{width:20px;height:20px;font-size:13px}.endScreen p{margin:3px 0 2px;font-size:7px}.endScreen small{margin-top:4px;font-size:7px}.endScreenProgress{height:3px;margin-top:3px}.endScreenNext,.endScreenComplete{padding:4px}.endScreenNext img{width:100%;height:auto}.endScreenNext strong,.endScreenComplete strong{font-size:10px;line-height:1.05}.endScreenComplete img{width:28px}.endScreenComplete p{margin-top:2px}}
++@media(min-width:621px){.coverStage .endScreen{padding-bottom:calc(var(--screen-pad) + var(--native-control-clearance))}}
+ @keyframes agentifiedPosterToVideo{from{opacity:0}to{opacity:1}}
+ @keyframes agentifiedEndScreen{from{opacity:0}to{opacity:1}}
+ .fileGroups{display:grid;gap:18px}

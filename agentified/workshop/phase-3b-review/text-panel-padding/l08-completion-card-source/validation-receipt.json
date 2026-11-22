@@ -1,0 +1,551 @@
+{
+  "status": "validated_review_only_player_patch",
+  "recordedAtUtc": "2026-11-22T23:18:20.101941+00:00",
+  "stack": {
+    "pr1295PlayerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "pr1296SourceHeadBeforeThisCommit": "85f58d80786db0073ecb8630243e3c9bb7ae811d",
+    "pr1296State": "draft"
+  },
+  "sourceBindings": {
+    "L09Poster": {
+      "path": "public/agentified/posters/l09-poster.webp",
+      "sha256": "65d7112b9e16ed3c9c813a8f9b4c0190a40a1cbe9ec394224636241c23e9fcd5",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "bytesChanged": false
+    },
+    "L08Candidate": {
+      "sha256": "f709e881f3cf4816c05ac287a3181d50621c1e16df14212c5357890f08baedb0",
+      "bytesChanged": false
+    },
+    "L08Vtt": {
+      "sha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011",
+      "bytesChanged": false
+    }
+  },
+  "patch": {
+    "path": "player-head-7bb6267c9.patch",
+    "sha256": "302b83e19f14fb9ed31f031c422db44bcd99817dca1dc89f9eafb0efbc544651",
+    "base": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "paths": [
+      "app/agentified/AgentifiedLessonHero.tsx",
+      "app/agentified/AgentifiedLessonHero.test.tsx",
+      "app/agentified/workshop.module.css"
+    ],
+    "gitApplyCheckCached": "pass",
+    "gitApplyCheckReverse": "pass",
+    "productFilesCommittedOnPr1296": false
+  },
+  "behavior": {
+    "videoMountedAtRest": true,
+    "videoFrameHiddenAtRest": true,
+    "completionFillsMediaViewport": true,
+    "desktopRestingControls": "existing custom rail inside viewfinder",
+    "mobileControls": "existing rail below viewfinder",
+    "posterFit": "full 16:9 contain without cover crop",
+    "nextLessonActivation": "existing footer Next lesson L09 button; card remains noninteractive"
+  },
+  "geometry": {
+    "desktop1280x844": {
+      "stageBefore": [
+        621,
+        349.3125
+      ],
+      "stageAfter": [
+        621,
+        349.3125
+      ],
+      "screenAfter": [
+        621,
+        349.3125
+      ],
+      "posterBefore": [
+        296.828125,
+        84
+      ],
+      "posterAfter": [
+        242.859375,
+        136.609375
+      ],
+      "cardAfter": [
+        314.828125,
+        191.203125
+      ]
+    },
+    "mobile390x844": {
+      "stageBefore": [
+        292,
+        164.25
+      ],
+      "stageAfter": [
+        292,
+        164.25
+      ],
+      "screenAfter": [
+        292,
+        164.25
+      ],
+      "posterBefore": [
+        166.203125,
+        40
+      ],
+      "posterAfter": [
+        166.203125,
+        93.484375
+      ],
+      "cardAfter": [
+        178.203125,
+        131.484375
+      ]
+    }
+  },
+  "route": {
+    "url": "http://127.0.0.1:3152/agentified/learningplan?lesson=L08&rev=7bb6267c9-f709e881-302b83e1",
+    "temporaryWorktree": "/Users/vambahsillah/.codex/worktrees/l08-clean-presenter-route/Portfolio",
+    "syntheticGuest": true,
+    "checks": [
+      {
+        "viewport": "1280x844",
+        "route": "http://127.0.0.1:3152/agentified/learningplan?lesson=L08&rev=7bb6267c9-f709e881-302b83e1",
+        "checks": [
+          {
+            "check": "candidate and VTT loaded",
+            "mediaSource": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+            "captionsSource": "http://127.0.0.1:3152/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt"
+          },
+          {
+            "check": "before completion",
+            "seconds": 253.7,
+            "stage": {
+              "x": 180,
+              "y": 494.53125,
+              "width": 621,
+              "height": 349.3125,
+              "bottom": 843.84375,
+              "right": 801,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "nativeControls": true
+          },
+          {
+            "check": "paused resting screen owns full viewfinder and full 16:9 poster",
+            "resting": {
+              "stage": {
+                "x": 180,
+                "y": 494.53125,
+                "width": 621,
+                "height": 349.3125,
+                "bottom": 843.84375,
+                "right": 801,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "fill"
+              },
+              "video": {
+                "x": 180,
+                "y": 494.53125,
+                "width": 621,
+                "height": 349.3125,
+                "bottom": 843.84375,
+                "right": 801,
+                "visibility": "hidden",
+                "opacity": 1,
+                "objectFit": "cover"
+              },
+              "screen": {
+                "x": 180,
+                "y": 494.53125,
+                "width": 621,
+                "height": 349.3125,
+                "bottom": 843.84375,
+                "right": 801,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "fill"
+              },
+              "card": {
+                "x": 472.171875,
+                "y": 541.578125,
+                "width": 314.828125,
+                "height": 191.203125,
+                "bottom": 732.78125,
+                "right": 787,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "fill"
+              },
+              "poster": {
+                "x": 508.15625,
+                "y": 550.578125,
+                "width": 242.859375,
+                "height": 136.609375,
+                "bottom": 687.1875,
+                "right": 751.015625,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "contain"
+              },
+              "rail": {
+                "x": 192,
+                "y": 783.84375,
+                "width": 597,
+                "height": 52,
+                "bottom": 835.84375,
+                "right": 789,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "fill"
+              },
+              "nativeControls": false,
+              "posterSource": "/_next/image?url=%2Fagentified%2Fposters%2Fl09-poster.webp&w=3840&q=75",
+              "mediaSource": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+              "captionsSource": "http://127.0.0.1:3152/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt"
+            }
+          },
+          {
+            "check": "dark theme resting state"
+          },
+          {
+            "check": "captions off/on and Aa S/L/M"
+          },
+          {
+            "check": "sound, volume, seek back and video restoration"
+          },
+          {
+            "check": "pause near endpoint restores resting screen"
+          },
+          {
+            "check": "natural end of playback"
+          },
+          {
+            "check": "replay restores video"
+          },
+          {
+            "check": "footer next control reaches L09",
+            "title": "Measure trust and choose review posture"
+          }
+        ]
+      },
+      {
+        "viewport": "390x844",
+        "route": "http://127.0.0.1:3152/agentified/learningplan?lesson=L08&rev=7bb6267c9-f709e881-302b83e1",
+        "checks": [
+          {
+            "check": "candidate and VTT loaded",
+            "mediaSource": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+            "captionsSource": "http://127.0.0.1:3152/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt"
+          },
+          {
+            "check": "before completion",
+            "seconds": 253.7,
+            "stage": {
+              "x": 49,
+              "y": 340.1875,
+              "width": 292,
+              "height": 164.25,
+              "bottom": 504.4375,
+              "right": 341,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "nativeControls": false
+          },
+          {
+            "check": "paused resting screen owns full viewfinder and full 16:9 poster",
+            "resting": {
+              "stage": {
+                "x": 49,
+                "y": 340.1875,
+                "width": 292,
+                "height": 164.25,
+                "bottom": 504.4375,
+                "right": 341,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "fill"
+              },
+              "video": {
+                "x": 49,
+                "y": 340.1875,
+                "width": 292,
+                "height": 164.25,
+                "bottom": 504.4375,
+                "right": 341,
+                "visibility": "hidden",
+                "opacity": 1,
+                "objectFit": "cover"
+              },
+              "screen": {
+                "x": 49,
+                "y": 340.1875,
+                "width": 292,
+                "height": 164.25,
+                "bottom": 504.4375,
+                "right": 341,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "fill"
+              },
+              "card": {
+                "x": 154.796875,
+                "y": 356.5625,
+                "width": 178.203125,
+                "height": 131.484375,
+                "bottom": 488.046875,
+                "right": 333,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "fill"
+              },
+              "poster": {
+                "x": 160.796875,
+                "y": 362.5625,
+                "width": 166.203125,
+                "height": 93.484375,
+                "bottom": 456.046875,
+                "right": 327,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "contain"
+              },
+              "rail": {
+                "x": 49,
+                "y": 510.4375,
+                "width": 292,
+                "height": 52,
+                "bottom": 562.4375,
+                "right": 341,
+                "visibility": "visible",
+                "opacity": 1,
+                "objectFit": "fill"
+              },
+              "nativeControls": false,
+              "posterSource": "/_next/image?url=%2Fagentified%2Fposters%2Fl09-poster.webp&w=3840&q=75",
+              "mediaSource": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+              "captionsSource": "http://127.0.0.1:3152/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt"
+            }
+          },
+          {
+            "check": "dark theme resting state"
+          },
+          {
+            "check": "captions off/on and Aa S/L/M"
+          },
+          {
+            "check": "sound, volume, seek back and video restoration"
+          },
+          {
+            "check": "pause near endpoint restores resting screen"
+          },
+          {
+            "check": "natural end of playback"
+          },
+          {
+            "check": "replay restores video"
+          },
+          {
+            "check": "footer next control reaches L09",
+            "title": "Measure trust and choose review posture"
+          }
+        ]
+      }
+    ],
+    "L16VisualRegressionChecks": [
+      "route-evidence/L16-desktop-regression-check.png",
+      "route-evidence/L16-mobile-regression-check.png"
+    ]
+  },
+  "validation": {
+    "focusedVitest": "29/29 passed",
+    "typescriptFull": "46 errors in unrelated repository files; zero in patch paths",
+    "gitDiffCheck": "pass",
+    "routeMatrix": "20/20 checks passed across desktop and mobile",
+    "mp4Decode": "pass",
+    "renderedStillsInspected": true
+  },
+  "limitations": [
+    "PR #1296 contains a source patch artifact, not a durable product binding; captain must apply it after sequencing player PR #1295",
+    "Route MP4s are visual-only browser recordings",
+    "No production deployment, real learner data, provider call, or human QA in this lane"
+  ],
+  "mp4s": [
+    {
+      "path": "route-evidence/L08-completion-card-desktop-learner-route.mp4",
+      "sha256": "711ed97dd9754630114fc3bc3c9eec668b7e95418be5f5fd5ffc3dbd7c50ab18",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1280,
+            "height": 844,
+            "r_frame_rate": "25/1"
+          }
+        ],
+        "format": {
+          "duration": "9.000000"
+        }
+      }
+    },
+    {
+      "path": "route-evidence/L08-completion-card-mobile-learner-route.mp4",
+      "sha256": "b00204646ef910820d9625dcf369b89aa5e5c2fcf85cd2fd15dbc9a84e23627c",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 390,
+            "height": 844,
+            "r_frame_rate": "25/1"
+          }
+        ],
+        "format": {
+          "duration": "8.480000"
+        }
+      }
+    }
+  ],
+  "manifest": [
+    {
+      "path": "README.md",
+      "sha256": "c2bfa303a64b96138bada83e9f90d47f0b65a3cdd9076cb83007db6a3d204288",
+      "bytes": 2892
+    },
+    {
+      "path": "player-head-7bb6267c9.patch",
+      "sha256": "302b83e19f14fb9ed31f031c422db44bcd99817dca1dc89f9eafb0efbc544651",
+      "bytes": 20187
+    },
+    {
+      "path": "record-route.cjs",
+      "sha256": "a5fb95a780f6b34b1a76687be565e3a068f01594fca659af682112f79df2c0aa",
+      "bytes": 9181
+    },
+    {
+      "path": "route-evidence/L08-completion-card-desktop-learner-route.mp4",
+      "sha256": "711ed97dd9754630114fc3bc3c9eec668b7e95418be5f5fd5ffc3dbd7c50ab18",
+      "bytes": 1170257
+    },
+    {
+      "path": "route-evidence/L08-completion-card-mobile-learner-route.mp4",
+      "sha256": "b00204646ef910820d9625dcf369b89aa5e5c2fcf85cd2fd15dbc9a84e23627c",
+      "bytes": 629436
+    },
+    {
+      "path": "route-evidence/L16-desktop-regression-check.png",
+      "sha256": "c347916acda3d622b9bddb120f52349dd1c888188c1d51125dce3117dc31e468",
+      "bytes": 765961
+    },
+    {
+      "path": "route-evidence/L16-mobile-regression-check.png",
+      "sha256": "b7488f34952f2eea9ce6de94a55c774ff4808cc2aa3e5b487135286d06d2ba3c",
+      "bytes": 340181
+    },
+    {
+      "path": "route-evidence/baseline-L08-desktop.png",
+      "sha256": "da985810a6979680dfce6d8cdf50b00e46cf71cdcb1a10e9c88f0828a9fd47c7",
+      "bytes": 835957
+    },
+    {
+      "path": "route-evidence/baseline-L08-mobile.png",
+      "sha256": "52890d4abb61879b7f61afe93335ccd5e9192d641fe0f801b415c02243a8539a",
+      "bytes": 363527
+    },
+    {
+      "path": "route-evidence/desktop-before-completion.png",
+      "sha256": "26c34d00e8f437079eafb775205329dc29f4e0475347a5082666800098872a00",
+      "bytes": 869585
+    },
+    {
+      "path": "route-evidence/desktop-ended.png",
+      "sha256": "72d5e8b44e8ff6b189aa42d85bb1121e07dfbf9c294d94498644b1bd06dc0c8b",
+      "bytes": 756597
+    },
+    {
+      "path": "route-evidence/desktop-l09-destination.png",
+      "sha256": "26f8716a841176557406e852ce2a4151100530a17f3f74b6fbe074c5cd50b3de",
+      "bytes": 847486
+    },
+    {
+      "path": "route-evidence/desktop-replay.png",
+      "sha256": "81d2eae0168f66170a062d45bd5da35c890558097899c17c7061453a2ed5ea31",
+      "bytes": 886944
+    },
+    {
+      "path": "route-evidence/desktop-resting-captions-off.png",
+      "sha256": "24eb82d1d0adae8ff5a38eb4056adad336a247083efae734b1ced0a30f7763ef",
+      "bytes": 756373
+    },
+    {
+      "path": "route-evidence/desktop-resting-dark.png",
+      "sha256": "4b159796737b5251d612dd593d15eaa6de208fc733fc6147abcbba7f7c9765e8",
+      "bytes": 764619
+    },
+    {
+      "path": "route-evidence/desktop-resting-light.png",
+      "sha256": "77f123497f09319e07520b08ded06ca05c2af50406ebc0aeb06f072b7d3d0ccc",
+      "bytes": 785770
+    },
+    {
+      "path": "route-evidence/desktop-seek-back.png",
+      "sha256": "143a76eaa46a1d0d9859c76d7b4fcac0ec0ad32f0df13afa68fa5b245b27a137",
+      "bytes": 854624
+    },
+    {
+      "path": "route-evidence/mobile-before-completion.png",
+      "sha256": "d8182590a6da6080ed36d89560436b261a886ed486fa78f2ee300d700d014785",
+      "bytes": 365926
+    },
+    {
+      "path": "route-evidence/mobile-ended.png",
+      "sha256": "49e85a0ec6396192c5c9dce5f096d9ca97b375944146df1a79d1d35568a33d68",
+      "bytes": 351603
+    },
+    {
+      "path": "route-evidence/mobile-l09-destination.png",
+      "sha256": "354dfda9765ce8a3b4679125545013ca9c1e6333fed8469c61a5e6a1024aa656",
+      "bytes": 378403
+    },
+    {
+      "path": "route-evidence/mobile-replay.png",
+      "sha256": "006291e08c1c50627f3fcde7d66f1baab574fabb50c2ec7ecc4e8e20ce88f8dc",
+      "bytes": 368537
+    },
+    {
+      "path": "route-evidence/mobile-resting-captions-off.png",
+      "sha256": "f82f59d4cd8d5ddf854c65cf5bc8fab622edaaa97522caa480837731359862d4",
+      "bytes": 349282
+    },
+    {
+      "path": "route-evidence/mobile-resting-dark.png",
+      "sha256": "9a61e61c7ffdffe8bb2cd420420e5a2ab9bfe49ca74793139bd641635b4a3418",
+      "bytes": 358328
+    },
+    {
+      "path": "route-evidence/mobile-resting-light.png",
+      "sha256": "78e48a87709e892928283fe7fba5cccbccd179da3b0f145ea60ac1ff10e687df",
+      "bytes": 351716
+    },
+    {
+      "path": "route-evidence/mobile-seek-back.png",
+      "sha256": "6f4ffbb4f04c2b596b2e3959f7be9bb6cdb410e67bd0c18daead71fe85b37974",
+      "bytes": 365432
+    },
+    {
+      "path": "route-evidence/route-capture.json",
+      "sha256": "969d9c6bcbd8d6f7cf5a1ea6da294447d107db0a1e014dc2ac35665d81287215",
+      "bytes": 8025
+    },
+    {
+      "path": "verify.py",
+      "sha256": "379c3618ad51090323b7af28391162fe058899087458040327ec97a26cf13de5",
+      "bytes": 6442
+    }
+  ]
+}

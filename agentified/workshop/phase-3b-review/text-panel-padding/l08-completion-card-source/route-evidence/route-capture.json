@@ -1,0 +1,252 @@
+{
+  "results": [
+    {
+      "viewport": "1280x844",
+      "route": "http://127.0.0.1:3152/agentified/learningplan?lesson=L08&rev=7bb6267c9-f709e881-302b83e1",
+      "checks": [
+        {
+          "check": "candidate and VTT loaded",
+          "mediaSource": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+          "captionsSource": "http://127.0.0.1:3152/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt"
+        },
+        {
+          "check": "before completion",
+          "seconds": 253.7,
+          "stage": {
+            "x": 180,
+            "y": 494.53125,
+            "width": 621,
+            "height": 349.3125,
+            "bottom": 843.84375,
+            "right": 801,
+            "visibility": "visible",
+            "opacity": 1,
+            "objectFit": "fill"
+          },
+          "nativeControls": true
+        },
+        {
+          "check": "paused resting screen owns full viewfinder and full 16:9 poster",
+          "resting": {
+            "stage": {
+              "x": 180,
+              "y": 494.53125,
+              "width": 621,
+              "height": 349.3125,
+              "bottom": 843.84375,
+              "right": 801,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "video": {
+              "x": 180,
+              "y": 494.53125,
+              "width": 621,
+              "height": 349.3125,
+              "bottom": 843.84375,
+              "right": 801,
+              "visibility": "hidden",
+              "opacity": 1,
+              "objectFit": "cover"
+            },
+            "screen": {
+              "x": 180,
+              "y": 494.53125,
+              "width": 621,
+              "height": 349.3125,
+              "bottom": 843.84375,
+              "right": 801,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "card": {
+              "x": 472.171875,
+              "y": 541.578125,
+              "width": 314.828125,
+              "height": 191.203125,
+              "bottom": 732.78125,
+              "right": 787,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "poster": {
+              "x": 508.15625,
+              "y": 550.578125,
+              "width": 242.859375,
+              "height": 136.609375,
+              "bottom": 687.1875,
+              "right": 751.015625,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "contain"
+            },
+            "rail": {
+              "x": 192,
+              "y": 783.84375,
+              "width": 597,
+              "height": 52,
+              "bottom": 835.84375,
+              "right": 789,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "nativeControls": false,
+            "posterSource": "/_next/image?url=%2Fagentified%2Fposters%2Fl09-poster.webp&w=3840&q=75",
+            "mediaSource": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+            "captionsSource": "http://127.0.0.1:3152/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt"
+          }
+        },
+        {
+          "check": "dark theme resting state"
+        },
+        {
+          "check": "captions off/on and Aa S/L/M"
+        },
+        {
+          "check": "sound, volume, seek back and video restoration"
+        },
+        {
+          "check": "pause near endpoint restores resting screen"
+        },
+        {
+          "check": "natural end of playback"
+        },
+        {
+          "check": "replay restores video"
+        },
+        {
+          "check": "footer next control reaches L09",
+          "title": "Measure trust and choose review posture"
+        }
+      ]
+    },
+    {
+      "viewport": "390x844",
+      "route": "http://127.0.0.1:3152/agentified/learningplan?lesson=L08&rev=7bb6267c9-f709e881-302b83e1",
+      "checks": [
+        {
+          "check": "candidate and VTT loaded",
+          "mediaSource": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+          "captionsSource": "http://127.0.0.1:3152/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt"
+        },
+        {
+          "check": "before completion",
+          "seconds": 253.7,
+          "stage": {
+            "x": 49,
+            "y": 340.1875,
+            "width": 292,
+            "height": 164.25,
+            "bottom": 504.4375,
+            "right": 341,
+            "visibility": "visible",
+            "opacity": 1,
+            "objectFit": "fill"
+          },
+          "nativeControls": false
+        },
+        {
+          "check": "paused resting screen owns full viewfinder and full 16:9 poster",
+          "resting": {
+            "stage": {
+              "x": 49,
+              "y": 340.1875,
+              "width": 292,
+              "height": 164.25,
+              "bottom": 504.4375,
+              "right": 341,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "video": {
+              "x": 49,
+              "y": 340.1875,
+              "width": 292,
+              "height": 164.25,
+              "bottom": 504.4375,
+              "right": 341,
+              "visibility": "hidden",
+              "opacity": 1,
+              "objectFit": "cover"
+            },
+            "screen": {
+              "x": 49,
+              "y": 340.1875,
+              "width": 292,
+              "height": 164.25,
+              "bottom": 504.4375,
+              "right": 341,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "card": {
+              "x": 154.796875,
+              "y": 356.5625,
+              "width": 178.203125,
+              "height": 131.484375,
+              "bottom": 488.046875,
+              "right": 333,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "poster": {
+              "x": 160.796875,
+              "y": 362.5625,
+              "width": 166.203125,
+              "height": 93.484375,
+              "bottom": 456.046875,
+              "right": 327,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "contain"
+            },
+            "rail": {
+              "x": 49,
+              "y": 510.4375,
+              "width": 292,
+              "height": 52,
+              "bottom": 562.4375,
+              "right": 341,
+              "visibility": "visible",
+              "opacity": 1,
+              "objectFit": "fill"
+            },
+            "nativeControls": false,
+            "posterSource": "/_next/image?url=%2Fagentified%2Fposters%2Fl09-poster.webp&w=3840&q=75",
+            "mediaSource": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+            "captionsSource": "http://127.0.0.1:3152/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt"
+          }
+        },
+        {
+          "check": "dark theme resting state"
+        },
+        {
+          "check": "captions off/on and Aa S/L/M"
+        },
+        {
+          "check": "sound, volume, seek back and video restoration"
+        },
+        {
+          "check": "pause near endpoint restores resting screen"
+        },
+        {
+          "check": "natural end of playback"
+        },
+        {
+          "check": "replay restores video"
+        },
+        {
+          "check": "footer next control reaches L09",
+          "title": "Measure trust and choose review posture"
+        }
+      ]
+    }
+  ]
+}
