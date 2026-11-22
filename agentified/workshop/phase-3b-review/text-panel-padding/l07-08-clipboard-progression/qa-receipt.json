@@ -1,0 +1,87 @@
+{
+  "status": "review_only_pass_unbound",
+  "candidateSha256": "eb0e2d5662b2fac5a9e1150b4c2ad14187f58a8ac4a21e5db23e3fc25dcbc46d",
+  "route": "http://127.0.0.1:3150/agentified/learningplan?lesson=L07&rev=eb0e2d56",
+  "loadedVideo": "http://127.0.0.1:3150/agentified/lessons/l07/review-eb0e2d56/L07-clipboard-progression-candidate.mp4",
+  "viewports": [
+    "1280x844",
+    "390x844"
+  ],
+  "captions": [
+    "on",
+    "off",
+    "small",
+    "medium",
+    "large"
+  ],
+  "observedStates": [
+    {
+      "at": 233.8,
+      "rowsChecked": 0
+    },
+    {
+      "at": 236.2,
+      "rowsChecked": 1
+    },
+    {
+      "at": 239.4,
+      "rowsChecked": 2
+    },
+    {
+      "at": 241.6,
+      "rowsChecked": 3
+    },
+    {
+      "at": 243.8,
+      "fullField": true,
+      "presenter": true
+    }
+  ],
+  "controls": [
+    "play",
+    "pause",
+    "seek",
+    "caption toggle",
+    "caption size",
+    "completion",
+    "replay"
+  ],
+  "visualResult": "No checklist clipping or caption collision observed in the local learner route at the two recorded viewports.",
+  "mediaResult": "Full candidate decode passed; 251.332 seconds, 6283 frames, source audio and subtitle streams copied bit-for-bit.",
+  "clips": [
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/route-evidence/L07-clipboard-desktop-learner-route.mp4",
+      "sha256": "be6679ff08aff78a53b86fd093fa01aef74b0a1eaeb6f3f9aeb1231102cce738",
+      "durationSeconds": 15.52,
+      "viewport": "1280x844",
+      "decode": "pass"
+    },
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/route-evidence/L07-clipboard-mobile-learner-route.mp4",
+      "sha256": "d335629ff62143b4236aec77bf1859f82495e6b66b83628c4644c6e47bd1cebd",
+      "durationSeconds": 15.32,
+      "viewport": "390x844",
+      "decode": "pass"
+    }
+  ],
+  "fixture": "disposable guest learner route; no private account or user data",
+  "separateBlocker": "Closing native presenter source contains burned-in captions; no caption-free presenter claim or learner binding.",
+  "excluded": [
+    "No permanent learner binding",
+    "No merge",
+    "No deployment",
+    "No provider or external action",
+    "No full L01-L16 matrix resumption"
+  ],
+  "presenterCropComparison": {
+    "windowSeconds": "242.24-248.28",
+    "sourceAndOutputRect": [
+      1038,
+      316,
+      788,
+      452
+    ],
+    "averagePsnrDb": 47.797253,
+    "result": "same native crop geometry; re-encode only"
+  }
+}

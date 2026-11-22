@@ -1,0 +1,101 @@
+{
+  "status": "review_only_unbound",
+  "prior": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-closing-source-composition/L07-opening-and-closing-candidate.mp4",
+  "priorSha256": "8c3cbcddd420977f2664931e73878e2b1e939a6b7ee0c961ff2c1b42c6eb9446",
+  "candidate": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/L07-clipboard-progression-candidate.mp4",
+  "candidateSha256": "eb0e2d5662b2fac5a9e1150b4c2ad14187f58a8ac4a21e5db23e3fc25dcbc46d",
+  "durationSeconds": 251.332,
+  "videoFrames": 6283,
+  "states": [
+    {
+      "at": 233.515,
+      "label": "PRD / Pod / Failure route",
+      "checked": []
+    },
+    {
+      "at": 235.93100000000004,
+      "label": "PRD drafted",
+      "checked": [
+        1
+      ]
+    },
+    {
+      "at": 239.15200000000004,
+      "label": "Pod assigned",
+      "checked": [
+        1,
+        2
+      ]
+    },
+    {
+      "at": 241.41400000000004,
+      "label": "Failure route named",
+      "checked": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "at": 242.22243799999995,
+      "label": "full Operating File field with all three rows checked",
+      "checked": [
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "protectedPresenter": {
+    "start": 242.22243799999995,
+    "end": 248.33243799999997,
+    "sourceRect": [
+      1038,
+      316,
+      788,
+      452
+    ],
+    "outputRect": [
+      1038,
+      316,
+      788,
+      452
+    ]
+  },
+  "mediaStreams": [
+    "video",
+    "source audio copy",
+    "source subtitle copy"
+  ],
+  "knownSeparateBlocker": "The native presenter source contains burned-in captions. This clipboard candidate does not modify them.",
+  "sourcePlate": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/clipboard-teaching-plate-v4.png",
+    "sha256": "3b9c05871341b51f2b67fe0b5bbef82e98614973371116295278f720c59a98b8"
+  },
+  "statePlates": [
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/clipboard-state-0.png",
+      "sha256": "78d5efe8712224824fc60c69d11a69acc19c26d9b6cfc49b3c47e57c865a5fa0"
+    },
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/clipboard-state-1.png",
+      "sha256": "34487b8a4387fc102719200d77b2a198dd72881da2f5b7b2eedcc33e7d7e270d"
+    },
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/clipboard-state-2.png",
+      "sha256": "fb29e29d79a20e706b70c30720b29638d868c61cb2bd0b56d2026bc30e1ac5a3"
+    },
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/clipboard-state-3.png",
+      "sha256": "2e76faf4cf1348541e4644c29e280427f8d3850e08242d3bb6ffe0f9764d7db0"
+    },
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/studio-field-checked.png",
+      "sha256": "51fcb31ed7a6cec80ae73f2e7f404e2a92c75d8c77a460e2615021db05dd0eed"
+    }
+  ],
+  "copiedStreamSha256": {
+    "audio": "bc8175fe09f757be095058e7cac33b2245d9ecea53f068447518cef9e383b177",
+    "subtitle": "f2cc54ddc5a21765dac67bac18494e1aa8db87f635b7b7411b7b882623ce28ed"
+  }
+}

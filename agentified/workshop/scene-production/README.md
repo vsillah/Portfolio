@@ -2,6 +2,10 @@
 
 This package turns the approved L01–L16 scripts into 128 scene records in four batches: L01–L04, L05–L08, L09–L12, and L13–L16. Each packet stores the exact narration and on-screen source cell, timing, sentence captions, shot treatment, approved plate use, sentence-bound reserved presenter windows, B-roll limit, audio ownership, transition, accessibility plan, chapter/workbook lineage, Operating File update, Harbor continuity, and prepare-only boundary. The canonical source files and approved visual register are unchanged. All 16 packet copies are rebound only to the source-register update for the public Agentified route merged at `aa01eac9`.
 
+## Teaching artifact progression
+
+When narration supplies content for a teaching artifact, show that content appearing or changing at the corresponding moment. A checklist, Operating File, diagram, or workbook field should not stay blank after the lesson has taught its answer. Leave a field blank only when the empty state is itself the lesson. Check the rendered artifact with captions on and off at desktop and mobile widths; narration, labels, checks, and visual state must agree.
+
 Run the review route from the repository root:
 
 ```bash

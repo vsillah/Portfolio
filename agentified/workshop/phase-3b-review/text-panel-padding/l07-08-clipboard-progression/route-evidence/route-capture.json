@@ -1,0 +1,17 @@
+{
+  "hash": "eb0e2d5662b2fac5a9e1150b4c2ad14187f58a8ac4a21e5db23e3fc25dcbc46d",
+  "results": [
+    {
+      "source": "http://127.0.0.1:3150/agentified/lessons/l07/review-eb0e2d56/L07-clipboard-progression-candidate.mp4",
+      "route": "http://127.0.0.1:3150/agentified/learningplan?lesson=L07&rev=eb0e2d56",
+      "viewport": "1280x844",
+      "hash": "eb0e2d5662b2fac5a9e1150b4c2ad14187f58a8ac4a21e5db23e3fc25dcbc46d"
+    },
+    {
+      "source": "http://127.0.0.1:3150/agentified/lessons/l07/review-eb0e2d56/L07-clipboard-progression-candidate.mp4",
+      "route": "http://127.0.0.1:3150/agentified/learningplan?lesson=L07&rev=eb0e2d56",
+      "viewport": "390x844",
+      "hash": "eb0e2d5662b2fac5a9e1150b4c2ad14187f58a8ac4a21e5db23e3fc25dcbc46d"
+    }
+  ]
+}
