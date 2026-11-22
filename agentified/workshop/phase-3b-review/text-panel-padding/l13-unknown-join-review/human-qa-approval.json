@@ -1,0 +1,15 @@
+{
+  "recordedAtUtc": "2026-11-22T23:03:48Z",
+  "status": "focused_human_qa_approved",
+  "source": "Vambah's explicit focused Human QA approval in the current Codex chat",
+  "project": "Portfolio Agentified",
+  "pr": 1290,
+  "reviewedCommit": "dd9db4d7dc227d4ee80561b90c0ed669936c4922",
+  "candidateVideoSha256": "878d262919c6e7f93997c1289aa9f22ff7dee9c8893b329b4920e8ef6d10ec02",
+  "desktopContextSha256": "9e7b90a5ac067c61e9b4d930b60c1fe930960fd01319767b52eecfe669c91d19",
+  "mobileContextSha256": "ff7893a64684eff150c75eeb94f18d9b48968c798ab78a154447c814bddb1cfb",
+  "approvedScope": "Both L13 audio joins, voice consistency, sentence flow, caption clearance, and the Baseline unknown panel in the two 20-second review clips.",
+  "nextAuthorizedAction": "Resume provider-free ordered learner-route qualification at L13 with the approved candidate, then continue through L14-L16 using temporary bindings only. Stop at the first actual regression or source ambiguity, or after the complete matrix passes.",
+  "exclusions": "No learner binding, provider contact, spending, PR readiness change, merge, deployment, publication, or release. All related PRs remain draft.",
+  "notApproved": "The focused approval is not a whole-lesson audio pass or a release qualification for L13-L16."
+}
