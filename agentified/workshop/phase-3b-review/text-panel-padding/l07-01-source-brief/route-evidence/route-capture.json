@@ -1,0 +1,388 @@
+{
+  "candidateSha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+  "results": [
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 844,
+      "route": "http://127.0.0.1:3151/agentified/learningplan?lesson=L07&rev=b9016102",
+      "source": "http://127.0.0.1:3151/agentified/lessons/l07/review-b9016102/L07-01-source-brief-candidate.mp4",
+      "hash": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+      "checks": [
+        {
+          "action": "load",
+          "source": "http://127.0.0.1:3151/agentified/lessons/l07/review-b9016102/L07-01-source-brief-candidate.mp4",
+          "videoBox": {
+            "x": 180,
+            "y": 494.53125,
+            "width": 621,
+            "height": 349.3125
+          },
+          "route": "http://127.0.0.1:3151/agentified/learningplan?lesson=L07&rev=b9016102"
+        },
+        {
+          "action": "seek-opening",
+          "time": 2.55,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-notes",
+          "time": 3.2,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-false-claim",
+          "time": 5.1,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-wrong-claim",
+          "time": 6.4,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-source-wording",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-post-presenter",
+          "time": 10.4,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-source-question",
+          "time": 26,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-next-scene",
+          "time": 28.5,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "captions-off",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "disabled",
+          "captionSize": "M"
+        },
+        {
+          "action": "captions-on",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "Aa-S",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "S"
+        },
+        {
+          "action": "Aa-M",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "Aa-L",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "L"
+        },
+        {
+          "action": "desktop-native-play-pause",
+          "passed": true
+        },
+        {
+          "action": "adjacent-188.8",
+          "time": 188.8,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-201",
+          "time": 201,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-232.9",
+          "time": 232.9,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-234",
+          "time": 234,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-243",
+          "time": 243,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-246.3",
+          "time": 246.3,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "showing",
+          "captionSize": "M"
+        },
+        {
+          "action": "completion",
+          "passed": true
+        },
+        {
+          "action": "replay",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "http://127.0.0.1:3151/agentified/learningplan?lesson=L07&rev=b9016102",
+      "source": "http://127.0.0.1:3151/agentified/lessons/l07/review-b9016102/L07-01-source-brief-candidate.mp4",
+      "hash": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+      "checks": [
+        {
+          "action": "load",
+          "source": "http://127.0.0.1:3151/agentified/lessons/l07/review-b9016102/L07-01-source-brief-candidate.mp4",
+          "videoBox": {
+            "x": 49,
+            "y": 339.875,
+            "width": 292,
+            "height": 164.25
+          },
+          "route": "http://127.0.0.1:3151/agentified/learningplan?lesson=L07&rev=b9016102"
+        },
+        {
+          "action": "seek-opening",
+          "time": 2.55,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-notes",
+          "time": 3.2,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-false-claim",
+          "time": 5.1,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-wrong-claim",
+          "time": 6.4,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-source-wording",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-post-presenter",
+          "time": 10.4,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-source-question",
+          "time": 26,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "seek-next-scene",
+          "time": 28.5,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "captions-off",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "disabled",
+          "captionSize": "M"
+        },
+        {
+          "action": "captions-on",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "Aa-S",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "S"
+        },
+        {
+          "action": "Aa-M",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "Aa-L",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "L"
+        },
+        {
+          "action": "mobile-play-pause",
+          "paused": true,
+          "time": 3.204205
+        },
+        {
+          "action": "mobile-seek-control",
+          "time": 8.199999,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "mobile-sound-fullscreen",
+          "passed": true
+        },
+        {
+          "action": "adjacent-188.8",
+          "time": 188.8,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-201",
+          "time": 201,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-232.9",
+          "time": 232.9,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-234",
+          "time": 234,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-243",
+          "time": 243,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "adjacent-246.3",
+          "time": 246.3,
+          "paused": true,
+          "readyState": 4,
+          "trackMode": "hidden",
+          "captionSize": "M"
+        },
+        {
+          "action": "completion",
+          "passed": true
+        },
+        {
+          "action": "replay",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}
