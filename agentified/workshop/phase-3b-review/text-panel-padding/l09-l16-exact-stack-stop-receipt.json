@@ -1,0 +1,60 @@
+{
+  "recordedAtUtc": "2026-11-22T21:15:05Z",
+  "status": "STOP_at_L09-05_existing_exact_audio_caption_word_mismatch",
+  "scope": "Provider-free ordered L09-L16 Phase 3B learner-route qualification after exact L08 Human QA approval",
+  "humanQaApproval": {
+    "pr": 1296,
+    "head": "85f58d80786db0073ecb8630243e3c9bb7ae811d",
+    "l08CandidateSha256": "f709e881f3cf4816c05ac287a3181d50621c1e16df14212c5357890f08baedb0",
+    "recordedComment": "https://github.com/vsillah/Portfolio/pull/1296#issuecomment-7085796257",
+    "readBack": true
+  },
+  "exactHeadsAtStart": {
+    "pr1290": "166543e043b784dfd2c0c9473cdb99e1892acfdc",
+    "pr1292": "3ca22b88162de93182d07eee89fbc062feea129f",
+    "pr1293": "8948462d35c7b3b28d315341046b45bafae25805",
+    "pr1295": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "pr1296": "85f58d80786db0073ecb8630243e3c9bb7ae811d"
+  },
+  "laneClassification": "Dependent review lane. PR #1296 stacks on #1290; PR #1293 and PR #1295 supply the temporary caption/mobile player resolution. No product source or committed learner binding was edited.",
+  "temporaryFixture": {
+    "route": "http://127.0.0.1:3156/agentified/learningplan?lesson=L09",
+    "browser": "Chrome fallback; integrated in-app Browser absent from this task's inventory",
+    "viewportTested": "1280x844",
+    "data": "synthetic guest state",
+    "l08Checkpoint": "The exact PR #1296 caption-free L08 candidate was hash-verified and temporarily rebound in the disposable app; no L08 requalification was claimed.",
+    "l09SourcePath": "public/agentified/lessons/l09/illustrated-998a5ccc/agentified-l09-illustrated-composite.mp4",
+    "l09SourceSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+    "l09DesktopCandidateSha256": "652eb5bbef8464c8f68fc5ad1512b5c15d14b1c753f1029f335a14e8a9fc2001",
+    "l09MobileCandidateSha256": "6d64ac1dc385780762da2d8f5b995a88e488755d3bc15a191feef003d6afede0",
+    "candidateMethod": "Disposable full-duration L09 composites overlay the previously hash-bound L09-01 and L09-03/L09-05 padded frames plus source-faithful L09-02 metrics/context and L09-04 ladder states for desktop/mobile. Original video is retained outside those scene intervals. Original audio and subtitle packets are stream-copied. The mobile candidate was built but not learner-route tested after the first desktop stop.",
+    "videoFrames": 6821,
+    "audioPackets": 12791,
+    "subtitlePackets": 92,
+    "durationSeconds": 272.84,
+    "audioPayloadSha256SourceAndCandidate": "8e3d50d235fcee3c1df582bbdc6fe6137ed4dd4cd371ecb5f104c779d8f64bdc",
+    "embeddedSubtitlePayloadSha256SourceAndCandidate": "5f0d8e6b84b45de7fcd49535cc82c046a7eff6dcaf6cabd8019ce5438414fde4",
+    "boundVttSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d"
+  },
+  "orderedObservation": {
+    "L09-01": "Desktop opening native presenter and 13.38-second transition were viewed in playback; no baked presenter caption appeared. The L09-01 padded teaching frame and external captions appeared on the learner route.",
+    "L09-02": "Desktop natural playback crossed 31.82 seconds into the seven-rung metrics ladder; seeking showed the separate complete SAM trust-layer context at 68.21 seconds.",
+    "L09-03": "Desktop natural playback crossed 69.72 seconds into the scene-local teaching frame.",
+    "L09-04": "Desktop natural playback crossed 103.02 seconds into the complete Authority Ladder frame.",
+    "L09-05": "Desktop natural playback crossed 138.08 seconds into the review-decision teaching frame. At 150.056 seconds the learner caption displayed 'Make reject and request-revision as visible as approve.'"
+  },
+  "firstStop": {
+    "scene": "L09-05",
+    "cueSeconds": [147.78, 150.98],
+    "boundVttWord": "approve",
+    "reportedSourceAudioWord": "approved",
+    "source": "docs/agentified-distribution-readiness/phase-3b/focused-acoustic-disposition-2026-11-20.json",
+    "sourceFinding": "Five provider-free decodes reported by the Integration Captain on the same source video found 'approved' at 150.6-151.0 seconds. The source meaning remains substantially intact, but exact audio/caption alignment is open. This is a pre-existing source defect, not text introduced by the temporary visual composite.",
+    "localVerification": "The source and temporary desktop candidate audio and embedded subtitle stream hashes match exactly; the bound VTT file is unchanged. The learner route visibly displayed the canonical 'approve' caption. No independent new acoustic transcription was claimed.",
+    "audioWindowPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L09-05-approve-word-audio-window.mp4",
+    "audioWindowSha256": "1fd4ea204b19fdbfe600520edaf30a89f354e201c1f4dfba5230cf472881f898"
+  },
+  "validation": "Focused Hero/Workshop/end-screen suite passed 63 tests in the disposable app. The L09 desktop candidate decoded with 6821 video frames, 12791 audio packets, 92 subtitle packets, and 272.84-second duration. Its candidate audio and embedded subtitle hashes equal the source. Representative desktop playback and seeking reached the stop in strict L09 scene order. Captions-off, Aa S/M/L, pause restoration, responsive mobile route, L09 completion/replay, and L10-L16 were not reached after the first stop.",
+  "binding": "Temporary manifest and end-screen hashes only in /tmp; committed Portfolio product bindings remained unchanged. All PRs remained draft.",
+  "nextGate": "Resolve the existing L09 spoken 'approved' versus canonical transcript/VTT 'approve' discrepancy through a separately scoped source-faithful audio/caption decision. Rebind a corrected exact candidate by hash, restart ordered L09-L16 learner-route qualification at L09-01, and preserve the completed L08 Human QA scope."
+}
