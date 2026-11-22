@@ -1,0 +1,286 @@
+{
+  "codeCommit": "52ae10644667b500dcec29afd5240fdf8df5e663",
+  "route": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=52ae10644667b500dcec29afd5240fdf8df5e663",
+  "viewports": [
+    "1280x800",
+    "390x844"
+  ],
+  "checks": [
+    {
+      "viewport": "desktop",
+      "label": "before",
+      "time": 188.514,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "at-start",
+      "time": 188.515,
+      "paused": true,
+      "detail": "Human review remains the gate.",
+      "display": "none",
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "inside",
+      "time": 210,
+      "paused": true,
+      "detail": "Human review remains the gate.",
+      "display": "none",
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "at-end",
+      "time": 233.515,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "other-l07-scene",
+      "time": 140,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "other-l07-scene-preserved",
+      "visible": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "natural-entry-base",
+      "time": 188.1,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "natural-entry",
+      "time": 188.545491,
+      "visible": true
+    },
+    {
+      "viewport": "desktop",
+      "label": "natural-exit-base",
+      "time": 233.1,
+      "paused": true,
+      "detail": "Human review remains the gate.",
+      "display": "none",
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "natural-exit",
+      "time": 233.551329,
+      "visible": false
+    },
+    {
+      "viewport": "desktop",
+      "label": "paused-seek-back",
+      "time": 210,
+      "paused": true,
+      "detail": "Human review remains the gate.",
+      "display": "none",
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "paused-seek-out",
+      "time": 233.515,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "desktop",
+      "label": "restored-progress",
+      "time": 210,
+      "visible": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "before",
+      "time": 188.514,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "at-start",
+      "time": 188.515,
+      "paused": true,
+      "detail": "Human review remains the gate.",
+      "display": "block",
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "inside",
+      "time": 210,
+      "paused": true,
+      "detail": "Human review remains the gate.",
+      "display": "block",
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "at-end",
+      "time": 233.515,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "other-l07-scene",
+      "time": 140,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "other-l07-scene-preserved",
+      "visible": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "natural-entry-base",
+      "time": 188.1,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "natural-entry",
+      "time": 188.532433,
+      "visible": true
+    },
+    {
+      "viewport": "mobile",
+      "label": "natural-exit-base",
+      "time": 233.1,
+      "paused": true,
+      "detail": "Human review remains the gate.",
+      "display": "block",
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "natural-exit",
+      "time": 233.54146,
+      "visible": false
+    },
+    {
+      "viewport": "mobile",
+      "label": "paused-seek-back",
+      "time": 210,
+      "paused": true,
+      "detail": "Human review remains the gate.",
+      "display": "block",
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "paused-seek-out",
+      "time": 233.515,
+      "paused": true,
+      "detail": null,
+      "display": null,
+      "controls": true,
+      "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+      "images": 0,
+      "links": 0
+    },
+    {
+      "viewport": "mobile",
+      "label": "restored-progress",
+      "time": 210,
+      "visible": true
+    }
+  ],
+  "artifacts": {
+    "desktop-at-start.png": "53a34ba628a055c87b129d4c4472adb5775d236cd3a1457e7e4f9db37b1a8174",
+    "desktop-inside.png": "a3b6d766c1727c0e5a43f957dba027942bc6b7b742ae9f0beb5d8c8c7321a6a0",
+    "desktop-natural-exit-base.png": "022ec0ed445d4564f711da8451bbf8667f8bb7d7cb7038ce3ea19a2fe23f53e4",
+    "desktop-paused-seek-back.png": "3724cee9c900ad7105c5087d33f5a0d61b2a91b8f9c476621af3ed5a4805cc19",
+    "mobile-at-start.png": "dc714478b3067608ee79d7fd74d74032f0e332ad4b4720435f5e0f28f9d132a1",
+    "mobile-inside.png": "da8fbcb05c4f39c4ed22d60db56a6bd6b25a7012ad46ea642daf09abe3e5a28e",
+    "mobile-natural-exit-base.png": "fc511e7918d20922d683d6b9b9f936c22d0b8591a36aa91f8caa797b3a137551",
+    "mobile-paused-seek-back.png": "fefad08666303d54e6a8b467464d398dc4cc20d56456f261d5312c5a40fefd7e"
+  },
+  "source": {
+    "component": "2297496f020491d92ff96db93c0d96dd1d6d915d8bcc369a40ba6335d8d50b72",
+    "cueMap": "3b4cc38432c173e1dad54f6223ca3050fc347c5e02ef998d19ee1fb260df9ccf"
+  }
+}
