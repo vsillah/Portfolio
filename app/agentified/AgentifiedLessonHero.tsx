@@ -58,7 +58,7 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const [activeTeachingScene, setActiveTeachingScene] = useState<string | null>(null)
   const [mobileWidth, setMobileWidth] = useState(false)
   const [mobileCaption, setMobileCaption] = useState('')
-  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId) || (lessonId === 'L06' && (endScreenVisible || l06CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))) || (lessonId === 'L01' && (endScreenVisible || l01CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))) || (lessonId === 'L05' && (endScreenVisible || l05CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene)))
+  const externalCaption = mobileWidth || captionSize === 'L' || /^L(0[8-9]|1[0-6])$/.test(lessonId) || (lessonId === 'L07' && activeTeachingScene === 'L07-05') || (lessonId === 'L06' && (endScreenVisible || l06CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))) || (lessonId === 'L01' && (endScreenVisible || l01CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene))) || (lessonId === 'L05' && (endScreenVisible || l05CaptionClearance.some((scene) => scene.sceneId === activeTeachingScene)))
   const cueCacheRef = useRef<Array<{ startTime: number; endTime: number; text: string }>>([])
   const endScreenStart = endScreen?.startSeconds
   const captionsChangeRef = useRef(onCaptionsChange)
