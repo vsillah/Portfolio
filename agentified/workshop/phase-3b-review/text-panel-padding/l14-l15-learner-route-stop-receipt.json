@@ -1,0 +1,30 @@
+{
+  "status": "STOP_at_L15-04_checkpoint_timing_ambiguity",
+  "reviewBranch": "codex/agentified-phase3b-provider-free-normalization",
+  "reviewHeadBeforeReceipt": "6c1734a27047f09f485390154308f5dcea406b48",
+  "temporaryStackHeads": {
+    "captionSafety": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+    "player": "7bb6267c9fb98172679e161aafa208dfc7a276c3"
+  },
+  "L14": {
+    "timingReceipt": "agentified/workshop/phase-3b-review/text-panel-padding/l14-scene-exact-timing-receipt.json",
+    "result": "targeted learner-route review passed",
+    "evidence": "The temporary full-lesson composite decoded at the original 241.762-second source duration. At 390x844, L14-03 showed the complete overview at 0:53 and its held-brief focus at 0:55 and 1:18. L14-04 showed the complete overview at 1:19 and the proposed-rule focus at 1:30 and 1:44; L14-05 appeared at 1:45. Source wording and captions stayed below the player. At 1280x720, the proposed-rule focus appeared at 1:20, with its cue in the below-player band and an 8 px gap. Original source audio, VTT, native presenter windows, and countdown windows were preserved in the temporary composite. The original 26-second standalone study clips were not edited or rebound."
+  },
+  "stop": {
+    "scene": "L15-04",
+    "registeredBoundarySeconds": [74.662, 103.33],
+    "registeredDurationSeconds": 28.668,
+    "checkpointTimelineSeconds": 29.0,
+    "checkpointStudyStartSeconds": 74.0,
+    "checkpointStudyEndSeconds": 103.0,
+    "checkpointSource": "agentified/workshop/phase-3b-review/text-panel-padding/l15-checkpoint-receipt.json",
+    "boundarySource": "agentified/workshop/presentation-illustration-audit/audit-boundaries.json",
+    "effect": "The L15-04 unbound study timeline does not fit the registered learner scene window. The temporary composer stopped before rendering or binding L15. No L15 timing normalization was inferred from the L14 decision."
+  },
+  "notQualified": [
+    "Complete scene-by-scene L14 playback and interaction matrix",
+    "L15-L16 learner-route playback",
+    "Human QA, merge, deployment, provider activation, spending, publication, and release"
+  ]
+}
