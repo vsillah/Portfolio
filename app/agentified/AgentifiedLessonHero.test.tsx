@@ -207,7 +207,7 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
-  it('routes L07-01 and L07-02 desktop cues below the player and restores L07-03 native captions', () => {
+  it('routes L07-01 through L07-07 desktop cues below the player and restores L07-08 native captions', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
     const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
@@ -215,8 +215,13 @@ describe('Agentified lesson media gate', () => {
     const presenter = { startTime: 7.3, endTime: 9.27, text: 'The source said available for review.' }
     const last = { startTime: 24.619, endTime: 27.67, text: 'A paper agent design needs those answers written down.' }
     const next = { startTime: 27.99, endTime: 31.884, text: 'Chapter Eleven turns the request into an Agentic PRD Packet.' }
-    const after = { startTime: 65.494, endTime: 67.125, text: 'Reversal is modest here.' }
-    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [opening, presenter, last, next, after] })
+    const scene03 = { startTime: 65.494, endTime: 67.125, text: 'Reversal is modest here.' }
+    const scene04 = { startTime: 92.669, endTime: 96.1, text: 'Now give the work an organization.' }
+    const scene05 = { startTime: 127.108, endTime: 131.29, text: 'The charter is narrow.' }
+    const scene06 = { startTime: 153.479, endTime: 153.948, text: 'Pause.' }
+    const scene07 = { startTime: 160.078, endTime: 162.83, text: 'Draft the seven-field PRD.' }
+    const scene08 = { startTime: 233.648, endTime: 237, text: 'Save revision seven as a draft.' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [opening, presenter, last, next, scene03, scene04, scene05, scene06, scene07, scene08] })
     const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
     const mobileMedia = Object.assign(new EventTarget(), { matches: false })
     HTMLMediaElement.prototype.pause = vi.fn()
@@ -255,7 +260,16 @@ describe('Agentified lesson media gate', () => {
       fireEvent.seeking(video)
       expect(track.mode).toBe('hidden')
       expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(next.text)
-      currentTime = 65.494
+      for (const [time, cue] of [[65.494, scene03], [92.669, scene04], [127.108, scene05], [153.479, scene06], [160.078, scene07]] as const) {
+        currentTime = time
+        fireEvent.seeking(video)
+        expect(track.mode).toBe('hidden')
+        expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(cue.text)
+      }
+      currentTime = 196.863
+      fireEvent.seeking(video)
+      expect(screen.queryByRole('status', { name: 'L07 caption' })).toBeNull()
+      currentTime = 233.648
       fireEvent.seeking(video)
       expect(track.mode).toBe('showing')
       expect(screen.queryByRole('status', { name: 'L07 caption' })).toBeNull()
@@ -271,7 +285,7 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
-  it('clears L07-05 desktop teaching content while preserving adjacent native cues', () => {
+  it('clears L07-05 desktop teaching content through adjacent scene bounds', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
     const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
@@ -293,8 +307,8 @@ describe('Agentified lesson media gate', () => {
       Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
       fireEvent.loadedMetadata(video)
       fireEvent.seeking(video)
-      expect(track.mode).toBe('showing')
-      expect(screen.queryByRole('status', { name: 'L07 caption' })).toBeNull()
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(before.text)
       currentTime = 128
       fireEvent.seeking(video)
       expect(track.mode).toBe('hidden')
@@ -311,8 +325,8 @@ describe('Agentified lesson media gate', () => {
       expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(sceneCue.text)
       currentTime = 153.479
       fireEvent.seeking(video)
-      expect(track.mode).toBe('showing')
-      expect(screen.queryByRole('status', { name: 'L07 caption' })).toBeNull()
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(after.text)
       expect(video).toHaveAttribute('controls')
       unmount()
     } finally {
