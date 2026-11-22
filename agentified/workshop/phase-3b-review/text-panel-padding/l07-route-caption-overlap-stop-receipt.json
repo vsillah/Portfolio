@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "state": "stopped at first route-level visual regression; temporary binding removed",
+  "review_branch_head_before_receipt": "f9dd076dd7b575b431743c270a1213d644836086",
+  "caption_head": "af647b6adc101cafade371d5ca53047670d53213",
+  "player_head": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lesson": "L07",
+  "route_tested": "http://127.0.0.1:3141/agentified/learningplan?lesson=L07&rev=f9dd076dd-7bb6267c",
+  "temporary_desktop_video_sha256": "85575d096345eaa713317afe070903719453131337ac726873910068ecdc3b43",
+  "source_captions": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+  "source_captions_sha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+  "passed_checkpoint": "An explicit 25 fps scene-frame schedule corrected the prior temporary composite timing failure. The L07-05 route-focus frame appears at 128 seconds; L07-04 and L07-06 appear on their respective sides of the 127.108–153.479-second interval. The media reports the source's 251.332-second duration, 6283 video frames, and full 251.332-second audio. The learner route loaded the exact temporary file and restored its paused position at 128 seconds.",
+  "first_new_failure": {
+    "time_seconds": 128,
+    "viewport": "desktop Chrome default width",
+    "caption_size": "medium",
+    "caption_state": "English captions on",
+    "cue_interval": "00:02:07.108–00:02:11.290",
+    "cue_text": "The charter is narrow: prepare one / evidence-bound option brief for Morgan.",
+    "observed": "The learner player draws the medium caption across the Human gate required callout in the L07-05 route-focus teaching frame. The first caption line intersects the callout label. This was observed in the rendered desktop learner route after the corrected video loaded; the scene art and caption source are independently identifiable.",
+    "expected": "Caption text remains legible without obscuring the teaching frame's critical callout or route sequence.",
+    "base_frame": "checks/L07-route-caption-overlap-base-at-128.jpg",
+    "base_frame_sha256": "1fa202cfb4a01f6d06e8567aca219c0eb9c00409666539479faeb33eea779ee8"
+  },
+  "unqualified": "Mobile learner playback, caption S/M/L visual clearance across scenes, full control behavior, L07 remaining boundaries in browser, and L08–L16.",
+  "next_gate": "Route the caption and L07-05 visual collision to a narrow caption/player or teaching-frame correction lane; review its exact result before repeating route qualification. Keep Phase 3B candidate bindings review-only."
+}
