@@ -1,0 +1,67 @@
+{
+  "status": "review_only_unbound",
+  "baseCommit": "bd8115d631f3882d12228ba954acecfc840569eb",
+  "captionCommit": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "sourceVideoSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+  "sourceVttSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+  "sourceAudioStreamSha256": "bc8175fe09f757be095058e7cac33b2245d9ecea53f068447518cef9e383b177",
+  "candidateAudioStreamSha256": "bc8175fe09f757be095058e7cac33b2245d9ecea53f068447518cef9e383b177",
+  "sourceSubtitleStreamSha256": "f2cc54ddc5a21765dac67bac18494e1aa8db87f635b7b7411b7b882623ce28ed",
+  "candidateSubtitleStreamSha256": "f2cc54ddc5a21765dac67bac18494e1aa8db87f635b7b7411b7b882623ce28ed",
+  "candidateVideoSha256": "3483cf107f42368d958561b064359f1176fee167f844f5080b53f342d474ea72",
+  "presenterSourceRect": [1038, 316, 788, 452],
+  "presenterOutputRect": [1038, 316, 788, 452],
+  "presenterWindowSeconds": [0, 9.37],
+  "presenterCropPsnrDb": 48.998876,
+  "postWindowSourcePsnrDb": 44.571039,
+  "sourceAndCandidateDurationSeconds": 251.332,
+  "reviewClips": [
+    {
+      "path": "L07-desktop-source-review.mp4",
+      "sha256": "60e0b2b0ffd4f9c3e6769bfc1bfb34b4a1f012a2537dfe729f2afbae0b6cbed9",
+      "viewportPx": [1280, 720],
+      "durationSeconds": 12.01,
+      "decode": "pass"
+    },
+    {
+      "path": "L07-mobile-composition-review.mp4",
+      "sha256": "40440d370777e3425916dc4f2a21506af3831da46eeef3a4e30b41d44217e511",
+      "viewportPx": [390, 844],
+      "durationSeconds": 12.01,
+      "decode": "pass"
+    }
+  ],
+  "temporaryLearnerRoute": {
+    "url": "http://127.0.0.1:3145/agentified/learningplan?lesson=L07&rev=3483cf107f-mobile-final",
+    "playerCommit": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "viewportPx": [390, 844],
+    "boundMediaSha256": "3483cf107f42368d958561b064359f1176fee167f844f5080b53f342d474ea72",
+    "observed": [
+      "At 0:00 the original blank native presenter frame merges with the reserved studio field; team roles and three-box checklist remain unobstructed.",
+      "At approximately 0:03 the native presenter, background, aspect ratio, position, and thin outline remain visible in the fixed rectangle.",
+      "Captions off hides the external caption band; captions on restores it below the player.",
+      "S, M, L mobile caption band font sizes measured 14, 18, and 24 CSS pixels; all remain outside the picture and controls.",
+      "Paused reload restored L07, the media time near 0:03, captions on, and size L.",
+      "The mobile seek rail reached 0:00 and crossed the 9.37-second presenter boundary while paused; mute and unmute changed the media state."
+    ]
+  },
+  "desktopBaselineRoute": {
+    "url": "http://127.0.0.1:3145/agentified/learningplan?lesson=L07&rev=42782f17-desktop-baseline",
+    "viewportPx": [1280, 720],
+    "boundMediaSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+    "observed": [
+      "Original desktop composition remained bound and visible at approximately 0:03 and 0:05.",
+      "Captions off removed the external band; captions on restored it. S and M selected native track sizes; L selected the external band.",
+      "Paused reload restored L07, original source media, time near 0:03, captions on, and size L.",
+      "Native video keyboard seek advanced playback; Space started and paused playback."
+    ]
+  },
+  "focusedTests": "vitest run app/agentified/AgentifiedLessonHero.test.tsx app/agentified/AgentifiedWorkshop.test.tsx: 57 passed",
+  "notExercised": [
+    "Full lesson completion and replay in a browser, to avoid changing guest learner progress",
+    "Full L07–L16 scene matrix; this lane stops at the first L07-01 source composition correction",
+    "Authenticated learner data and production deployments"
+  ],
+  "bindingRestored": true
+}
