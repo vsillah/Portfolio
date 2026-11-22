@@ -1,0 +1,273 @@
+{
+  "hash": "f709e881f3cf4816c05ac287a3181d50621c1e16df14212c5357890f08baedb0",
+  "results": [
+    {
+      "source": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+      "route": "http://127.0.0.1:3152/agentified/learningplan?lesson=L08&rev=f709e881",
+      "viewport": "1280x844",
+      "hash": "f709e881f3cf4816c05ac287a3181d50621c1e16df14212c5357890f08baedb0",
+      "checks": [
+        {
+          "check": "loaded candidate and VTT",
+          "duration": 257.68,
+          "width": 1920,
+          "height": 1080,
+          "tracks": 1
+        },
+        {
+          "check": "seek",
+          "seconds": 0.5,
+          "time": 0.5,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 6,
+          "time": 6,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 12.8,
+          "time": 12.8,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 13.6,
+          "time": 13.6,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 14.4,
+          "time": 14.4,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 246.9,
+          "time": 246.9,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 247.6,
+          "time": 247.6,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 251,
+          "time": 251,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 254.4,
+          "time": 254.4,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 254.9,
+          "time": 254.9,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "captions off",
+          "seconds": 1,
+          "mode": "disabled"
+        },
+        {
+          "check": "captions off",
+          "seconds": 12.8,
+          "mode": "disabled"
+        },
+        {
+          "check": "captions off",
+          "seconds": 247.7,
+          "mode": "disabled"
+        },
+        {
+          "check": "captions off",
+          "seconds": 254.3,
+          "mode": "disabled"
+        },
+        {
+          "check": "caption size",
+          "selected": "Small",
+          "observed": "S"
+        },
+        {
+          "check": "caption size",
+          "selected": "Large",
+          "observed": "L"
+        },
+        {
+          "check": "caption size",
+          "selected": "Medium",
+          "observed": "M"
+        },
+        {
+          "check": "completion",
+          "endScreen": 1
+        },
+        {
+          "check": "replay",
+          "time": 0.448112
+        }
+      ]
+    },
+    {
+      "source": "http://127.0.0.1:3152/agentified/lessons/l08/review-f709e881/L08-caption-free-presenter-candidate.mp4",
+      "route": "http://127.0.0.1:3152/agentified/learningplan?lesson=L08&rev=f709e881",
+      "viewport": "390x844",
+      "hash": "f709e881f3cf4816c05ac287a3181d50621c1e16df14212c5357890f08baedb0",
+      "checks": [
+        {
+          "check": "loaded candidate and VTT",
+          "duration": 257.68,
+          "width": 1920,
+          "height": 1080,
+          "tracks": 1
+        },
+        {
+          "check": "seek",
+          "seconds": 0.5,
+          "time": 0.5,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 6,
+          "time": 6,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 12.8,
+          "time": 12.8,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 13.6,
+          "time": 13.6,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 14.4,
+          "time": 14.4,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 246.9,
+          "time": 246.9,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 247.6,
+          "time": 247.6,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 251,
+          "time": 251,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 254.4,
+          "time": 254.4,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "seek",
+          "seconds": 254.9,
+          "time": 254.9,
+          "paused": true,
+          "track": "hidden"
+        },
+        {
+          "check": "captions off",
+          "seconds": 1,
+          "mode": "disabled"
+        },
+        {
+          "check": "captions off",
+          "seconds": 12.8,
+          "mode": "disabled"
+        },
+        {
+          "check": "captions off",
+          "seconds": 247.7,
+          "mode": "disabled"
+        },
+        {
+          "check": "captions off",
+          "seconds": 254.3,
+          "mode": "disabled"
+        },
+        {
+          "check": "caption size",
+          "selected": "Small",
+          "observed": "S"
+        },
+        {
+          "check": "caption size",
+          "selected": "Large",
+          "observed": "L"
+        },
+        {
+          "check": "caption size",
+          "selected": "Medium",
+          "observed": "M"
+        },
+        {
+          "check": "mobile play/pause"
+        },
+        {
+          "check": "mobile sound"
+        },
+        {
+          "check": "mobile volume"
+        },
+        {
+          "check": "mobile seek"
+        },
+        {
+          "check": "completion",
+          "endScreen": 1
+        },
+        {
+          "check": "replay",
+          "time": 0.429271
+        }
+      ]
+    }
+  ]
+}
