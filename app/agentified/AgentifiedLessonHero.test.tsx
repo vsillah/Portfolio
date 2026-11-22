@@ -401,6 +401,10 @@ describe('Agentified lesson media gate', () => {
         { startTime: 75.572, endTime: 83.679, text: protectedCue.text },
         { startTime: 97.482, endTime: 100.31, text: after.text },
       ])
+      expect(video).not.toHaveAttribute('controls')
+      expect(screen.getByRole('group', { name: 'L06 video controls' })).toBeInTheDocument()
+      currentTime = 98.5
+      fireEvent.seeking(video)
       expect(video).toHaveAttribute('controls')
       unmount()
     } finally {
@@ -1050,14 +1054,19 @@ describe('Agentified lesson media gate', () => {
     Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime, set: (value) => { currentTime = value } })
     fireEvent.timeUpdate(video)
     expect(screen.queryByRole('status')).toBeNull()
+    expect(video).toHaveAttribute('controls')
     currentTime = 504
     fireEvent.timeUpdate(video)
     expect(screen.getByRole('status', { name: 'L02 complete. Up next, L03: Trace the work and grade the sources.' })).toBeInTheDocument()
     expect(screen.getByText('UP NEXT · L03')).toBeInTheDocument()
     expect(container.querySelector(`img[src="/agentified/posters/l03-poster.webp"]`)).toBeInTheDocument()
+    expect(video).not.toHaveAttribute('controls')
+    expect(screen.getByRole('group', { name: 'L02 video controls' })).toBeInTheDocument()
     currentTime = 120
     fireEvent.seeking(video)
     expect(screen.queryByRole('status')).toBeNull()
+    expect(video).toHaveAttribute('controls')
+    expect(screen.queryByRole('group', { name: 'L02 video controls' })).toBeNull()
   })
 
   it('keeps a course-complete state visible when L16 ends without extending the media', () => {
@@ -1132,7 +1141,8 @@ describe('Agentified lesson media gate', () => {
     expect(css).toMatch(/\.coverStage \.videoReveal\{animation:agentifiedPosterToVideo 340ms ease-out both\}/)
     expect(css).toMatch(/\.lessonVideo\{[^}]*width:100%;max-width:100%/)
     expect(css).toMatch(/\.coverStage\{--native-control-clearance:clamp\(64px,9\.5cqw,96px\)/)
-    expect(css).toMatch(/\.endScreen\{[^}]*inset:0 0 var\(--native-control-clearance\)/)
+    expect(css).toMatch(/\.coverStageResting video\{visibility:hidden\}/)
+    expect(css).toMatch(/\.endScreen\{[^}]*inset:0;/)
     expect(css).toMatch(/container:lesson-cover\/inline-size/)
     expect(css).toMatch(/@container lesson-cover \(max-width:900px\)/)
     expect(css).toMatch(/@container lesson-cover \(max-width:400px\)/)
