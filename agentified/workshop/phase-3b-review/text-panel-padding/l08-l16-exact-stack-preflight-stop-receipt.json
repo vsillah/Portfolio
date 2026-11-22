@@ -1,6 +1,7 @@
 {
   "recordedAtUtc": "2026-11-22T19:25:54Z",
-  "status": "STOP_before_L08_fixture_due_exact_stack_player_caption_conflict",
+  "status": "SUPERSEDED_by_l08-duplicate-presenter-caption-stop-receipt",
+  "supersededBy": "agentified/workshop/phase-3b-review/text-panel-padding/l08-duplicate-presenter-caption-stop-receipt.json",
   "scope": "Provider-free ordered L08-L16 Phase 3B learner-route qualification after L07 Human QA approval",
   "reviewPr": 1290,
   "reviewHead": "f0f91d46fa3dbc2ba5286b7cb3c7a355475c2a2f",
