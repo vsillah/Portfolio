@@ -1,0 +1,36 @@
+{
+  "status": "stopped_out_of_scope_adjacent_caption_overlap",
+  "observedAt": "2026-11-22T17:09:11.742910+00:00",
+  "captionBase": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "localCodeCommit": "da00fba64",
+  "candidateHead": "b11360d1dc0b63a1d9c7ea126aa50dea196fa649",
+  "candidateSha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "vttSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+  "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=da00fba64-b9016102",
+  "viewports": [
+    [
+      1280,
+      844
+    ],
+    [
+      390,
+      844
+    ]
+  ],
+  "passingSamplesSeconds": [
+    3.2,
+    8.2,
+    20,
+    27.5
+  ],
+  "stopSampleSeconds": 28.2,
+  "stopFinding": "L07-02 native desktop caption crosses Outcome and Acceptance tests teaching labels",
+  "screenshots": {
+    "L07-01-1280-band-clear.png": "1f0824cd5dc29a54ee992e4f015ca14174230ee53e0be53bc6e07aefafdef430",
+    "L07-01-390-band-clear.png": "22083f9d27fe111ef07601fe8182aa1321352def637effd3ae187184cd9ed1ba",
+    "L07-02-1280-adjacent-overlap.png": "1000262017bb64dac635a0e5ae7f1bc56ce225e78dceb99852b06c9dee5af004"
+  },
+  "temporaryBindingRestored": true,
+  "pushPerformed": false
+}
