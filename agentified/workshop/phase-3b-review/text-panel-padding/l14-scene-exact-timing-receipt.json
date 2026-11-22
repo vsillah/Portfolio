@@ -3,7 +3,8 @@
   "basis": {
     "registeredBoundaries": "agentified/workshop/presentation-illustration-audit/audit-boundaries.json",
     "authoredStudy": "agentified/workshop/phase-3b-review/text-panel-padding/l14-checkpoint-receipt.json",
-    "sourceVideoSha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+    "studySourceVideoSha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+    "nativeSourceVideoSha256": "de258e9b72709f757939d82b5d291400800e12f2d74534a675ee0a17292c41a0",
     "sourceCaptionSha256": "74ce7e73e379f6b25eb3f5b67ed6771f24641d3a0f7c97114abe5e7fe9cc5446"
   },
   "rule": "Retain the authored 1.6-second complete-plate overview at each registered scene entrance. Hold the authored focus frame for the remainder of that registered scene. Use the global 25 fps source timeline for frame assignment. Do not shift narration, captions, presenter, countdown, or adjacent scene boundaries; do not edit the unbound 26-second study clips or their receipts.",
