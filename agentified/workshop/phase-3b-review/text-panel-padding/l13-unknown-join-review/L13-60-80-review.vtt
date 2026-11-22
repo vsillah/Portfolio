@@ -1,0 +1,13 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:08.278
+The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate.
+
+00:00:08.747 --> 00:00:10.838
+Here the baseline is `unknown`, not zero.
+
+00:00:11.577 --> 00:00:18.020
+The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation.
+
+00:00:18.617 --> 00:00:19.769
+No result exists yet.
