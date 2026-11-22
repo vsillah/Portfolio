@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import type { ImgHTMLAttributes } from 'react'
 import { describe, expect, it, vi } from 'vitest'
@@ -109,6 +109,54 @@ describe('Agentified lesson media gate', () => {
     currentTime = 233.515
     fireEvent.seeking(video)
     expect(screen.queryByRole('complementary', { name: /L07-07 Human review remains the gate/ })).toBeNull()
+  })
+
+  it('synchronizes L07-07 across playback frames, paused seeks, and restored progress', () => {
+    const frames = new Map<number, FrameRequestCallback>()
+    let nextFrame = 0
+    const requestFrame = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frames.set(++nextFrame, callback)
+      return nextFrame
+    })
+    const cancelFrame = vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => { frames.delete(id) })
+    const { container, rerender, unmount } = render(<AgentifiedLessonHero lessonId="L07" title="PRD and pod" poster="/agentified/posters/l07-poster.webp" videoSrc="/approved-l07.mp4" />)
+    const video = container.querySelector('video')!
+    let currentTime = 188.514
+    let paused = false
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime, set: (value) => { currentTime = value } })
+    Object.defineProperty(video, 'paused', { configurable: true, get: () => paused })
+    const gate = () => screen.queryByRole('complementary', { name: /L07-07 Human review remains the gate/ })
+    const advance = (time: number) => {
+      currentTime = time
+      const pending = [...frames.values()]
+      frames.clear()
+      act(() => pending.forEach((callback) => callback(0)))
+    }
+    fireEvent.playing(video)
+    expect(gate()).toBeNull()
+    advance(188.515)
+    expect(gate()).toHaveTextContent('Human review remains the gate.')
+    advance(210)
+    expect(gate()).toBeInTheDocument()
+    advance(233.515)
+    expect(gate()).toBeNull()
+    paused = true
+    fireEvent.pause(video)
+    currentTime = 188.515
+    fireEvent.seeked(video)
+    expect(gate()).toBeInTheDocument()
+    currentTime = 233.515
+    fireEvent.seeked(video)
+    expect(gate()).toBeNull()
+    rerender(<AgentifiedLessonHero lessonId="L07" title="PRD and pod" poster="/agentified/posters/l07-poster.webp" videoSrc="/approved-l07.mp4" resumeSeconds={200} />)
+    Object.defineProperty(video, 'duration', { configurable: true, get: () => 300 })
+    fireEvent.loadedMetadata(video)
+    expect(currentTime).toBe(200)
+    expect(gate()).toBeInTheDocument()
+    unmount()
+    expect(frames.size).toBe(0)
+    requestFrame.mockRestore()
+    cancelFrame.mockRestore()
   })
 
   it('reveals the next lesson at the exact sentence-complete boundary and hides it after seeking back', () => {
