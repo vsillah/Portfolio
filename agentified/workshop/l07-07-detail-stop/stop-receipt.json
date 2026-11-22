@@ -1,0 +1,39 @@
+{
+  "status": "STOP",
+  "failureClass": "teaching detail persists outside registered interval",
+  "scene": "L07-07",
+  "registeredWindow": {
+    "startSeconds": 188.515,
+    "endSecondsExclusive": 233.515
+  },
+  "observedOutsideTimes": [
+    188.514,
+    233.515
+  ],
+  "viewports": [
+    "1280x844",
+    "390x844"
+  ],
+  "captionCodeCommit": "4c5ca5fe1",
+  "remoteCaptionPrHead": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "candidateHead": "b11360d1dc0b63a1d9c7ea126aa50dea196fa649",
+  "candidateVideoSha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+  "captionVttSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "validation": {
+    "focusedHeroTests": "29 passed, 1 failed at L07-07 188.514 boundary",
+    "fullBrowserMatrix": "stopped before completion",
+    "mp4": "not produced",
+    "push": "not performed"
+  },
+  "filesSha256": {
+    "L07-07-1280-before.png": "c0d39a660f04c718aa42071056eae5ec205fa1647f3d4211fca986cf9f19dec2",
+    "L07-07-1280-end.png": "22561dc26adaff9b5fe7a8765027feb189674436a2000723f4e252dcd2429890",
+    "L07-07-1280-inside.png": "05001929ff8733e74e123a24ab37e2b2ddfe3e4f6daa25b49b946452032026fa",
+    "L07-07-390-before.png": "d852fa35312128c9e844c2d2e30eaf8c2c3b21a98d3fa86036490c516d01156d",
+    "L07-07-390-end.png": "d852fa35312128c9e844c2d2e30eaf8c2c3b21a98d3fa86036490c516d01156d",
+    "L07-07-390-inside.png": "d852fa35312128c9e844c2d2e30eaf8c2c3b21a98d3fa86036490c516d01156d",
+    "README.md": "9b0593e3aab5579691c42550c2b694b08698ce99351f3f86861ed7692d431eca",
+    "observed.json": "59b9e0963e27ca0f391833a8eb299aca8d5a264d0d603cde469842449ebf7272"
+  }
+}
