@@ -1,0 +1,49 @@
+{
+  "recordedAtUtc": "2026-11-22T11:06:47Z",
+  "status": "STOP_at_L07-08_mobile_closing_presenter_art_overlap",
+  "scope": "Fresh L07-L16 scene-by-scene desktop and 390x844 learner-route matrix using the unified source-authored L07 candidate",
+  "reviewPr": 1290,
+  "reviewBaseHead": "a99eb906d15a1f9d24932b38b740620f672b05dd",
+  "sourceCompositionPr": 1296,
+  "sourceCompositionHead": "1568fc2c59bfe36f0bf98baa782892259b0a54b5",
+  "unifiedSourceCandidateSha256": "c2acec2f12607d5a86b3ef764f8cde17bbba2e50d11de2e4cedb79e21e25f216",
+  "captionCommit": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "temporaryFullLessonMedia": {
+    "method": "Disposable learner app with exact caption and player files. Unified source candidate was retained for L07-01 from 0 to 9.37 seconds and for L07-07 through L07-08. Review frames for L07-01 after 9.37 seconds and L07-02 through L07-06 were overlaid at registered boundaries. Original source audio and subtitle streams were remuxed. Candidate hashes were reflected only in the disposable manifest and end-screen lookup.",
+    "mobileSha256": "2ca6ff2c5f84a5c3e31cf76f4eee226d46002df977a42ee682d3bb09402cf3f1",
+    "frames": 6283,
+    "audioPackets": 11783,
+    "subtitlePackets": 112,
+    "durationSeconds": 251.332,
+    "decode": "passed"
+  },
+  "observedBeforeStop": "At desktop 1280x844, unified L07-01 opening was clear at 0 and 2.513 seconds. At 390x844, the L07-01 opening was clear at 2.5 seconds. Caption off/on and S/M/L measured 14/18/24 CSS pixels. Mobile scene boundaries through L07-07 and L07-08 entry were inspected, including the L07-05 overview/focus and protected countdown. These observations do not qualify the incomplete full matrix.",
+  "firstFailure": {
+    "scene": "L07-08",
+    "layout": "mobile 390x844",
+    "route": "http://127.0.0.1:3141/agentified/learningplan?lesson=L07&rev=2ca6ff2c-mobile-full",
+    "timeSeconds": [233.8, 247.9],
+    "finding": "The operating-file plate shows the right-side team and checklist art before the closing presenter appears. At 247.9 seconds the native presenter window covers that art and the checklist. The illustration continues behind the presenter section, contrary to the distinct, non-overlapping presenter composition rule. This interval follows the unified candidate's 0-9.37-second opening correction and remains original source composition.",
+    "evidence": [
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-08-closing-presenter-overlap-mobile.mp4",
+        "sha256": "4f175d6ea1b3676c0f58cc39ab42eda1262ba11b6b3adf6b5f64da1d6734479b",
+        "details": "15.2-second H.264/AAC excerpt from the exact full mobile composite loaded on the learner route; decoded successfully."
+      },
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-08-before-presenter-mobile.png",
+        "sha256": "0cddfd9c2b01ca4e41a4035042fa693dfcfb49cf9cd3317c6514186837441577",
+        "details": "Source frame at 233.8 seconds showing the team and checklist art before the presenter section appears."
+      },
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-08-closing-presenter-overlap-mobile.png",
+        "sha256": "8d25c14c5d77bb14025796688584d5953d661983349f6a7201560edace4144ba",
+        "details": "Source frame at 247.9 seconds showing the presenter window over the same art and checklist."
+      }
+    ]
+  },
+  "qualification": "Stopped at the first remaining reproducible regression. Desktop L07 beyond the opening, all L08-L16 full learner-route states, natural completion, and replay were not tested in this pass. Earlier targeted receipts remain limited observations. Human QA remains pending.",
+  "bindings": "Temporary local media and end-screen bindings only; repository product bindings remain unbound.",
+  "nextGate": "Return L07-08 closing composition to the source author for a distinct presenter-safe teaching field while preserving the native presenter, source audio, subtitles, duration, and unified L07 opening correction. Rerun the affected route and then the full matrix on a version-bound candidate."
+}
