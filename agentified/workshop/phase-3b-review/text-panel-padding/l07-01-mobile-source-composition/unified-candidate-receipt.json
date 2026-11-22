@@ -1,0 +1,41 @@
+{
+  "status": "review_only_unbound",
+  "source": "public/agentified/lessons/l07/illustrated-42782f17/agentified-l07-illustrated-composite.mp4",
+  "sourceSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+  "art": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-mobile-source-composition/unified-studio-field.png",
+  "artSha256": "df47780798b362d9435181b0994fdd69407482f089fb35f9a1314a9789fafd88",
+  "candidate": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-mobile-source-composition/L07-unified-source-candidate.mp4",
+  "candidateSha256": "c2acec2f12607d5a86b3ef764f8cde17bbba2e50d11de2e4cedb79e21e25f216",
+  "durationSeconds": 251.332,
+  "protectedPresenter": {
+    "start": 0,
+    "end": 9.37,
+    "sourceRect": [
+      1038,
+      316,
+      788,
+      452
+    ],
+    "outputRect": [
+      1038,
+      316,
+      788,
+      452
+    ]
+  },
+  "studioField": {
+    "kind": "continuous navy field",
+    "presenterSafeRect": [
+      1038,
+      316,
+      788,
+      452
+    ]
+  },
+  "mediaStreams": [
+    "video",
+    "source audio copy",
+    "source subtitle copy"
+  ],
+  "note": "One continuous desktop/mobile teaching field surrounds the protected presenter interval. The repository learner binding remains unchanged."
+}

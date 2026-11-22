@@ -1,0 +1,60 @@
+{
+  "status": "review_only_unbound",
+  "stopHead": "a99eb906d15a1f9d24932b38b740620f672b05dd",
+  "sourceCompositionBase": "fa7ac61b5ff763c16d5a0bb5a78de553ddaa36df",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "sourceVideoSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+  "priorMobileCandidateSha256": "3483cf107f42368d958561b064359f1176fee167f844f5080b53f342d474ea72",
+  "unifiedTeachingFieldSha256": "95638768a5e3281acb6a341240c483bbbfea780f4684105b225fd923110ae951",
+  "unifiedStudioFieldSha256": "df47780798b362d9435181b0994fdd69407482f089fb35f9a1314a9789fafd88",
+  "candidateVideoSha256": "c2acec2f12607d5a86b3ef764f8cde17bbba2e50d11de2e4cedb79e21e25f216",
+  "protectedPresenter": {
+    "windowSeconds": [0, 9.37],
+    "sourceRect": [1038, 316, 788, 452],
+    "outputRect": [1038, 316, 788, 452],
+    "sourceCandidateCropPsnrDb": 49.003652,
+    "visualCheck": "Native footage, recorded background, fixed middle-right position, source aspect ratio, and thin outline are visible at 2.5–3 seconds. No four-role subject, handoff folder, headline, or checklist geometry continues under the crop."
+  },
+  "safeZoneStills": [
+    {"path": "desktop-presenter-safe-zone.png", "sha256": "f924f9f01dce600b4facb3c080d730fb73622117545d16190572eb76aa488110", "mediaScalePx": [1280, 720]},
+    {"path": "mobile-presenter-safe-zone.png", "sha256": "c7d76321993024a2ea00fa775034ba37641e9affcbab9ff893576b0d1691902", "mediaScalePx": [390, 219]}
+  ],
+  "streams": {
+    "durationSeconds": 251.332,
+    "videoPx": [1920, 1080],
+    "frameRate": 25,
+    "videoFrames": 6283,
+    "audioPackets": 11783,
+    "subtitlePackets": 112,
+    "sourceAndCandidateAudioSha256": "bc8175fe09f757be095058e7cac33b2245d9ecea53f068447518cef9e383b177",
+    "sourceAndCandidateSubtitleSha256": "f2cc54ddc5a21765dac67bac18494e1aa8db87f635b7b7411b7b882623ce28ed",
+    "decode": "pass",
+    "sourceCandidatePostWindowPsnrDbAt9_4To14_4Seconds": 44.990559
+  },
+  "reviewClips": [
+    {"path": "L07-unified-desktop-media-review.mp4", "sha256": "b0b9449421eaeb84f4e578a4fe15ebb760f1223715849df5b9350eab5da0fc0a", "px": [1280, 720], "durationSeconds": 12.01, "decode": "pass"},
+    {"path": "L07-unified-mobile-media-review.mp4", "sha256": "eff153a90cf0a386cb6a168d9ec16a55c4a6dae19419d1052af45d5d0486de6f", "px": [390, 844], "durationSeconds": 12.01, "decode": "pass"}
+  ],
+  "learnerRoute": {
+    "initialUrl": "http://127.0.0.1:3145/agentified/learningplan?lesson=L07&rev=c2acec2f-unified-route",
+    "selectedUrl": "http://127.0.0.1:3145/agentified/learningplan?lesson=L07",
+    "boundMedia": "/agentified/lessons/l07/illustrated-c2acec2f/agentified-l07-unified-candidate.mp4",
+    "desktopViewportPx": [1280, 844],
+    "mobileViewportPx": [390, 844],
+    "observed": [
+      "Desktop frame zero showed no opaque inset over the team or checklist; the empty native presenter frame blended into the continuous navy field.",
+      "Desktop 0:03 and 0:08 showed the native presenter separate from four roles, handoff folders, headline, checklist, controls, and external large caption band.",
+      "Mobile 0:00 and 0:03 showed the same composition and a fixed presenter on the right without covering teaching objects.",
+      "Mobile 0:10 returned to the complete original source plate after the 9.37-second presenter window.",
+      "Mobile captions off/on and Small, Medium, Large Aa selections worked; Large stayed in an external caption band below the picture and controls.",
+      "Desktop native Small caption and external Large caption were observed; desktop Home key on the native scrubber returned playback to 0:00."
+    ]
+  },
+  "temporaryBindingRestored": true,
+  "notExercised": [
+    "Full L07–L16 learner-route matrix; this source lane returns the authored L07-01 correction to Phase 3B",
+    "Natural completion and replay in this second pass; code and source timing remained unchanged",
+    "Authenticated learner data, deployment, and Human QA"
+  ],
+  "nextGate": "Phase 3B reruns the full L07–L16 matrix from L07-01 desktop and mobile using this exact candidate hash."
+}
