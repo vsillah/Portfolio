@@ -1,0 +1,133 @@
+{
+  "status": "derived_scene_exact_route_timing_review_only_unbound",
+  "basis": {
+    "registeredBoundaries": "agentified/workshop/presentation-illustration-audit/audit-boundaries.json",
+    "authoredStudy": "agentified/workshop/phase-3b-review/text-panel-padding/l16-checkpoint-receipt.json",
+    "studySourceVideoSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+    "nativeSourceVideoSha256": "e890f6a940ea6fcb1861bc79f1bffafec7306637f14b4bee1753527572e7138a",
+    "sourceCaptionSha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060"
+  },
+  "rule": "Anchor each authored state sequence to its registered scene entrance. Preserve every intermediate authored state duration and hold only the final authored frame for the exact remaining scene duration. Assign frames on the global 25 fps source timeline. Do not shift narration, captions, presenter, countdown, or adjacent scene boundaries; do not edit the unbound 28-second study clips or their receipts.",
+  "scenes": [
+    {
+      "scene": "L16-04",
+      "registeredWindowSeconds": [
+        89.687,
+        117.109
+      ],
+      "registeredDurationSeconds": 27.422,
+      "studyWindowSeconds": [
+        89.0,
+        117.0
+      ],
+      "studyDurationSeconds": 28.0,
+      "layouts": [
+        {
+          "layout": "desktop",
+          "states": [
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide.png",
+              "durationSeconds": 1.6,
+              "framesAt25Fps": 40
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit.png",
+              "durationSeconds": 25.822,
+              "framesAt25Fps": 645
+            }
+          ],
+          "routeFrameCountAt25Fps": 685
+        },
+        {
+          "layout": "mobile",
+          "states": [
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide.png",
+              "durationSeconds": 4.2,
+              "framesAt25Fps": 105
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-roles.png",
+              "durationSeconds": 7.3,
+              "framesAt25Fps": 182
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-prohibitions.png",
+              "durationSeconds": 5.5,
+              "framesAt25Fps": 138
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-hold.png",
+              "durationSeconds": 10.422,
+              "framesAt25Fps": 260
+            }
+          ],
+          "routeFrameCountAt25Fps": 685
+        }
+      ]
+    },
+    {
+      "scene": "L16-05",
+      "registeredWindowSeconds": [
+        117.109,
+        145.819
+      ],
+      "registeredDurationSeconds": 28.71,
+      "studyWindowSeconds": [
+        117.0,
+        145.0
+      ],
+      "studyDurationSeconds": 28.0,
+      "layouts": [
+        {
+          "layout": "desktop",
+          "states": [
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/overview-wide.png",
+              "durationSeconds": 1.6,
+              "framesAt25Fps": 40
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/audit.png",
+              "durationSeconds": 27.11,
+              "framesAt25Fps": 678
+            }
+          ],
+          "routeFrameCountAt25Fps": 718
+        },
+        {
+          "layout": "mobile",
+          "states": [
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/overview-wide.png",
+              "durationSeconds": 2.0,
+              "framesAt25Fps": 50
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-proof.png",
+              "durationSeconds": 4.2,
+              "framesAt25Fps": 105
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-rollback.png",
+              "durationSeconds": 6.3,
+              "framesAt25Fps": 158
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-revoke.png",
+              "durationSeconds": 7.3,
+              "framesAt25Fps": 182
+            },
+            {
+              "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-staffing.png",
+              "durationSeconds": 8.91,
+              "framesAt25Fps": 223
+            }
+          ],
+          "routeFrameCountAt25Fps": 718
+        }
+      ]
+    }
+  ],
+  "limits": "This receipt reconciles standalone study durations to registered lesson windows for temporary learner-route qualification. It is not a new approved media binding or a rewrite of the authored studies."
+}

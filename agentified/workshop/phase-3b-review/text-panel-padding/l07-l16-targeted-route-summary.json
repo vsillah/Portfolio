@@ -1,0 +1,20 @@
+{
+  "status": "targeted_learner_route_checkpoints_passed_unbound",
+  "reviewBranch": "codex/agentified-phase3b-provider-free-normalization",
+  "stackHeads": {
+    "captionSafety": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+    "player": "7bb6267c9fb98172679e161aafa208dfc7a276c3"
+  },
+  "checkedLessons": ["L07", "L08", "L09", "L10", "L11", "L12", "L13", "L14", "L15", "L16"],
+  "evidence": [
+    "agentified/workshop/phase-3b-review/text-panel-padding/l07-l14-learner-route-stop-receipt.json",
+    "agentified/workshop/phase-3b-review/text-panel-padding/l14-scene-exact-timing-receipt.json",
+    "agentified/workshop/phase-3b-review/text-panel-padding/l14-l15-learner-route-stop-receipt.json",
+    "agentified/workshop/phase-3b-review/text-panel-padding/l15-scene-exact-timing-receipt.json",
+    "agentified/workshop/phase-3b-review/text-panel-padding/l15-l16-learner-route-stop-receipt.json",
+    "agentified/workshop/phase-3b-review/text-panel-padding/l16-scene-exact-timing-receipt.json",
+    "agentified/workshop/phase-3b-review/text-panel-padding/l16-learner-route-qualification-receipt.json"
+  ],
+  "scope": "Focused scene studies, registered scene entry/exit, captions, source wording, representative player behavior, and protected native windows were exercised in isolated desktop and 390x844 learner routes. Every temporary composite decoded at its source lesson duration. Product media bindings were never committed.",
+  "remainingGate": "Captain review must decide whether the targeted evidence satisfies the Phase 3B qualification plan or whether the untested scene-by-scene and interaction states need a broader pass. Client-facing Human QA requires its separate exact-build MP4 and localhost handoff. No merge, deployment, provider action, spending, publication, or release is authorized by this receipt."
+}
