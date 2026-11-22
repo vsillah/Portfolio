@@ -1,0 +1,15 @@
+{
+  "hash": "8c3cbcddd420977f2664931e73878e2b1e939a6b7ee0c961ff2c1b42c6eb9446",
+  "results": [
+    {
+      "source": "http://127.0.0.1:3148/agentified/lessons/l07/review-8c3cbcdd/L07-opening-and-closing-candidate.mp4",
+      "route": "http://127.0.0.1:3148/agentified/learningplan?lesson=L07",
+      "viewport": "1280x844"
+    },
+    {
+      "source": "http://127.0.0.1:3148/agentified/lessons/l07/review-8c3cbcdd/L07-opening-and-closing-candidate.mp4",
+      "route": "http://127.0.0.1:3148/agentified/learningplan?lesson=L07",
+      "viewport": "390x844"
+    }
+  ]
+}

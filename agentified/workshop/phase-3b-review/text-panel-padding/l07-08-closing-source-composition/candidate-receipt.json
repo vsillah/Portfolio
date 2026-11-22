@@ -1,0 +1,33 @@
+{
+  "status": "review_only_unbound",
+  "prior": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-mobile-source-composition/L07-unified-source-candidate.mp4",
+  "priorSha256": "c2acec2f12607d5a86b3ef764f8cde17bbba2e50d11de2e4cedb79e21e25f216",
+  "field": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-closing-source-composition/studio-field.png",
+  "fieldSha256": "f08e0b12c60df781aec60dd05eb5faa04a0dab2c17c25e435adca0ec1c7bd90e",
+  "candidate": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-closing-source-composition/L07-opening-and-closing-candidate.mp4",
+  "candidateSha256": "8c3cbcddd420977f2664931e73878e2b1e939a6b7ee0c961ff2c1b42c6eb9446",
+  "durationSeconds": 251.332,
+  "sceneStartSeconds": 233.515,
+  "protectedPresenter": {
+    "start": 242.22243799999995,
+    "end": 248.33243799999997,
+    "sourceRect": [
+      1038,
+      316,
+      788,
+      452
+    ],
+    "outputRect": [
+      1038,
+      316,
+      788,
+      452
+    ]
+  },
+  "mediaStreams": [
+    "video",
+    "source audio copy",
+    "source subtitle copy"
+  ],
+  "note": "L07-01 opening remains in the prior input. Only the L07-08 surrounding field changes; the native closing presenter crop is restored in place. No repository learner binding changes."
+}

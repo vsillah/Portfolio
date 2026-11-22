@@ -1,0 +1,52 @@
+{
+  "status": "candidate_validated_review_only_unbound",
+  "sourcePr": 1290,
+  "sourcePrHeadAtIntake": "258f92cda9acdedfc63041a7ae10ee0d8d9c3367",
+  "playerFixtureCommit": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "priorCandidateSha256": "c2acec2f12607d5a86b3ef764f8cde17bbba2e50d11de2e4cedb79e21e25f216",
+  "candidateSha256": "8c3cbcddd420977f2664931e73878e2b1e939a6b7ee0c961ff2c1b42c6eb9446",
+  "media": {
+    "durationSecondsPriorAndCandidate": 251.332,
+    "videoFramesPriorAndCandidate": 6283,
+    "videoSize": "1920x1080",
+    "frameRate": "25/1",
+    "audioStreamSha256PriorAndCandidate": "bc8175fe09f757be095058e7cac33b2245d9ecea53f068447518cef9e383b177",
+    "subtitleStreamSha256PriorAndCandidate": "f2cc54ddc5a21765dac67bac18494e1aa8db87f635b7b7411b7b882623ce28ed",
+    "fullDecode": "pass",
+    "closingPresenterRectangle": [
+      1038,
+      316,
+      788,
+      452
+    ],
+    "closingPresenterSeconds": [
+      242.222438,
+      248.332438
+    ],
+    "presenterCropPsnrDbAt245Seconds": 51.434,
+    "presenterCropPsnrDbAt247Point9Seconds": 50.122
+  },
+  "learnerFixture": {
+    "route": "http://127.0.0.1:3148/agentified/learningplan?lesson=L07",
+    "videoSource": "/agentified/lessons/l07/review-8c3cbcdd/L07-opening-and-closing-candidate.mp4",
+    "viewports": [
+      "1280x844",
+      "390x844"
+    ],
+    "observed": [
+      "complete Operating File card and checklist clear of native presenter",
+      "desktop and mobile captions clear of teaching art",
+      "captions on/off, Aa sizing, mute, seek, completion, and replay respond on the learner route"
+    ],
+    "data": "synthetic guest state; no real user account or private data"
+  },
+  "walkthroughs": {
+    "desktop": "route-evidence/L07-closing-desktop-learner-route.mp4",
+    "desktopSha256": "77a67bfa3c289804f87289730ff59ad1f5e1186a6e2de4732548317f8143ec61",
+    "mobile": "route-evidence/L07-closing-mobile-learner-route.mp4",
+    "mobileSha256": "e51b1e47816b15201efc9b346fbb8215851c417dc6c2f6c6d92ea97f4e12a7b2",
+    "desktopStillSha256": "6de4d1c3618c662656d02693f184da351a5e4cf2e158ec238e98423d07d75396",
+    "mobileStillSha256": "4c5920caf3c9bc8a40ffd57e6f122651193e4a28320e570d1d4ae98f5cd84d09"
+  },
+  "remainingGate": "Phase 3B full L07-L16 matrix at exact PR stack head; captain owns binding, merge, deployment, and Human QA"
+}
