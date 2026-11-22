@@ -207,6 +207,65 @@ describe('Agentified lesson media gate', () => {
     }
   })
 
+  it('routes every L07-01 desktop cue below the player and restores L07-02 native captions', () => {
+    const originalPause = HTMLMediaElement.prototype.pause
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    const originalTrack = Object.getOwnPropertyDescriptor(HTMLTrackElement.prototype, 'track')
+    const opening = { startTime: 0, endTime: 1.87, text: 'Morgan receives a polished Session' }
+    const presenter = { startTime: 7.3, endTime: 9.27, text: 'The source said available for review.' }
+    const last = { startTime: 24.619, endTime: 27.67, text: 'A paper agent design needs those answers written down.' }
+    const next = { startTime: 27.99, endTime: 31.884, text: 'Chapter Eleven turns the request into an Agentic PRD Packet.' }
+    const track = Object.assign(new EventTarget(), { mode: 'disabled', cues: [opening, presenter, last, next] })
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const mobileMedia = Object.assign(new EventTarget(), { matches: false })
+    HTMLMediaElement.prototype.pause = vi.fn()
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    Object.defineProperty(HTMLTrackElement.prototype, 'track', { configurable: true, get: () => track })
+    vi.stubGlobal('matchMedia', vi.fn(() => mobileMedia))
+    const props = { lessonId: 'L07', title: 'Team', poster: '/agentified/posters/l07-poster.webp', videoSrc: '/approved-l07.mp4', captionsSrc: '/approved-l07.vtt' }
+    try {
+      const { container, rerender, unmount } = render(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      const video = container.querySelector('video')!
+      let currentTime = 0
+      Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+      fireEvent.loadedMetadata(video)
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('hidden')
+      expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(opening.text)
+      currentTime = 1.9
+      fireEvent.seeking(video)
+      expect(screen.queryByRole('status', { name: 'L07 caption' })).toBeNull()
+      currentTime = 8.2
+      fireEvent.seeking(video)
+      expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(presenter.text)
+      for (const size of ['S', 'M', 'L'] as const) {
+        rerender(<AgentifiedLessonHero {...props} captionSize={size} captionsOn />)
+        expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveAttribute('data-caption-size', size)
+      }
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn={false} />)
+      expect(track.mode).toBe('disabled')
+      expect(screen.queryByRole('status', { name: 'L07 caption' })).toBeNull()
+      rerender(<AgentifiedLessonHero {...props} captionSize="M" captionsOn />)
+      expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(presenter.text)
+      currentTime = 27.669
+      fireEvent.seeking(video)
+      expect(screen.getByRole('status', { name: 'L07 caption' })).toHaveTextContent(last.text)
+      currentTime = 27.99
+      fireEvent.seeking(video)
+      expect(track.mode).toBe('showing')
+      expect(screen.queryByRole('status', { name: 'L07 caption' })).toBeNull()
+      expect(video).toHaveAttribute('controls')
+      unmount()
+    } finally {
+      if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
+      else Reflect.deleteProperty(HTMLMediaElement.prototype, 'textTracks')
+      if (originalTrack) Object.defineProperty(HTMLTrackElement.prototype, 'track', originalTrack)
+      else Reflect.deleteProperty(HTMLTrackElement.prototype, 'track')
+      HTMLMediaElement.prototype.pause = originalPause
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('clears L07-05 desktop teaching content while preserving adjacent native cues', () => {
     const originalPause = HTMLMediaElement.prototype.pause
     const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
