@@ -43,6 +43,39 @@ export function AgentifiedLessonHero({ lessonId, title, poster, altText, videoSr
   const lessonTeachingScenes = mobileTeachingDetails.scenes.filter((scene) => scene.lessonId === lessonId)
   const syncScene = (currentTime: number) => setActiveTeachingScene(lessonTeachingScenes.find((scene) => currentTime >= scene.startSeconds && currentTime < scene.endSeconds)?.sceneId ?? null)
   const teachingScene = lessonTeachingScenes.find((scene) => scene.sceneId === activeTeachingScene)
+  useEffect(() => {
+    if (lessonId !== 'L07' || !videoSrc) return
+    const video = videoRef.current
+    const gate = mobileTeachingDetails.scenes.find((scene) => scene.sceneId === 'L07-07')
+    if (!video || !gate) return
+    let frame = 0
+    const syncGate = () => {
+      const inside = video.currentTime >= gate.startSeconds && video.currentTime < gate.endSeconds
+      setActiveTeachingScene((current) => inside ? gate.sceneId : current === gate.sceneId ? null : current)
+    }
+    const tick = () => {
+      syncGate()
+      if (!video.paused && !video.ended) frame = requestAnimationFrame(tick)
+    }
+    const start = () => {
+      cancelAnimationFrame(frame)
+      tick()
+    }
+    const stop = () => {
+      cancelAnimationFrame(frame)
+      syncGate()
+    }
+    video.addEventListener('playing', start)
+    video.addEventListener('pause', stop)
+    video.addEventListener('seeked', syncGate)
+    if (!video.paused) start()
+    return () => {
+      cancelAnimationFrame(frame)
+      video.removeEventListener('playing', start)
+      video.removeEventListener('pause', stop)
+      video.removeEventListener('seeked', syncGate)
+    }
+  }, [lessonId, videoSrc])
   return <><div className={styles.coverStage} aria-label={label}>
     {videoSrc ? <video ref={videoRef} className={`${styles.lessonVideo}${posterRevealed ? ` ${styles.videoReveal}` : ''}`} controls playsInline preload="metadata" poster={poster} aria-label={`${lessonId} ${title} guided video`} onLoadedMetadata={(event) => { if (resumeSeconds > 0 && resumeSeconds < event.currentTarget.duration - 2) event.currentTarget.currentTime = resumeSeconds; syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const track = event.currentTarget.textTracks[0]; if (track) track.mode = 'showing'; captionsChangeRef.current?.(Array.from(event.currentTarget.textTracks).some((item) => item.mode === 'showing')) }} onTimeUpdate={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime); const seconds = Math.floor(event.currentTarget.currentTime); if (seconds > 0 && seconds % 5 === 0) onProgress?.(seconds) }} onSeeking={(event) => { syncEndScreen(event.currentTarget.currentTime); syncScene(event.currentTarget.currentTime) }} onPause={(event) => onProgress?.(Math.floor(event.currentTarget.currentTime))} onEnded={() => { setEndScreenVisible(Boolean(endScreen)); setActiveTeachingScene(null); onProgress?.(Math.floor(durationSeconds ?? 540)) }} onPlaying={() => setPosterRevealed(true)} onEmptied={() => { setPosterRevealed(false); setEndScreenVisible(false); setActiveTeachingScene(null) }}>
       <source src={videoSrc} type="video/mp4" />
