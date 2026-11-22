@@ -1,0 +1,17 @@
+{
+  "hash": "0c07d394a842513b57a9d873dd618974d11effaa8e6696b5a534e179a63c68b4",
+  "results": [
+    {
+      "source": "http://127.0.0.1:3151/agentified/lessons/l07/review-0c07d394/L07-caption-free-closing-candidate.mp4",
+      "route": "http://127.0.0.1:3151/agentified/learningplan?lesson=L07",
+      "viewport": "1280x844",
+      "hash": "0c07d394a842513b57a9d873dd618974d11effaa8e6696b5a534e179a63c68b4"
+    },
+    {
+      "source": "http://127.0.0.1:3151/agentified/lessons/l07/review-0c07d394/L07-caption-free-closing-candidate.mp4",
+      "route": "http://127.0.0.1:3151/agentified/learningplan?lesson=L07",
+      "viewport": "390x844",
+      "hash": "0c07d394a842513b57a9d873dd618974d11effaa8e6696b5a534e179a63c68b4"
+    }
+  ]
+}
