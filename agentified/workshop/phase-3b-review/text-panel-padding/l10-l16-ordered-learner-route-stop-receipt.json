@@ -1,0 +1,51 @@
+{
+  "recordedAtUtc": "2026-11-22T22:45:57Z",
+  "status": "STOP_at_L13-03_open_spoken_caption_meaning_mismatch",
+  "scope": "Provider-free, review-only ordered L10-L16 learner-route continuation after L09 correction",
+  "pr": 1290,
+  "reviewHead": "56e393e872538494ae95d8476e46bae1d9cadcf0",
+  "temporaryRouteBase": "http://127.0.0.1:3157/agentified/learningplan",
+  "browser": "Chrome fallback because the integrated in-app Browser was unavailable in this task inventory",
+  "viewportWidths": [1280, 390],
+  "fixture": "Synthetic guest state with temporary manifest and end-screen bindings under /tmp/phase3b-l09-word/app; committed learner bindings unchanged",
+  "orderedResults": [
+    {
+      "lesson": "L10",
+      "status": "visual_player_pass",
+      "desktopCandidateSha256": "c1786f2ca14c4ebbe6d110fc275fd5604a980e549cd8ac632615253fa330a7e6",
+      "mobileCandidateSha256": "69632569936c56553f02ffcbb2cd5ae5142e15622d5b27269a2b3c488247e8c6",
+      "captionSha256": "0650d923e75357b672a493b40f633953b97c014efdd96767413f3679c2123ed3",
+      "checked": "Desktop and mobile scene order, complete authority ladder, corrected 'Mark it unapproved' join, countdown, closing presenter, lesson caption band, seek and completion. No baked duplicate subtitle was visible in presenter windows."
+    },
+    {
+      "lesson": "L11",
+      "status": "visual_player_pass",
+      "candidateSha256": "b5f607ac5af7427b999b1a9ab2b06c5edc7a73269ca5bd27de5cb27be3795f78",
+      "captionSha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78",
+      "checked": "Desktop and mobile scene order, complete stack and focus, caption off/on and S/M/L controls, protected countdown and closing presenter. No baked duplicate subtitle was visible in presenter windows."
+    },
+    {
+      "lesson": "L12",
+      "status": "visual_player_pass",
+      "candidateSha256": "a27870a6537488742c64f61e7db3dfbab6a752db2d087c3d930a99bb6f43be4d",
+      "captionSha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467",
+      "checked": "Desktop and mobile scene order, complete first-receipt path, caption off/on and S/M/L controls, protected countdown and closing presenter. No baked duplicate subtitle was visible in presenter windows."
+    },
+    {
+      "lesson": "L13",
+      "status": "stop_at_scene_03",
+      "candidateSha256": "a487defc10fbcea74e280b0d86b664ec61e54b8b843bb59fdf5fe03dd5822389",
+      "sourceVideoSha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f",
+      "candidateAndSourceAudioStreamSha256": "fb94d2a78e10cdcfd837f633b34dd8727c45cd59808735fa5e96c8ea205386ad",
+      "captionSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+      "desktopRoute": "http://127.0.0.1:3157/agentified/learningplan?lesson=L13&rev=a487defc",
+      "observedAtSeconds": 68.91523,
+      "visibleCaption": "Here the baseline is `unknown`, not zero.",
+      "audioEvidence": "The existing focused acoustic disposition for this exact source reports five provider-free decodes at 69.86-70.34 seconds recognizing 'nay' (possibly spoken 'N/A'), approximate word probability 0.80. Direct contextual listening remains required before deciding whether to change audio, caption, or both.",
+      "priorEvidencePath": "docs/agentified-distribution-readiness/phase-3b/focused-acoustic-disposition-2026-11-20.json",
+      "whyStop": "If the spoken word is N/A, it differs from unknown in meaning; the candidate preserves the same audio bytes and the lesson visibly renders the bound unknown caption."
+    }
+  ],
+  "notReached": ["L13 mobile and remaining scenes", "L14", "L15", "L16"],
+  "limits": "These are visual player checks and focused prior acoustic evidence, not a whole-lesson direct audio pass or release qualification. No learner binding, provider call, spend, merge, deployment, publication, or release occurred. All related PRs remain draft."
+}
