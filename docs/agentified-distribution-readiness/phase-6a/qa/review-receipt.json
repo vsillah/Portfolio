@@ -1,23 +1,27 @@
 {
   "schemaVersion": 1,
-  "commit": "cdab025b41bbc54b4ca3df7446968f71f20b4ec2",
+  "commit": "8118464b18bd211a48ea56ab4239cfd08519fe23",
   "evidence": [
     {
       "viewport": "desktop",
       "width": 1280,
       "height": 900,
-      "route": "http://127.0.0.1:3188/agentified?rev=cdab025b41bbc54b4ca3df7446968f71f20b4ec2",
+      "route": "http://127.0.0.1:3188/agentified?rev=8118464b18bd211a48ea56ab4239cfd08519fe23",
       "video": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-walkthrough.mp4",
-      "videoSha256": "523e0b39f031394d6ae717d772263aa5f9cf72d6f245eab83cdf16dd9404eb0f",
-      "durationSeconds": 8.04,
+      "videoSha256": "f57c85024d613e43dd03fd15694bebaff6e942164eddd6ab3757031716a3bef7",
+      "durationSeconds": 10,
       "screenshots": [
         {
           "path": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-landing.png",
-          "sha256": "70ff5889017e4c005550b4addb269d3023190621afb17bdcc245fe04ec79ae32"
+          "sha256": "220bc7222843320d208b987adc88dd32389315c48936662c3b8328f82a594a80"
         },
         {
           "path": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-copy.png",
-          "sha256": "70ff5889017e4c005550b4addb269d3023190621afb17bdcc245fe04ec79ae32"
+          "sha256": "951c534add917609aa6593665c0a15357068a985082ddd532a2961b06393c67b"
+        },
+        {
+          "path": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-cover.png",
+          "sha256": "e59f74b03ba2c98ea5cd947f783ddcf084c6dcf862a9ed81bea2c61cbd519e39"
         },
         {
           "path": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-transcript-led.png",
@@ -29,18 +33,22 @@
       "viewport": "mobile",
       "width": 390,
       "height": 844,
-      "route": "http://127.0.0.1:3188/agentified?rev=cdab025b41bbc54b4ca3df7446968f71f20b4ec2",
+      "route": "http://127.0.0.1:3188/agentified?rev=8118464b18bd211a48ea56ab4239cfd08519fe23",
       "video": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-walkthrough.mp4",
-      "videoSha256": "ec013e48ba5cfed12d9f20fc3c8111cad2b008e3e67b5ec1d9778e645bea57ad",
-      "durationSeconds": 7.6,
+      "videoSha256": "83f506b7cebc6e102b78034bb61f968bf3a5d54f2e40ddb7d3b829c5b3d2a85c",
+      "durationSeconds": 10,
       "screenshots": [
         {
           "path": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-landing.png",
-          "sha256": "af82247e6c61c3005a8eae9f0a858754570691df0c15605dd1468348308a4686"
+          "sha256": "361782b10c100389d254754ad6e81a980de33f0a2e62d4457607a977876e8030"
         },
         {
           "path": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-copy.png",
-          "sha256": "7d4c7a41351234d6806a3b2027706b852f3018945cfdf39b09a96db2338f27a1"
+          "sha256": "3aae5674197614a7b8b00133296081b1cc2b8614fe6fbbebdbc59e24d36e189e"
+        },
+        {
+          "path": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-cover.png",
+          "sha256": "7d97e8b08056c55af3f72fd5437fcd95d0dc7a3c3fdf6e875332b3d8274e20aa"
         },
         {
           "path": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-transcript-led.png",
