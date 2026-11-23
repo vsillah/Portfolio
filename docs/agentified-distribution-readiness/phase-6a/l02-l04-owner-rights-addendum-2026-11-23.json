@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "status": "owner_rights_confirmed_for_identified_L02_L04_open_learning_assets_only",
+  "approvalDate": "2026-11-23",
+  "authorizer": "Vambah Sillah, on behalf of AmaduTown",
+  "authorizationContext": "Annotated approval in Portfolio Integration Captain task 01a1c704-3bcc-7d63-a927-c409241c061b for the exact Phase 6A production asset scope",
+  "productionCommit": "aef8c3ec2a3415f0c84f21cfbd3f143c1a299f85",
+  "priorOwnerReleaseReceipt": "docs/agentified-distribution-readiness/phase-3b/owner-release-receipt-2026-11-20.json",
+  "source": {
+    "path": "lib/agentified-workshop-content.json",
+    "sha256": "c9085044ded3eb7449ff2fc21fdd683174b7d5c16049c47a37b824ab4de12d6a",
+    "version": "agentified-l01-l16-de1e01f0"
+  },
+  "coveredAssets": [
+    {
+      "lessonId": "L02",
+      "lessonTitle": "Start with the decision",
+      "lessonRecordSha256": "1769b0d8eabe98ab0499bed4cdebc78b8752f0a15dc8db57838e1c07c807b2eb",
+      "transcriptIdentity": "segments[].spoken in the lesson record",
+      "worksheetIdentity": "artifact, outputs, exercise, prompt in the lesson record",
+      "diagram": {
+        "path": "public/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
+        "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1"
+      }
+    },
+    {
+      "lessonId": "L03",
+      "lessonTitle": "Trace the work and grade the sources",
+      "lessonRecordSha256": "e239601825dd0b3f0a2e2deff2408f5ff9814dec70fd6f07454f3f41e0cf0f6f",
+      "transcriptIdentity": "segments[].spoken in the lesson record",
+      "worksheetIdentity": "artifact, outputs, exercise, prompt in the lesson record",
+      "diagram": {
+        "path": "public/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+        "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669"
+      }
+    },
+    {
+      "lessonId": "L04",
+      "lessonTitle": "Turn feedback into governed memory",
+      "lessonRecordSha256": "ff88db19ccc0424ce7a48fef745c0d91cb82cd4751baadb74c4ebf9b1ecd5b3a",
+      "transcriptIdentity": "segments[].spoken in the lesson record",
+      "worksheetIdentity": "artifact, outputs, exercise, prompt in the lesson record",
+      "diagram": {
+        "path": "public/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
+        "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd"
+      }
+    }
+  ],
+  "approvedUse": {
+    "purpose": "Existing Agentified public open-learning workshop display and ordinary delivery",
+    "entryPoints": [
+      "AmaduTown Agentified landing page",
+      "Agentified Learning Plan",
+      "Agentified Operating File"
+    ],
+    "accessModel": "guest access with optional sign-in for saved progress",
+    "format": "L02-L04 transcript-led lessons with existing diagrams and worksheets; no qualified guided video"
+  },
+  "excludedUses": [
+    "L02-L04 video or audio distribution",
+    "separate raw-source redistribution",
+    "provider-training reuse",
+    "unrelated commercial reuse",
+    "assets outside the exact identities above"
+  ],
+  "executionNotAuthorized": [
+    "binding media or captions",
+    "editing qualified media, captions, timing, controls, progress or learner data",
+    "merge or deployment",
+    "provider contact, generation or spending",
+    "external publication or release"
+  ],
+  "scopeBoundary": "This addendum confirms rights only for the existing production L02-L04 transcript, diagram and worksheet assets identified above. It does not change the L01/L05-L16 receipt, qualify L02-L04 video, or authorize release. Any source/hash drift or contrary rights evidence requires new owner review."
+}

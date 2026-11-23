@@ -1,8 +1,24 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, BookOpen, Brain, CheckCircle2, ExternalLink, FileText, ShieldCheck } from 'lucide-react'
 import Navigation from '@/components/Navigation'
 import { agentifiedPublication } from '@/lib/agentified-publication'
+
+const workshopDescription = 'Learn to build accountable AI agent systems with Agentified. Start as a guest: thirteen guided-video lessons and three transcript-led lessons. Sign in if you want to save progress across devices.'
+
+export const metadata: Metadata = {
+  title: 'Agentified: Open Learning Workshop | AmaduTown',
+  description: workshopDescription,
+  alternates: { canonical: 'https://amadutown.com/agentified' },
+  openGraph: {
+    title: 'Agentified: Open Learning Workshop | AmaduTown',
+    description: workshopDescription,
+    url: 'https://amadutown.com/agentified',
+    type: 'website',
+    images: [{ url: 'https://amadutown.com/agentified-cover.jpg', alt: 'Agentified book cover' }],
+  },
+}
 
 const principles = [
   {
@@ -57,6 +73,9 @@ export default function AgentifiedPage() {
             </p>
             <p className="mt-5 max-w-3xl text-base leading-7 text-foreground/85">
               {agentifiedPublication.promise}
+            </p>
+            <p className="mt-5 max-w-3xl text-sm leading-6 text-muted-foreground">
+              The Agentified workshop is public open learning. Start as a guest: thirteen guided-video lessons and three transcript-led lessons, each with a working page. Sign in only if you want to save progress across devices.
             </p>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
