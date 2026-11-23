@@ -1,6 +1,6 @@
 {
   "packet_status": "draft_prepare_only",
-  "packet_version": "2026-11-23.1",
+  "packet_version": "2026-11-23.2",
   "base_commit": "6712d42a1d0135e03f801e7a49efb6339b677148",
   "side_effects": {
     "creates_campaign": false,
@@ -47,14 +47,57 @@
         "human_gate_required": true,
         "draft_asset_path": "agentified/campaign/draft-assets.md#aw-li-01",
         "source_paths": [
-          "app/agentified/page.tsx",
           "app/agentified/page.tsx"
         ],
         "cta_url": "https://amadutown.com/agentified",
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-11-24T10:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-LI-01:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -83,7 +126,52 @@
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision",
+          "approved_visual_or_media"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-11-26T12:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-IG-CAR-01:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -112,7 +200,51 @@
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-11-27T10:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-LI-02:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -141,7 +273,52 @@
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision",
+          "approved_visual_or_media"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-12-01T12:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-REEL-01:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -170,7 +347,51 @@
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-12-02T10:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-LI-03:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -192,14 +413,58 @@
         "human_gate_required": true,
         "draft_asset_path": "agentified/campaign/draft-assets.md#aw-yt-01",
         "source_paths": [
-          "app/agentified/page.tsx",
           "app/agentified/page.tsx"
         ],
         "cta_url": "https://amadutown.com/agentified",
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision",
+          "approved_visual_or_media"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-12-03T12:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-YT-01:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -228,7 +493,52 @@
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision",
+          "approved_visual_or_media"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-12-04T12:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-IG-CAR-02:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -250,14 +560,57 @@
         "human_gate_required": true,
         "draft_asset_path": "agentified/campaign/draft-assets.md#aw-li-04",
         "source_paths": [
-          "app/agentified/page.tsx",
           "app/agentified/page.tsx"
         ],
         "cta_url": "https://amadutown.com/agentified",
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-12-05T10:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-LI-04:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -286,7 +639,52 @@
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision",
+          "approved_visual_or_media"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-12-08T12:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-REEL-02:v1",
+        "notification_receipt": "none"
       }
     },
     {
@@ -308,14 +706,57 @@
         "human_gate_required": true,
         "draft_asset_path": "agentified/campaign/draft-assets.md#aw-li-05",
         "source_paths": [
-          "app/agentified/page.tsx",
           "app/agentified/page.tsx"
         ],
         "cta_url": "https://amadutown.com/agentified",
         "source_status": "requires_jit_refresh",
         "visual_status": "requires_current_proof_capture",
         "challenger_status": "pending",
-        "publication_status": "not_authorized"
+        "publication_status": "not_authorized",
+        "draft_state": "draft",
+        "dependencies": [
+          "current_public_route",
+          "source_and_outlier_evidence",
+          "voice_and_originality_review",
+          "privacy_review",
+          "challenger_review",
+          "human_copy_decision"
+        ],
+        "jit_refresh": {
+          "prepare_by": "2026-12-12T10:00:00-05:00",
+          "checks": [
+            "public_route_and_cta",
+            "lesson_mix",
+            "guest_access",
+            "credential_wording_if_used",
+            "approved_public_signals",
+            "source_outlier_evidence",
+            "duplicate_history",
+            "channel_constraints"
+          ],
+          "material_drift": "return_to_draft_or_blocked",
+          "missing_event_time_evidence": "blocked"
+        },
+        "review_gates": {
+          "source": "pending",
+          "voice": "pending",
+          "originality": "pending",
+          "privacy": "pending",
+          "visual": "pending",
+          "challenger": "pending",
+          "human_copy": "pending",
+          "human_visual": "pending"
+        },
+        "external_action_locks": {
+          "provider_generation": true,
+          "render": true,
+          "upload": true,
+          "schedule": true,
+          "publish": true,
+          "send": true
+        },
+        "idempotency_key": "agentified-workshop-2026-post-thanksgiving:AW-LI-05:v1",
+        "notification_receipt": "none"
       }
     }
   ],
