@@ -1,10 +1,10 @@
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-claimed.png'
 duration 3
-file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-copied.png'
-duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-linkedin-copied.png'
 duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-facebook-copy-failed.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-facebook-retry-copied.png'
 duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-x-intent.png'
 duration 3
