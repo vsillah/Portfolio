@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "commit": "cdab025b41bbc54b4ca3df7446968f71f20b4ec2",
+  "evidence": [
+    {
+      "viewport": "desktop",
+      "width": 1280,
+      "height": 900,
+      "route": "http://127.0.0.1:3188/agentified?rev=cdab025b41bbc54b4ca3df7446968f71f20b4ec2",
+      "video": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-walkthrough.mp4",
+      "videoSha256": "523e0b39f031394d6ae717d772263aa5f9cf72d6f245eab83cdf16dd9404eb0f",
+      "durationSeconds": 8.04,
+      "screenshots": [
+        {
+          "path": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-landing.png",
+          "sha256": "70ff5889017e4c005550b4addb269d3023190621afb17bdcc245fe04ec79ae32"
+        },
+        {
+          "path": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-copy.png",
+          "sha256": "70ff5889017e4c005550b4addb269d3023190621afb17bdcc245fe04ec79ae32"
+        },
+        {
+          "path": "docs/agentified-distribution-readiness/phase-6a/qa/desktop-transcript-led.png",
+          "sha256": "e10e48f2d7cf65625bb7051b6000d67bc50f1cf3e5b2cd0f284c4dbc0341bbb4"
+        }
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "route": "http://127.0.0.1:3188/agentified?rev=cdab025b41bbc54b4ca3df7446968f71f20b4ec2",
+      "video": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-walkthrough.mp4",
+      "videoSha256": "ec013e48ba5cfed12d9f20fc3c8111cad2b008e3e67b5ec1d9778e645bea57ad",
+      "durationSeconds": 7.6,
+      "screenshots": [
+        {
+          "path": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-landing.png",
+          "sha256": "af82247e6c61c3005a8eae9f0a858754570691df0c15605dd1468348308a4686"
+        },
+        {
+          "path": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-copy.png",
+          "sha256": "7d4c7a41351234d6806a3b2027706b852f3018945cfdf39b09a96db2338f27a1"
+        },
+        {
+          "path": "docs/agentified-distribution-readiness/phase-6a/qa/mobile-transcript-led.png",
+          "sha256": "164c783014e22af8280e40c9ab72f8386256821b45cb85483b89aca5bb793ecb"
+        }
+      ]
+    }
+  ]
+}
