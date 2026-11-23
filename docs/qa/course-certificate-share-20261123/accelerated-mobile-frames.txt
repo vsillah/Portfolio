@@ -1,0 +1,11 @@
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-mobile-default.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-mobile-success.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-mobile-failure.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-mobile-retry.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-mobile-x.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-mobile-x.png'

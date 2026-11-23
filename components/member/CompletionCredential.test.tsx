@@ -31,6 +31,11 @@ describe('Accelerated completion certificate', () => {
     await waitFor(() => expect(screen.getByLabelText('Claimed Accelerated completion certificate')).toHaveTextContent('Course Learner'))
     expect(screen.queryByLabelText('Unclaimed Accelerated completion certificate preview')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Download certificate' })).toBeEnabled()
+    expect(screen.getByRole('link', { name: 'Share on LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Famadutown.com%2Faccelerated')
+    expect(screen.getByRole('link', { name: 'Share on Facebook' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Share on X' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Copy verification link' })).toBeEnabled()
+    expect(screen.queryByRole('button', { name: 'Copy course link' })).not.toBeInTheDocument()
   })
 
   it('prefills the editable certificate name from the signed-in member profile', async () => {
