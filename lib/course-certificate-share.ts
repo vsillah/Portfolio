@@ -13,8 +13,8 @@ export const certificateShare = {
   accelerated: {
     title: 'Accelerated course completion',
     publicUrl: 'https://amadutown.com/accelerated',
-    achievementText: 'I completed AmaduTown’s Accelerated course. I worked through a real product decision, gathered evidence, and built a Decision File that makes the next step clearer. Explore the course:',
-    xText: 'I completed AmaduTown’s Accelerated course. I used evidence and a Decision File to move a product decision forward. Explore the course:',
+    achievementText: 'I completed AmaduTown’s Accelerated course. The lessons cover how to frame a product decision, test the evidence, and use a Decision File to keep people aligned. Explore the course:',
+    xText: 'I completed AmaduTown’s Accelerated course. The lessons show how to frame a product decision and test evidence before moving forward. Explore the course:',
     invitation: 'Invite someone to work through a product decision with evidence and a practical Decision File.',
     linkLabel: 'course link',
   },

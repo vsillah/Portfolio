@@ -59,3 +59,8 @@ it('requires certificate share registration for every flagship workshop', () => 
   expect(flagshipWorkshops.map((workshop) => workshop.slug).sort()).toEqual(Object.keys(certificateShare).sort())
   for (const workshop of flagshipWorkshops) expect(workshop.certificateShareId).toBe(workshop.slug)
 })
+
+it('describes Accelerated lessons without claiming the learner finished a Decision File', () => {
+  expect(certificateShare.accelerated.achievementText).toContain('The lessons cover')
+  expect(certificateShare.accelerated.achievementText).not.toMatch(/I (built|finished|submitted|used) a Decision File/)
+})
