@@ -1,3 +1,5 @@
+import qualified from './agentified-qualified-bindings.json'
+
 export type AgentifiedEndScreenBinding = {
   lessonId: string
   startSeconds: number
@@ -31,6 +33,7 @@ export const agentifiedEndScreenBindings = {
 
 export function agentifiedEndScreenFor(lessonId: string, videoSha256: string, captionsSha256: string) {
   const binding = agentifiedEndScreenBindings[lessonId as keyof typeof agentifiedEndScreenBindings]
-  if (!binding || binding.videoSha256 !== videoSha256 || binding.captionsSha256 !== captionsSha256) return null
+  const qualifiedBinding = qualified.bindings[lessonId as keyof typeof qualified.bindings]
+  if (!binding || !qualifiedBinding || qualifiedBinding.compositeSha256 !== videoSha256 || qualifiedBinding.captionsSha256 !== captionsSha256) return null
   return binding
 }

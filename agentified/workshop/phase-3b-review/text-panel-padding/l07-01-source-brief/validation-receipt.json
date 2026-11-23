@@ -1,0 +1,86 @@
+{
+  "status": "source_candidate_pass_review_only_unbound",
+  "baseCommit": "a07b0a62a4226176a2276a613da4da8863ce5d8f",
+  "candidateSha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+  "candidateFrames": 6283,
+  "audioStreamSha256": "bc8175fe09f757be095058e7cac33b2245d9ecea53f068447518cef9e383b177",
+  "subtitleStreamSha256": "f2cc54ddc5a21765dac67bac18494e1aa8db87f635b7b7411b7b882623ce28ed",
+  "audioSubtitleMatchPrior": true,
+  "fullDecode": "pass",
+  "postSceneParity": [
+    {
+      "seconds": 28.5,
+      "scene": "L07-02",
+      "psnrDb": 56.459,
+      "thresholdDb": 45
+    },
+    {
+      "seconds": 188.8,
+      "scene": "L07-07",
+      "psnrDb": 75.861,
+      "thresholdDb": 70
+    },
+    {
+      "seconds": 201.0,
+      "scene": "L07-07",
+      "psnrDb": 79.808,
+      "thresholdDb": 70
+    },
+    {
+      "seconds": 232.9,
+      "scene": "L07-07",
+      "psnrDb": 75.062,
+      "thresholdDb": 70
+    },
+    {
+      "seconds": 234.0,
+      "scene": "L07-08",
+      "psnrDb": 53.138,
+      "thresholdDb": 45
+    },
+    {
+      "seconds": 243.0,
+      "scene": "L07-08",
+      "psnrDb": 49.299,
+      "thresholdDb": 45
+    },
+    {
+      "seconds": 246.3,
+      "scene": "L07-08",
+      "psnrDb": 48.949,
+      "thresholdDb": 45
+    }
+  ],
+  "route": {
+    "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "port": 3151,
+    "viewports": [
+      "1280x844",
+      "390x844"
+    ],
+    "checks": [
+      23,
+      25
+    ],
+    "captureSha256": "85dbb44f484031be84286dbb23d513ae3b1ba3d38886755ecbdda683e9bba53a",
+    "media": [
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-source-brief/route-evidence/L07-01-desktop-learner-route.mp4",
+        "sha256": "49d73791b5bdacf826398ea1d23e7e656cabb8e374e9735f31ef86dcba67ad2c",
+        "decode": "pass"
+      },
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-source-brief/route-evidence/L07-01-mobile-learner-route.mp4",
+        "sha256": "c744ee02bcca2a6132fd843774e171d2598cb61e99b5d4c7ac10ecb1bbcafe6f",
+        "decode": "pass"
+      }
+    ]
+  },
+  "scope": "L07-01 visual source only; retained caption-free opening presenter; later scenes and L07-08 preserved",
+  "binding": "temporary in disposable local checkout; none in PR",
+  "gatesRemaining": [
+    "captain full Phase 3B matrix",
+    "human QA if captain review passes",
+    "integration and release gates"
+  ]
+}

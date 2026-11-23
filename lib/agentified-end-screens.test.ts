@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import illustrated from './agentified-illustrated-bindings.json'
+import qualified from './agentified-qualified-bindings.json'
 import { AGENTIFIED_END_SCREEN_PATTERN_COMMIT, agentifiedEndScreenBindings, agentifiedEndScreenFor } from './agentified-end-screens'
 
 function finalCaptionEnd(path: string) {
@@ -11,13 +11,11 @@ function finalCaptionEnd(path: string) {
 }
 
 describe('Agentified end-screen bindings', () => {
-  it('binds L01-L16 to the approved end-screen pattern and exact immutable media identities', () => {
+  it('binds every qualified lesson to the approved end-screen pattern and exact immutable media identities', () => {
     expect(AGENTIFIED_END_SCREEN_PATTERN_COMMIT).toBe('5570138a0cc4e02c4cea0dca81e1bf977a647a63')
     expect(Object.keys(agentifiedEndScreenBindings)).toEqual(Array.from({ length: 16 }, (_, index) => `L${String(index + 1).padStart(2, '0')}`))
-    for (const [id, endScreen] of Object.entries(agentifiedEndScreenBindings)) {
-      const media = illustrated.bindings[id as keyof typeof illustrated.bindings]
-      expect(endScreen.videoSha256).toBe(media.compositeSha256)
-      expect(endScreen.captionsSha256).toBe(media.captionsSha256)
+    for (const [id, media] of Object.entries(qualified.bindings)) {
+      const endScreen = agentifiedEndScreenBindings[id as keyof typeof agentifiedEndScreenBindings]
       expect(endScreen.startSeconds).toBe(finalCaptionEnd(media.captions))
       expect(endScreen.endSeconds).toBe(media.durationSeconds)
       expect(endScreen.endSeconds).toBeGreaterThan(endScreen.startSeconds)
@@ -26,10 +24,10 @@ describe('Agentified end-screen bindings', () => {
   })
 
   it('fails closed on video, caption, or lesson identity drift', () => {
-    const l02 = illustrated.bindings.L02
-    expect(agentifiedEndScreenFor('L02', 'drift', l02.captionsSha256)).toBeNull()
-    expect(agentifiedEndScreenFor('L02', l02.compositeSha256, 'drift')).toBeNull()
-    expect(agentifiedEndScreenFor('L01', 'drift', illustrated.bindings.L01.captionsSha256)).toBeNull()
+    const l05 = qualified.bindings.L05
+    expect(agentifiedEndScreenFor('L05', 'drift', l05.captionsSha256)).toBeNull()
+    expect(agentifiedEndScreenFor('L05', l05.compositeSha256, 'drift')).toBeNull()
+    expect(agentifiedEndScreenFor('L02', 'drift', 'drift')).toBeNull()
   })
 
   it('uses sequential next-lesson identities and a course-complete L16 boundary', () => {

@@ -1,0 +1,64 @@
+{
+  "status": "review_only_unbound",
+  "baseCommit": "02e06ec04eb70cb3c94816b018f41e5a1e951f03",
+  "prior": {
+    "path": "public/agentified/lessons/l16/illustrated-4283c8d8/agentified-l16-illustrated-composite.mp4",
+    "sha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc"
+  },
+  "originalPresenter": {
+    "path": "agentified/workshop/l13-l16-native-source/L16/agentified-l16-heygen-presenter-source.mp4",
+    "sha256": "f850021820caf661b2a1397edc3db387f356d566c9f3a497a729cd300f5e0e51"
+  },
+  "retainedCaptionFreeSource": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-caption-free-presenter/Agentified_L16-caption-free-source.mp4",
+    "sha256": "350c259baa900d6eef9fc35a4f96ef5cb25ea0001c23d69f00fff9f82f356f87",
+    "jobId": "25b6988235318f42abadd8b3b76c1a9c",
+    "downloadOption": "Video, 1080p, burned-in captions off"
+  },
+  "backdrop": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-caption-free-presenter/studio-backdrop.png",
+    "sha256": "850c7f829f6c81788d6a88a36038e998ca1fab505651b51ff942b23ea04bc010"
+  },
+  "timeline": {
+    "path": "agentified/workshop/l13-l16-native-composite/l16-composite-timeline.json",
+    "sha256": "bd61ffdff0455b6c5d95daeb1f63504cbb3c18f4a46450a355bdb8d0c822436c",
+    "presenterWindows": [
+      {
+        "scene_id": "L16-01",
+        "source_in": 0,
+        "source_out": 16.26,
+        "sequence_start": 0,
+        "sequence_end": 16.26
+      },
+      {
+        "scene_id": "L16-08",
+        "source_in": 16.32,
+        "source_out": 25.367,
+        "sequence_start": 258.262,
+        "sequence_end": 267.309
+      }
+    ]
+  },
+  "vtt": {
+    "path": "public/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-captions.vtt",
+    "sha256": "18dd5bebac74af34048e62b8f6171daefea89ddfc86618a82cc2b74472936060"
+  },
+  "candidate": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-caption-free-presenter/L16-caption-free-presenter-candidate.mp4",
+    "sha256": "2fcae49deaf43251b8d4f05001401e8f13be1566ff31fbf9a3e069e58108dfc5",
+    "durationSeconds": 267.309,
+    "frames": 6667
+  },
+  "panelRect": [
+    1048,
+    326,
+    768,
+    432
+  ],
+  "mediaStreams": [
+    "video",
+    "prior audio copy",
+    "prior subtitle copy"
+  ],
+  "binding": "none"
+}
