@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "status": "owner_rights_confirmed_for_identified_l02_l04_open_learning_assets",
+  "approvalDate": "2026-11-23",
+  "authorizer": "Vambah Sillah, on behalf of AmaduTown",
+  "approvalContext": "Vambah selected the bounded Phase 6A action in the Portfolio Integration Captain chat 01a1c704-3bcc-7d63-a927-c409241c061b. This addendum records that exact owner-rights scope; it does not authorize release.",
+  "parentReceipt": "docs/agentified-distribution-readiness/phase-3b/owner-release-receipt-2026-11-20.json",
+  "productionCommit": "aef8c3ec2a3415f0c84f21cfbd3f143c1a299f85",
+  "formatContract": {
+    "path": "lib/agentified-qualified-bindings.json",
+    "releaseScope": "L01 and L05-L16 only; L02-L04 remain transcript-and-worksheet states because complete qualified lesson audio is unavailable."
+  },
+  "contentSource": {
+    "path": "lib/agentified-workshop-content.json",
+    "version": "agentified-l01-l16-de1e01f0",
+    "sha256": "c9085044ded3eb7449ff2fc21fdd683174b7d5c16049c47a37b824ab4de12d6a",
+    "lessonHashRecipe": "SHA-256 of UTF-8 JSON for the exact lesson object, with keys sorted recursively, no whitespace, and non-ASCII characters preserved"
+  },
+  "coveredLessons": {
+    "L02": {
+      "lessonSha256": "4aa1f7ddb691d4780efa491839d936078070c45033df2b699abaad2517d7e4de",
+      "diagram": {
+        "path": "public/agentified/workshop/figure-0-1-sam-trust-layer-publication-plate.png",
+        "sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1"
+      }
+    },
+    "L03": {
+      "lessonSha256": "329824e8f6acfedf08a6c72aab1c422110448f80ea1d962c4cf2aa4ab8a6c671",
+      "diagram": {
+        "path": "public/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+        "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669"
+      }
+    },
+    "L04": {
+      "lessonSha256": "02cdaa74ede336c3aa6a924a1eeeb520c2b765e63fa12cb8f0fcad2ad5232033",
+      "diagram": {
+        "path": "public/agentified/workshop/figure-3-amina-inside-sam-publication-plate.png",
+        "sha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd"
+      }
+    }
+  },
+  "coveredIdentifiedAssets": [
+    "the displayed L02-L04 lesson transcript text in the exact contentSource lesson objects",
+    "the three exact diagram files listed above",
+    "the displayed L02-L04 worksheet prompts, exercises, and output labels in those same lesson objects"
+  ],
+  "approvedUse": "Display these exact assets within the Agentified workshop as public open learning with guest access and optional sign-in for saved progress.",
+  "excludedUses": [
+    "raw-source redistribution",
+    "provider-training reuse",
+    "unrelated commercial reuse",
+    "new or changed media",
+    "assets outside L02-L04",
+    "learner-authored worksheet responses"
+  ],
+  "executionNotAuthorized": [
+    "binding L02-L04 video or captions",
+    "provider contact, generation, or spending",
+    "merge, deployment, publication, or release",
+    "learner-data mutation"
+  ],
+  "scopeBoundary": "This addendum addresses owner distribution rights for only the named, version-bound transcript, diagram, and worksheet display assets. It does not clear editorial, accessibility, source-attribution, or Human QA gates, and does not change the current thirteen-video format contract. Source or hash drift requires new owner review."
+}

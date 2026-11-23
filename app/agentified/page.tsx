@@ -1,8 +1,22 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { ArrowRight, BookOpen, Brain, CheckCircle2, ExternalLink, FileText, ShieldCheck } from 'lucide-react'
 import Navigation from '@/components/Navigation'
 import { agentifiedPublication } from '@/lib/agentified-publication'
+
+export const metadata: Metadata = {
+  title: 'Agentified Workshop | AmaduTown',
+  description: 'Public open learning on building accountable AI agent systems. Begin as a guest. Sign in only if you want to save progress across devices. Thirteen guided-video lessons and three transcript-led lessons.',
+  alternates: { canonical: 'https://amadutown.com/agentified' },
+  openGraph: {
+    title: 'Agentified Workshop | AmaduTown',
+    description: 'Learn to build accountable AI agent systems. Start as a guest with thirteen guided-video lessons and three transcript-led lessons.',
+    url: 'https://amadutown.com/agentified',
+    type: 'website',
+    images: [{ url: 'https://amadutown.com/agentified-cover.jpg', alt: 'Agentified book cover' }],
+  },
+}
 
 const principles = [
   {
@@ -26,7 +40,7 @@ export default function AgentifiedPage() {
 
       <section className="pt-28 pb-20 px-6 sm:px-10 lg:px-12">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="relative mx-auto w-full max-w-sm lg:max-w-md">
+          <div className="relative order-2 mx-auto w-full max-w-sm lg:order-1 lg:max-w-md">
             <div className="absolute -inset-4 rounded-[2rem] border border-radiant-gold/20 bg-radiant-gold/5" />
             <Image
               src={agentifiedPublication.coverImage}
@@ -38,7 +52,7 @@ export default function AgentifiedPage() {
             />
           </div>
 
-          <div>
+          <div className="order-1 lg:order-2">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.22em] text-radiant-gold">
               <BookOpen size={14} />
               <span>{agentifiedPublication.statusLabel}</span>
@@ -59,6 +73,21 @@ export default function AgentifiedPage() {
               {agentifiedPublication.promise}
             </p>
 
+            <div className="mt-7 rounded-xl border border-radiant-gold/25 bg-radiant-gold/5 p-5">
+              <h2 className="text-lg font-semibold">Public open learning</h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                Begin as a guest. Sign-in is optional if you want to save your progress across devices.
+                The current workshop has thirteen guided-video lessons and three transcript-led lessons with diagrams and worksheets.
+              </p>
+              <Link
+                href="/agentified/learningplan"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-radiant-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-imperial-navy transition hover:brightness-110"
+              >
+                <span>Start the free workshop</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {agentifiedPublication.purchaseLinks.map((link) => {
                 const isPrimary = link.kind === 'primary'
@@ -70,7 +99,7 @@ export default function AgentifiedPage() {
                     rel="noopener noreferrer"
                     className={
                       isPrimary
-                        ? 'group rounded-xl bg-radiant-gold px-5 py-4 text-imperial-navy transition hover:brightness-110'
+                        ? 'group rounded-xl border border-radiant-gold/50 bg-radiant-gold/10 px-5 py-4 text-radiant-gold transition hover:bg-radiant-gold/15'
                         : 'group rounded-xl border border-radiant-gold/25 bg-background/50 px-5 py-4 text-foreground transition hover:bg-radiant-gold/10'
                     }
                   >
@@ -78,7 +107,7 @@ export default function AgentifiedPage() {
                       {link.label}
                       <ExternalLink size={15} className="shrink-0 transition group-hover:translate-x-0.5" />
                     </span>
-                    <span className={isPrimary ? 'mt-2 block text-xs text-imperial-navy/75' : 'mt-2 block text-xs text-muted-foreground'}>
+                    <span className="mt-2 block text-xs text-muted-foreground">
                       {link.status}
                     </span>
                   </a>
@@ -97,13 +126,6 @@ export default function AgentifiedPage() {
             </div>
 
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                href="/agentified/learningplan"
-                className="inline-flex items-center gap-2 rounded-lg bg-radiant-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-imperial-navy transition hover:brightness-110"
-              >
-                <span>Open the workshop</span>
-                <ArrowRight size={15} />
-              </Link>
               <Link
                 href="/#publications"
                 className="inline-flex items-center gap-2 rounded-full bg-radiant-gold px-5 py-3 text-xs font-bold uppercase tracking-[0.2em] text-imperial-navy transition hover:brightness-110"
