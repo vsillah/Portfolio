@@ -1,0 +1,587 @@
+{
+  "hash": "2fcae49deaf43251b8d4f05001401e8f13be1566ff31fbf9a3e069e58108dfc5",
+  "results": [
+    {
+      "source": "http://127.0.0.1:3152/agentified/lessons/l16/review-2fcae49d/L16-caption-free-presenter-candidate.mp4",
+      "route": "http://127.0.0.1:3152/agentified/learningplan?lesson=L16&rev=2fcae49d",
+      "viewport": "1280x844",
+      "hash": "2fcae49deaf43251b8d4f05001401e8f13be1566ff31fbf9a3e069e58108dfc5",
+      "checks": [
+        {
+          "check": "loaded candidate and approved VTT",
+          "duration": 267.309,
+          "width": 1920,
+          "height": 1080,
+          "tracks": 1,
+          "captionSrc": "http://127.0.0.1:3152/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-captions.vtt"
+        },
+        {
+          "check": "paused seek",
+          "seconds": 0.5,
+          "time": 0.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "At the end of Harbor's Friday, Morgan"
+          ],
+          "band": "At the end of Harbor's Friday, Morgan",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 2.5,
+          "time": 2.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "has a full Operating File."
+          ],
+          "band": "has a full Operating File.",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 4.5,
+          "time": 4.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "It contains a job, sources, receipts,"
+          ],
+          "band": "It contains a job, sources, receipts,",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 8,
+          "time": 8,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "authority limits, a team handoff,"
+          ],
+          "band": "authority limits, a team handoff,",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 12,
+          "time": 12,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "evaluation cases, a proof outline, a"
+          ],
+          "band": "evaluation cases, a proof outline, a",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 15.7,
+          "time": 15.7,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "rehearsal."
+          ],
+          "band": "rehearsal.",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 16.3,
+          "time": 16.3,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [],
+          "band": null,
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 257.9,
+          "time": 257.9,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [],
+          "band": null,
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 258.5,
+          "time": 258.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "Only Morgan and the appropriate owners"
+          ],
+          "band": "Only Morgan and the appropriate owners",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 260.7,
+          "time": 260.7,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "can make that disposition real."
+          ],
+          "band": "can make that disposition real.",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 263,
+          "time": 263,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "The file gives them a way to see what is"
+          ],
+          "band": "The file gives them a way to see what is",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 265,
+          "time": 265,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "ready, what is missing, and what must"
+          ],
+          "band": "ready, what is missing, and what must",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 266.5,
+          "time": 266.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "ready, what is missing, and what must"
+          ],
+          "band": "ready, what is missing, and what must",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "captions off",
+          "seconds": 2.5,
+          "time": 2.5,
+          "paused": true,
+          "ended": false,
+          "track": "disabled",
+          "activeCues": [],
+          "band": null,
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "captions off",
+          "seconds": 260.7,
+          "time": 260.7,
+          "paused": true,
+          "ended": false,
+          "track": "disabled",
+          "activeCues": [],
+          "band": null,
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "caption size",
+          "seconds": 2.5,
+          "selected": "Small",
+          "observed": "S",
+          "band": "has a full Operating File."
+        },
+        {
+          "check": "caption size",
+          "seconds": 260.7,
+          "selected": "Small",
+          "observed": "S",
+          "band": "can make that disposition real."
+        },
+        {
+          "check": "caption size",
+          "seconds": 2.5,
+          "selected": "Medium",
+          "observed": "M",
+          "band": "has a full Operating File."
+        },
+        {
+          "check": "caption size",
+          "seconds": 260.7,
+          "selected": "Medium",
+          "observed": "M",
+          "band": "can make that disposition real."
+        },
+        {
+          "check": "caption size",
+          "seconds": 2.5,
+          "selected": "Large",
+          "observed": "L",
+          "band": "has a full Operating File."
+        },
+        {
+          "check": "caption size",
+          "seconds": 260.7,
+          "selected": "Large",
+          "observed": "L",
+          "band": "can make that disposition real."
+        },
+        {
+          "check": "desktop media play and pause"
+        },
+        {
+          "check": "completion only after video ended",
+          "time": 267.309,
+          "paused": true,
+          "ended": true,
+          "track": "hidden",
+          "activeCues": [],
+          "band": null,
+          "endVisible": true,
+          "overflowX": false
+        },
+        {
+          "check": "replay",
+          "time": 0.372,
+          "paused": false,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "At the end of Harbor's Friday, Morgan"
+          ],
+          "band": "At the end of Harbor's Friday, Morgan",
+          "endVisible": false,
+          "overflowX": false
+        }
+      ],
+      "errors": []
+    },
+    {
+      "source": "http://127.0.0.1:3152/agentified/lessons/l16/review-2fcae49d/L16-caption-free-presenter-candidate.mp4",
+      "route": "http://127.0.0.1:3152/agentified/learningplan?lesson=L16&rev=2fcae49d",
+      "viewport": "390x844",
+      "hash": "2fcae49deaf43251b8d4f05001401e8f13be1566ff31fbf9a3e069e58108dfc5",
+      "checks": [
+        {
+          "check": "loaded candidate and approved VTT",
+          "duration": 267.309,
+          "width": 1920,
+          "height": 1080,
+          "tracks": 1,
+          "captionSrc": "http://127.0.0.1:3152/agentified/lessons/l16/approved-e890f6a9/agentified-l16-native-captions.vtt"
+        },
+        {
+          "check": "paused seek",
+          "seconds": 0.5,
+          "time": 0.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "At the end of Harbor's Friday, Morgan"
+          ],
+          "band": "At the end of Harbor's Friday, Morgan",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 2.5,
+          "time": 2.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "has a full Operating File."
+          ],
+          "band": "has a full Operating File.",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 4.5,
+          "time": 4.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "It contains a job, sources, receipts,"
+          ],
+          "band": "It contains a job, sources, receipts,",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 8,
+          "time": 8,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "authority limits, a team handoff,"
+          ],
+          "band": "authority limits, a team handoff,",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 12,
+          "time": 12,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "evaluation cases, a proof outline, a"
+          ],
+          "band": "evaluation cases, a proof outline, a",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 15.7,
+          "time": 15.7,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "rehearsal."
+          ],
+          "band": "rehearsal.",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 16.3,
+          "time": 16.3,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [],
+          "band": null,
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 257.9,
+          "time": 257.9,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [],
+          "band": null,
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 258.5,
+          "time": 258.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "Only Morgan and the appropriate owners"
+          ],
+          "band": "Only Morgan and the appropriate owners",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 260.7,
+          "time": 260.7,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "can make that disposition real."
+          ],
+          "band": "can make that disposition real.",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 263,
+          "time": 263,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "The file gives them a way to see what is"
+          ],
+          "band": "The file gives them a way to see what is",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 265,
+          "time": 265,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "ready, what is missing, and what must"
+          ],
+          "band": "ready, what is missing, and what must",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "paused seek",
+          "seconds": 266.5,
+          "time": 266.5,
+          "paused": true,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "ready, what is missing, and what must"
+          ],
+          "band": "ready, what is missing, and what must",
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "captions off",
+          "seconds": 2.5,
+          "time": 2.5,
+          "paused": true,
+          "ended": false,
+          "track": "disabled",
+          "activeCues": [],
+          "band": null,
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "captions off",
+          "seconds": 260.7,
+          "time": 260.7,
+          "paused": true,
+          "ended": false,
+          "track": "disabled",
+          "activeCues": [],
+          "band": null,
+          "endVisible": false,
+          "overflowX": false
+        },
+        {
+          "check": "caption size",
+          "seconds": 2.5,
+          "selected": "Small",
+          "observed": "S",
+          "band": "has a full Operating File."
+        },
+        {
+          "check": "caption size",
+          "seconds": 260.7,
+          "selected": "Small",
+          "observed": "S",
+          "band": "can make that disposition real."
+        },
+        {
+          "check": "caption size",
+          "seconds": 2.5,
+          "selected": "Medium",
+          "observed": "M",
+          "band": "has a full Operating File."
+        },
+        {
+          "check": "caption size",
+          "seconds": 260.7,
+          "selected": "Medium",
+          "observed": "M",
+          "band": "can make that disposition real."
+        },
+        {
+          "check": "caption size",
+          "seconds": 2.5,
+          "selected": "Large",
+          "observed": "L",
+          "band": "has a full Operating File."
+        },
+        {
+          "check": "caption size",
+          "seconds": 260.7,
+          "selected": "Large",
+          "observed": "L",
+          "band": "can make that disposition real."
+        },
+        {
+          "check": "mobile play and pause"
+        },
+        {
+          "check": "mobile mute and unmute"
+        },
+        {
+          "check": "mobile seek control"
+        },
+        {
+          "check": "completion only after video ended",
+          "time": 267.309,
+          "paused": true,
+          "ended": true,
+          "track": "hidden",
+          "activeCues": [],
+          "band": null,
+          "endVisible": true,
+          "overflowX": false
+        },
+        {
+          "check": "replay",
+          "time": 0.38,
+          "paused": false,
+          "ended": false,
+          "track": "hidden",
+          "activeCues": [
+            "At the end of Harbor's Friday, Morgan"
+          ],
+          "band": "At the end of Harbor's Friday, Morgan",
+          "endVisible": false,
+          "overflowX": false
+        }
+      ],
+      "errors": []
+    }
+  ]
+}
