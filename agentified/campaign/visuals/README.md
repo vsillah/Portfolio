@@ -15,6 +15,7 @@ The build reads owned workshop plates, lesson posters, and five captured public 
 ## Editorial limits
 
 - The carousels use the seven approved script beats in order. Short clarifying subheads and line breaks were added for visual layout; check these against the copy before publication.
+- Text plates size to their rendered lines with 30 px internal padding. Public guest screens are scaled to fit their complete source frame, preserving the Operating File title and controls.
 - The two 40-second vertical MP4s are silent composition and pacing reviews. Their scene captions follow the spoken scripts, but no voice or music was generated.
 - The five-minute YouTube MP4 is a silent screen-backed proof candidate. It uses complete public guest screenshots and long holds to preserve the planned section timing. It is not a finished episode or evidence of narrated interaction.
 - The thumbnail is one internal concept. Campaign reuse of lesson publication plates and posters requires its own review; lesson-level approvals do not imply social publication approval.

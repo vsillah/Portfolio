@@ -57,6 +57,25 @@ def lines(draw, text, xy, size, width, fill=CREAM, spacing=1.16):
             y += int(size * spacing)
     return y
 
+def text_height(draw, text, size, width, spacing=1.16):
+    face = font(size)
+    return sum(len(wrap(draw, paragraph, face, width)) for paragraph in text.split("\n")) * int(size * spacing)
+
+def text_plate(im, heading, detail, top, heading_size, detail_size, x0=42, x1=None):
+    d = ImageDraw.Draw(im)
+    x1 = x1 or im.width - 42
+    pad = 30
+    width = x1 - x0 - pad * 2
+    heading_height = text_height(d, heading, heading_size, width)
+    detail_height = text_height(d, detail, detail_size, width) if detail else 0
+    gap = 18 if detail else 0
+    bottom = top + pad * 2 + heading_height + gap + detail_height
+    d.rounded_rectangle((x0, top, x1, bottom), radius=24, fill=PANEL)
+    lines(d, heading, (x0 + pad, top + pad), heading_size, width)
+    if detail:
+        lines(d, detail, (x0 + pad, top + pad + heading_height + gap), detail_size, width, GOLD)
+    return bottom
+
 def base(size, label, number=None):
     im = Image.new("RGB", size, NAVY)
     d = ImageDraw.Draw(im)
@@ -71,27 +90,29 @@ def base(size, label, number=None):
 def framed_image(im, key, box, mode="contain"):
     x0, y0, x1, y1 = box
     source = Image.open(SOURCES[key]).convert("RGB")
-    area = (x1 - x0, y1 - y0)
+    if key in {"landing", "l01-screen", "l06-screen", "l16-screen", "operating-file"} and mode != "contain":
+        raise ValueError(f"Public guest screen must be shown whole: {key}")
+    inset = 10
+    area = (x1 - x0 - 2 * inset, y1 - y0 - 2 * inset)
     if mode == "cover":
         source = ImageOps.fit(source, area, method=Image.Resampling.LANCZOS)
     else:
         source.thumbnail(area, Image.Resampling.LANCZOS)
-    x = x0 + (area[0] - source.width) // 2
-    y = y0 + (area[1] - source.height) // 2
+    x = x0 + (x1 - x0 - source.width) // 2
+    y = y0 + inset
     d = ImageDraw.Draw(im)
-    d.rounded_rectangle(box, radius=20, fill=PANEL, outline=GOLD, width=2)
+    actual = (x - inset, y - inset, x + source.width + inset, y + source.height + inset)
+    d.rounded_rectangle(actual, radius=20, fill=PANEL, outline=GOLD, width=2)
     im.paste(source, (x, y))
+    return actual
 
 def carousel(code, slides):
     files = []
     for n, (heading, detail, asset, treatment) in enumerate(slides, 1):
         im = base((1080, 1350), code, n)
+        plate_bottom = text_plate(im, heading, detail, 160, 63, 31)
         d = ImageDraw.Draw(im)
-        d.rounded_rectangle((42, 160, 1038, 430), radius=24, fill=PANEL)
-        end = lines(d, heading, (70, 190), 63, 930)
-        if detail:
-            lines(d, detail, (70, end + 22), 31, 920, GOLD)
-        framed_image(im, asset, (43, 472, 1037, 1165), treatment)
+        framed_image(im, asset, (43, plate_bottom + 32, 1037, 1165), treatment)
         d.line((62, 1210, 1018, 1210), fill=GOLD, width=2)
         d.text((62, 1240), "amadutown.com/agentified", font=font(29), fill=CREAM)
         d.text((895, 1240), f"{n} / 7", font=font(27), fill=GOLD)
@@ -101,37 +122,31 @@ def carousel(code, slides):
     return files
 
 CAR1 = [
-    ("A clean draft can still be hard to trust.", "An empty source field is a reason to pause.", "operating-file", "cover"),
+    ("A clean draft can still be hard to trust.", "An empty source field is a reason to pause.", "operating-file", "contain"),
     ("Name the job.", "What was the agent asked to prepare?", "l01-poster", "contain"),
     ("Name the source.", "What current material supports it?", "receipt-diagram", "contain"),
     ("Name the boundary.", "What could the agent read or change?", "authority-diagram", "contain"),
     ("Name the result.", "What did it produce, and what failed?", "receipt-diagram", "contain"),
     ("Name the reviewer.", "Who owns the decision and the stop?", "l06-poster", "contain"),
-    ("Carry the receipt.", "Try L01 as a guest at amadutown.com/agentified.", "l01-screen", "cover"),
+    ("Carry the receipt.", "Try L01 as a guest at amadutown.com/agentified.", "l01-screen", "contain"),
 ]
 CAR2 = [
     ("Give an agent a job you can inspect.", "Begin with an invented workflow.", "l01-poster", "contain"),
     ("Draw the Operating Map.", "Job · source · receipt · owner · gate", "receipt-diagram", "contain"),
     ("Write the permission slip.", "Allowed preparation. Prohibited action.", "l06-poster", "contain"),
     ("Test a broken source.", "Stop the handoff and say why.", "l16-poster", "contain"),
-    ("Record the human decision.", "Keep the decision in the Operating File.", "operating-file", "cover"),
-    ("Continue through the workshop.", "13 guided videos · 3 transcript-led lessons", "l16-screen", "cover"),
-    ("Start as a guest.", "Sign in only for cross-device progress.\namadutown.com/agentified", "landing", "cover"),
+    ("Record the human decision.", "Keep the decision in the Operating File.", "operating-file", "contain"),
+    ("Continue through the workshop.", "13 guided videos · 3 transcript-led lessons", "l16-screen", "contain"),
+    ("Start as a guest.", "Sign in only for cross-device progress.\namadutown.com/agentified", "landing", "contain"),
 ]
 
 def vertical(code, panels):
     files = []
     for n, (heading, caption, asset, seconds) in enumerate(panels, 1):
         im = base((1080, 1920), code, n)
+        plate_bottom = text_plate(im, heading, caption, 170, 67, 32)
         d = ImageDraw.Draw(im)
-        d.rounded_rectangle((42, 170, 1038, 550), radius=24, fill=PANEL)
-        y = lines(d, heading, (70, 205), 67, 930)
-        lines(d, caption, (70, y + 24), 32, 920, GOLD)
-        source = Image.open(SOURCES[asset])
-        ratio = source.width / source.height
-        image_height = min(900, int(996 / ratio))
-        top = 610 + (900 - image_height) // 2
-        framed_image(im, asset, (42, top, 1038, top + image_height), "contain")
+        framed_image(im, asset, (42, plate_bottom + 42, 1038, 1580), "contain")
         d.line((62, 1640, 1018, 1640), fill=GOLD, width=2)
         d.text((62, 1690), "amadutown.com/agentified", font=font(39), fill=CREAM)
         d.text((62, 1760), f"{seconds} sec · silent review composition", font=font(27), fill=MUTED)
@@ -155,9 +170,7 @@ REEL2 = [
 
 def thumbnail():
     im = base((1280, 720), "AW-YT-01  /  PROOF EPISODE")
-    d = ImageDraw.Draw(im)
-    d.rounded_rectangle((35, 155, 685, 640), radius=22, fill=PANEL)
-    lines(d, "Give the agent\na job.\nGet a receipt.", (65, 205), 73, 590)
+    text_plate(im, "Give the agent\na job.\nGet a receipt.", "", 170, 73, 0, 35, 685)
     framed_image(im, "l01-poster", (715, 165, 1250, 610), "contain")
     p = OUT / "aw-yt-01-thumbnail.png"
     im.save(p, optimize=True)
@@ -207,7 +220,7 @@ def main():
         frame.save(path, optimize=True)
         yt_frames.append((path, sec))
     encode_stills(yt_frames, OUT / "aw-yt-01-silent-proof-candidate.mp4", 1280, 720)
-    outputs = sorted(p for p in OUT.iterdir() if p.is_file() and p.suffix in {".png", ".jpg", ".mp4"})
+    outputs = sorted(p for p in OUT.iterdir() if p.is_file() and p.suffix in {".png", ".jpg", ".mp4"} and not p.name.startswith("review-"))
     manifest = {
         "status": "internal review only; no publication approval",
         "base_commit": "f452b5b7f6cb44182d39be133fa8f82b37c5a2b6",
@@ -222,9 +235,11 @@ def main():
 def framed_image_from_path(im, path, box):
     source = Image.open(path).convert("RGB")
     x0, y0, x1, y1 = box
-    source.thumbnail((x1 - x0, y1 - y0), Image.Resampling.LANCZOS)
-    ImageDraw.Draw(im).rounded_rectangle(box, radius=18, fill=PANEL, outline=GOLD, width=2)
-    im.paste(source, (x0 + ((x1 - x0) - source.width)//2, y0 + ((y1 - y0) - source.height)//2))
+    source.thumbnail((x1 - x0 - 20, y1 - y0 - 20), Image.Resampling.LANCZOS)
+    x = x0 + ((x1 - x0) - source.width)//2
+    y = y0 + ((y1 - y0) - source.height)//2
+    ImageDraw.Draw(im).rounded_rectangle((x-10, y-10, x+source.width+10, y+source.height+10), radius=18, fill=PANEL, outline=GOLD, width=2)
+    im.paste(source, (x, y))
 
 if __name__ == "__main__":
     main()

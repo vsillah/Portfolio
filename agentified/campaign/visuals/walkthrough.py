@@ -48,6 +48,13 @@ def main():
         "route": "/agentified/campaign-review/2026-11-23/index.html",
         "viewport": {"desktop": "1728x956", "mobile": "390x844"},
         "source": "Chrome full-page screenshots of local review page; silent scroll walkthroughs",
+        "screenshots": {
+            label: {
+                "path": str((HERE / f"sources/review-{label}-full.png").relative_to(ROOT)),
+                "sha256": hashlib.sha256((HERE / f"sources/review-{label}-full.png").read_bytes()).hexdigest(),
+            }
+            for label in ("desktop", "mobile")
+        },
     }
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
     print("Created", *outputs)
