@@ -167,3 +167,7 @@ Next:
 Decision gate:
 
 - A human must approve movement from review-ready content into any external publishing workflow.
+
+## Agentified workshop application (2026-11-23)
+
+Use `agentified/campaign/portfolio-campaign-packet.json` for the current post-Thanksgiving workshop proposal. The July 2026 book-launch packet is superseded. Bind every current asset to the public `/agentified` offer, and recheck route, lesson count, credential wording, and CTA just before Human QA. Apply the Automatic Social Content Calendar Preparation Rule: six-day default lead, existing calendar/review backlog, current source and outlier evidence, versioned challenger and visual proof, bounded retries, and fail-closed event time. This content-only packet is `draft`; it is neither an import nor an approval. Owned email needs a selected permissioned list and separate send authorization. X cutdowns are manual-only and outside paid API routes. Personalized outreach has its own approval path.

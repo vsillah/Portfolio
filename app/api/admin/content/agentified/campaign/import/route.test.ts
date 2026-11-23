@@ -38,7 +38,7 @@ function campaignLookup(data: Record<string, unknown> | null = null) {
 
 function campaignInsert(id = 'campaign-agentified') {
   const single = vi.fn(async () => ({
-    data: { id, slug: 'agentified-trust-scale-2026-07' },
+    data: { id, slug: 'agentified-workshop-2026-post-thanksgiving' },
     error: null,
   }))
   const select = vi.fn(() => ({ single }))
@@ -95,203 +95,126 @@ describe('/api/admin/content/agentified/campaign/import', () => {
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user', email: 'admin@example.com' } })
     mocks.isAuthError.mockReturnValue(false)
     mocks.createAgentWorkItem.mockImplementation((input: { idempotencyKey: string }) => Promise.resolve({
-      id: input.idempotencyKey.replace('agentified-launch:', 'work-'),
+      id: input.idempotencyKey.replace('agentified-workshop:', 'work-'),
     }))
   })
 
-  it('requires admin auth', async () => {
+  it('requires admin auth before any read or write', async () => {
     mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
     mocks.isAuthError.mockReturnValue(true)
-
     const response = await POST(request() as never)
-
     expect(response.status).toBe(401)
     expect(await response.json()).toEqual({ error: 'Unauthorized' })
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
-  it('previews the Agentified launch packet summary without mutating data', async () => {
+  it('previews the public workshop packet without mutating data', async () => {
     const response = await GET(request('GET') as never)
-
     expect(response.status).toBe(200)
     expect(mocks.from).not.toHaveBeenCalled()
-    expect(await response.json()).toMatchObject({
-      summary: {
-        campaign_slug: 'agentified-trust-scale-2026-07',
-        template_key: 'whisper_to_shout',
-        first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
-        starts_at: '2026-07-27T15:00:00-04:00',
-        ends_at: '2026-08-09T18:00:00-04:00',
-        calendar_item_count: 17,
-        supported_channels: ['linkedin', 'x', 'youtube_shorts', 'youtube', 'thumbnail'],
-        side_effects: expect.objectContaining({
-          social_drafts_created: false,
-          publish: false,
-          external_post: false,
-        }),
-      },
-    })
+    expect(await response.json()).toMatchObject({ summary: {
+      campaign_slug: 'agentified-workshop-2026-post-thanksgiving',
+      template_key: 'whisper_to_shout',
+      first_review_packet_path: 'agentified/campaign/workshop-review-packet-2026-11-23.md',
+      starts_at: '2026-11-30T10:00:00-05:00',
+      ends_at: '2026-12-18T10:00:00-05:00',
+      calendar_item_count: 10,
+      supported_channels: ['linkedin', 'instagram', 'instagram_reels', 'youtube', 'youtube_shorts'],
+      side_effects: expect.objectContaining({ social_drafts_created: false, publish: false, external_post: false }),
+    } })
   })
 
-  it('imports campaign, central backlog work items, and calendar items without external execution', async () => {
+  it('builds ten pending workshop rows and zero-value campaign fields on an explicitly invoked import', async () => {
     const campaignRead = campaignLookup(null)
-    const campaignCreate = campaignInsert('campaign-agentified')
+    const campaignCreate = campaignInsert()
     const calendarRead = calendarLookup([])
     const calendarCreate = calendarInsert()
-
     mocks.from.mockImplementation((table: string) => {
       if (table === 'attraction_campaigns') {
-        const attractionCalls = mocks.from.mock.calls.filter(([name]) => name === 'attraction_campaigns').length
-        return attractionCalls === 1 ? { select: campaignRead.select } : { insert: campaignCreate.insert }
+        const count = mocks.from.mock.calls.filter(([name]) => name === 'attraction_campaigns').length
+        return count === 1 ? { select: campaignRead.select } : { insert: campaignCreate.insert }
       }
       if (table === 'social_content_calendar_items') {
-        const calendarCalls = mocks.from.mock.calls.filter(([name]) => name === 'social_content_calendar_items').length
-        return calendarCalls === 1 ? { select: calendarRead.select } : { insert: calendarCreate.insert }
+        const count = mocks.from.mock.calls.filter(([name]) => name === 'social_content_calendar_items').length
+        return count === 1 ? { select: calendarRead.select } : { insert: calendarCreate.insert }
       }
       return {}
     })
-
     const response = await POST(request() as never)
-
     expect(response.status).toBe(200)
     expect(campaignCreate.insert).toHaveBeenCalledWith(expect.objectContaining({
-      slug: 'agentified-trust-scale-2026-07',
-      starts_at: '2026-07-27T15:00:00-04:00',
-      ends_at: '2026-08-09T18:00:00-04:00',
-      status: 'draft',
+      slug: 'agentified-workshop-2026-post-thanksgiving', name: 'Agentified: Public Workshop Practice',
+      campaign_type: 'free_challenge', status: 'draft', starts_at: '2026-11-30T10:00:00-05:00',
+      ends_at: '2026-12-18T10:00:00-05:00', min_purchase_amount: 0,
+      payout_type: 'credit', payout_amount_type: 'fixed', payout_amount_value: 0,
       created_by: 'admin-user',
     }))
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(17)
+    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(10)
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
-      source: expect.objectContaining({ type: 'social_topic_trigger', id: 'AGT-LI-01' }),
+      source: expect.objectContaining({ type: 'social_topic_trigger', id: 'AW-LI-01' }),
+      idempotencyKey: 'agentified-workshop:AW-LI-01',
       metadata: expect.objectContaining({
-        social_topic_trigger: true,
-        campaign_slug: 'agentified-trust-scale-2026-07',
-        agentified_asset_id: 'AGT-LI-01',
-        first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
-        channel_lanes: expect.objectContaining({
-          linkedin: expect.objectContaining({ status: 'selected' }),
-        }),
-        insight: expect.objectContaining({
-          approved_research_patterns: expect.arrayContaining([
-            expect.objectContaining({ pattern_status: 'usable_framework' }),
-          ]),
-        }),
-        side_effects: expect.objectContaining({
-          provider_generation: false,
-          publish: false,
-          external_post: false,
-        }),
+        campaign_slug: 'agentified-workshop-2026-post-thanksgiving',
+        first_review_packet_path: 'agentified/campaign/workshop-review-packet-2026-11-23.md',
+        source_paths: ['app/agentified/page.tsx'],
+        side_effects: expect.objectContaining({ provider_generation: false, schedule: false, publish: false }),
       }),
-      idempotencyKey: 'agentified-launch:AGT-LI-01',
     }))
     expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
-      source: expect.objectContaining({ type: 'social_topic_trigger', id: 'AGT-X-04' }),
-      metadata: expect.objectContaining({
-        agentified_asset_id: 'AGT-X-04',
-        calendar_channel: 'x',
-        channel_lanes: expect.objectContaining({
-          x: expect.objectContaining({ status: 'selected' }),
-        }),
-        insight: expect.objectContaining({
-          content_angle: expect.stringContaining('final shout moment'),
-          approved_research_patterns: expect.arrayContaining([
-            expect.objectContaining({ pattern_status: 'usable_framework' }),
-          ]),
-        }),
-      }),
-      idempotencyKey: 'agentified-launch:AGT-X-04',
+      source: expect.objectContaining({ id: 'AW-YT-01' }),
+      metadata: expect.objectContaining({ calendar_channel: 'youtube' }),
     }))
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
-      source: expect.objectContaining({ type: 'social_topic_trigger', id: 'AGT-YT-EP01' }),
-      metadata: expect.objectContaining({
-        agentified_asset_id: 'AGT-YT-EP01',
-        calendar_channel: 'youtube',
-        channel_lanes: expect.objectContaining({
-          youtube: expect.objectContaining({ status: 'selected' }),
-        }),
-      }),
-      idempotencyKey: 'agentified-launch:AGT-YT-EP01',
-    }))
-    expect(calendarCreate.insert).toHaveBeenCalledTimes(17)
+    expect(mocks.createAgentWorkItem.mock.calls.map(([input]) => input.source.id)).not.toContain('AW-EMAIL-01')
+    expect(mocks.createAgentWorkItem.mock.calls.map(([input]) => input.source.id)).not.toContain('AGT-X-04')
+    expect(calendarCreate.insert).toHaveBeenCalledTimes(10)
     expect(calendarCreate.insert).toHaveBeenCalledWith(expect.objectContaining({
-      campaign_id: 'campaign-agentified',
-      agent_work_item_id: 'work-AGT-LI-01',
-      channel: 'linkedin',
-      scheduled_for: '2026-07-27T19:00:00.000Z',
-      authorization_due_at: '2026-07-27T17:00:00.000Z',
-      authorization_status: 'pending',
+      campaign_id: 'campaign-agentified', agent_work_item_id: 'work-AW-LI-01', channel: 'linkedin',
+      scheduled_for: '2026-11-30T15:00:00.000Z',
+      authorization_due_at: '2026-11-24T15:00:00.000Z', authorization_status: 'pending',
+      autonomy_eligible: false,
       metadata: expect.objectContaining({
-        agentified_asset_id: 'AGT-LI-01',
-        schedule_mode: 'relative_to_final_shout',
-        schedule_anchor: expect.objectContaining({
-          final_asset_id: 'AGT-X-04',
-          final_release_at: '2026-08-09T22:00:00.000Z',
-        }),
-        first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
+        agentified_asset_id: 'AW-LI-01', preparation_deadline: '2026-11-24T15:00:00.000Z',
+        first_review_packet_path: 'agentified/campaign/workshop-review-packet-2026-11-23.md',
         external_execution_enabled: false,
-        side_effects: expect.objectContaining({
-          social_draft_created: false,
-          publish: false,
-          external_post: false,
-        }),
+        side_effects: expect.objectContaining({ publish: false, external_post: false, social_draft_created: false }),
       }),
     }))
     expect(await response.json()).toMatchObject({
-      ok: true,
-      campaign: { id: 'campaign-agentified', created: true },
-      work_items: { total: 17 },
-      calendar_items: { inserted_count: 17, updated_count: 0, total: 17 },
-      side_effects: {
-        provider_generation: false,
-        upload: false,
-        publish: false,
-        external_post: false,
-        social_drafts_created: false,
-      },
+      ok: true, work_items: { total: 10 }, calendar_items: { inserted_count: 10, updated_count: 0, total: 10 },
+      side_effects: expect.objectContaining({ publish: false, external_post: false, social_drafts_created: false }),
     })
   })
 
-  it('updates matching Agentified calendar rows instead of inserting duplicates', async () => {
-    const campaignRead = campaignLookup({
-      id: 'campaign-agentified',
-      slug: 'agentified-trust-scale-2026-07',
-      status: 'draft',
-    })
+  it('updates an existing calendar asset instead of inserting a duplicate', async () => {
+    const campaignRead = campaignLookup({ id: 'campaign-agentified', slug: 'agentified-workshop-2026-post-thanksgiving', status: 'draft' })
     const campaignUpdate = calendarUpdate('campaign-updated')
-    const existingCalendar = calendarLookup([
-      { id: 'calendar-li-1', metadata: { agentified_asset_id: 'AGT-LI-01' } },
-    ])
+    const existingCalendar = calendarLookup([{ id: 'calendar-li-1', metadata: { agentified_asset_id: 'AW-LI-01' } }])
     const calendarExistingUpdate = calendarUpdate()
     const calendarCreate = calendarInsert()
-
     mocks.from.mockImplementation((table: string) => {
       if (table === 'attraction_campaigns') {
-        const attractionCalls = mocks.from.mock.calls.filter(([name]) => name === 'attraction_campaigns').length
-        return attractionCalls === 1 ? { select: campaignRead.select } : { update: campaignUpdate.update }
+        const count = mocks.from.mock.calls.filter(([name]) => name === 'attraction_campaigns').length
+        return count === 1 ? { select: campaignRead.select } : { update: campaignUpdate.update }
       }
       if (table === 'social_content_calendar_items') {
-        const calendarCalls = mocks.from.mock.calls.filter(([name]) => name === 'social_content_calendar_items').length
-        if (calendarCalls === 1) return { select: existingCalendar.select }
-        if (calendarCalls === 2) return { update: calendarExistingUpdate.update }
+        const count = mocks.from.mock.calls.filter(([name]) => name === 'social_content_calendar_items').length
+        if (count === 1) return { select: existingCalendar.select }
+        if (count === 2) return { update: calendarExistingUpdate.update }
         return { insert: calendarCreate.insert }
       }
       return {}
     })
-
     const response = await POST(request() as never)
-
     expect(response.status).toBe(200)
-    expect(campaignUpdate.update).toHaveBeenCalled()
-    expect(calendarExistingUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
-      agent_work_item_id: 'work-AGT-LI-01',
-      metadata: expect.objectContaining({ agentified_asset_id: 'AGT-LI-01' }),
+    expect(campaignUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
+      slug: 'agentified-workshop-2026-post-thanksgiving', campaign_type: 'free_challenge', payout_amount_value: 0,
     }))
-    expect(calendarCreate.insert).toHaveBeenCalledTimes(16)
+    expect(calendarExistingUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
+      agent_work_item_id: 'work-AW-LI-01', metadata: expect.objectContaining({ agentified_asset_id: 'AW-LI-01' }),
+    }))
+    expect(calendarCreate.insert).toHaveBeenCalledTimes(9)
     expect(await response.json()).toMatchObject({
-      ok: true,
-      campaign: { id: 'campaign-updated-1', created: false, updated: true },
-      calendar_items: { inserted_count: 16, updated_count: 1, total: 17 },
+      ok: true, calendar_items: { inserted_count: 9, updated_count: 1, total: 10 },
     })
   })
 })

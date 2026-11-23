@@ -6,245 +6,120 @@ import {
   buildAgentifiedWorkItemInput,
 } from './agentified-launch-campaign'
 
-type PacketCalendarItem = Parameters<typeof buildAgentifiedWorkItemInput>[0]
-
-function packetItem(assetId: string): PacketCalendarItem {
-  const item = agentifiedLaunchImportPlan().calendar_items.find(
-    (candidate) => candidate.asset_id === assetId,
-  )
-
+function packetItem(assetId: string) {
+  const item = agentifiedLaunchImportPlan().calendar_items.find((candidate) => candidate.asset_id === assetId)
   if (!item) throw new Error(`Missing Agentified packet item: ${assetId}`)
   return item
 }
 
-describe('Agentified launch campaign import builders', () => {
+const reviewPacket = 'agentified/campaign/workshop-review-packet-2026-11-23.md'
+const campaignSlug = 'agentified-workshop-2026-post-thanksgiving'
+
+describe('Agentified public workshop campaign import builders', () => {
   beforeEach(() => {
     vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-07-27T13:45:00.000Z'))
+    vi.setSystemTime(new Date('2026-11-23T15:00:00.000Z'))
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
-  })
+  afterEach(() => vi.useRealTimers())
 
-  it('summarizes the complete launch arc and keeps every external side effect disabled', () => {
+  it('summarizes the proposed workshop calendar without email or X import rows', () => {
     expect(agentifiedLaunchSummary()).toEqual(expect.objectContaining({
-      campaign_slug: 'agentified-trust-scale-2026-07',
+      campaign_name: 'Agentified: Public Workshop Practice',
+      campaign_slug: campaignSlug,
+      template_key: 'whisper_to_shout',
       packet_status: 'draft_prepare_only',
-      first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
-      starts_at: '2026-07-27T15:00:00-04:00',
-      ends_at: '2026-08-09T18:00:00-04:00',
-      calendar_item_count: 12,
-      supported_channels: expect.arrayContaining(['linkedin', 'youtube_shorts', 'thumbnail']),
-      phase_counts: {
-        tease: 2,
-        teach: 3,
-        proof: 4,
-        offer: 3,
-      },
-      side_effects: {
-        provider_generation: false,
-        upload: false,
-        external_schedule: false,
-        publish: false,
-        external_post: false,
-        campaign_upsert: true,
-        agent_work_items_upsert: true,
-        calendar_items_upsert: true,
-        social_drafts_created: false,
-      },
+      first_review_packet_path: reviewPacket,
+      starts_at: '2026-11-30T10:00:00-05:00',
+      ends_at: '2026-12-18T10:00:00-05:00',
+      calendar_item_count: 10,
+      supported_channels: ['linkedin', 'instagram', 'instagram_reels', 'youtube', 'youtube_shorts'],
+      phase_counts: { tease: 1, teach: 3, proof: 5, offer: 1 },
+      side_effects: expect.objectContaining({ provider_generation: false, upload: false, external_schedule: false, publish: false, external_post: false, social_drafts_created: false }),
     }))
-    expect(agentifiedLaunchSummary().supported_channels).toHaveLength(3)
+    expect(agentifiedLaunchSummary().supported_channels).not.toContain('x')
   })
 
-  it('keeps the re-baselined calendar current or future from July 27 launch intake', () => {
-    const launchBaseline = new Date('2026-07-27T09:45:00-04:00').getTime()
+  it('uses the current ET slots and a six-day preparation lead for every item', () => {
     const plan = agentifiedLaunchImportPlan()
-
-    expect(plan.campaign.starts_at).toBe('2026-07-27T15:00:00-04:00')
-    expect(plan.campaign.ends_at).toBe('2026-08-09T18:00:00-04:00')
+    expect(plan.campaign).toMatchObject({
+      campaign_type: 'free_challenge', status: 'draft', min_purchase_amount: 0,
+      payout_amount_value: 0, starts_at: '2026-11-30T10:00:00-05:00', ends_at: '2026-12-18T10:00:00-05:00',
+    })
     expect(plan.calendar_items[0]).toEqual(expect.objectContaining({
-      asset_id: 'AGT-LI-01',
-      scheduled_for: '2026-07-27T19:00:00.000Z',
-      authorization_due_at: '2026-07-27T17:00:00.000Z',
+      asset_id: 'AW-LI-01', scheduled_for: '2026-11-30T15:00:00.000Z',
+      preparation_deadline: '2026-11-24T15:00:00.000Z', authorization_due_at: '2026-11-24T15:00:00.000Z',
     }))
-    expect(plan.calendar_items.at(-1)).toEqual(expect.objectContaining({
-      asset_id: 'AGT-PAGE-01',
-      scheduled_for: '2026-08-09T16:00:00.000Z',
-    }))
-    expect(plan.calendar_items[0].metadata).toEqual(expect.objectContaining({
-      schedule_mode: 'relative_to_final_shout',
-      schedule_anchor: expect.objectContaining({
-        mode: 'relative_to_final_shout',
-        final_asset_id: 'AGT-PAGE-01',
-        final_release_at: '2026-08-09T16:00:00.000Z',
-        source_scheduled_for: '2026-07-27T15:00:00-04:00',
-        offset_from_final_release_days: -12.875,
-      }),
-    }))
-
+    expect(plan.calendar_items.at(-1)).toEqual(expect.objectContaining({ asset_id: 'AW-LI-05', scheduled_for: '2026-12-18T15:00:00.000Z' }))
     for (const item of plan.calendar_items) {
-      expect(new Date(item.scheduled_for).getTime()).toBeGreaterThanOrEqual(launchBaseline)
-      expect(new Date(item.authorization_due_at).getTime()).toBeGreaterThanOrEqual(launchBaseline)
+      expect(new Date(item.scheduled_for).getTime() - new Date(item.preparation_deadline).getTime()).toBe(6 * 24 * 60 * 60 * 1000)
+      expect(item.authorization_due_at).toBe(item.preparation_deadline)
+      expect((item.metadata.jit_refresh as { prepare_by: string }).prepare_by).toBe(item.preparation_deadline)
+      expect(item.authorization_status).toBe('pending')
+      expect(item.autonomy_eligible).toBe(false)
     }
   })
 
-  it('recalculates the whole sequence backward from a supplied final shout date', () => {
-    const sourcePlan = agentifiedLaunchImportPlan()
-    const shiftedPlan = agentifiedLaunchImportPlan({
-      finalReleaseAt: '2026-08-21T16:00:00.000Z',
-    })
-    const sourceFinal = new Date(sourcePlan.calendar_items.at(-1)?.scheduled_for ?? '').getTime()
-    const shiftedFinal = new Date(shiftedPlan.calendar_items.at(-1)?.scheduled_for ?? '').getTime()
-
-    expect(shiftedPlan.calendar_items.at(-1)).toEqual(expect.objectContaining({
-      asset_id: 'AGT-PAGE-01',
-      scheduled_for: '2026-08-21T16:00:00.000Z',
-    }))
-
-    shiftedPlan.calendar_items.forEach((item, index) => {
-      const sourceItem = sourcePlan.calendar_items[index]
-      const sourceAnchor = sourceItem.metadata.schedule_anchor as { source_scheduled_for: string }
-      const sourceOffset = new Date(sourceItem.scheduled_for).getTime() - sourceFinal
-      const shiftedOffset = new Date(item.scheduled_for).getTime() - shiftedFinal
-      const sourceAuthorizationLead = new Date(sourceItem.authorization_due_at).getTime()
-        - new Date(sourceItem.scheduled_for).getTime()
-      const shiftedAuthorizationLead = new Date(item.authorization_due_at).getTime()
-        - new Date(item.scheduled_for).getTime()
-
-      expect(shiftedOffset).toBe(sourceOffset)
-      expect(shiftedAuthorizationLead).toBe(sourceAuthorizationLead)
-      expect(item.metadata.schedule_anchor).toEqual(expect.objectContaining({
-        final_release_at: '2026-08-21T16:00:00.000Z',
-        final_asset_id: 'AGT-PAGE-01',
-        source_scheduled_for: sourceAnchor.source_scheduled_for,
-      }))
+  it('moves the explicit final shout while preserving each item and preparation offset', () => {
+    const original = agentifiedLaunchImportPlan()
+    const shifted = agentifiedLaunchImportPlan({ finalReleaseAt: '2026-12-25T15:00:00.000Z' })
+    expect(shifted.campaign.starts_at).toBe('2026-12-07T15:00:00.000Z')
+    expect(shifted.campaign.ends_at).toBe('2026-12-25T15:00:00.000Z')
+    expect(shifted.calendar_items.at(-1)?.asset_id).toBe('AW-LI-05')
+    shifted.calendar_items.forEach((item, index) => {
+      const source = original.calendar_items[index]
+      expect(new Date(item.scheduled_for).getTime() - new Date(source.scheduled_for).getTime()).toBe(7 * 24 * 60 * 60 * 1000)
+      expect(new Date(item.scheduled_for).getTime() - new Date(item.preparation_deadline).getTime()).toBe(6 * 24 * 60 * 60 * 1000)
+      expect((item.metadata.jit_refresh as { prepare_by: string }).prepare_by).toBe(item.preparation_deadline)
+      expect(item.metadata.schedule_anchor).toEqual(expect.objectContaining({ final_asset_id: 'AW-LI-05', source_scheduled_for: source.metadata.schedule_anchor?.source_scheduled_for }))
     })
   })
 
-  it('promotes proof and offer assets while leaving earlier launch phases at medium priority', () => {
-    const expectedPriorityByPhase = {
-      tease: 'medium',
-      teach: 'medium',
-      proof: 'high',
-      offer: 'high',
-    } as const
-
-    for (const item of agentifiedLaunchImportPlan().calendar_items) {
-      expect(buildAgentifiedWorkItemInput(item).priority).toBe(
-        expectedPriorityByPhase[item.campaign_phase as keyof typeof expectedPriorityByPhase],
-      )
-    }
-  })
-
-  it('selects only the packet channel lane, including the thumbnail placeholder lane', () => {
-    for (const assetId of ['AGT-LI-01', 'AGT-SHORT-01', 'AGT-PAGE-01']) {
-      const item = packetItem(assetId)
-      const input = buildAgentifiedWorkItemInput(item)
-      const selectedLanes = Object.entries(input.metadata.channel_lanes)
-        .filter(([, lane]) => lane.status === 'selected')
-        .map(([channel]) => channel)
-
-      expect(selectedLanes).toEqual([item.channel])
-      const selectedLane = input.metadata.channel_lanes[
-        item.channel as keyof typeof input.metadata.channel_lanes
-      ]
-      expect(selectedLane.updated_at).toBe(
-        '2026-07-27T13:45:00.000Z',
-      )
-    }
-  })
-
-  it('gives every work item a stable idempotency key and prepare-only governance metadata', () => {
+  it('creates one selected channel lane and reviewable, non-executing work metadata', () => {
     for (const item of agentifiedLaunchImportPlan().calendar_items) {
       const input = buildAgentifiedWorkItemInput(item)
-
+      const expectedLane = item.channel === 'instagram' ? 'instagram_reels' : item.channel
+      const selected = Object.entries(input.metadata.channel_lanes).filter(([, lane]) => lane.status === 'selected').map(([key]) => key)
+      expect(selected).toEqual([expectedLane])
+      expect(input.priority).toBe(item.campaign_phase === 'proof' || item.campaign_phase === 'offer' ? 'high' : 'medium')
       expect(input.status).toBe('queued')
       expect(input.ownerRuntime).toBe('manual')
-      expect(input.idempotencyKey).toBe(`agentified-launch:${item.asset_id}`)
-      expect(input.overlapGroup).toBe('agentified-launch-campaign')
+      expect(input.idempotencyKey).toBe(`agentified-workshop:${item.asset_id}`)
+      expect(input.overlapGroup).toBe('agentified-workshop-campaign')
+      expect(input.objective).toContain('public Agentified workshop campaign')
       expect(input.metadata).toEqual(expect.objectContaining({
-        source_policy: 'public_safe_campaign_packet_only',
+        campaign_slug: campaignSlug,
         agentified_asset_id: item.asset_id,
-        first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
-        side_effects: {
-          provider_generation: false,
-          upload: false,
-          schedule: false,
-          publish: false,
-          external_post: false,
-        },
+        source_paths: item.metadata.source_paths,
+        preparation_deadline: item.preparation_deadline,
+        review_gates: item.metadata.review_gates,
+        first_review_packet_path: reviewPacket,
+        side_effects: { provider_generation: false, upload: false, schedule: false, publish: false, external_post: false },
       }))
-      expect(input.metadata.insight.claim_boundaries).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('prepare-only'),
-          expect.stringContaining('Do not imply autonomous platform publishing'),
-        ]),
-      )
+      expect(input.metadata.insight.triggering_event).toBe('Public Agentified workshop guest-learning campaign')
+      expect(input.metadata.insight.approved_research_patterns).toEqual([])
+      expect(input.metadata.insight.research_direction.pattern_status).toBe('pending_source_and_outlier_review')
+      expect(input.metadata.insight.evidence_summary).not.toMatch(/manuscript|preorder|book launch/i)
     }
+    expect(buildAgentifiedWorkItemInput(packetItem('AW-IG-CAR-01')).metadata.channel_lane_mapping_note).toContain('carousel')
   })
 
-  it('preserves scheduling and human-gate fields from every packet item', () => {
+  it('builds bounded calendar rows linked to their work item and review packet', () => {
     for (const item of agentifiedLaunchImportPlan().calendar_items) {
-      const row = buildAgentifiedCalendarRow({
-        item,
-        campaignId: 'campaign-agentified',
-        workItemId: `work-${item.asset_id}`,
-        createdBy: 'admin-user',
-      })
-
+      const row = buildAgentifiedCalendarRow({ item, campaignId: 'campaign-agentified', workItemId: `work-${item.asset_id}`, createdBy: 'admin-user' })
       expect(row).toEqual(expect.objectContaining({
-        channel: item.channel,
-        campaign_phase: item.campaign_phase,
-        planned_angle: item.planned_angle,
-        scheduled_for: item.scheduled_for,
-        due_status: item.due_status,
-        authorization_status: item.authorization_status,
-        authorization_due_at: item.authorization_due_at,
-        autonomy_eligible: false,
+        campaign_id: 'campaign-agentified', agent_work_item_id: `work-${item.asset_id}`,
+        channel: item.channel, campaign_phase: item.campaign_phase, scheduled_for: item.scheduled_for,
+        authorization_due_at: item.authorization_due_at, authorization_status: 'pending', autonomy_eligible: false,
         metadata: expect.objectContaining({
-          human_gate_required: true,
-          agentified_asset_id: item.asset_id,
-          first_review_packet_path: 'agentified/campaign/launch-review-packet-2026-07-27.md',
+          agentified_asset_id: item.asset_id, preparation_deadline: item.preparation_deadline,
+          first_review_packet_path: reviewPacket, external_execution_enabled: false,
+          side_effects: { provider_generation: false, upload: false, external_schedule: false, publish: false, external_post: false, social_draft_created: false },
         }),
       }))
     }
-  })
-
-  it('builds bounded, non-autonomous calendar rows linked to their campaign work item', () => {
-    const item = {
-      ...packetItem('AGT-PAGE-01'),
-      title: 'A'.repeat(260),
-    } as PacketCalendarItem
-
-    const row = buildAgentifiedCalendarRow({
-      item,
-      campaignId: 'campaign-agentified',
-      workItemId: 'work-AGT-PAGE-01',
-      createdBy: 'admin-user',
-    })
-
-    expect(row).toEqual(expect.objectContaining({
-      campaign_id: 'campaign-agentified',
-      agent_work_item_id: 'work-AGT-PAGE-01',
-      social_content_id: null,
-      channel: 'thumbnail',
-      title: 'A'.repeat(240),
-      autonomy_eligible: false,
-      created_by: 'admin-user',
-      metadata: expect.objectContaining({
-        agentified_asset_id: 'AGT-PAGE-01',
-        external_execution_enabled: false,
-        imported_from_agentified_packet: true,
-        side_effects: {
-          provider_generation: false,
-          upload: false,
-          external_schedule: false,
-          publish: false,
-          external_post: false,
-          social_draft_created: false,
-        },
-      }),
-    }))
+    const item = { ...packetItem('AW-LI-05'), title: 'A'.repeat(260) }
+    const row = buildAgentifiedCalendarRow({ item, campaignId: 'campaign-agentified', workItemId: 'work-AW-LI-05', createdBy: 'admin-user' })
+    expect(row.title).toHaveLength(240)
   })
 })
