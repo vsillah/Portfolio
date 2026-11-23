@@ -1,0 +1,13 @@
+file 'mobile-blocked.jpg'
+duration 2.5
+file 'mobile-eligible.jpg'
+duration 2.5
+file 'mobile-claimed.jpg'
+duration 2.5
+file 'mobile-verification-on.jpg'
+duration 2.5
+file 'mobile-verification-off.jpg'
+duration 2.5
+file 'mobile-long-name.jpg'
+duration 2.5
+file 'mobile-long-name.jpg'

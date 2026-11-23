@@ -1,10 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, BookOpen, PlayCircle } from 'lucide-react'
+import type { CertificateShareCourse } from '@/lib/course-certificate-share'
 
-const workshops = [
+const registerWorkshops = <T extends readonly ({ slug: CertificateShareCourse; certificateShareId: CertificateShareCourse } & Record<string, unknown>)[]>(items: T) => items
+
+const workshops = registerWorkshops([
   {
     slug: 'accelerated',
+    certificateShareId: 'accelerated',
     eyebrow: 'Product strategy workshop',
     title: 'Accelerated',
     subtitle: 'Building Smarter Products with AI',
@@ -17,6 +21,7 @@ const workshops = [
   },
   {
     slug: 'agentified',
+    certificateShareId: 'agentified',
     eyebrow: 'Agentic operating workshop',
     title: 'Agentified',
     subtitle: 'Achieve agentic scale through trust',
@@ -27,7 +32,7 @@ const workshops = [
     href: '/agentified',
     cta: 'Explore Agentified',
   },
-] as const
+] as const)
 
 export default function FlagshipWorkshops({ className = '' }: { className?: string }) {
   return (

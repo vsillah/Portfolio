@@ -1,0 +1,56 @@
+[
+  {
+    "name": "desktop",
+    "route": "http://127.0.0.1:3138/agentified/learningplan?lesson=L16&rev=44205e9fc2c00a80223dd8f79878158fa612cbce",
+    "src": "/agentified/qualified/l16/agentified-l16-desktop.mp4",
+    "initial": {
+      "paused": true,
+      "duration": 267.309,
+      "time": 0
+    },
+    "playing": {
+      "paused": false,
+      "time": 0.163415
+    },
+    "paused": true,
+    "sought": 10,
+    "captionsOff": "false",
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ],
+    "complete": true,
+    "replay": {
+      "paused": false,
+      "time": 0
+    }
+  },
+  {
+    "name": "mobile",
+    "route": "http://127.0.0.1:3138/agentified/learningplan?lesson=L16&rev=44205e9fc2c00a80223dd8f79878158fa612cbce",
+    "src": "/agentified/qualified/l16/agentified-l16-mobile.mp4",
+    "initial": {
+      "paused": true,
+      "duration": 267.309,
+      "time": 0
+    },
+    "playing": {
+      "paused": false,
+      "time": 0.15946
+    },
+    "paused": true,
+    "sought": 10,
+    "captionsOff": "false",
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ],
+    "complete": true,
+    "replay": {
+      "paused": false,
+      "time": 0
+    }
+  }
+]

@@ -122,6 +122,22 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     vi.unstubAllGlobals()
   })
 
+  it('keeps an explicitly requested L16 when member progress later restores L01', async () => {
+    window.history.replaceState(null, '', '/agentified/learningplan?lesson=L16')
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({ data: { session: { access_token: 'synthetic-token', user: { id: 'synthetic-member', email: 'member@example.invalid', user_metadata: {} } } }, error: null } as Awaited<ReturnType<typeof supabase.auth.getSession>>)
+    vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => ({ ok: true, json: async () => init?.method === 'POST' ? { revision: 5 } : { enrollment: { revision: 4, current_lesson_id: 'L01', updated_at: new Date().toISOString() }, worksheet: null, lessons: [{ lesson_id: 'L16', video_seconds: 73, completed_at: null }] } })))
+    render(<AgentifiedWorkshop mode="plan" />)
+    const video = await screen.findByLabelText(/^L16 .* guided video$/)
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Claim guest progress for this account' })).toBeNull())
+    expect(screen.getByRole('heading', { name: 'Audit the operating file' })).toBeInTheDocument()
+    expect(video.querySelector('source')).toHaveAttribute('src', qualified.bindings.L16.video)
+    Object.defineProperty(video, 'duration', { configurable: true, value: 275.32 })
+    fireEvent.loadedMetadata(video)
+    expect((video as HTMLVideoElement).currentTime).toBe(73)
+    expect(window.location.search).toBe('?lesson=L16')
+    vi.unstubAllGlobals()
+  })
+
 
   it.each(['L02', 'L03', 'L04'])('keeps %s transcript and worksheet available while unqualified video remains locked', async (id) => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
