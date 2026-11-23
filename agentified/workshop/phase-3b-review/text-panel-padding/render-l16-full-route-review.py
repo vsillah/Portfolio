@@ -17,10 +17,9 @@ SOURCE_RECEIPT = next(
 )
 
 
-def build(layout: str, output: Path) -> None:
-    source = ROOT / 'public/agentified/lessons/l16/illustrated-4283c8d8/agentified-l16-illustrated-composite.mp4'
+def build(layout: str, output: Path, source: Path, source_sha256: str) -> None:
     assert SOURCE_RECEIPT['output_sha256'] == '4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc'
-    assert hashlib.sha256(source.read_bytes()).hexdigest() == SOURCE_RECEIPT['output_sha256']
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == source_sha256
     protected = SOURCE_RECEIPT['protected_windows']
     opening_end, closing_start, countdown_start = protected[0][1], protected[1][0], protected[2][0]
     rows: list[tuple[Path, float, float]] = []
@@ -69,5 +68,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('layout', choices=['desktop', 'mobile'])
     parser.add_argument('output', type=Path)
+    parser.add_argument('--source', type=Path, default=ROOT / 'public/agentified/lessons/l16/illustrated-4283c8d8/agentified-l16-illustrated-composite.mp4')
+    parser.add_argument('--source-sha256', default=SOURCE_RECEIPT['output_sha256'])
     inputs = parser.parse_args()
-    build(inputs.layout, inputs.output)
+    build(inputs.layout, inputs.output, inputs.source, inputs.source_sha256)
