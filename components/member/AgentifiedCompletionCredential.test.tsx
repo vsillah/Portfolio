@@ -3,10 +3,12 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import AgentifiedCompletionCredential from './AgentifiedCompletionCredential'
 import { agentifiedCertificateSvg, certificateRecordId } from './agentified-certificate-artwork'
 
-vi.mock('@/lib/supabase', () => ({ supabase: { auth: { getSession: vi.fn(async () => ({ data: { session: null } })) } } }))
+const demoDate = '2026-11-05T12:00:00.000Z'
+const { getSession } = vi.hoisted(() => ({ getSession: vi.fn(async () => ({ data: { session: null as null | { access_token: string } } })) }))
+vi.mock('@/lib/supabase', () => ({ supabase: { auth: { getSession } } }))
 
-beforeEach(() => window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential'))
-afterEach(() => { cleanup(); window.history.pushState({}, '', '/') })
+beforeEach(() => { window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential'); getSession.mockResolvedValue({ data: { session: null } }) })
+afterEach(() => { cleanup(); vi.restoreAllMocks(); window.history.pushState({}, '', '/') })
 
 describe('Agentified certificate', () => {
   it('previews the named certificate and claims with the existing preview path', async () => {
@@ -60,5 +62,15 @@ describe('Agentified certificate', () => {
     expect(svg).toContain('preserveAspectRatio="xMidYMid meet"')
     expect(certificateRecordId(credential)).toEqual(certificateRecordId({ ...credential, verification_token: null }))
     expect(svg).toContain('NOT PROFESSIONAL ACCREDITATION')
+  })
+
+  it('copies the existing verified link for an authenticated synthetic credential', async () => {
+    getSession.mockResolvedValue({ data: { session: { access_token: 'synthetic-access' } } })
+    const writeText = vi.fn(async () => {})
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ available: true, eligible: true, completedCount: 16, credential: { learner_name: 'Course Learner', completed_at: demoDate, verification_token: 'f'.repeat(64), revision: 1 } }), { status: 200 }))
+    render(<AgentifiedCompletionCredential />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Copy verification link' }))
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(`${window.location.origin}/agentified/verify/${'f'.repeat(64)}`))
   })
 })
