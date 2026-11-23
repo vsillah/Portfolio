@@ -1,0 +1,10 @@
+ffconcat version 1.0
+file 'mobile-01-landing.png'
+duration 3
+file 'mobile-02-privacy.png'
+duration 3
+file 'mobile-03-terms.png'
+duration 3
+file 'mobile-04-plan.png'
+duration 3
+file 'mobile-04-plan.png'

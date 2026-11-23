@@ -26,6 +26,12 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     window.matchMedia = vi.fn().mockReturnValue({ matches: false })
   })
 
+  it('links learners to the privacy and workshop terms before starting', async () => {
+    render(<AgentifiedWorkshop mode="plan" />)
+    expect(await screen.findByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/legal/privacy')
+    expect(screen.getByRole('link', { name: 'workshop terms' })).toHaveAttribute('href', '/legal/terms')
+  })
+
   it('shares the chosen caption size across lessons and a reload', async () => {
     const view = render(<AgentifiedWorkshop mode="plan" />)
     const first = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')

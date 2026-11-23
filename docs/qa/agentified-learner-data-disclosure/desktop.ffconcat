@@ -1,0 +1,10 @@
+ffconcat version 1.0
+file 'desktop-01-landing.png'
+duration 3
+file 'desktop-02-privacy.png'
+duration 3
+file 'desktop-03-terms.png'
+duration 3
+file 'desktop-04-plan.png'
+duration 3
+file 'desktop-04-plan.png'

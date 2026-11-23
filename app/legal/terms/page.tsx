@@ -4,10 +4,18 @@ import Navigation from '@/components/Navigation'
 
 export const metadata: Metadata = {
   title: 'Terms of Service | AmaduTown, LLC',
-  description: 'Terms for using AmaduTown, LLC Portfolio social publishing workflows and optional SMS communications.',
+  description: 'Terms for AmaduTown, LLC learning, Portfolio workflows, and optional SMS communications.',
 }
 
 const terms = [
+  {
+    title: 'Agentified workshop',
+    body: 'Agentified is an open learning workshop. You may start as a guest and keep work on this device. Sign in and choose to claim guest progress if you want to continue across devices. You may download your Operating File or clear its editable responses. Clearing responses does not remove a copy already sent for human assessment review.',
+  },
+  {
+    title: 'Review and completion',
+    body: 'Sending an Operating File requires your review and consent and sends your responses, name, and account email to AmaduTown for human assessment. It does not create a purchase or client project. A completion credential is available to a signed-in learner after all sixteen lessons are completed and saved. It records course completion; it is not a professional accreditation or certification. You control whether a verification link is active.',
+  },
   {
     title: 'AmaduTown, LLC SMS program',
     body: 'AmaduTown Advisory Solutions, LLC offers optional low-volume marketing and customer-care texts about business and technology consulting and AI automation services, including automated messages. Participation is not required to buy a product or service. Message frequency varies, and your carrier’s message and data rates may apply. Only opt into this program using a number you control.',
@@ -49,9 +57,9 @@ export default function TermsPage() {
           </Link>
           <h1 className="mt-6 text-4xl font-bold tracking-normal text-foreground">Terms of Service</h1>
           <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            These terms apply to AmaduTown, LLC Portfolio social publishing, content operations, and optional SMS communications.
+            These terms apply to Agentified learning, AmaduTown, LLC Portfolio content operations, and optional SMS communications.
           </p>
-          <p className="mt-3 text-sm text-muted-foreground">Last updated: September 9, 2026</p>
+          <p className="mt-3 text-sm text-muted-foreground">Last updated: November 23, 2026</p>
 
           <div className="mt-10 space-y-8 rounded-2xl border border-radiant-gold/15 bg-silicon-slate/25 p-6 sm:p-8">
             {terms.map((term) => (
@@ -63,7 +71,7 @@ export default function TermsPage() {
           </div>
 
           <p className="mt-8 text-sm text-muted-foreground">
-            Our <Link href="/legal/privacy" className="underline underline-offset-4">Privacy Policy</Link> explains how we handle mobile information and consent records. Questions can be sent to{' '}
+            Our <Link href="/legal/privacy" className="underline underline-offset-4">Privacy Policy</Link> explains how we handle learning data, mobile information, and consent records. Questions or Agentified data deletion requests can be sent to{' '}
             <a className="text-radiant-gold underline-offset-4 hover:underline" href="mailto:vambah@amadutown.com">
               vambah@amadutown.com
             </a>
