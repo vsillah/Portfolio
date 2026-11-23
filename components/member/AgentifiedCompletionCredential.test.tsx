@@ -97,10 +97,15 @@ describe('Agentified certificate', () => {
     expect(AGENTIFIED_SHARE_MESSAGE).toBe(`${AGENTIFIED_SHARE_TEXT} ${AGENTIFIED_SHARE_URL}`)
     expect(AGENTIFIED_SHARE_MESSAGE).not.toMatch(/Course Learner|AT-AGT|verify|f{64}|Operating File answers/i)
     for (const [platform, href] of Object.entries(AGENTIFIED_SHARE_LINKS)) {
-      const link = screen.getByRole('link', { name: new RegExp(`^${platform}`, 'i') })
+      const label = platform === 'x' ? 'X' : platform === 'linkedin' ? 'LinkedIn' : 'Facebook'
+      const link = screen.getByRole('link', { name: `Share on ${label}` })
       expect(link).toHaveAttribute('href', href)
       expect(link).toHaveAttribute('target', '_blank')
       expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+      expect(link).toHaveAttribute('title', `Share on ${label} (opens a new tab)`)
+      expect(link).toHaveAttribute('data-tooltip', `Share on ${label}`)
+      expect(link.textContent).toBe('')
+      expect(link.querySelector('svg[aria-hidden="true"] path')).toBeInTheDocument()
       expect(href).not.toMatch(/Course%20Learner|AT-AGT|verify|f{64}/i)
     }
     expect(new URL(AGENTIFIED_SHARE_LINKS.linkedin).searchParams.get('url')).toBe(AGENTIFIED_SHARE_URL)

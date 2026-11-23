@@ -10,7 +10,7 @@ mkdirSync(output, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const base = `http://127.0.0.1:3189/member/dashboard?qa=agentified-credential&rev=${revision}`
 
-async function capture(label, width, height, scene, theme, copy = false) {
+async function capture(label, width, height, scene, theme, { copy = false, focus = false } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, colorScheme: theme === 'dark' ? 'dark' : 'light', permissions: ['clipboard-read', 'clipboard-write'] })
   const page = await context.newPage()
   await page.goto(`${base}&certificate=${scene}&certificateTheme=${theme}`, { waitUntil: 'domcontentloaded' })
@@ -21,10 +21,24 @@ async function capture(label, width, height, scene, theme, copy = false) {
   } else {
     await share.waitFor()
     await share.scrollIntoViewIfNeeded()
+    const links = ['LinkedIn', 'Facebook', 'X'].map(platform => page.getByRole('link', { name: `Share on ${platform}` }))
+    const positions = []
+    for (const link of links) {
+      const box = await link.boundingBox()
+      if (!box || box.width < 44 || box.height < 44) throw new Error(`${label}: brand touch target under 44px`)
+      positions.push(box.y)
+    }
+    if (Math.max(...positions) - Math.min(...positions) > 3) throw new Error(`${label}: brand links wrapped`)
+    if (await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)) throw new Error(`${label}: horizontal overflow`)
   }
   if (copy) {
     await page.getByRole('button', { name: /Copy (complete message|message to share)/ }).click()
     await page.getByText('Complete message copied. Paste and review it before posting.').waitFor()
+  }
+  if (focus) {
+    const link = page.getByRole('link', { name: 'Share on LinkedIn' })
+    await link.focus()
+    if (!await link.evaluate(element => element === document.activeElement)) throw new Error(`${label}: keyboard focus failed`)
   }
   const path = join(output, `${label}.png`)
   await page.screenshot({ path })
@@ -42,7 +56,8 @@ function video(label, frames) {
 try {
   const desktop = [
     await capture('desktop-claimed', 1280, 800, 'claimed', 'dark'),
-    await capture('desktop-copied', 1280, 800, 'claimed', 'dark', true),
+    await capture('desktop-copied', 1280, 800, 'claimed', 'dark', { copy: true }),
+    await capture('desktop-focused', 1280, 800, 'claimed', 'light', { focus: true }),
     await capture('desktop-verified', 1280, 800, 'verified', 'light'),
     await capture('desktop-revoked', 1280, 800, 'revoked', 'dark'),
     await capture('desktop-eligible', 1280, 800, 'eligible', 'light'),
@@ -50,7 +65,8 @@ try {
   ]
   const mobile = [
     await capture('mobile-claimed', 390, 844, 'claimed', 'dark'),
-    await capture('mobile-copied', 390, 844, 'claimed', 'dark', true),
+    await capture('mobile-copied', 390, 844, 'claimed', 'dark', { copy: true }),
+    await capture('mobile-focused', 390, 844, 'claimed', 'light', { focus: true }),
     await capture('mobile-long-name', 390, 844, 'long-name', 'light'),
     await capture('mobile-verified', 390, 844, 'verified', 'dark'),
     await capture('mobile-revoked', 390, 844, 'revoked', 'light'),

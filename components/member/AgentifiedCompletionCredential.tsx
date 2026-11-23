@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { agentifiedCertificateSvg, certificateRecordId, type CertificateDetails } from './agentified-certificate-artwork'
 import { COURSE_CERTIFICATE_FRAME } from './course-certificate-template'
 import { AGENTIFIED_SHARE_LINKS, AGENTIFIED_SHARE_MESSAGE, AGENTIFIED_SHARE_TEXT, AGENTIFIED_SHARE_URL } from './agentified-certificate-share'
+import { SocialBrandMark } from './social-brand-marks'
 import styles from './AgentifiedCompletionCredential.module.css'
 
 type Credential = CertificateDetails & { revision: number }
@@ -154,9 +155,9 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
           <div className={styles.shareActions}>
             {nativeShareAvailable && <button type="button" onClick={() => void shareAchievement()}>Share achievement</button>}
             <button type="button" onClick={() => void copyAchievement()}>{nativeShareAvailable ? 'Copy complete message' : 'Copy message to share'}</button>
-            <a href={AGENTIFIED_SHARE_LINKS.linkedin} target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('LinkedIn opens with the workshop link. Paste the copied message if you want to include it.')}>LinkedIn <span className={styles.external} aria-hidden="true">↗</span></a>
-            <a href={AGENTIFIED_SHARE_LINKS.facebook} target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('Facebook opens with the workshop link. Paste the copied message if you want to include it.')}>Facebook <span className={styles.external} aria-hidden="true">↗</span></a>
-            <a href={AGENTIFIED_SHARE_LINKS.x} target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('X opens with a shorter message and the workshop link. Review it before posting.')}>X <span className={styles.external} aria-hidden="true">↗</span></a>
+            <a href={AGENTIFIED_SHARE_LINKS.linkedin} aria-label="Share on LinkedIn" title="Share on LinkedIn (opens a new tab)" data-tooltip="Share on LinkedIn" target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('LinkedIn opens with the workshop link. Paste the copied message if you want to include it.')}><SocialBrandMark platform="linkedin" /></a>
+            <a href={AGENTIFIED_SHARE_LINKS.facebook} aria-label="Share on Facebook" title="Share on Facebook (opens a new tab)" data-tooltip="Share on Facebook" target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('Facebook opens with the workshop link. Paste the copied message if you want to include it.')}><SocialBrandMark platform="facebook" /></a>
+            <a href={AGENTIFIED_SHARE_LINKS.x} aria-label="Share on X" title="Share on X (opens a new tab)" data-tooltip="Share on X" target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('X opens with a shorter message and the workshop link. Review it before posting.')}><SocialBrandMark platform="x" /></a>
           </div>
           <p className={styles.shareHint}>LinkedIn and Facebook receive only the workshop link. Copy the complete message first if you want to include it.</p>
           {manualCopy && <label className={styles.manualCopy}>Message to copy<textarea readOnly value={AGENTIFIED_SHARE_MESSAGE} onFocus={(event) => event.currentTarget.select()} /></label>}
