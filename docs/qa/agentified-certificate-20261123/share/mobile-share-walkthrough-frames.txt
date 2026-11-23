@@ -2,6 +2,10 @@ file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-cer
 duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-copied.png'
 duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-facebook-copied.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-linkedin-copy-failed.png'
+duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-focused.png'
 duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-long-name.png'
