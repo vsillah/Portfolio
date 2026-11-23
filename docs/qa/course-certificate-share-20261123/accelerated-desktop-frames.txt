@@ -1,0 +1,11 @@
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-desktop-default.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-desktop-success.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-desktop-failure.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-desktop-retry.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-desktop-x.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/course-certificate-share-20261123/accelerated-desktop-x.png'
