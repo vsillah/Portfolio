@@ -130,6 +130,70 @@ describe('Agentified certificate', () => {
     expect(await screen.findByText('Sharing canceled.')).toBeInTheDocument()
   })
 
+  for (const platform of ['LinkedIn', 'Facebook'] as const) {
+    it(`opens ${platform} with a same-gesture copy and reports success`, async () => {
+      const writeText = vi.fn(async () => {})
+      const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+      window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential&certificate=claimed')
+      render(<AgentifiedCompletionCredential preview />)
+      const link = await screen.findByRole('link', { name: `Share on ${platform}` })
+      const click = vi.fn()
+      link.addEventListener('click', click)
+      fireEvent.click(link)
+      expect(click).toHaveBeenCalledTimes(1)
+      expect(click.mock.calls[0][0].defaultPrevented).toBe(false)
+      expect(writeText).toHaveBeenCalledTimes(1)
+      expect(writeText).toHaveBeenCalledWith(AGENTIFIED_SHARE_MESSAGE)
+      expect(open).not.toHaveBeenCalled()
+      expect(await screen.findByRole('status')).toHaveTextContent(`Message copied. Paste and review it before posting on ${platform}.`)
+    })
+
+    it(`still opens ${platform} and explains a clipboard failure`, async () => {
+      const writeText = vi.fn(async () => { throw new Error('Denied') })
+      const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+      window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential&certificate=claimed')
+      render(<AgentifiedCompletionCredential preview />)
+      const link = await screen.findByRole('link', { name: `Share on ${platform}` })
+      const click = vi.fn()
+      link.addEventListener('click', click)
+      fireEvent.click(link)
+      expect(click).toHaveBeenCalledTimes(1)
+      expect(click.mock.calls[0][0].defaultPrevented).toBe(false)
+      expect(writeText).toHaveBeenCalledTimes(1)
+      expect(writeText).toHaveBeenCalledWith(AGENTIFIED_SHARE_MESSAGE)
+      expect(open).not.toHaveBeenCalled()
+      expect(await screen.findByRole('status')).toHaveTextContent(`Message could not be copied. ${platform} opened with the workshop link. Use the separate Copy message action to try again.`)
+      expect(screen.getByRole('button', { name: 'Copy message to share' })).toBeEnabled()
+    })
+  }
+
+  it('opens the X intent without using the clipboard', async () => {
+    const writeText = vi.fn(async () => {})
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential&certificate=claimed')
+    render(<AgentifiedCompletionCredential preview />)
+    const link = await screen.findByRole('link', { name: 'Share on X' })
+    fireEvent.click(link)
+    expect(writeText).not.toHaveBeenCalled()
+    expect(screen.getByRole('status')).toHaveTextContent('X opens with a shorter message and the workshop link. Review it before posting.')
+  })
+
+  it('does not let a delayed platform copy overwrite a later copy action', async () => {
+    let finishPlatformCopy: (() => void) | undefined
+    const writeText = vi.fn().mockImplementationOnce(() => new Promise<void>((resolve) => { finishPlatformCopy = resolve })).mockResolvedValueOnce(undefined)
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential&certificate=claimed')
+    render(<AgentifiedCompletionCredential preview />)
+    fireEvent.click(await screen.findByRole('link', { name: 'Share on LinkedIn' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy message to share' }))
+    expect(await screen.findByRole('status')).toHaveTextContent('Complete message copied. Paste and review it before posting.')
+    finishPlatformCopy?.()
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Complete message copied. Paste and review it before posting.'))
+    expect(writeText).toHaveBeenCalledTimes(2)
+  })
+
   it('copies the complete message and exposes selectable text when clipboard fails', async () => {
     const writeText = vi.fn().mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('Denied'))
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })

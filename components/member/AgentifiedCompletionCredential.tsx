@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Download, Link2, RotateCcw, ShieldOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -31,6 +31,7 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
   const [shareStatus, setShareStatus] = useState('')
   const [manualCopy, setManualCopy] = useState(false)
   const [nativeShareAvailable, setNativeShareAvailable] = useState(false)
+  const shareHandoff = useRef(0)
   useEffect(() => { setNativeShareAvailable(typeof navigator.share === 'function') }, [])
   useEffect(() => {
     if (!preview || process.env.NODE_ENV === 'production') return
@@ -117,6 +118,7 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
   }
   async function shareAchievement() {
     if (!credential || typeof navigator.share !== 'function') return
+    ++shareHandoff.current
     setShareStatus(''); setManualCopy(false)
     try {
       await navigator.share({ title: 'Agentified workshop completion', text: AGENTIFIED_SHARE_TEXT, url: AGENTIFIED_SHARE_URL })
@@ -127,6 +129,7 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
   }
   async function copyAchievement() {
     if (!credential) return
+    ++shareHandoff.current
     setShareStatus(''); setManualCopy(false)
     try {
       await navigator.clipboard.writeText(AGENTIFIED_SHARE_MESSAGE)
@@ -135,6 +138,17 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
       setManualCopy(true)
       setShareStatus('Automatic copy is unavailable. Select the message below to copy it manually.')
     }
+  }
+  function openPlatformWithMessage(platform: 'LinkedIn' | 'Facebook') {
+    // Start clipboard access in the click gesture. The link's native target opens
+    // the URL once, without waiting for clipboard permission or a popup call.
+    const attempt = ++shareHandoff.current
+    setShareStatus(`Opening ${platform} with the workshop link. Trying to copy your message…`)
+    setManualCopy(false)
+    const copied = () => { if (attempt === shareHandoff.current) setShareStatus(`Message copied. Paste and review it before posting on ${platform}.`) }
+    const failed = () => { if (attempt === shareHandoff.current) setShareStatus(`Message could not be copied. ${platform} opened with the workshop link. Use the separate Copy message action to try again.`) }
+    try { void navigator.clipboard.writeText(AGENTIFIED_SHARE_MESSAGE).then(copied, failed) }
+    catch { failed() }
   }
   return <section className={styles.card} aria-label="Agentified completion credential">
     <div className={styles.heading}><div><p className={styles.eyebrow}>AMADUTOWN · AGENTIFIED</p><h3>Workshop completion</h3></div><span className={styles.count}>{status?.completedCount ?? 0} / 16 lessons</span></div>
@@ -155,11 +169,11 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
           <div className={styles.shareActions}>
             {nativeShareAvailable && <button type="button" onClick={() => void shareAchievement()}>Share achievement</button>}
             <button type="button" onClick={() => void copyAchievement()}>{nativeShareAvailable ? 'Copy complete message' : 'Copy message to share'}</button>
-            <a href={AGENTIFIED_SHARE_LINKS.linkedin} aria-label="Share on LinkedIn" title="Share on LinkedIn (opens a new tab)" data-tooltip="Share on LinkedIn" target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('LinkedIn opens with the workshop link. Paste the copied message if you want to include it.')}><SocialBrandMark platform="linkedin" /></a>
-            <a href={AGENTIFIED_SHARE_LINKS.facebook} aria-label="Share on Facebook" title="Share on Facebook (opens a new tab)" data-tooltip="Share on Facebook" target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('Facebook opens with the workshop link. Paste the copied message if you want to include it.')}><SocialBrandMark platform="facebook" /></a>
-            <a href={AGENTIFIED_SHARE_LINKS.x} aria-label="Share on X" title="Share on X (opens a new tab)" data-tooltip="Share on X" target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('X opens with a shorter message and the workshop link. Review it before posting.')}><SocialBrandMark platform="x" /></a>
+            <a href={AGENTIFIED_SHARE_LINKS.linkedin} aria-label="Share on LinkedIn" title="Share on LinkedIn (opens a new tab)" data-tooltip="Share on LinkedIn" target="_blank" rel="noopener noreferrer" onClick={() => openPlatformWithMessage('LinkedIn')}><SocialBrandMark platform="linkedin" /></a>
+            <a href={AGENTIFIED_SHARE_LINKS.facebook} aria-label="Share on Facebook" title="Share on Facebook (opens a new tab)" data-tooltip="Share on Facebook" target="_blank" rel="noopener noreferrer" onClick={() => openPlatformWithMessage('Facebook')}><SocialBrandMark platform="facebook" /></a>
+            <a href={AGENTIFIED_SHARE_LINKS.x} aria-label="Share on X" title="Share on X (opens a new tab)" data-tooltip="Share on X" target="_blank" rel="noopener noreferrer" onClick={() => { ++shareHandoff.current; setShareStatus('X opens with a shorter message and the workshop link. Review it before posting.') }}><SocialBrandMark platform="x" /></a>
           </div>
-          <p className={styles.shareHint}>LinkedIn and Facebook receive only the workshop link. Copy the complete message first if you want to include it.</p>
+          <p className={styles.shareHint}>LinkedIn and Facebook receive only the workshop link. Your message is copied to your clipboard when possible; paste and review it yourself.</p>
           {manualCopy && <label className={styles.manualCopy}>Message to copy<textarea readOnly value={AGENTIFIED_SHARE_MESSAGE} onFocus={(event) => event.currentTarget.select()} /></label>}
           {shareStatus && <p className={styles.shareStatus} role="status" aria-live="polite">{shareStatus}</p>}
         </div>
