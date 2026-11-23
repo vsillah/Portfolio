@@ -40,6 +40,8 @@ describe('Agentified public page purchase links', () => {
     expect(screen.getByText(/thirteen guided-video lessons and three transcript-led lessons/)).toBeInTheDocument()
     expect(screen.getByText(/Sign in only if you want to save progress across devices/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Start the free workshop/i })).toHaveAttribute('href', '/agentified/learningplan')
+    expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/legal/privacy')
+    expect(screen.getByRole('link', { name: 'workshop terms' })).toHaveAttribute('href', '/legal/terms')
   })
 
   it('publishes Agentified-specific canonical and social metadata', () => {

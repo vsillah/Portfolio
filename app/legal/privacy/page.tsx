@@ -4,10 +4,21 @@ import Navigation from '@/components/Navigation'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | AmaduTown, LLC',
-  description: 'Privacy policy for AmaduTown, LLC social publishing and optional SMS communications.',
+  description: 'Privacy policy for AmaduTown, LLC learning, social publishing, and optional SMS communications.',
 }
 
 const sections = [
+  {
+    title: 'Agentified learning',
+    body: [
+      'You can take Agentified as a guest. Lesson completion, video position, and Operating File responses are saved in this browser on this device. Clearing browser storage or using another device may remove access to that guest work. You can download a copy of your Operating File.',
+      'Signing in does not automatically move guest work to your account. If you choose to claim it, your lesson progress, video position, and Operating File responses are saved to your member account so you can continue across devices.',
+      'You can delete Operating File responses from this device or, after claiming your work, from the saved member file. This clears the editable responses; it does not delete a review copy you already sent to AmaduTown.',
+      'Sending an Operating File for human assessment requires a signed-in account, your review and consent. The submitted copy includes your responses, name, and account email and remains with AmaduTown for assessment review. Sending does not create a purchase or client project.',
+      'After all sixteen lessons are completed and saved, a signed-in learner can claim a completion credential with a chosen name and completion date. A verification link can be created, replaced, or turned off. Anyone with an active link can see the name, completion date, and course completion status; Operating File responses are not shown there.',
+      'For help with account progress or to request deletion of a submitted review copy or other Agentified account data, email vambah@amadutown.com from your account email. We will review the request and explain any records we must keep for support or legal obligations.',
+    ],
+  },
   {
     title: 'SMS communications',
     body: [
@@ -58,9 +69,9 @@ export default function PrivacyPage() {
           </Link>
           <h1 className="mt-6 text-4xl font-bold tracking-normal text-foreground">Privacy Policy</h1>
           <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            This policy explains how AmaduTown, LLC handles data used by Portfolio social publishing workflows and optional SMS communications.
+            This policy explains how AmaduTown, LLC handles Agentified learning data, Portfolio social publishing workflows, and optional SMS communications.
           </p>
-          <p className="mt-3 text-sm text-muted-foreground">Last updated: September 9, 2026</p>
+          <p className="mt-3 text-sm text-muted-foreground">Last updated: November 23, 2026</p>
 
           <div className="mt-10 space-y-8 rounded-2xl border border-radiant-gold/15 bg-silicon-slate/25 p-6 sm:p-8">
             {sections.map((section) => (

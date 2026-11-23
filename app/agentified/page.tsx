@@ -86,6 +86,11 @@ export default function AgentifiedPage() {
                 <span>Start the free workshop</span>
                 <ArrowRight size={15} />
               </Link>
+              <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                Before you begin, read how your work is saved in our{' '}
+                <Link href="/legal/privacy" className="text-radiant-gold underline underline-offset-4 hover:text-foreground">Privacy Policy</Link>
+                {' '}and the <Link href="/legal/terms" className="text-radiant-gold underline underline-offset-4 hover:text-foreground">workshop terms</Link>.
+              </p>
             </div>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
