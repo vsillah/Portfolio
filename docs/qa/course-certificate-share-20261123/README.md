@@ -1,11 +1,11 @@
 # Course certificate sharing review
 
-This packet is for draft PR stacked on #1302. It uses the development-only member dashboard fixture at code commit `d4f087587e4ca99e9b85533b8e4fed1539c4ff81`. No learner account or real social platform was contacted.
+This packet is for draft PR stacked on #1302. It uses the development-only member dashboard fixture at code commit `3763634edf60adbd1de6cfe1cd752d05e4e32f90`. No learner account or real social platform was contacted.
 
 ## Routes
 
-- Accelerated: `http://127.0.0.1:3189/member/dashboard?qa=completion-ready&rev=d4f087587e4ca99e9b85533b8e4fed1539c4ff81`. The recording claims the synthetic certificate in the fixture.
-- Agentified: `http://127.0.0.1:3189/member/dashboard?qa=agentified-credential&certificate=claimed&certificateTheme=dark&rev=d4f087587e4ca99e9b85533b8e4fed1539c4ff81`.
+- Accelerated: `http://127.0.0.1:3189/member/dashboard?qa=completion-ready&rev=3763634edf60adbd1de6cfe1cd752d05e4e32f90`. The recording claims the synthetic certificate in the fixture.
+- Agentified: `http://127.0.0.1:3189/member/dashboard?qa=agentified-credential&certificate=claimed&certificateTheme=dark&rev=3763634edf60adbd1de6cfe1cd752d05e4e32f90`.
 
 Each course has desktop 1280×800 and mobile 390×844 MP4s showing default, LinkedIn copy success, Facebook copy failure, retry success, and X handoff. The browser script checks one intercepted destination opening, expected URL, one clipboard write for LinkedIn/Facebook, no clipboard write for X, retry only after failure, retry removal, 44×44 targets, one row, and no horizontal overflow. On mobile it activates the failed Facebook path with Enter. The share destinations were intercepted with synthetic responses before navigation. The recorder is `scripts/record-course-certificate-share-qa.mjs`.
 
