@@ -64,7 +64,7 @@ describe('evidence-backed social visual plan', () => {
     expect(scenes.every((beat) => beat.storyboard_traceability?.owned_artifact_href === beat.asset_href)).toBe(true)
     expect(scenes.every((beat) => beat.source_ids.includes(beat.storyboard_traceability!.product_proof_receipt_id))).toBe(true)
     expect(scenes.every((beat) => beat.storyboard_traceability?.title_thumbnail_distinct)).toBe(true)
-    expect(scenes.every((beat) => beat.storyboard_traceability?.audience_research_receipt_id === plan.typography_style_receipt?.receipt_id && beat.storyboard_traceability.audience_source_urls.every((href) => href.startsWith('https://')))).toBe(true)
+    expect(scenes.every((beat) => beat.storyboard_traceability?.audience_research_receipt_id === plan.typography_style_receipt?.receipt_id && beat.storyboard_traceability?.audience_source_urls.every((href) => href.startsWith('https://')))).toBe(true)
     expect(scenes.every((beat) => beat.layout.includes('avatar on the left') && beat.layout.includes('right two-thirds'))).toBe(true)
     expect(scenes.every((beat) => beat.presenter_placement && beat.music_ducking_cue)).toBe(true)
     expect(scenes.some((beat) => beat.product_broll_timing?.end_seconds === beat.end_seconds)).toBe(true)

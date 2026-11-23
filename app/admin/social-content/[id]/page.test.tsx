@@ -4641,7 +4641,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     const item = darkCastleVisualQaFixture('current')
     mocks.id = item.id
     mocks.search = 'step=visuals&qa_state=current'
-    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ fixture: true, fixture_state: 'current', item }) } as Response))
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({ ok: true, json: async () => ({ fixture: true, fixture_state: 'current', item }) } as Response))
     vi.stubGlobal('fetch', fetchMock)
 
     render(<SocialContentDetailRoute />)

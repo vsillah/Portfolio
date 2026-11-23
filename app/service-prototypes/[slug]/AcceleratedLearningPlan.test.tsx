@@ -322,7 +322,7 @@ describe('Accelerated learning plan', () => {
     authMocks.getSession.mockResolvedValue({ data: { session: {
       access_token: 'synthetic-token', user: { id: 'synthetic-member', email: 'member@example.test', user_metadata: {} },
     } } })
-    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ enrollment: { revision: 4, current_lesson_id: 'L01' }, lessons: [], worksheet: null }) }))
+    const fetchMock = vi.fn(async (_url: string, _options?: RequestInit) => ({ ok: true, json: async () => ({ enrollment: { revision: 4, current_lesson_id: 'L01' }, lessons: [], worksheet: null }) }))
     vi.stubGlobal('fetch', fetchMock)
     render(<AcceleratedLearningPlan />)
     await waitFor(() => expect(screen.getByRole('link', { name: 'Open dashboard' })).toBeInTheDocument())

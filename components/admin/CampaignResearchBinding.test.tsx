@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, type Mock } from 'vitest'
 import CampaignResearchBinding from './CampaignResearchBinding'
 import type { AgentWorkItem } from '@/lib/agent-work-items'
 import type { ResearchCalendarTarget } from '@/lib/campaign-research-targets'
@@ -7,7 +7,8 @@ const packets = [{ id: 'p1', title: 'Usable public pattern', source_url: 'https:
 const targets = Array.from({ length: 14 }, (_, i) => ({ id: `w${i}`, title: `Handoff ${i}`, source_type: 'social_content_calendar_authorization', metadata: { campaign_id: 'campaign', campaign_name: 'Readiness Challenge', calendar_item_id: `c${i}`, social_content_id: `s${i}`, channel: 'linkedin', campaign_phase: 'teach', scheduled_for: '2026-10-08', draft_handoff_only: true, research_packet_ids: [] } } as unknown as AgentWorkItem))
 const calendar = targets.map((t, i) => ({ id: `c${i}`, campaign_id: 'campaign', social_content_id: `s${i}`, channel: 'linkedin', campaign_phase: 'teach', authorization_status: 'authorized', metadata: { platform_draft_handoff: { work_item_id: t.id } } } as ResearchCalendarTarget))
 const response = (body: unknown, status = 200) => Promise.resolve(new Response(JSON.stringify(body), { status }))
-function setup(fetcher: ReturnType<typeof vi.fn> | undefined = undefined, c = calendar, ps = packets) {
+type Fetcher = (url: string, init?: RequestInit) => Promise<Response>
+function setup(fetcher: Mock<Fetcher> | undefined = undefined, c = calendar, ps = packets) {
  const resolvedFetcher = fetcher ?? vi.fn((url: string) => response(url.includes('?source_type') ? { work_items: targets } : url.includes('/calendar?') ? { items: c } : {}))
  const reload = vi.fn(async () => {})
  render(<CampaignResearchBinding packets={ps} calendarItems={c} authedFetch={resolvedFetcher} onLinked={reload}/>); return { fetcher: resolvedFetcher, reload }
