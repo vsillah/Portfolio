@@ -1,0 +1,257 @@
+{
+  "status": "internal review only; no publication approval",
+  "base_commit": "f452b5b7f6cb44182d39be133fa8f82b37c5a2b6",
+  "script": "agentified/campaign/visuals/build.py",
+  "source_map": {
+    "landing": {
+      "path": "agentified/campaign/visuals/sources/landing.png",
+      "sha256": "81a6b89fe20d87910bfb0d200ea279ca89f9a84b5895114e56146096af4f2f15"
+    },
+    "l01-screen": {
+      "path": "agentified/campaign/visuals/sources/l01.png",
+      "sha256": "2a1e527174da10c29ceacfcb73ec2767d850874e14e612b6abcc5adb7694d469"
+    },
+    "l06-screen": {
+      "path": "agentified/campaign/visuals/sources/l06.png",
+      "sha256": "44841ad0bbdab050b5512c60cc8fd71fa260ab9da66c5c82cb55d565cdba839f"
+    },
+    "l16-screen": {
+      "path": "agentified/campaign/visuals/sources/l16.png",
+      "sha256": "f9d069f484e1f23492af1f60672af2b0e428604338a279c77f35699465edf9de"
+    },
+    "operating-file": {
+      "path": "agentified/campaign/visuals/sources/operating-file.png",
+      "sha256": "991e973f11db06b876596d4343034a7267944b9af04e83792f53123b59454594"
+    },
+    "l01-poster": {
+      "path": "public/agentified/posters/l01-poster.webp",
+      "sha256": "8939a4387173bd8e6a335e1b8d8e2d50155cfac338cf75292fdf1e594cd5310e"
+    },
+    "l06-poster": {
+      "path": "public/agentified/posters/l06-poster.webp",
+      "sha256": "f8a87d3c0a98eacb8018822c7847c641e35b343615015d2ab8e3e2374771b4a9"
+    },
+    "l16-poster": {
+      "path": "public/agentified/posters/l16-poster.webp",
+      "sha256": "6d8fe4fa9ea18ea78ef66ec642242e612a9b68b2e371ec390da20d969f234b95"
+    },
+    "receipt-diagram": {
+      "path": "public/agentified/workshop/figure-1-1-first-receipt-publication-plate.png",
+      "sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669"
+    },
+    "authority-diagram": {
+      "path": "public/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png",
+      "sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b"
+    },
+    "logo": {
+      "path": "public/amadutown-logo-upscaled.png",
+      "sha256": "42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165"
+    }
+  },
+  "outputs": [
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-01-01.png",
+      "sha256": "e5889702e0e71e248edb35c7df5b81f2d8203f09c25d6e4fa2bd46bb24c00d18",
+      "bytes": 235335
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-01-02.png",
+      "sha256": "48d12ea6f5d80f95a792d1cb1e7cb82441afc37ff51e9b4d284f6ca0aec78335",
+      "bytes": 487556
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-01-03.png",
+      "sha256": "68182c74962880d9912e785a879bf67939e7e3638c8ad0acd631f5cd3b3251c1",
+      "bytes": 1051886
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-01-04.png",
+      "sha256": "c74541d6360364036341db23f6cf23d7c88c1a83d2844800d860c5063b9af6b1",
+      "bytes": 690791
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-01-05.png",
+      "sha256": "5f29b015352149f737f54213e38a24d3bc20f57234e10e859ddcf95b6eb2a62a",
+      "bytes": 1050338
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-01-06.png",
+      "sha256": "8279acc75ba091ac9a82cbff938aac9765aae516e6abb50e1528a0b5c648c73a",
+      "bytes": 380691
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-01-07.png",
+      "sha256": "d871184a9d9c57e3b8cd15380e2a13c1b08544be81a2e4b52030e1e8598b37e9",
+      "bytes": 340429
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-02-01.png",
+      "sha256": "43aabb2e79463ddad8408df81d14e6e85f47ab5b412d8e33120c6e9eea3e2803",
+      "bytes": 495555
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-02-02.png",
+      "sha256": "8d072be2e0be2e98f4e3b3be59b4072f9018dd1aacf30d2f5bbaecb6aef528d5",
+      "bytes": 1054645
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-02-03.png",
+      "sha256": "1e9bb98fb21717ba8e0577ff108bc9b9d76ea729cd3e93107aaf89bdd5083770",
+      "bytes": 381636
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-02-04.png",
+      "sha256": "56ad9002090589f437020b84469c5fa64ad0f1a826e99fb8065513410c77dad0",
+      "bytes": 365825
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-02-05.png",
+      "sha256": "addec06bff884d39d76cfcdd2d05c4fb94328779b52b6b3fd794cd8dbe56d4d2",
+      "bytes": 234041
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-02-06.png",
+      "sha256": "d0e68b30746ce9aef4711057d27a491ab2f66f0b7c2617f072acf91e72f80cca",
+      "bytes": 335888
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-ig-car-02-07.png",
+      "sha256": "d342d3ad62ffc7c10820cba96f3888f2d14dc6952403be2e9ef9af51de8dbfa2",
+      "bytes": 449261
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-01-scene-01.png",
+      "sha256": "0983b3b098721fa52751490ba57c042065a4592aa25f275abd2bb2963044ec1d",
+      "bytes": 462428
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-01-scene-02.png",
+      "sha256": "d4bce4a41b95e334167d3823756ebc515488d7e3af4052041e3f95a225d06f18",
+      "bytes": 395057
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-01-scene-03.png",
+      "sha256": "cb52ff9f04f7e2b54d028c0e80e5acad8cac054021ff6bd44d3fefb38ea5f0a1",
+      "bytes": 248749
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-01-scene-04.png",
+      "sha256": "0c1066e6600b7365e4d53e5493f15ba15b64b73e9a57548c390869661790264e",
+      "bytes": 365678
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-01-silent-review.mp4",
+      "sha256": "aed91e8f75fcf6847421543cbf52df6b73624dd56d4a40bdd7d2e70df842ce04",
+      "bytes": 529672
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-02-scene-01.png",
+      "sha256": "ebaf0890e7066f0476cdf68defe94ea2c08fe7edfeeb9873171dc72bfb8ad7fc",
+      "bytes": 378096
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-02-scene-02.png",
+      "sha256": "90999c368454f1fb47b67e281f02474626fc542e0b68186b56d2134ca9a9b6b4",
+      "bytes": 1383651
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-02-scene-03.png",
+      "sha256": "74794e0016ba8720abd9c0221929f47713b6a6a7cba65966aec8a91b83a0fcaa",
+      "bytes": 258132
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-02-scene-04.png",
+      "sha256": "b1e776f949b56f307a16fb320ac669e115a45d64cb5fd51aa7f8ee52cb3e06a7",
+      "bytes": 468962
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-reel-02-silent-review.mp4",
+      "sha256": "220fb8f4afb613a8188936d5608c5c7aefe381aad65cabf7864eca89c6a3b59b",
+      "bytes": 816035
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-yt-01-scene-01.png",
+      "sha256": "f9a31eb2bd427911e3bacaf2013daebe63c9f6d5e264ae466f4720897a4a46f9",
+      "bytes": 333011
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-yt-01-scene-02.png",
+      "sha256": "8452cceae1cf7d9be86b30d4ff8ecf2b60091a878fda2f4ec9fc1339ce00f1f1",
+      "bytes": 257587
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-yt-01-scene-03.png",
+      "sha256": "f59bf4e880dbd79bc7eface037b3e678c303e78bd17993ccaccf374c84e91fb4",
+      "bytes": 173521
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-yt-01-scene-04.png",
+      "sha256": "4eb19ecac71be90b797c13877356b8096faa972f2bde25b1d7e74474b80fc13a",
+      "bytes": 259974
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-yt-01-scene-05.png",
+      "sha256": "8f5758389619868609ad29143251904a36e14d53dd7ddcaa7816243865fc8bde",
+      "bytes": 250180
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-yt-01-scene-06.png",
+      "sha256": "7f4856e08afdee5c31d9f748f01435589f18f4b9fd85784ac80652a7d1acf889",
+      "bytes": 333634
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-yt-01-silent-proof-candidate.mp4",
+      "sha256": "a93ec9933049993e1e518aea4b3fd814d80d0d5f6268dace88fc7d25cf9298ab",
+      "bytes": 1425207
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/aw-yt-01-thumbnail.png",
+      "sha256": "52cf8c4a8d8671a3b5ce56b510e968db7a8072d35eb9e5d378fe3e0dc985abbd",
+      "bytes": 199446
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/carousel-contact-sheet.jpg",
+      "sha256": "a4403daec1369995f425416d592a570a53fa4f2df0d9aafb8820332605ceee34",
+      "bytes": 412859
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/video-contact-sheet.jpg",
+      "sha256": "107d45869cdb0d209ccd04712e87d2f1c543b7fd15d9fda6bb77571d8ea4e7e3",
+      "bytes": 263020
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/review-desktop-walkthrough.mp4",
+      "sha256": "6881b61d076bf2bced16910727d72035bc1d1fc91b345ee286e7a04d3de28493",
+      "bytes": 1867729
+    },
+    {
+      "path": "public/agentified/campaign-review/2026-11-23/review-mobile-walkthrough.mp4",
+      "sha256": "7780db56978b62da8123cddbb494a8265167f2a22b556079e1c5e521f2b8a01e",
+      "bytes": 6215416
+    }
+  ],
+  "notes": [
+    "Owned local art and public guest-route captures only.",
+    "Blank Operating File; no learner entries or account identity.",
+    "Reels and YouTube proof are silent editorial review compositions; scripts remain in draft-assets.md and require narration/pace approval before publication.",
+    "Source screenshots captured on local guest route with inert Supabase placeholders and outbound n8n disabled."
+  ],
+  "review_capture": {
+    "route": "/agentified/campaign-review/2026-11-23/index.html",
+    "viewport": {
+      "desktop": "1728x956",
+      "mobile": "390x844"
+    },
+    "source": "Chrome full-page screenshots of local review page; silent scroll walkthroughs",
+    "screenshots": {
+      "desktop": {
+        "path": "agentified/campaign/visuals/sources/review-desktop-full.png",
+        "sha256": "28e3f9ac8b3a493969fbde901dff8d616268531e9591d108e976ac07be579a56"
+      },
+      "mobile": {
+        "path": "agentified/campaign/visuals/sources/review-mobile-full.png",
+        "sha256": "6fefd7448c083304467dfdd559465d73c8ce6600e64252650d7fc2ade2cc781e"
+      }
+    }
+  }
+}
