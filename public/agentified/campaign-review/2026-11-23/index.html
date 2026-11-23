@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentified social visuals · internal review</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,Arial,sans-serif;background:#091b29;color:#f4eee0}
+    *{box-sizing:border-box}body{margin:0}header,main,footer{max-width:1480px;margin:auto;padding:24px}
+    header{border-bottom:2px solid #d6b46c}h1{font-size:clamp(2rem,4vw,4rem);margin:.4em 0}h2{font-size:1.6rem;margin:1.6em 0 .6em}
+    p{line-height:1.5;color:#b6c7cf;max-width:75ch}.eyebrow{color:#d6b46c;text-transform:uppercase;letter-spacing:.14em;font-size:.8rem}
+    .notice{border:1px solid #d6b46c;background:#102838;padding:16px;border-radius:12px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:20px}
+    figure{margin:0;padding:12px;background:#102838;border:1px solid #375064;border-radius:12px}figure img{display:block;width:100%;height:auto}figcaption{padding-top:10px;font-size:.9rem;color:#d6b46c}
+    video{display:block;width:100%;max-height:78vh;background:#000}a{color:#d6b46c}
+    .wide{max-width:920px}.video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,350px),1fr));gap:20px}
+  </style>
+</head>
+<body>
+  <header><div class="eyebrow">AmaduTown / Agentified / captain review</div><h1>Workshop social visuals</h1><p>Provider-free internal review pack. Owned lesson art and local public guest screens. No learner entries, account identity, or external publishing.</p></header>
+  <main>
+    <p class="notice"><strong>Review status:</strong> Draft assets. The short videos and proof episode are silent editorial compositions for pacing and screen review. Use the exact spoken scripts in <code>agentified/campaign/draft-assets.md</code> before any publication decision.</p>
+    <h2>Carousel 01 · Carry the receipt</h2><div class="grid" id="car1"></div>
+    <h2>Carousel 02 · Work you can inspect</h2><div class="grid" id="car2"></div>
+    <h2>Short video compositions</h2><div class="video-grid"><figure><video controls preload="metadata" src="aw-reel-01-silent-review.mp4"></video><figcaption>AW-REEL-01 · 40 seconds · silent review</figcaption></figure><figure><video controls preload="metadata" src="aw-reel-02-silent-review.mp4"></video><figcaption>AW-REEL-02 · 40 seconds · silent review</figcaption></figure></div>
+    <h2>YouTube proof candidate</h2><p>Five-minute screen-backed editorial hold of the public landing, L01, blank Operating File, L06, and L16. It is a silent candidate for story and route review, not a finished episode.</p>
+    <div class="video-grid"><figure class="wide"><video controls preload="metadata" src="aw-yt-01-silent-proof-candidate.mp4"></video><figcaption>AW-YT-01 · 5:00 · silent screen proof candidate</figcaption></figure><figure class="wide"><img src="aw-yt-01-thumbnail.png" alt="Give the agent a job. Get a receipt. thumbnail concept"><figcaption>Thumbnail concept · 1280 × 720</figcaption></figure></div>
+    <h2>Evidence</h2><p><a href="carousel-contact-sheet.jpg">Carousel contact sheet</a> · <a href="video-contact-sheet.jpg">Video contact sheet</a> · <a href="review-desktop-walkthrough.mp4">Desktop MP4 walkthrough</a> · <a href="review-mobile-walkthrough.mp4">Mobile MP4 walkthrough</a> · <a href="manifest.json">Source map and SHA-256 manifest</a></p>
+  </main>
+  <footer><p>Internal review only · amadutown.com/agentified is the proposed public call to action.</p></footer>
+  <script>
+    for(const [id,code] of [['car1','aw-ig-car-01'],['car2','aw-ig-car-02']]){
+      const root=document.getElementById(id);
+      for(let n=1;n<=7;n++){
+        const figure=document.createElement('figure');
+        const img=document.createElement('img');
+        img.src=`${code}-${String(n).padStart(2,'0')}.png`;
+        img.alt=`${code.toUpperCase()} slide ${n} of 7`;
+        const caption=document.createElement('figcaption');
+        caption.textContent=`${code.toUpperCase()} · ${n}/7`;
+        figure.append(img,caption);root.append(figure);
+      }
+    }
+  </script>
+</body>
+</html>
