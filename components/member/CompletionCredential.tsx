@@ -1,16 +1,16 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Copy, Download, ExternalLink, Link2, RotateCcw, Share2, ShieldOff } from 'lucide-react'
+import { Download, Link2, RotateCcw, ShieldOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
 import styles from './CompletionCredential.module.css'
 import { COURSE_CERTIFICATE_FRAME } from './course-certificate-template'
+import CourseCertificateShare from './CourseCertificateShare'
 
 type Credential = { learner_name: string; completed_at: string; verification_token: string | null; revision: number }
 type Status = { available?: boolean; eligible: boolean; completedCount: number; credential: Credential | null }
-const courseUrl = 'https://amadutown.com/accelerated/learningplan'
 const escapeXml = (value: string) => value.replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[character] ?? character)
 const recordLabel = (credential: Credential | null | undefined) => credential?.verification_token
   ? `AT-ACC-${credential.verification_token.slice(0, 4).toUpperCase()}-${credential.verification_token.slice(4, 8).toUpperCase()}`
@@ -156,16 +156,6 @@ export default function CompletionCredential({ token, completedCount, profileNam
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'accelerated-certificate-of-completion.svg'; anchor.click(); URL.revokeObjectURL(url)
   }
   async function copy(value: string, label: string) { try { await navigator.clipboard.writeText(value); setNotice(`${label} copied.`) } catch { setNotice('Copy is unavailable in this browser.') } }
-  async function webShare() {
-    if (!verificationUrl) return
-    if (!navigator.share) { setNotice('Web Share is unavailable here. Copy the verification link instead.'); return }
-    try { await navigator.share({ title: 'Accelerated course completion', text: 'I completed the Accelerated course.', url: verificationUrl }) } catch { /* The learner may cancel the native share sheet. */ }
-  }
-  const social = (platform: 'linkedin' | 'facebook') => {
-    if (!verificationUrl) return
-    const url = platform === 'linkedin' ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(verificationUrl)}` : `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(verificationUrl)}`
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }
   return <section className={styles.card} aria-label="Accelerated Certificate of Completion">
     <div className={styles.top}><div><p className={styles.eyebrow}>ACCELERATED · COMPLETION</p><h3>Certificate of Completion</h3></div><span className={styles.count}>{status?.completedCount ?? completedCount ?? 0} / 16 lessons</span></div>
     {(credential || status?.eligible) && <div className={styles.certificate} aria-label={credential ? 'Claimed Accelerated completion certificate' : 'Unclaimed Accelerated completion certificate preview'}>
@@ -195,12 +185,9 @@ export default function CompletionCredential({ token, completedCount, profileNam
       <p className={styles.detail}>This records course completion. It does not require sharing your Decision File and is not a professional accreditation or certification.</p>
       <div className={styles.controls} aria-label="Certificate actions">
         <button type="button" title="Download certificate" aria-label="Download certificate" onClick={download}><Download aria-hidden="true" /></button>
-        <button type="button" title="Share with your device" aria-label="Share with your device" disabled={!verificationUrl} onClick={() => void webShare()}><Share2 aria-hidden="true" /></button>
-        <button type="button" title="Open LinkedIn share composer" aria-label="Open LinkedIn share composer" disabled={!verificationUrl} onClick={() => social('linkedin')}>in<ExternalLink aria-hidden="true" /></button>
-        <button type="button" title="Open Facebook share composer" aria-label="Open Facebook share composer" disabled={!verificationUrl} onClick={() => social('facebook')}>f<ExternalLink aria-hidden="true" /></button>
         <button type="button" title="Copy verification link" aria-label="Copy verification link" disabled={!verificationUrl} onClick={() => verificationUrl && void copy(verificationUrl, 'Verification link')}><Link2 aria-hidden="true" /></button>
-        <button type="button" title="Copy course link" aria-label="Copy course link" onClick={() => void copy(courseUrl, 'Course link')}><Copy aria-hidden="true" /></button>
       </div>
+      <CourseCertificateShare course="accelerated" />
       <div className={styles.linkActions}>{verificationUrl ? <button type="button" disabled={busy || preview} onClick={() => void command('revoke')}><ShieldOff aria-hidden="true" /> Turn off verification link</button> : <button type="button" disabled={busy || preview} onClick={() => void command('rotate')}><RotateCcw aria-hidden="true" /> Create verification link</button>}</div>
     </> : status?.eligible ? <><p>All sixteen lessons are complete. Confirm the name that will appear on your certificate. You cannot change it after claiming.</p><label className={styles.name}>Name on certificate<input value={name} onChange={(event) => { nameEdited.current = true; setName(event.target.value) }} maxLength={120} autoComplete="name" /></label><button type="button" className={styles.claim} disabled={busy || !name.trim()} onClick={() => void command('claim')}>Claim certificate</button></> : <p>Complete and save all sixteen lessons to claim your certificate. Your worksheet answers can stay private. <Link href="/accelerated/learningplan">Continue lessons</Link></p>}
     {notice && <p className={styles.notice} role="status">{notice}</p>}

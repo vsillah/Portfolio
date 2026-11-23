@@ -1,0 +1,17 @@
+.share { margin-top: 22px; padding-top: 18px; border-top: 1px solid #a9bcb4; }
+.share h4 { margin: 0; font-family: var(--font-cormorant), Georgia, serif; font-size: 25px; line-height: 1.15; }
+.share p { margin: 5px 0 0; font-size: 13px; line-height: 1.45; }
+.actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 13px; }
+.actions button,.actions a { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px; padding: 9px 13px; border: 1px solid #9a7535; border-radius: 8px; background: transparent; color: inherit; font: inherit; font-size: 13px; font-weight: 750; text-decoration: none; cursor: pointer; }
+.actions button { background: #d6ad4d; color: #102e39; }
+.actions a { position: relative; min-width: 44px; }
+.actions a svg { display: block; width: 20px; height: 20px; }
+.actions a:hover::after,.actions a:focus-visible::after { position: absolute; z-index: 2; bottom: calc(100% + 7px); left: 50%; transform: translateX(-50%); width: max-content; max-width: 180px; padding: 5px 8px; border-radius: 5px; background: #102e39; color: #fff; content: attr(data-tooltip); font-size: 12px; font-weight: 600; line-height: 1.25; pointer-events: none; }
+.actions button:focus-visible,.actions a:focus-visible,.manual textarea:focus-visible,.retry:focus-visible { outline: 3px solid #4b9d98; outline-offset: 3px; }
+.share .hint { margin-top: 10px; color: #435c61; font-size: 12px; }
+:global(html.dark) .share .hint { color: #c8d8d3; }
+.share .status { margin-top: 8px; font-weight: 700; }
+.retry { min-height: 44px; margin-top: 10px; padding: 9px 13px; border: 1px solid #9a7535; border-radius: 8px; background: #d6ad4d; color: #102e39; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
+.manual { display: grid; gap: 5px; margin-top: 10px; font-size: 13px; font-weight: 700; }
+.manual textarea { min-height: 110px; width: 100%; padding: 10px; border: 1px solid #8a9b93; border-radius: 8px; background: #fff; color: #102e39; font: inherit; resize: vertical; }
+@media (max-width: 600px) { .actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); } .actions button,.actions a { width: 100%; min-width: 0; padding-inline: 6px; } .actions button { grid-column: 1 / -1; } .retry { width: 100%; } }
