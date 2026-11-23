@@ -30,8 +30,10 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
   const [busy, setBusy] = useState(false)
   const [shareStatus, setShareStatus] = useState('')
   const [manualCopy, setManualCopy] = useState(false)
+  const [retryPlatform, setRetryPlatform] = useState<'LinkedIn' | 'Facebook' | null>(null)
   const [nativeShareAvailable, setNativeShareAvailable] = useState(false)
   const shareHandoff = useRef(0)
+  const retryInFlight = useRef(false)
   useEffect(() => { setNativeShareAvailable(typeof navigator.share === 'function') }, [])
   useEffect(() => {
     if (!preview || process.env.NODE_ENV === 'production') return
@@ -119,34 +121,39 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
   async function shareAchievement() {
     if (!credential || typeof navigator.share !== 'function') return
     ++shareHandoff.current
-    setShareStatus(''); setManualCopy(false)
+    setShareStatus(''); setManualCopy(false); setRetryPlatform(null)
     try {
       await navigator.share({ title: 'Agentified workshop completion', text: AGENTIFIED_SHARE_TEXT, url: AGENTIFIED_SHARE_URL })
       setShareStatus('Share handoff completed. Review your destination to confirm the post.')
     } catch (error) {
-      setShareStatus(error instanceof DOMException && error.name === 'AbortError' ? 'Sharing canceled.' : 'Sharing is unavailable here. Copy the message or choose a platform.')
+      setShareStatus(error instanceof DOMException && error.name === 'AbortError' ? 'Sharing canceled.' : 'Sharing is unavailable here. Choose a platform to share the workshop link.')
     }
   }
-  async function copyAchievement() {
-    if (!credential) return
-    ++shareHandoff.current
-    setShareStatus(''); setManualCopy(false)
+  async function retryCopy() {
+    if (!credential || !retryPlatform || retryInFlight.current) return
+    retryInFlight.current = true
+    const platform = retryPlatform
+    const attempt = ++shareHandoff.current
+    setRetryPlatform(null)
+    setShareStatus('Trying to copy your message again…')
     try {
       await navigator.clipboard.writeText(AGENTIFIED_SHARE_MESSAGE)
-      setShareStatus('Complete message copied. Paste and review it before posting.')
+      if (attempt !== shareHandoff.current) return
+      setShareStatus(`Message copied. Paste and review it before posting on ${platform}.`)
     } catch {
+      if (attempt !== shareHandoff.current) return
       setManualCopy(true)
-      setShareStatus('Automatic copy is unavailable. Select the message below to copy it manually.')
-    }
+      setShareStatus('Automatic copy is still unavailable. Select the message below to copy it manually.')
+    } finally { retryInFlight.current = false }
   }
   function openPlatformWithMessage(platform: 'LinkedIn' | 'Facebook') {
     // Start clipboard access in the click gesture. The link's native target opens
     // the URL once, without waiting for clipboard permission or a popup call.
     const attempt = ++shareHandoff.current
     setShareStatus(`Opening ${platform} with the workshop link. Trying to copy your message…`)
-    setManualCopy(false)
+    setManualCopy(false); setRetryPlatform(null)
     const copied = () => { if (attempt === shareHandoff.current) setShareStatus(`Message copied. Paste and review it before posting on ${platform}.`) }
-    const failed = () => { if (attempt === shareHandoff.current) setShareStatus(`Message could not be copied. ${platform} opened with the workshop link. Use the separate Copy message action to try again.`) }
+    const failed = () => { if (attempt === shareHandoff.current) { setRetryPlatform(platform); setShareStatus(`Message could not be copied. ${platform} opened with the workshop link. Retry copying your message below.`) } }
     try { void navigator.clipboard.writeText(AGENTIFIED_SHARE_MESSAGE).then(copied, failed) }
     catch { failed() }
   }
@@ -168,14 +175,14 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
           <p>Invite someone to learn how to build governed agent systems.</p>
           <div className={styles.shareActions}>
             {nativeShareAvailable && <button type="button" onClick={() => void shareAchievement()}>Share achievement</button>}
-            <button type="button" onClick={() => void copyAchievement()}>{nativeShareAvailable ? 'Copy complete message' : 'Copy message to share'}</button>
             <a href={AGENTIFIED_SHARE_LINKS.linkedin} aria-label="Share on LinkedIn" title="Share on LinkedIn (opens a new tab)" data-tooltip="Share on LinkedIn" target="_blank" rel="noopener noreferrer" onClick={() => openPlatformWithMessage('LinkedIn')}><SocialBrandMark platform="linkedin" /></a>
             <a href={AGENTIFIED_SHARE_LINKS.facebook} aria-label="Share on Facebook" title="Share on Facebook (opens a new tab)" data-tooltip="Share on Facebook" target="_blank" rel="noopener noreferrer" onClick={() => openPlatformWithMessage('Facebook')}><SocialBrandMark platform="facebook" /></a>
-            <a href={AGENTIFIED_SHARE_LINKS.x} aria-label="Share on X" title="Share on X (opens a new tab)" data-tooltip="Share on X" target="_blank" rel="noopener noreferrer" onClick={() => { ++shareHandoff.current; setShareStatus('X opens with a shorter message and the workshop link. Review it before posting.') }}><SocialBrandMark platform="x" /></a>
+            <a href={AGENTIFIED_SHARE_LINKS.x} aria-label="Share on X" title="Share on X (opens a new tab)" data-tooltip="Share on X" target="_blank" rel="noopener noreferrer" onClick={() => { ++shareHandoff.current; setRetryPlatform(null); setManualCopy(false); setShareStatus('X opens with a shorter message and the workshop link. Review it before posting.') }}><SocialBrandMark platform="x" /></a>
           </div>
           <p className={styles.shareHint}>LinkedIn and Facebook receive only the workshop link. Your message is copied to your clipboard when possible; paste and review it yourself.</p>
-          {manualCopy && <label className={styles.manualCopy}>Message to copy<textarea readOnly value={AGENTIFIED_SHARE_MESSAGE} onFocus={(event) => event.currentTarget.select()} /></label>}
           {shareStatus && <p className={styles.shareStatus} role="status" aria-live="polite">{shareStatus}</p>}
+          {retryPlatform && <button type="button" className={styles.retryCopy} onClick={() => void retryCopy()}>Retry copying message</button>}
+          {manualCopy && <label className={styles.manualCopy}>Message to copy<textarea readOnly value={AGENTIFIED_SHARE_MESSAGE} onFocus={(event) => event.currentTarget.select()} /></label>}
         </div>
       </> : <><label className={styles.name}>Name on certificate<input value={name} onChange={(event) => setName(event.target.value)} maxLength={120} autoComplete="name" /></label><p className={styles.helper}>This name is fixed after you claim.</p><button type="button" className={styles.claim} disabled={busy || !name.trim()} onClick={() => void command('claim')}>Claim certificate</button></>}
       <p className={styles.disclaimer}>This records workshop completion. It is not a professional accreditation or certification.</p>

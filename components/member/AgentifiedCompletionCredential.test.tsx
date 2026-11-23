@@ -23,7 +23,7 @@ describe('Agentified certificate', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Claim certificate' }))
     await waitFor(() => expect(screen.getByRole('img', { name: 'Claimed Agentified completion certificate for Amina Example' })).toBeInTheDocument())
     expect(screen.getByRole('button', { name: 'Download certificate' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'Copy message to share' })).toBeEnabled()
+    expect(screen.queryByRole('button', { name: /copy message|retry copying/i })).not.toBeInTheDocument()
     expect(screen.getAllByText(/AT-AGT-[0-9A-F]{16}/)).toHaveLength(2)
   })
 
@@ -147,6 +147,7 @@ describe('Agentified certificate', () => {
       expect(writeText).toHaveBeenCalledWith(AGENTIFIED_SHARE_MESSAGE)
       expect(open).not.toHaveBeenCalled()
       expect(await screen.findByRole('status')).toHaveTextContent(`Message copied. Paste and review it before posting on ${platform}.`)
+      expect(screen.queryByRole('button', { name: 'Retry copying message' })).not.toBeInTheDocument()
     })
 
     it(`still opens ${platform} and explains a clipboard failure`, async () => {
@@ -164,8 +165,8 @@ describe('Agentified certificate', () => {
       expect(writeText).toHaveBeenCalledTimes(1)
       expect(writeText).toHaveBeenCalledWith(AGENTIFIED_SHARE_MESSAGE)
       expect(open).not.toHaveBeenCalled()
-      expect(await screen.findByRole('status')).toHaveTextContent(`Message could not be copied. ${platform} opened with the workshop link. Use the separate Copy message action to try again.`)
-      expect(screen.getByRole('button', { name: 'Copy message to share' })).toBeEnabled()
+      expect(await screen.findByRole('status')).toHaveTextContent(`Message could not be copied. ${platform} opened with the workshop link. Retry copying your message below.`)
+      expect(screen.getByRole('button', { name: 'Retry copying message' })).toBeEnabled()
     })
   }
 
@@ -180,31 +181,45 @@ describe('Agentified certificate', () => {
     expect(screen.getByRole('status')).toHaveTextContent('X opens with a shorter message and the workshop link. Review it before posting.')
   })
 
-  it('does not let a delayed platform copy overwrite a later copy action', async () => {
+  it('does not let a delayed platform copy overwrite a later X handoff', async () => {
     let finishPlatformCopy: (() => void) | undefined
-    const writeText = vi.fn().mockImplementationOnce(() => new Promise<void>((resolve) => { finishPlatformCopy = resolve })).mockResolvedValueOnce(undefined)
+    const writeText = vi.fn().mockImplementationOnce(() => new Promise<void>((resolve) => { finishPlatformCopy = resolve }))
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
     window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential&certificate=claimed')
     render(<AgentifiedCompletionCredential preview />)
     fireEvent.click(await screen.findByRole('link', { name: 'Share on LinkedIn' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Copy message to share' }))
-    expect(await screen.findByRole('status')).toHaveTextContent('Complete message copied. Paste and review it before posting.')
+    fireEvent.click(screen.getByRole('link', { name: 'Share on X' }))
+    expect(await screen.findByRole('status')).toHaveTextContent('X opens with a shorter message and the workshop link. Review it before posting.')
     finishPlatformCopy?.()
-    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Complete message copied. Paste and review it before posting.'))
-    expect(writeText).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('X opens with a shorter message and the workshop link. Review it before posting.'))
+    expect(writeText).toHaveBeenCalledTimes(1)
   })
 
-  it('copies the complete message and exposes selectable text when clipboard fails', async () => {
-    const writeText = vi.fn().mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('Denied'))
+  it('shows one retry after automatic copy failure and hides it after success', async () => {
+    const writeText = vi.fn().mockRejectedValueOnce(new Error('Denied')).mockResolvedValueOnce(undefined)
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
     window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential&certificate=claimed')
     render(<AgentifiedCompletionCredential preview />)
-    const button = await screen.findByRole('button', { name: 'Copy message to share' })
-    fireEvent.click(button)
-    await waitFor(() => expect(writeText).toHaveBeenCalledWith(AGENTIFIED_SHARE_MESSAGE))
-    expect(await screen.findByText(/Complete message copied/)).toBeInTheDocument()
-    fireEvent.click(button)
+    expect(screen.queryByRole('button', { name: 'Retry copying message' })).not.toBeInTheDocument()
+    fireEvent.click(await screen.findByRole('link', { name: 'Share on LinkedIn' }))
+    const retry = await screen.findByRole('button', { name: 'Retry copying message' })
+    fireEvent.click(retry)
+    expect(await screen.findByRole('status')).toHaveTextContent('Message copied. Paste and review it before posting on LinkedIn.')
+    expect(screen.queryByRole('button', { name: 'Retry copying message' })).not.toBeInTheDocument()
+    expect(writeText).toHaveBeenCalledTimes(2)
+    expect(writeText).toHaveBeenNthCalledWith(2, AGENTIFIED_SHARE_MESSAGE)
+  })
+
+  it('offers manual selection after the single retry also fails', async () => {
+    const writeText = vi.fn(async () => { throw new Error('Denied') })
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    window.history.pushState({}, '', '/member/dashboard?qa=agentified-credential&certificate=claimed')
+    render(<AgentifiedCompletionCredential preview />)
+    fireEvent.click(await screen.findByRole('link', { name: 'Share on Facebook' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Retry copying message' }))
     expect(await screen.findByRole('textbox', { name: 'Message to copy' })).toHaveValue(AGENTIFIED_SHARE_MESSAGE)
-    expect(screen.getByRole('status')).toHaveTextContent(/Select the message below/)
+    expect(screen.getByRole('status')).toHaveTextContent('Automatic copy is still unavailable. Select the message below to copy it manually.')
+    expect(screen.queryByRole('button', { name: 'Retry copying message' })).not.toBeInTheDocument()
+    expect(writeText).toHaveBeenCalledTimes(2)
   })
 })
