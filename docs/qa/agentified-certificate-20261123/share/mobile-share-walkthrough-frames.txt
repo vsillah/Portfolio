@@ -1,0 +1,15 @@
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-claimed.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-copied.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-long-name.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-verified.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-revoked.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-eligible.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-blocked.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/mobile-blocked.png'

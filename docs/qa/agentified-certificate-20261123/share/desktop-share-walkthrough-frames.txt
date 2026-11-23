@@ -1,0 +1,13 @@
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-claimed.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-copied.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-verified.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-revoked.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-eligible.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-blocked.png'
+duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-blocked.png'
