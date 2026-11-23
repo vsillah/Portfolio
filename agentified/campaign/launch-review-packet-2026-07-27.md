@@ -1,3 +1,5 @@
+> Historical July 2026 book-launch packet. Superseded for current campaign use by `agentified/campaign/agentified-rollout-plan.md` and `agentified/campaign/portfolio-campaign-packet.json`. Do not import or publish from this file.
+
 # Agentified launch review packet
 
 Status: Human review required

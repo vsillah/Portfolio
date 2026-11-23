@@ -1,57 +1,20 @@
-# Agentified release calendar
+# Agentified workshop proposed ET calendar
 
-Status: Draft calendar
-Campaign slug: `agentified-trust-scale-2026-07`
-Template: `whisper_to_shout`
-Window: 2026-07-27 through 2026-08-09
-External scheduling: Blocked until human approval
-Baseline note: Rebased on 2026-07-27. No item in this calendar has been posted, scheduled externally, sent by email, or handed to a provider.
+Status: proposal only. All times are America/New_York (`-05:00`). `scheduled_for` is the event deadline, never the start of preparation. Default preparation lead is six days (within the required 4–30 day range). Each item is pending, non-autonomous, and subject to a current source/visual/challenger/human review packet. No external schedule exists.
 
-## Calendar
+| ID | ET event | Phase | Surface | Review focus | Prepare by ET |
+| --- | --- | --- | --- | --- | --- |
+| AW-LI-01 | Nov 30 10:00 | `tease` | LinkedIn | Missing handoff receipt | Nov 24 10:00 |
+| AW-IG-CAR-01 | Dec 2 12:00 | `teach` | Instagram carousel, LinkedIn adaptation | Six fields of a reviewable receipt | Nov 26 12:00 |
+| AW-LI-02 | Dec 3 10:00 | `teach` | LinkedIn | Permission slip | Nov 27 10:00 |
+| AW-EMAIL-01 | Dec 4 11:00 | `teach` | Owned email proposal | Guest learning invitation | Nov 28 11:00 |
+| AW-REEL-01 | Dec 7 12:00 | `teach` | Reels / Shorts | A bounded job | Dec 1 12:00 |
+| AW-LI-03 | Dec 8 10:00 | `proof` | LinkedIn | Review gate and stopped path | Dec 2 10:00 |
+| AW-YT-01 | Dec 9 12:00 | `proof` | YouTube proof episode | Screen-backed guest path | Dec 3 12:00 |
+| AW-IG-CAR-02 | Dec 10 12:00 | `proof` | Instagram carousel, LinkedIn adaptation | Operating File progression | Dec 4 12:00 |
+| AW-LI-04 | Dec 11 10:00 | `proof` | LinkedIn | Learning route and effort | Dec 5 10:00 |
+| AW-REEL-02 | Dec 14 12:00 | `proof` | Reels / Shorts | What a gate looks like | Dec 8 12:00 |
+| AW-EMAIL-02 | Dec 16 11:00 | `offer` | Owned email proposal | Practice invitation | Dec 10 11:00 |
+| AW-LI-05 | Dec 18 10:00 | `offer` | LinkedIn | Free workshop CTA | Dec 12 10:00 |
 
-| Date | Time ET | Asset ID | Phase | Channel | Title | Purpose | Authorization |
-| --- | ---: | --- | --- | --- | --- | --- | --- |
-| 2026-07-27 | 3:00 PM | `AGT-LI-01` | `tease` | LinkedIn | The speed problem is becoming a trust problem | Open the campaign with the central operating tension. | `pending` |
-| 2026-07-28 | 12:00 PM | `AGT-LI-02` | `tease` | LinkedIn | The first agentic failure is usually a handoff failure | Make the issue concrete for product leaders. | `pending` |
-| 2026-07-28 | 4:00 PM | `AGT-X-01` | `tease` | X | What breaks first when AI gets faster? | Turn the speed-versus-trust tension into an X conversation starter. | `pending` |
-| 2026-07-29 | 9:00 AM | `AGT-CAR-01` | `teach` | LinkedIn carousel | AMINA: the operating loop for agentic work | Teach the five-part frame. | `pending` |
-| 2026-07-30 | 12:00 PM | `AGT-LI-03` | `teach` | LinkedIn | What "Accelerated" taught me about Agentified | Tie the new book to the SAM loop lineage. | `pending` |
-| 2026-07-30 | 4:00 PM | `AGT-X-02` | `teach` | X | The operating layer behind AMINA | Convert the AMINA teaching frame into a concise X post or thread. | `pending` |
-| 2026-07-31 | 3:00 PM | `AGT-SHORT-01` | `teach` | YouTube Shorts / Reels | Agentic work needs an operating system | Short spoken teaching clip. | `pending` |
-| 2026-08-01 | 10:00 AM | `AGT-YT-EP01` | `teach` | YouTube | The Receipt Every Agent Needs | Long-form pilot that shows why agentic systems need receipts. | `pending` |
-| 2026-08-03 | 9:00 AM | `AGT-LI-04` | `proof` | LinkedIn | Cover reveal: Agentified | Reveal the cover direction and campaign promise. | `pending` |
-| 2026-08-04 | 12:00 PM | `AGT-CAR-02` | `proof` | LinkedIn carousel | From SAM to AMINA | Show the lineage from "Accelerated" to Agentified. | `pending` |
-| 2026-08-05 | 9:00 AM | `AGT-LI-05` | `proof` | LinkedIn | The workbook is where the book becomes operational | Preview the workbook as a reader tool. | `pending` |
-| 2026-08-05 | 4:00 PM | `AGT-X-03` | `proof` | X | The workbook is the receipt path | Translate the workbook proof into a practical X question. | `pending` |
-| 2026-08-06 | 3:00 PM | `AGT-SHORT-02` | `proof` | YouTube Shorts / Reels | What the cover is really showing | Explain the SAM/Amina visual metaphor. | `pending` |
-| 2026-08-07 | 9:00 AM | `AGT-LI-06` | `offer` | LinkedIn | Agentified is for the product leader carrying the risk | Make the release path clear. | `pending` |
-| 2026-08-08 | 10:00 AM | `AGT-EMAIL-01` | `offer` | Email/newsletter | Agentified: achieve agentic scale through trust | Owned-channel launch note. | `pending` |
-| 2026-08-09 | 12:00 PM | `AGT-PAGE-01` | `offer` | Portfolio page | Agentified campaign CTA block | Update `/agentified` after author approval. | `pending` |
-| 2026-08-09 | 6:00 PM | `AGT-X-04` | `offer` | X | Agentified release thread: build trust before scale | Final shout thread pointing to `/agentified` after approval. | `pending` |
-
-## Calendar notes
-
-- Dates are proposed review slots, not external publishing commitments.
-- Calendar rows are recalculated backward from final shout asset `AGT-X-04`.
-- The first item starts after the 2026-07-27 morning rebaseline so the queue does not import an already-past launch slot.
-- Each item should enter Portfolio's Social Content calendar with `authorization_status: pending`.
-- `autonomy_eligible` should stay `false`.
-- Any provider generation, upload, or external publishing remains outside this packet.
-- If Vambah approves only part of the calendar, approved items can move while the others stay parked.
-
-## Portfolio import shape
-
-Use `agentified/campaign/portfolio-campaign-packet.json` as the machine-readable packet.
-
-The JSON packet maps each calendar row to:
-
-- `campaign_slug`
-- `campaign_phase`
-- `channel`
-- `title`
-- `planned_angle`
-- `scheduled_for`
-- `authorization_status`
-- `metadata.asset_id`
-- `metadata.human_gate_required`
-- `metadata.draft_asset_path`
+Optional manual-only X cutdowns follow approved source posts at an operator-chosen time. They are omitted from the importable Social Content calendar; no paid API, auto-post, or cross-post action is authorized. No personalized outreach is included. If any holiday or channel conflict changes these proposed times, reissue the packet and recalculate preparation deadlines before import.

@@ -1,697 +1,178 @@
-# Agentified campaign draft assets
+# Agentified workshop campaign drafts
 
-Status: Draft assets
-Campaign slug: `agentified-trust-scale-2026-07`
-Cover subtitle in use: Achieve agentic scale through trust
-Human gate: Required before publication
+Status: editorial drafts for captain, challenger, and human review. Proposed dates and gates: `release-calendar.md`. CTA: https://amadutown.com/agentified. No item has been approved, scheduled, sent, rendered, or published by this packet. Copy is original to this campaign and uses no private story, testimonial, or learner record.
 
-## AGT-LI-01
+## AW-LI-01 — The missing handoff
 
-Phase: `tease`
-Channel: LinkedIn
-Working title: The speed problem is becoming a trust problem
-Status: Draft
+A brief can look finished and still leave the next person guessing.
 
-```text
-The speed problem is becoming a trust problem.
+Imagine an agent drafts a recommendation before your first meeting. The writing is clean. The proposed action is plausible. Then someone asks a simple question: which source supports this line?
 
-A product team can ask an agent to draft the brief, summarize the customer calls, turn the roadmap into tickets, write the launch copy, and produce a decision memo before lunch.
+If the answer lives in a vanished chat, the team has inherited uncertainty. A useful handoff carries the job, source, boundary, result, reviewer, and next decision together. The receipt lets a person challenge the work before it becomes an action.
 
-That sounds like progress.
+I built the Agentified workshop around that practical problem. In the first lesson, you give an agent a bounded job and a receipt. You can start as a guest and work through the exercise today.
 
-Then the questions arrive.
+Where does context most often disappear in your team's AI handoffs?
 
-Which source did it use?
+https://amadutown.com/agentified
 
-Who checked the claim?
+#AIProduct #ProductManagement #AmadutownAdvisory
 
-What changed between the first draft and the version someone is about to send?
+## AW-LI-02 — Permission slip
 
-Which approval gate did it pass?
+“Help with this” sounds clear until the agent reaches a decision it cannot own.
 
-Who owns the decision if the work is wrong?
+A team asks for a session brief. The agent finds a note saying a facilitator is available for review. Can it tell the facilitator the session is confirmed? The answer has to be written down before the draft travels.
 
-This is the problem Agentified is built around.
+In Agentified, the permission slip names what the agent may read, prepare, and propose. It also names the actions that require a person. That small document saves the reviewer from guessing where preparation ends and authority begins.
 
-Acceleration matters. I wrote "Accelerated" because product work was already moving toward a different rhythm. The SAM loop helped me think about how teams sense, act, and measure with AI in the loop.
+Try the workshop exercise with an invented workflow. Keep the real customer file and real credentials outside the practice space. What is one action your agent should always hand back to a person?
 
-Agentified starts where that lesson gets harder.
+https://amadutown.com/agentified
 
-What happens when the loop becomes an operating system?
+#AIProduct #ProductManagement #EnterpriseAI
 
-What happens when agents remember, route, draft, evaluate, escalate, and hand work back to people?
+## AW-LI-03 — A gate that stops work
 
-The answer cannot be vibes. It has to be trust.
+A review gate earns its place when it can stop a polished draft.
 
-That means roles.
-Receipts.
-Approvals.
-Drift checks.
-Human gates.
-And a clear line between help and authority.
+Picture an agent assembling a brief from a note whose date has expired. The output reads well. The source does not support the decision anymore. The useful result is a blocked handoff with a reason the owner can inspect.
 
-The future of agentic work will not be won by the team that moves fastest for one week.
+That is the discipline I want people to practice in Agentified. The Operating File makes room for the source, receipt, owner, and stop condition. A reviewer should see the gap before anyone treats a draft as authority.
 
-It will be won by the team that can prove why the work should be trusted.
+The workshop is public. Start as a guest, test a synthetic scenario, and write down what would make your own process stop.
 
-That is the spine of Agentified.
+What evidence would make you return an agent's recommendation for repair?
 
-What is the first place your team would need a receipt before trusting agentic work?
-```
+https://amadutown.com/agentified
 
-Review notes:
+#AIProduct #ProductManagement #AmadutownAdvisory
 
-- Strong opening tension.
-- Public-safe.
-- References "Accelerated" as lineage without requiring prior reading.
-- Approval needed on whether to include the question CTA or point directly to `/agentified`.
+## AW-LI-04 — A working learning route
 
-## AGT-LI-02
+A framework becomes useful when you can put a real decision through it.
 
-Phase: `tease`
-Channel: LinkedIn
-Working title: The first agentic failure is usually a handoff failure
-Status: Draft
+Agentified gives you an Operating File to carry from lesson to lesson. You can map a bounded job, write a permission slip, identify a review gate, and inspect the receipt. The current public workshop has thirteen guided-video lessons and three transcript-led lessons, each with a working page.
 
-```text
-The first agentic failure is usually a handoff failure.
+You can start as a guest. Sign-in is there if you want progress across devices. The first exercise is available now, so the value is in the practice rather than a promise about what AI might someday do.
 
-The agent does the work.
+Which part of your agent workflow needs a clearer owner today?
 
-Then the work lands somewhere human.
+https://amadutown.com/agentified
 
-A Slack thread. A pull request. A draft email. A product requirement. A backlog item. A customer summary. A deck someone is expected to defend.
+#AIProduct #ProductManagement #TechForGood
 
-That is where the risk hides.
+## AW-LI-05 — Invitation to practice
 
-The output may look complete, but the handoff is missing the things a real operator needs:
+The next agent demo will probably look impressive.
 
-- what the agent was asked to do
-- what it used as source material
-- what changed along the way
-- what confidence it deserves
-- what still needs human judgment
-- what should happen next
+Before the team gives it a larger job, ask for a permission slip. Ask for the source. Ask where the person reviews the work and what happens when the evidence fails. Those questions turn a demo into an operating decision.
 
-I keep coming back to this because it sounds small until you see the cost.
+I made the Agentified workshop public so you can practice that design now. Start as a guest. Work through thirteen guided-video lessons and three transcript-led lessons. Keep your thinking in an Operating File and decide where an agent belongs in a workflow you know.
 
-People do not reject agentic work only because they dislike AI.
+Bring a synthetic example. Leave private records and credentials out of the exercise. Start with one bounded job and one clear human gate.
 
-They reject it because the work arrives without enough context to trust it.
+https://amadutown.com/agentified
 
-Agentified is my attempt to name that gap and build a practical operating model around it.
+#AIProduct #ProductManagement #AmadutownAdvisory
 
-The point is not to make agents sound impressive.
+## AW-IG-CAR-01 — The six-field receipt
 
-The point is to make their work reviewable enough that product leaders can decide what deserves to move.
+Format: seven slides, Instagram 4:5; adapt caption and crop separately for LinkedIn. Companion caption: “A draft should arrive with enough context for another person to challenge it. Which field is missing from your team's handoffs? Explore the public Agentified workshop: https://amadutown.com/agentified #AIProduct #ProductManagement #AmadutownAdvisory”
 
-If the handoff is weak, the agent did not finish the job.
+1. A clean draft can still be hard to trust. / Show a generic brief card with an empty source field.
+2. Name the job. / What was the agent asked to prepare?
+3. Name the source. / What current material supports it?
+4. Name the boundary. / What could the agent read or change?
+5. Name the result. / What did it produce, and what failed?
+6. Name the reviewer. / Who owns the decision and the stop?
+7. Carry the receipt. / Try L01 as a guest at amadutown.com/agentified.
 
-It only moved the uncertainty.
-```
+Creative brief: Use the owned `public/agentified/posters/l01-poster.webp` as an illustrative opening only. Capture the current L01 and Operating File UI for proof slides after source and privacy review. No populated learner fields. Large type, one field per slide, accurate alt text, safe crop, legible mobile contrast. Do not imply that a static poster proves receipt behavior.
 
-Review notes:
+## AW-IG-CAR-02 — One Operating File, sixteen lessons
 
-- Clear tease asset.
-- No private examples.
-- Could pair with a simple handoff receipt visual later.
+Format: seven slides, Instagram 4:5; LinkedIn adaptation after visual review. Companion caption: “The file gets more useful as each boundary becomes explicit. Start with one synthetic job. The public workshop is open: https://amadutown.com/agentified #AIProduct #ProductManagement #TechForGood”
 
-## AGT-CAR-01
+1. Give the agent a job you can inspect.
+2. Draw the Operating Map: job, source, receipt, owner, gate.
+3. Write the permission slip: allowed preparation, prohibited action.
+4. Test a broken source: stop the handoff and say why.
+5. Record the human decision in the file.
+6. Continue through thirteen guided videos and three transcript-led lessons.
+7. Start as a guest. Sign in only if you want cross-device progress. / amadutown.com/agentified
 
-Phase: `teach`
-Channel: LinkedIn carousel
-Working title: AMINA: the operating loop for agentic work
-Status: Draft outline
+Creative brief: Use public workshop layout, approved L06 and L16 posters (`public/agentified/posters/l06-poster.webp`, `public/agentified/posters/l16-poster.webp`) for illustrative transitions. Current blank Operating File capture is the proof surface. Verify lesson count and UI before render. Never show saved responses, member identity, or credential details that are not public.
 
-Slide 1:
-AMINA
-The operating loop for agentic work.
+## AW-REEL-01 — A bounded job (about 40 seconds)
 
-Slide 2:
-Align the work.
-Before an agent moves, define the job, the boundary, the source, and the decision it supports.
+Spoken: “An agent can draft a brief in minutes. Before that brief reaches another person, give it a boundary. What can the agent read? What can it prepare? What must it hand back to a human? In the Agentified workshop, you write that permission slip against an invented workflow. Then you can see where the useful work ends and a real decision begins. Start as a guest at amadutown.com/agentified.”
 
-Slide 3:
-Map authority.
-Name what the agent can suggest, draft, change, escalate, or never touch.
+Scenes: 0–5s current public workshop landing; 5–15s L06 title/approved lesson visual; 15–29s blank permission fields in Operating File; 29–40s guest CTA. On-screen captions mirror speech, clear of platform controls. Instagram Reel and YouTube Short need separate title/description review. No source MP4 is repurposed or rendered here.
 
-Slide 4:
-Instrument receipts.
-Every meaningful action needs evidence: prompt, source, output, decision, owner, and timestamp.
+## AW-REEL-02 — The stopped handoff (about 40 seconds)
 
-Slide 5:
-Negotiate gates.
-Speed should meet human judgment at the points where risk, money, reputation, or customer trust enters.
+Spoken: “A draft can sound confident after its source has gone stale. That is where a review gate should stop the work. The agent records the source and the reason it cannot go forward. A person decides what evidence is needed next. Agentified lets you practice that stop condition in an Operating File before you give an agent a larger job. The public workshop starts with guest access at amadutown.com/agentified.”
 
-Slide 6:
-Audit outcomes.
-The work is not done when the agent finishes. Check drift, quality, cost, and whether the decision got better.
+Scenes: 0–7s public L16 visual; 7–18s synthetic expired-source card; 18–30s blank Operating File review gate; 30–40s public guest CTA. Ensure “expired” is clearly an invented exercise, never a real source claim. Verify captions and final spoken transcript after any future composition.
 
-Slide 7:
-AMINA sits inside SAM.
-"Accelerated" taught the loop: sense, act, measure. Agentified asks what it takes to trust that loop when agents begin carrying work.
+## AW-YT-01 — Screen-backed proof episode
 
-Slide 8:
-Achieve agentic scale through trust.
-That is the promise of Agentified.
+Working title: “Give an AI agent a job you can review | Agentified workshop”. Target length 4–6 minutes, only after current source and outlier research and separate video approval. The screen is the public guest route, with no account login or learner data.
 
-Review notes:
+- 0:00–0:35: Show the `/agentified` public offer while asking what the reviewer needs after an agent finishes.
+- 0:35–1:15: Click “Start the free workshop”; show the guest learning plan and current 13/3 lesson mix.
+- 1:15–2:20: Open L01; show the bounded-job and receipt teaching surface. Explain the six fields without claiming a completed system run.
+- 2:20–3:30: Open the blank Operating File. Enter only invented data if a demo is later approved, then clear it before capture ends. Show where owner, source, and review gate belong.
+- 3:30–4:30: Show L06 permission lesson and L16 audit lesson from the public learning plan. Explain the practice path; do not imply a credential is awarded by watching this video.
+- 4:30–5:00: Return to the guest CTA. Invite one bounded synthetic exercise.
 
-- Needs final visual design before publishing.
-- Use the approved cover/diagram visual language.
-- Human gate should verify the "AMINA sits inside SAM" phrasing against manuscript usage.
+Spoken opening: “A team can get an agent to draft a useful brief. I want to know what the next person receives with it. Let me show you the public workshop I built to practice that handoff.” Spoken close: “Pick one invented workflow, write the boundary, and see whether another person could review the result. You can start as a guest at amadutown.com/agentified.”
 
-## AGT-LI-03
+Production brief: current browser capture of public route only, desktop plus mobile insert; redact browser chrome and any personal state. Preserve route, commit, capture date, hash, rights, and scene-to-claim map. Before Human QA, get an attributable YouTube description/outlier cohort, a description-pattern receipt, three evidence-qualified thumbnail options, validated captions, and a playable MP4 of the exact current route. No provider, capture, or render is authorized by this script.
 
-Phase: `teach`
-Channel: LinkedIn
-Working title: What "Accelerated" taught me about Agentified
-Status: Draft
+## AW-EMAIL-01 — First invitation
 
-```text
-"Accelerated" taught me that AI changes the rhythm of product work.
+Subject: An Agentified exercise you can try today
 
-The SAM loop gave me a way to think about that rhythm:
+I keep seeing polished agent drafts reach a person with no clear source or owner. The writing looks done. The decision is still open.
 
-Sense what is happening.
-Act with enough context.
-Measure whether the work improved.
+The Agentified workshop lets you practice that handoff. Start as a guest, give an agent a bounded job, and build a receipt in your Operating File. The current workshop has thirteen guided-video lessons and three transcript-led lessons. Sign-in is optional if you want to keep progress across devices.
 
-That frame still matters.
-
-But Agentified came from a harder question.
-
-What happens when the loop is no longer a single person using AI to move faster?
-
-What happens when the work spreads across agents, memory, tools, approvals, role boundaries, and operating dashboards?
-
-That is where acceleration starts asking for governance.
-
-The product leader's job changes.
-
-You are no longer only asking, "Can this help us move?"
-
-You are asking:
-
-Who gave this agent authority?
-What did it remember?
-What did it use?
-Where did it route the work?
-Who reviewed it?
-What did the receipt prove?
-What changed after the human decision?
-
-Agentified is the next layer of the same learning loop.
-
-"Accelerated" was about building smarter product teams with AI.
-
-Agentified is about making agentic work trustworthy enough to scale.
-```
-
-Review notes:
-
-- Strong lineage asset.
-- Needs cross-reference check if reused inside manuscript.
-- Public-safe.
-
-## AGT-SHORT-01
-
-Phase: `teach`
-Channel: YouTube Shorts / Instagram Reels
-Working title: Agentic work needs an operating system
-Status: Draft script
-
-```text
-[Opening]
-Most teams are asking the wrong question about agents.
-
-They ask, "What can this agent do?"
-
-The better question is, "What does this agent have permission to do, and how will we know if it did the work well?"
-
-[Middle]
-That is the difference between speed and trust.
-
-If an agent drafts a product brief, routes a customer issue, edits code, or prepares a recommendation, the output is only part of the job.
-
-You still need the receipt.
-
-What was the source?
-What changed?
-Who reviewed it?
-Where is the approval gate?
-What happens if the agent drifts?
-
-[Close]
-That is why I am writing Agentified.
-
-The goal is agentic scale through trust.
-
-Agents can help us move faster.
-
-Product leaders still have to design the operating system that makes the work worthy of trust.
-```
-
-Visual notes:
-
-- Use cover background or SAM/Amina diagram crop.
-- Add captions for: Permission, Receipt, Review, Gate, Drift.
-- No provider generation until script approval.
-
-## AGT-LI-04
-
-Phase: `proof`
-Channel: LinkedIn
-Working title: Cover reveal: Agentified
-Status: Draft
-
-```text
-This is the cover direction for Agentified.
-
-The subtitle on the cover is short on purpose:
-
-Achieve agentic scale through trust.
-
-That is the whole book in one sentence.
-
-The visual is built around a simple idea: agentic work needs machinery you can inspect.
-
-There is a center of movement.
-There are receipts.
-There are gates.
-There are controls.
-There is a loop for audit and drift.
-
-And around it sits AMINA:
-
-Align.
-Map.
-Instrument.
-Negotiate.
-Audit.
-
-The book builds from "Accelerated" and the SAM loop, but it moves into a different operating problem.
-
-Speed is no longer the scarce thing.
-
-Trust is.
-
-Agentified is for the product leader who has to make that trust real before agentic work touches customers, teams, money, reputation, or code.
-```
-
-Visual asset:
-
-- `agentified/manuscript/visuals/rendered/cover-comps/agentified-cover-a-sam-trust-engine.png`
-
-Review notes:
-
-- Confirm final cover selection before posting.
-- Confirm whether to call it "cover direction" or "cover reveal."
-
-## AGT-CAR-02
-
-Phase: `proof`
-Channel: LinkedIn carousel
-Working title: From SAM to AMINA
-Status: Draft outline
-
-Slide 1:
-From SAM to AMINA
-How "Accelerated" grows into Agentified.
-
-Slide 2:
-"Accelerated" started with SAM.
-Sense. Act. Measure.
-
-Slide 3:
-SAM helped product teams think about AI as a learning loop, not a novelty.
-
-Slide 4:
-Agentified starts when that loop gets more powerful.
-Agents remember, route, draft, evaluate, and escalate.
-
-Slide 5:
-More power creates a new question:
-Can the process be trusted?
-
-Slide 6:
-AMINA answers that question.
-Align. Map. Instrument. Negotiate. Audit.
-
-Slide 7:
-SAM moves the work.
-AMINA governs the work.
-
-Slide 8:
-Agentified is the product leader's guide to agentic scale through trust.
-
-Review notes:
-
-- Strong visual bridge from Accelerated to Agentified.
-- Needs final SAM figure permission/source check from existing owned asset.
-- Avoid overusing this as the only campaign story; mix with practical product-leader pain.
-
-## AGT-LI-05
-
-Phase: `proof`
-Channel: LinkedIn
-Working title: The workbook is where the book becomes operational
-Status: Draft
-
-```text
-The workbook may be the most important companion to Agentified.
-
-The book makes the argument.
-
-The workbook asks the reader to build the system.
-
-That matters because agentic work can sound abstract fast.
-
-Memory.
-Roles.
-Routing.
-Approvals.
-Evals.
-Drift checks.
-Receipts.
-Mission Control.
-
-Those words only become useful when a leader can point to a real workflow and say:
-
-Here is the job.
-Here is the source.
-Here is the boundary.
-Here is the human gate.
-Here is the receipt.
-Here is how we will know whether the work improved.
-
-That is what I want the Agentified workbook to do.
-
-It should help a product leader move from reading about trust to designing for it.
-```
-
-Review notes:
-
-- Good bridge into lead magnet or workbook preview.
-- Needs final decision on whether workbook preview is gated, ungated, or email-capture.
-
-## AGT-SHORT-02
-
-Phase: `proof`
-Channel: YouTube Shorts / Instagram Reels
-Working title: What the cover is really showing
-Status: Draft script
-
-```text
-[Opening]
-The Agentified cover is not trying to show AI as magic.
-
-It is trying to show AI as machinery.
-
-[Middle]
-At the center is movement: work being sensed, routed, acted on, and measured.
-
-Around that movement are the things that make agentic work trustworthy.
-
-Receipts.
-Controls.
-Gates.
-Audit loops.
-
-That is AMINA:
-
-Align the work.
-Map authority.
-Instrument receipts.
-Negotiate gates.
-Audit outcomes.
-
-[Close]
-"Accelerated" gave me the SAM loop.
-
-Agentified asks how that loop changes when agents start carrying more of the work.
-
-My answer is simple:
-
-Scale the work through trust, or the speed will eventually outrun the system.
-```
-
-Visual notes:
-
-- Use slow push-in on cover comp.
-- Caption AMINA steps one at a time.
-- No private dashboard screenshots.
-
-## AGT-LI-06
-
-Phase: `offer`
-Channel: LinkedIn
-Working title: Agentified is for the product leader carrying the risk
-Status: Draft
-
-```text
-Agentified is for the product leader carrying the risk.
-
-The person being asked to make AI useful without letting it become reckless.
-
-The person who has to answer the practical questions:
-
-What work should agents do?
-What should they never touch?
-Where does human approval belong?
-How do we know what happened?
-How do we stop drift before it becomes damage?
-How do we make the team faster without making the system less trustworthy?
-
-That is the reader I am writing for.
-
-Agentified builds from "Accelerated," but it stands on its own.
-
-It is about agentic scale through trust.
-
-If that is the problem you are carrying, this book is being built for you.
-
-I will be sharing more from the manuscript, workbook, and visual system over the next few weeks.
-
-Start here: /agentified
-```
-
-Review notes:
-
-- CTA path should become a full URL before publishing.
-- Confirm whether `/agentified` has the right email capture or interest path before this runs.
-
-## AGT-EMAIL-01
-
-Phase: `offer`
-Channel: Email/newsletter
-Working title: Agentified: achieve agentic scale through trust
-Status: Draft
-
-Subject options:
-
-1. Agentified is taking shape
-2. Achieve agentic scale through trust
-3. The next layer after "Accelerated"
-
-```text
-Hi,
-
-I have been building the next book in the product leadership line.
-
-It is called Agentified.
-
-The cover promise is simple:
-
-Achieve agentic scale through trust.
-
-The book builds from "Accelerated" and the SAM loop, but it moves into the operating problem I keep seeing around agentic work.
-
-Teams can move faster now.
-
-That part is real.
-
-But speed creates a second question:
-
-Can the work be trusted?
-
-Agentified is my answer for product leaders who need a practical way to govern agents, memory, roles, routing, approvals, evals, drift checks, receipts, and operating-system design.
-
-I am also building an accompanying workbook so readers can map their own workflows instead of leaving the ideas in the abstract.
-
-You can follow the book here:
-
-/agentified
-
-More soon,
+Start here: https://amadutown.com/agentified
 
 Vambah
-```
 
-Review notes:
+## AW-EMAIL-02 — Practice the gate
 
-- Needs final URL.
-- Needs list/audience selection.
-- Human gate required before sending.
+Subject: Where should the agent stop?
 
-## AGT-PAGE-01
+A permission slip gives an agent a useful job and a place to stop. It names the source, the allowed preparation, and the decision a person still owns.
 
-Phase: `offer`
-Channel: Portfolio `/agentified`
-Working title: Agentified campaign CTA block
-Status: Draft
+If you have started Agentified, try that exercise with an invented workflow. If you have not, the public workshop is open for guest learning. Carry your answer into the Operating File and ask whether another person could review the handoff without guessing.
 
-```text
-Achieve agentic scale through trust.
+https://amadutown.com/agentified
 
-Agentified is Vambah Sillah's product leadership guide to governing agentic work before speed outruns the system.
+Vambah
 
-The book builds from "Accelerated" and the SAM loop, then moves into the operating questions product leaders now have to answer: memory, roles, routing, approvals, evals, drift checks, receipts, and the design of an agentic operating system.
+Email gate: these are owned-list editorial notes, not personalized outreach. Verify list consent, sender, exact audience, unsubscribe/terms, current offer, and separate send authority before any delivery.
 
-Follow the release for manuscript notes, workbook previews, visual diagrams, and practical operating tools.
-```
+## Optional manual-only X cutdowns
 
-Button text options:
+- X1: “A polished agent draft still needs a source, boundary, reviewer, and next decision. I built the public Agentified workshop so you can practice that receipt as a guest. https://amadutown.com/agentified”
+- X2: “A permission slip answers a practical question: what can the agent prepare, and what must a person decide? Try it with an invented workflow in Agentified. https://amadutown.com/agentified”
+- X3: “When evidence is stale, the useful output is a stopped handoff with a reason. That is a gate worth practicing. Free guest workshop: https://amadutown.com/agentified”
 
-- Follow the Agentified release
-- Review the Agentified workspace
-- Get the workbook preview
+Manual copy only after editorial approval. No paid X API, automated publishing, scheduling, or outreach path. Before any future YouTube description or X publication packet, perform current attributable channel research and reuse aggregate structure only; these drafts assert no outlier score.
 
-Review notes:
+## Additional creative source map
 
-- Requires decision on actual conversion path.
-- Do not replace existing public page copy without checking current `/agentified` page state.
+| Asset | Actual source | Use and proof boundary |
+| --- | --- | --- |
+| First receipt diagram | `public/agentified/workshop/figure-1-1-first-receipt-publication-plate.png` | Teach the receipt path in AW-IG-CAR-01 / AW-LI-CAR-01. Verify labels against current lesson before layout. |
+| Authority ladder | `public/agentified/workshop/figure-ii-1-authority-ladder-publication-plate.png` | Teach permission levels in AW-REEL-01 / AW-YT-SHORT-01. An illustration is not a real authorization receipt. |
+| Operating File | Current `/agentified/operating-file` route, owned by `app/agentified/AgentifiedWorkshop.tsx` | Use a blank or synthetic state only. Redact account identity, saved answers, token and browser chrome. Capture and hash only after separate visual approval. |
+| Proof screens | Current `/agentified/learningplan` plus L01, L06 and L16 public lesson screens | Screen-backed AW-YT-01 must show the actual guest path with synthetic exercise data, a current route check, legible mobile insert, and final playable MP4 review. |
+| Completion credential | `app/agentified/verify/[token]/page.tsx` | No static Agentified certificate asset was found. Hold the visual until an approved synthetic mock or redacted verification state exists. Say course completion credential, not professional accreditation. |
 
-## AGT-X-01
-
-Phase: `tease`
-Channel: X
-Working title: What breaks first when AI gets faster?
-Status: Draft seed
-
-```text
-AI got faster.
-
-Trust did not.
-
-The first thing that breaks is usually not the model. It is the handoff.
-
-Who gave the agent the work?
-What source did it use?
-Where is the boundary?
-Who approves the public action?
-
-Agentified starts there.
-```
-
-Review notes:
-
-- Amina should compare against public X launch and AI-operator patterns before finalizing.
-- Keep this as a post or short thread; no provider posting before approval.
-
-## AGT-X-02
-
-Phase: `teach`
-Channel: X
-Working title: The operating layer behind AMINA
-Status: Draft seed
-
-```text
-AMINA is not a slogan.
-
-It is the operating loop I want around agentic work:
-
-Align the job.
-Map the source.
-Instrument the receipt.
-Negotiate the boundary.
-Audit the result.
-
-That is how speed becomes reviewable.
-```
-
-Review notes:
-
-- Spell out AMINA on first use in any final version.
-- Amina should validate whether this works better as one post or a five-reply thread.
-
-## AGT-X-03
-
-Phase: `proof`
-Channel: X
-Working title: The workbook is the receipt path
-Status: Draft seed
-
-```text
-The workbook may be the most practical part of Agentified.
-
-The book makes the argument.
-
-The workbook asks the leader to point to the actual system:
-
-source,
-role,
-boundary,
-gate,
-receipt,
-proof.
-
-That is where trust becomes operational.
-```
-
-Review notes:
-
-- Tie to approved workbook/cover assets only.
-- Do not imply the workbook is publicly available until the release path is confirmed.
-
-## AGT-X-04
-
-Phase: `offer`
-Channel: X
-Working title: Agentified release thread: build trust before scale
-Status: Draft seed
-
-```text
-Agentified is for the leader who knows AI can move faster than the organization can govern.
-
-The question is no longer whether agents can produce work.
-
-The question is whether the system can show:
-
-what happened,
-who owned it,
-what source it used,
-where the boundary was,
-and who approved the public step.
-
-Follow the Agentified release:
-/agentified
-```
-
-Review notes:
-
-- Final shout anchor for the backward-relative calendar.
-- Requires final CTA URL and X provider/manual handoff approval before external posting.
-
-## Human review summary
-
-Items that are strongest as-is:
-
-- `AGT-LI-01`
-- `AGT-LI-03`
-- `AGT-LI-04`
-- `AGT-CAR-01`
-
-Items needing a decision before release:
-
-- `AGT-LI-06`: final CTA URL.
-- `AGT-EMAIL-01`: audience/list.
-- `AGT-PAGE-01`: conversion path.
-- `AGT-SHORT-01` and `AGT-SHORT-02`: whether to use HeyGen, native recording, or text-over-cover video.
-- `AGT-X-01` through `AGT-X-04`: Amina X research/source-distance pass and final copy review.
-
-Blocked content:
-
-- Any claim that implies external clients, private chats, or private agent logs.
-- Any screenshot of admin queues, unpublished manuscript source, or raw private material.
-- Any publishing action before Vambah approval.
+Alt text, contrast, portrait safe areas, rights, exact lesson/state match, and privacy review are required before a visual enters human review. No media is generated or captured by this packet.
