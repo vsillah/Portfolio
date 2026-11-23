@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Download, Link2, RotateCcw, ShieldOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { agentifiedCertificateSvg, certificateRecordId, type CertificateDetails } from './agentified-certificate-artwork'
+import { COURSE_CERTIFICATE_FRAME } from './course-certificate-template'
 import styles from './AgentifiedCompletionCredential.module.css'
 
 type Credential = CertificateDetails & { revision: number }
@@ -25,6 +26,14 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
   const [name, setName] = useState(profileName ?? '')
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
+  useEffect(() => {
+    if (!preview || process.env.NODE_ENV === 'production') return
+    const theme = new URLSearchParams(window.location.search).get('certificateTheme')
+    if (theme !== 'dark' && theme !== 'light') return
+    const wasDark = document.documentElement.classList.contains('dark')
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+    return () => { document.documentElement.classList.toggle('dark', wasDark) }
+  }, [preview])
   useEffect(() => { if (profileName && !name) setName(profileName) }, [profileName, name])
   useEffect(() => {
     if (preview) { setStatus(previewState(profileName)); return }
@@ -73,16 +82,16 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
     if (!credential) return
     setBusy(true); setNotice('')
     try {
-      const [logoResponse, signatureResponse] = await Promise.all([fetch('/amadutown-logo-upscaled.png'), fetch('/accelerated/vambah-signature.png')])
-      if (!logoResponse.ok || !signatureResponse.ok) throw new Error('asset')
+      const [frameResponse, logoResponse, signatureResponse] = await Promise.all([fetch(COURSE_CERTIFICATE_FRAME), fetch('/amadutown-logo-upscaled.png'), fetch('/accelerated/vambah-signature.png')])
+      if (!frameResponse.ok || !logoResponse.ok || !signatureResponse.ok) throw new Error('asset')
       const toDataUrl = (blob: Blob) => new Promise<string>((resolve, reject) => {
         const reader = new FileReader()
         reader.onload = () => resolve(String(reader.result))
         reader.onerror = reject
         reader.readAsDataURL(blob)
       })
-      const [logo, signature] = await Promise.all([toDataUrl(await logoResponse.blob()), toDataUrl(await signatureResponse.blob())])
-      const svg = agentifiedCertificateSvg(credential, name, { logo, signature })
+      const [frame, logo, signature] = await Promise.all([toDataUrl(await frameResponse.blob()), toDataUrl(await logoResponse.blob()), toDataUrl(await signatureResponse.blob())])
+      const svg = agentifiedCertificateSvg(credential, name, { frame, logo, signature })
       const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }))
       const anchor = document.createElement('a')
       anchor.href = url

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import AgentifiedCompletionCredential from './AgentifiedCompletionCredential'
 import { agentifiedCertificateSvg, certificateRecordId } from './agentified-certificate-artwork'
+import { COURSE_CERTIFICATE_FRAME } from './course-certificate-template'
 
 const demoDate = '2026-11-05T12:00:00.000Z'
 const { getSession } = vi.hoisted(() => ({ getSession: vi.fn(async () => ({ data: { session: null as null | { access_token: string } } })) }))
@@ -14,7 +15,7 @@ describe('Agentified certificate', () => {
   it('previews the named certificate and claims with the existing preview path', async () => {
     render(<AgentifiedCompletionCredential profileName="Course Learner" preview />)
     const preview = await screen.findByRole('img', { name: 'Unclaimed Agentified completion certificate preview' })
-    expect(preview).toHaveTextContent('Certificate of Completion')
+    expect(preview).toHaveTextContent(/certificate of completion/i)
     expect(preview).toHaveTextContent('Course Learner')
     expect(preview).toHaveTextContent('AGENTIFIED')
     fireEvent.change(screen.getByRole('textbox', { name: 'Name on certificate' }), { target: { value: 'Amina Example' } })
@@ -58,10 +59,19 @@ describe('Agentified certificate', () => {
     const svg = agentifiedCertificateSvg(credential, '')
     expect(svg).toContain('&lt;Amina &amp; Team&gt;')
     expect(svg).not.toContain(credential.verification_token)
-    expect(svg).toContain('width="1600" height="1100"')
+    expect(svg).toContain('width="1424" height="1104"')
+    expect(svg).toContain(`href="${COURSE_CERTIFICATE_FRAME}"`)
     expect(svg).toContain('preserveAspectRatio="xMidYMid meet"')
     expect(certificateRecordId(credential)).toEqual(certificateRecordId({ ...credential, verification_token: null }))
-    expect(svg).toContain('NOT PROFESSIONAL ACCREDITATION')
+    expect(svg).toContain('CREDENTIAL RECORD ID')
+    expect(svg).toContain('VERIFICATION REFERENCE')
+  })
+
+  it('keeps the end of a long learner name visible in the framed artwork', () => {
+    const learner = 'Alexandria Nia Okafor-Washington Mensah-Diop Adeyemi Johnson-McKenzie Rivera Marie Adedayo Nwosu Zeta'
+    const svg = agentifiedCertificateSvg({ learner_name: learner, completed_at: demoDate, verification_token: null }, '')
+    expect(svg).toContain('Zeta')
+    expect(svg.match(/<text x="712" y="(486|523|560|597)"/g)?.length).toBe(4)
   })
 
   it('copies the existing verified link for an authenticated synthetic credential', async () => {
