@@ -2,6 +2,8 @@ file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-cer
 duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-copied.png'
 duration 3
+file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-focused.png'
+duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-verified.png'
 duration 3
 file '/Users/vambahsillah/.codex/worktrees/3189/Portfolio/docs/qa/agentified-certificate-20261123/share/desktop-revoked.png'
