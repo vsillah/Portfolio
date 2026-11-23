@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import type { AnchorHTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { agentifiedPublication } from '@/lib/agentified-publication'
-import AgentifiedPage from './page'
+import AgentifiedPage, { metadata } from './page'
 
 vi.mock('next/image', () => ({
   default: ({
@@ -33,6 +33,27 @@ vi.mock('@/components/Navigation', () => ({
 }))
 
 describe('Agentified public page purchase links', () => {
+  it('states the public workshop format and access model', () => {
+    render(<AgentifiedPage />)
+    expect(screen.getByRole('heading', { name: 'Public open learning' })).toBeInTheDocument()
+    expect(screen.getByText(/Start as a guest/)).toBeInTheDocument()
+    expect(screen.getByText(/thirteen guided-video lessons and three transcript-led lessons/)).toBeInTheDocument()
+    expect(screen.getByText(/Sign in only if you want to save progress across devices/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Start the free workshop/i })).toHaveAttribute('href', '/agentified/learningplan')
+  })
+
+  it('publishes Agentified-specific canonical and social metadata', () => {
+    expect(metadata.title).toBe('Agentified: Open Learning Workshop | AmaduTown')
+    expect(metadata.description).toMatch(/thirteen guided-video lessons and three transcript-led lessons/)
+    expect(metadata.alternates).toEqual({ canonical: 'https://amadutown.com/agentified' })
+    expect(metadata.openGraph).toMatchObject({
+      title: metadata.title,
+      description: metadata.description,
+      url: 'https://amadutown.com/agentified',
+      images: [{ url: 'https://amadutown.com/agentified-cover.jpg', alt: 'Agentified book cover' }],
+    })
+  })
+
   it('renders published purchase CTAs with safe external link attributes', () => {
     render(<AgentifiedPage />)
 
