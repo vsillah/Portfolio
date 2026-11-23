@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Agentified lesson-order padding review</title>
+<style>
+  body{margin:0;background:#071b2a;color:#f7ebd5;font:16px Arial,sans-serif}
+  main{max-width:1280px;margin:24px auto;padding:0 16px}
+  video{display:block;width:100%;max-height:calc(100vh - 120px);background:#071b2a}
+</style>
+<main><h1 id="title"></h1><video id="clip" controls preload="metadata"><source id="source" type="video/mp4"><track id="captions" kind="subtitles" srclang="en" label="English" default></video></main>
+<script>
+  const q=new URLSearchParams(location.search),scene=q.get('scene')||'L01-02',layout=q.get('layout')||'desktop';
+  if(!/^L\d\d-0[1-8]$/.test(scene)||!['desktop','mobile'].includes(layout))throw new Error('Invalid review scene');
+  const stem=`${scene}-${layout}`;
+  document.getElementById('title').textContent=`${scene} ${layout} review-only padding candidate`;
+  document.getElementById('source').src=`${stem}.mp4`;
+  document.getElementById('captions').src=`${stem}.vtt`;
+  document.getElementById('clip').load();
+</script>

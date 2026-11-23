@@ -15,7 +15,7 @@ function store() {
   const storage = { upload: vi.fn(async (path: string, data: Buffer) => { if (objects.has(path)) return { error: { statusCode: '409' } }; objects.set(path, data); return { error: null } }), download: vi.fn(async (path: string) => {
     if (storageStatus) { const code = storageStatus; storageStatus = null; return { error: { statusCode: code, message: 'https://storage.example/secret?token=leak' } } }
     return objects.has(path) ? { data: { size: objects.get(path)!.length, arrayBuffer: async () => objects.get(path)! } } : { error: { statusCode: '404' } }
-  }), createSignedUrl: vi.fn(async (path: string, ttl: number) => ({ data: { signedUrl: `https://storage.example.invalid/${path}?token=fresh-${ttl}` } })) }
+  }), createSignedUrl: vi.fn(async (path: string, ttl: number) => ({ data: { signedUrl: `https://storage.example.invalid/${path}?token=fresh-${ttl}` } } as { data: { signedUrl: string } | null; error?: { message: string } })) }
   const admin: any = { storage: { from: vi.fn(() => storage) }, from(table: string) {
     const filters: Array<(r: any) => boolean> = []; let patch: any, seed: any, options: any, one = false
     const q: any = { select: () => q, eq: (k: string, v: any) => { filters.push(r => r[k] === v); return q }, is: (k: string, v: any) => { filters.push(r => r[k] === v); return q }, maybeSingle: () => { one = true; return q }, single: () => { one = true; return q }, update: (p: any) => { patch = p; return q }, upsert: (p: any, o: any) => { seed = p; options = o; return q }, then(resolve: any) {

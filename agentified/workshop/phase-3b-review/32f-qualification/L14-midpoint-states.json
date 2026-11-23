@@ -1,0 +1,206 @@
+{
+  "stackedHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+  "lessonId": "L14",
+  "states": [
+    {
+      "scene": "L14-01",
+      "kind": "desktop",
+      "expected": 14.651,
+      "time": 14.651,
+      "mode": "hidden",
+      "active": [
+        "The first panel shows the queue, including held and rejected work."
+      ],
+      "band": [
+        "The first panel shows the queue, including held and rejected work."
+      ]
+    },
+    {
+      "scene": "L14-02",
+      "kind": "desktop",
+      "expected": 41.058,
+      "time": 41.058,
+      "mode": "hidden",
+      "active": [
+        "The research proposal is not run because its baseline and reviewer protocol are missing."
+      ],
+      "band": [
+        "The research proposal is not run because its baseline and reviewer protocol are missing."
+      ]
+    },
+    {
+      "scene": "L14-03",
+      "kind": "desktop",
+      "expected": 65.576,
+      "time": 65.575998,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L14-04",
+      "kind": "desktop",
+      "expected": 91.532,
+      "time": 91.532,
+      "mode": "hidden",
+      "active": [
+        "The agent cannot promote it itself, and a single held example cannot become general truth by repetition."
+      ],
+      "band": [
+        "The agent cannot promote it itself, and a single held example cannot become general truth by repetition."
+      ]
+    },
+    {
+      "scene": "L14-05",
+      "kind": "desktop",
+      "expected": 120.0665,
+      "time": 120.0665,
+      "mode": "hidden",
+      "active": [
+        "It would omit raw notes and unrelated records."
+      ],
+      "band": [
+        "It would omit raw notes and unrelated records."
+      ]
+    },
+    {
+      "scene": "L14-06",
+      "kind": "desktop",
+      "expected": 138.06,
+      "time": 138.06,
+      "mode": "hidden",
+      "active": [
+        "Which panel would expose the weakest part of your own proposed workflow first?"
+      ],
+      "band": [
+        "Which panel would expose the weakest part of your own proposed workflow first?"
+      ]
+    },
+    {
+      "scene": "L14-07",
+      "kind": "desktop",
+      "expected": 179.3185,
+      "time": 179.3185,
+      "mode": "hidden",
+      "active": [
+        "Do not use private operational data."
+      ],
+      "band": [
+        "Do not use private operational data."
+      ]
+    },
+    {
+      "scene": "L14-08",
+      "kind": "desktop",
+      "expected": 229.84300000000002,
+      "time": 229.843,
+      "mode": "hidden",
+      "active": [
+        "Nothing about a clean storyboard lifts"
+      ],
+      "band": [
+        "Nothing about a clean storyboard lifts"
+      ]
+    },
+    {
+      "scene": "L14-01",
+      "kind": "mobile",
+      "expected": 14.651,
+      "time": 14.651,
+      "mode": "hidden",
+      "active": [
+        "The first panel shows the queue, including held and rejected work."
+      ],
+      "band": [
+        "The first panel shows the queue, including held and rejected work."
+      ]
+    },
+    {
+      "scene": "L14-02",
+      "kind": "mobile",
+      "expected": 41.058,
+      "time": 41.058,
+      "mode": "hidden",
+      "active": [
+        "The research proposal is not run because its baseline and reviewer protocol are missing."
+      ],
+      "band": [
+        "The research proposal is not run because its baseline and reviewer protocol are missing."
+      ]
+    },
+    {
+      "scene": "L14-03",
+      "kind": "mobile",
+      "expected": 65.576,
+      "time": 65.575998,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L14-04",
+      "kind": "mobile",
+      "expected": 91.532,
+      "time": 91.532,
+      "mode": "hidden",
+      "active": [
+        "The agent cannot promote it itself, and a single held example cannot become general truth by repetition."
+      ],
+      "band": [
+        "The agent cannot promote it itself, and a single held example cannot become general truth by repetition."
+      ]
+    },
+    {
+      "scene": "L14-05",
+      "kind": "mobile",
+      "expected": 120.0665,
+      "time": 120.0665,
+      "mode": "hidden",
+      "active": [
+        "It would omit raw notes and unrelated records."
+      ],
+      "band": [
+        "It would omit raw notes and unrelated records."
+      ]
+    },
+    {
+      "scene": "L14-06",
+      "kind": "mobile",
+      "expected": 138.06,
+      "time": 138.06,
+      "mode": "hidden",
+      "active": [
+        "Which panel would expose the weakest part of your own proposed workflow first?"
+      ],
+      "band": [
+        "Which panel would expose the weakest part of your own proposed workflow first?"
+      ]
+    },
+    {
+      "scene": "L14-07",
+      "kind": "mobile",
+      "expected": 179.3185,
+      "time": 179.3185,
+      "mode": "hidden",
+      "active": [
+        "Do not use private operational data."
+      ],
+      "band": [
+        "Do not use private operational data."
+      ]
+    },
+    {
+      "scene": "L14-08",
+      "kind": "mobile",
+      "expected": 229.84300000000002,
+      "time": 229.843,
+      "mode": "hidden",
+      "active": [
+        "Nothing about a clean storyboard lifts"
+      ],
+      "band": [
+        "Nothing about a clean storyboard lifts"
+      ]
+    }
+  ]
+}

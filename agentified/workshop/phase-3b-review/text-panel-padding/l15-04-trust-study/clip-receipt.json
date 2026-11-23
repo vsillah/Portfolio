@@ -1,0 +1,91 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L15-04",
+  "paddingHead": "3b314e427",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 74.0,
+  "durationSeconds": 29.0,
+  "sourceVideoSha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+  "sourceCaptionSha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522",
+  "trimmedCaptionSha256": "0a6ece1244abd8c5f883e28b7cb4f134888018a4b9a511ce4bd186ee2603a926",
+  "frameReceiptSha256": "6b08323ec8adc5727afabb9542dd18f446912a0d13cab99bd635ed04b90a0ce3",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/L15-04-desktop-review.mp4",
+      "sha256": "977e4af12334e53b4e2f9b855f81d57d9d73a0272759e17b3ced9a7fe8b0c15f",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval.png",
+          "durationSeconds": 27.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "725"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1361"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "17"
+          }
+        ],
+        "format": {
+          "duration": "29.000000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/L15-04-mobile-review.mp4",
+      "sha256": "666bae852f08ab40ccea359c3caafa9565a4cb4f5e117039cc19b0975373e604",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval.png",
+          "durationSeconds": 27.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "725"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1361"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "17"
+          }
+        ],
+        "format": {
+          "duration": "29.000000"
+        }
+      }
+    }
+  ]
+}

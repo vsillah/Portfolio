@@ -1,0 +1,46 @@
+{
+  "status": "review_only_unbound",
+  "authorizedBaseHead": "981ffe94dd83e92a4a1c1b7a773a270c06e1f53c",
+  "prior": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/L07-clipboard-progression-candidate.mp4",
+    "sha256": "eb0e2d5662b2fac5a9e1150b4c2ad14187f58a8ac4a21e5db23e3fc25dcbc46d"
+  },
+  "cleanSource": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-caption-free-presenter/Agentified_L07_f35b6f52-caption-free-source.mp4",
+    "sha256": "795252b7c7a13a6905f5b828b458d39a55bdfc02e27e69d7a72a50bb847f9c8b",
+    "retainedProjectId": "c3cc7090dde04b9483d9f4d4de6b852b"
+  },
+  "field": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-clipboard-progression/studio-field-checked.png",
+    "sha256": "51fcb31ed7a6cec80ae73f2e7f404e2a92c75d8c77a460e2615021db05dd0eed"
+  },
+  "backdrop": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-caption-free-presenter/studio-backdrop.png",
+    "sha256": "850c7f829f6c81788d6a88a36038e998ca1fab505651b51ff942b23ea04bc010"
+  },
+  "candidate": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-caption-free-presenter/L07-caption-free-closing-candidate.mp4",
+    "sha256": "0c07d394a842513b57a9d873dd618974d11effaa8e6696b5a534e179a63c68b4",
+    "durationSeconds": 251.332,
+    "videoFrames": 6283
+  },
+  "protectedWindow": {
+    "sourceStart": 9.37,
+    "sourceEnd": 15.48,
+    "sequenceStart": 242.22243799999995,
+    "sequenceEnd": 248.33243799999997,
+    "panelRect": [
+      1048,
+      326,
+      768,
+      432
+    ]
+  },
+  "mediaStreams": [
+    "video",
+    "prior audio copy",
+    "prior subtitle copy"
+  ],
+  "clipboardProgression": "Prior candidate is retained unchanged outside the closing presenter window.",
+  "binding": "none"
+}

@@ -1,0 +1,547 @@
+{
+  "status": "review_only_unbound",
+  "sourcePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+  "sourceSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+  "sourcePx": [
+    3000,
+    4700
+  ],
+  "canvasPx": [
+    1920,
+    1080
+  ],
+  "frameworkOrderBottomToTop": [
+    "Prepare",
+    "Recommend",
+    "Route",
+    "Stage",
+    "Execute"
+  ],
+  "gateByRung": {
+    "Recommend": "Rollback path required",
+    "Route": "Human gate required",
+    "Stage": "Source check required",
+    "Execute": "Receipt required"
+  },
+  "method": "complete approved plate plus provider-free raster recreation of its exact five-rung hierarchy and four gate labels; no source crop or SVG art",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png",
+      "sha256": "02302d9b89f4be8ec905e18b090f937516cfdf007133c0aea16eb2b04a7e70ff",
+      "geometry": {
+        "headline": {
+          "boxPx": [
+            730,
+            59,
+            1720,
+            167
+          ],
+          "glyphPx": [
+            758,
+            87,
+            934,
+            52
+          ],
+          "paddingPx": 28
+        },
+        "platePx": [
+          92,
+          91,
+          562,
+          880
+        ],
+        "panels": [
+          {
+            "stage": "Execute",
+            "detail": "only after explicit authority",
+            "gate": "Receipt required",
+            "stageBoxPx": [
+              730,
+              182,
+              1386,
+              324
+            ],
+            "stageTitle": {
+              "fontPx": 55,
+              "glyphPx": [
+                952,
+                218,
+                211,
+                41
+              ]
+            },
+            "stageDetail": {
+              "fontPx": 29,
+              "glyphPx": [
+                890,
+                268,
+                336,
+                27
+              ]
+            },
+            "gateBoxPx": [
+              1411,
+              207,
+              1850,
+              297
+            ],
+            "gateText": {
+              "fontPx": 30,
+              "glyphPx": [
+                1512,
+                238,
+                237,
+                28
+              ]
+            }
+          },
+          {
+            "stage": "Stage",
+            "detail": "prepare external action for review",
+            "gate": "Source check required",
+            "stageBoxPx": [
+              730,
+              344,
+              1386,
+              486
+            ],
+            "stageTitle": {
+              "fontPx": 55,
+              "glyphPx": [
+                983,
+                374,
+                150,
+                53
+              ]
+            },
+            "stageDetail": {
+              "fontPx": 29,
+              "glyphPx": [
+                843,
+                430,
+                430,
+                27
+              ]
+            },
+            "gateBoxPx": [
+              1411,
+              369,
+              1850,
+              459
+            ],
+            "gateText": {
+              "fontPx": 30,
+              "glyphPx": [
+                1469,
+                400,
+                323,
+                28
+              ]
+            }
+          },
+          {
+            "stage": "Route",
+            "detail": "move work to the right human lane",
+            "gate": "Human gate required",
+            "stageBoxPx": [
+              730,
+              506,
+              1386,
+              648
+            ],
+            "stageTitle": {
+              "fontPx": 55,
+              "glyphPx": [
+                980,
+                542,
+                156,
+                41
+              ]
+            },
+            "stageDetail": {
+              "fontPx": 29,
+              "glyphPx": [
+                836,
+                592,
+                445,
+                27
+              ]
+            },
+            "gateBoxPx": [
+              1411,
+              531,
+              1850,
+              621
+            ],
+            "gateText": {
+              "fontPx": 30,
+              "glyphPx": [
+                1480,
+                562,
+                300,
+                28
+              ]
+            }
+          },
+          {
+            "stage": "Recommend",
+            "detail": "suggest next action with evidence",
+            "gate": "Rollback path required",
+            "stageBoxPx": [
+              730,
+              668,
+              1386,
+              810
+            ],
+            "stageTitle": {
+              "fontPx": 55,
+              "glyphPx": [
+                893,
+                704,
+                330,
+                41
+              ]
+            },
+            "stageDetail": {
+              "fontPx": 29,
+              "glyphPx": [
+                841,
+                754,
+                434,
+                27
+              ]
+            },
+            "gateBoxPx": [
+              1411,
+              693,
+              1850,
+              783
+            ],
+            "gateText": {
+              "fontPx": 30,
+              "glyphPx": [
+                1468,
+                724,
+                325,
+                28
+              ]
+            }
+          },
+          {
+            "stage": "Prepare",
+            "detail": "draft, summarize, classify",
+            "gate": null,
+            "stageBoxPx": [
+              730,
+              830,
+              1386,
+              972
+            ],
+            "stageTitle": {
+              "fontPx": 55,
+              "glyphPx": [
+                956,
+                861,
+                205,
+                51
+              ]
+            },
+            "stageDetail": {
+              "fontPx": 29,
+              "glyphPx": [
+                894,
+                916,
+                328,
+                27
+              ]
+            },
+            "gateBoxPx": null,
+            "gateText": null
+          }
+        ]
+      },
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "9d50c8179f889e567c8ea01d71ae0b836e6143b49ec8edefbb3f762575018b4e"
+    },
+    {
+      "kind": "focused-rung",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-01-prepare.png",
+      "sha256": "04e8f582a3900a80d60af09120aa70b03f1c673a9e321f692dee617b616f254f",
+      "geometry": {
+        "stage": "Prepare",
+        "detail": "draft, summarize, classify",
+        "gate": null,
+        "platePx": [
+          170,
+          284,
+          345,
+          540
+        ],
+        "highlightCenterYPx": 791,
+        "stageBoxPx": [
+          545,
+          285,
+          1775,
+          824
+        ],
+        "stageTitle": {
+          "fontPx": 126,
+          "glyphPx": [
+            926,
+            359,
+            469,
+            115
+          ]
+        },
+        "stageDetail": {
+          "fontPx": 72,
+          "glyphPx": [
+            754,
+            538,
+            812,
+            68
+          ]
+        },
+        "gateBoxPx": null,
+        "gateText": null
+      },
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-01-prepare-mobile-preview.png",
+      "mobilePreviewSha256": "fc6bd48c2bc59e1918da9e0b54677b163f7cdc8612cb7ce0ff6f4d4a506ee762"
+    },
+    {
+      "kind": "focused-rung",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-02-recommend.png",
+      "sha256": "71e6884f086be1275f1f9771911646ccd589bc4c26dd63897ba75afc961b77d1",
+      "geometry": {
+        "stage": "Recommend",
+        "detail": "suggest next action with evidence",
+        "gate": "Rollback path required",
+        "platePx": [
+          170,
+          284,
+          345,
+          540
+        ],
+        "highlightCenterYPx": 694,
+        "stageBoxPx": [
+          545,
+          285,
+          1775,
+          824
+        ],
+        "stageTitle": {
+          "fontPx": 126,
+          "glyphPx": [
+            782,
+            371,
+            756,
+            91
+          ]
+        },
+        "stageDetail": {
+          "fontPx": 72,
+          "glyphPx": [
+            622,
+            538,
+            1077,
+            67
+          ]
+        },
+        "gateBoxPx": [
+          640,
+          662,
+          1680,
+          792
+        ],
+        "gateText": {
+          "fontPx": 69,
+          "glyphPx": [
+            786,
+            695,
+            748,
+            64
+          ]
+        }
+      },
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-02-recommend-mobile-preview.png",
+      "mobilePreviewSha256": "06994f4f3372f50e381ca659794496ccbf261433790177bb05f454ac72683f9d"
+    },
+    {
+      "kind": "focused-rung",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-03-route.png",
+      "sha256": "c4273af0ca616a606cc8deb0c8f7379855e5f408bb8222f50c283b4cbfce1e11",
+      "geometry": {
+        "stage": "Route",
+        "detail": "move work to the right human lane",
+        "gate": "Human gate required",
+        "platePx": [
+          170,
+          284,
+          345,
+          540
+        ],
+        "highlightCenterYPx": 597,
+        "stageBoxPx": [
+          545,
+          285,
+          1775,
+          824
+        ],
+        "stageTitle": {
+          "fontPx": 126,
+          "glyphPx": [
+            982,
+            371,
+            357,
+            91
+          ]
+        },
+        "stageDetail": {
+          "fontPx": 70,
+          "glyphPx": [
+            623,
+            540,
+            1074,
+            65
+          ]
+        },
+        "gateBoxPx": [
+          640,
+          662,
+          1680,
+          792
+        ],
+        "gateText": {
+          "fontPx": 69,
+          "glyphPx": [
+            815,
+            694,
+            690,
+            65
+          ]
+        }
+      },
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-03-route-mobile-preview.png",
+      "mobilePreviewSha256": "83ce5f6ef8695e9d01cebaa3a4216800befd20aec6ea4b7108c227ade51b5579"
+    },
+    {
+      "kind": "focused-rung",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-04-stage.png",
+      "sha256": "8cdf01c47d641abfabd7fd1523a23dc1388fae7e55af1f844acbf7f5bb2b67e8",
+      "geometry": {
+        "stage": "Stage",
+        "detail": "prepare external action for review",
+        "gate": "Source check required",
+        "platePx": [
+          170,
+          284,
+          345,
+          540
+        ],
+        "highlightCenterYPx": 498,
+        "stageBoxPx": [
+          545,
+          285,
+          1775,
+          824
+        ],
+        "stageTitle": {
+          "fontPx": 126,
+          "glyphPx": [
+            988,
+            358,
+            343,
+            117
+          ]
+        },
+        "stageDetail": {
+          "fontPx": 72,
+          "glyphPx": [
+            626,
+            538,
+            1069,
+            67
+          ]
+        },
+        "gateBoxPx": [
+          640,
+          662,
+          1680,
+          792
+        ],
+        "gateText": {
+          "fontPx": 69,
+          "glyphPx": [
+            788,
+            694,
+            744,
+            65
+          ]
+        }
+      },
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-04-stage-mobile-preview.png",
+      "mobilePreviewSha256": "e752a3276d88916e6395b95fcbc868a6dc85291a76ee0d80af06d24b212da04c"
+    },
+    {
+      "kind": "focused-rung",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-05-execute.png",
+      "sha256": "759484ebe977d5ca5d212eb5b4fa7f1495f4c091aeb0612de029b5ffbb0dbdcd",
+      "geometry": {
+        "stage": "Execute",
+        "detail": "only after explicit authority",
+        "gate": "Receipt required",
+        "platePx": [
+          170,
+          284,
+          345,
+          540
+        ],
+        "highlightCenterYPx": 401,
+        "stageBoxPx": [
+          545,
+          285,
+          1775,
+          824
+        ],
+        "stageTitle": {
+          "fontPx": 126,
+          "glyphPx": [
+            918,
+            371,
+            483,
+            91
+          ]
+        },
+        "stageDetail": {
+          "fontPx": 72,
+          "glyphPx": [
+            744,
+            538,
+            832,
+            68
+          ]
+        },
+        "gateBoxPx": [
+          640,
+          662,
+          1680,
+          792
+        ],
+        "gateText": {
+          "fontPx": 69,
+          "glyphPx": [
+            888,
+            695,
+            544,
+            64
+          ]
+        }
+      },
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-05-execute-mobile-preview.png",
+      "mobilePreviewSha256": "9bfc83d54605ad34aac24b74b26f706cc34b62ec23c89c0f5bbab3f9bc8f5447"
+    }
+  ],
+  "mobileContactPath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/mobile-contact.png",
+  "mobileContactSha256": "0718d138b179024fb7688a41efb5cad7826827b426a4a6e2a00c5ee3273983e7"
+}

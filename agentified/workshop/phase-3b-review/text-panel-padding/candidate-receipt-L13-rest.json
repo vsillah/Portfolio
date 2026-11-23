@@ -1,0 +1,423 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L13-03",
+    "L13-04",
+    "L13-05",
+    "L13-06",
+    "L13-07",
+    "L13-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L13-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L13-03.png",
+      "frame_sha256": "40f8786a0b8b06a3c9f6aa6dcb3833213b205f3405c5577f4c45e46282a5632e",
+      "visual_family": "L13-operating-artifact:hold:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Leave the baseline unknown.",
+        "Baseline unknown",
+        "Result not run"
+      ],
+      "accessibility_text": "A metric cannot be claimed before observation. Visual: Blank instrument beside the unopened trace ledger.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A metric cannot be claimed before observation.",
+      "brief_sha256": "eab5e0d5c1bb7c48a48b8c667c42f5a6534d2c6c726d60b42ce13c60d57efbf4",
+      "original_frame_sha256": "a6b16e793fe6659d93f120b9aa4405e5fe493b112ef1d3fe348a3ab73269a672",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L13-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L13-04.png",
+      "frame_sha256": "005488b6160ed8082eae543383e5e32cc95cb119e84f0c03f31715642d54379a",
+      "visual_family": "L13-operating-artifact:handoff:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Morgan reviews the proposal.",
+        "Morgan reviews",
+        "No promotion"
+      ],
+      "accessibility_text": "The lab key stays with the human owner. Visual: Proposal folder in front of the closed gate.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The lab key stays with the human owner.",
+      "brief_sha256": "2f24821286fd1d12622690d5d187d4270890891722c40e75424a2e3c645f25e5",
+      "original_frame_sha256": "38025ee8ff0e098a3a2bf14c0f0cac5f0ab1aa96e5766cc5bb8547bcc913a535",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 951,
+            "height": 116
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 895,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 120,
+            "y": 776,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 120,
+            "y": 776,
+            "width": 384,
+            "height": 98
+          },
+          "glyph": {
+            "x": 151,
+            "y": 808,
+            "width": 328,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1145,
+            "y": 776,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1145,
+            "y": 776,
+            "width": 339,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1176,
+            "y": 808,
+            "width": 283,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L13-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L13-05.png",
+      "frame_sha256": "f36adc50522c5573606a84d46e695dbd40cfbc702a6ce5de1ce256d220b6858e",
+      "visual_family": "L13-operating-artifact:detail:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Record a useful hold reason.",
+        "Hold reason",
+        "Next step"
+      ],
+      "accessibility_text": "A blocked idea needs an owner and safe next step. Visual: Hold card beside the proposal folder.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A blocked idea needs an owner and safe next step.",
+      "brief_sha256": "6dc5e289a5c8041190ad908e124aaa830a78be66eee45884e83caae130b7c70c",
+      "original_frame_sha256": "ecd81a29205cd331a3aed4984641e3fdc1c2147f0eace5e21dae330a476ca613",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 551,
+            "height": 183
+          },
+          "glyph": {
+            "x": 98,
+            "y": 265,
+            "width": 495,
+            "height": 127
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 856,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 856,
+            "width": 305,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 888,
+            "width": 249,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 736,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 736,
+            "width": 250,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 768,
+            "width": 194,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L13-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L13-06.png",
+      "frame_sha256": "dd4c7b86775db4e7f1aa3194ef8b60a3127fddd14b85e7a9505f2ae640704a6e",
+      "visual_family": "L13-operating-artifact:choice:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name the missing baseline.",
+        "Missing baseline",
+        "Proposed measure"
+      ],
+      "accessibility_text": "The learner identifies what would be measured first. Visual: Blank instrument as the exercise target.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner identifies what would be measured first.",
+      "brief_sha256": "90cc3f27707bb1d1315416d0fd1fe3b545fa5a8389024f63ab5dcbc608f965a2",
+      "original_frame_sha256": "6e9e6a01cb159f2adece5b569017377938dd08470cff35575365e63dc02c9989",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 887,
+            "height": 116
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 831,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 404,
+            "height": 98
+          },
+          "glyph": {
+            "x": 146,
+            "y": 788,
+            "width": 348,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 448,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 392,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L13-07",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L13-07.png",
+      "frame_sha256": "7ece034c47e14d86a309570dd5ae9cb66913c4d1611f59a75fb1641fdf61e857",
+      "visual_family": "L13-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Draft the research proposal.",
+        "Hypothesis",
+        "Comparison"
+      ],
+      "accessibility_text": "The learner records hypothesis and comparison. Visual: Research worksheet over the unopened lab folder.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records hypothesis and comparison.",
+      "brief_sha256": "fe33afa65d0c3675d4cc00b2cddb154d4902718fe4ba6701fba2d0e5d90b1e1b",
+      "original_frame_sha256": "7ece034c47e14d86a309570dd5ae9cb66913c4d1611f59a75fb1641fdf61e857",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    },
+    {
+      "scene_id": "L13-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L13-08.png",
+      "frame_sha256": "2c71b1a6de7d7faddfebde3390161277ceec3e7ca29a242d4b4d57b2253bdd8d",
+      "visual_family": "L13-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L13.png",
+      "source_sha256": "9a4a4b776005c0dabc33dba2aadaf62e92c4b8403c4837b2d6c6a5f2fc25f157",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the proposal unrun.",
+        "Proposal",
+        "Not run"
+      ],
+      "accessibility_text": "The Operating File stores a gated idea. Visual: Research sleeve closed with a review seal.",
+      "continuity": {
+        "id": "L13-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File stores a gated idea.",
+      "brief_sha256": "09808b780caa5b8580c3e5c0a04c110a937254f385a2300151c9fc9d1660bb0a",
+      "original_frame_sha256": "1238de4201d1033517f8680172a76a166941981fb3dff95d9eb7eb01dc622c8b",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 239,
+            "height": 97
+          },
+          "glyph": {
+            "x": 171,
+            "y": 618,
+            "width": 183,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 207,
+            "height": 89
+          },
+          "glyph": {
+            "x": 171,
+            "y": 783,
+            "width": 151,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

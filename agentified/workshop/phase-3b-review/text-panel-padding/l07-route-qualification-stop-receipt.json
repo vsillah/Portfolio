@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "state": "stopped at first visual regression; review-only binding removed",
+  "lesson": "L07",
+  "scene": "L07-01",
+  "review_branch_head": "dd917fd8e3b007f74e6927f9d5694f8fd84ba9ab",
+  "caption_head": "af647b6adc101cafade371d5ca53047670d53213",
+  "player_head": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "route_tested": "http://127.0.0.1:3141/agentified/learningplan?lesson=L07&rev=dd917fd8e-7bb6267c",
+  "viewport": "1280x720 desktop",
+  "temporary_video_sha256": "aebc898ceaac0eeeb1e6949dc5931932206dcf4aa6efb317316630f1940ef9e4",
+  "source_video_path": "public/agentified/lessons/l07/illustrated-42782f17/agentified-l07-illustrated-composite.mp4",
+  "source_video_sha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+  "observed": "At about 0:01 after Play, the temporary full-lesson candidate displays a solid navy rectangle over the protected presenter inset. The bound media loaded at the expected 251.332-second duration and the English text track was showing. The current illustrated source composite shows the presenter at the same time. This isolates the visible defect to the temporary composite assembly, not the reviewed source or an established player regression.",
+  "expected": "The presenter inset remains intact during the protected 0.000–9.370-second opening window.",
+  "evidence": {
+    "candidate_frame_at_1s": "checks/L07-route-stop-candidate-at-1.jpg",
+    "candidate_frame_sha256": "68e0ac2fd1db128b865831b4943dce2010199ae6f45eaa733eae3edd12a17b14",
+    "current_composite_frame_at_1s": "checks/L07-route-stop-current-composite-at-1.jpg",
+    "current_composite_frame_sha256": "1314947b7fcea9960983744625c263f4c4f866c033e563a6ef447327e77f82c9"
+  },
+  "scope_completed": "One isolated desktop learner-route L07 opening playback check. No mobile, later scene boundaries, caption S/M/L, pause restoration, countdown, or other lessons qualified.",
+  "next_gate": "Diagnose and repair the temporary composite assembly in a separate bounded attempt, then repeat L07 opening protection before proceeding with the authorized route matrix. Keep every test binding out of the committed product."
+}

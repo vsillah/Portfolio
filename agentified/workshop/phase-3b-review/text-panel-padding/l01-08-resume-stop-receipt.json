@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "status": "STOP: L01-08 native desktop cue crosses lower Operating File card field and bottom edge",
+  "paddingBasePr": 1290,
+  "paddingBaseCommit": "11f60c302d4f7bbf998be8a5d198e6600dd101aa",
+  "captionDependencyPr": 1293,
+  "captionDependencyCommit": "77eb44c6232bf1095e267a24fcf6c6ec52aeaf00",
+  "sourceVideoSha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+  "sourceCaptionSha256": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e",
+  "candidateFrameSha256": "f7b0c6a23e8167bfa6d4637a828d18d64ae04e3bfef5d0af66425a4b5aef363a",
+  "changedPixelBounds": [
+    138,
+    584,
+    932,
+    850
+  ],
+  "outsidePanelPixelsIdentical": true,
+  "safeSampleWindowSeconds": [
+    347.05899999999974,
+    355.05899999999974
+  ],
+  "protectedEndScreenWindowSeconds": [
+    359.64499999999975,
+    378.05899999999997
+  ],
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-08-desktop.mp4",
+      "sha256": "e0985ea2e0a31f155a1e3200d057c0adb2f5507e40511ed6741811ef0db52245",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-08-desktop.vtt",
+      "vttSha256": "ddb8a6224dad7cae4bd628c53af34694017487f64e95145c98c6b73d23350d05",
+      "dimensionsPx": [
+        1280,
+        720
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-08-mobile.mp4",
+      "sha256": "8d4b0899752298d6bfc14d281c06b7f4a9994ab82ed8ef2aef72dc1ee3076c5d",
+      "vttPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-08-mobile.vtt",
+      "vttSha256": "ddb8a6224dad7cae4bd628c53af34694017487f64e95145c98c6b73d23350d05",
+      "dimensionsPx": [
+        390,
+        844
+      ],
+      "durationSeconds": 8,
+      "decode": "pass"
+    }
+  ],
+  "browserEvidence": {
+    "L01-08-desktop-paused-caption-collision.png": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-08-desktop-paused-caption-collision.png",
+      "sha256": "18d6d913ef019aa2a2930b0296cd9c53eb8839d2f1bf8499d8dbb3e57e820222"
+    },
+    "L01-08-desktop-caption-off.png": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-08-desktop-caption-off.png",
+      "sha256": "b416a90e27271ecb9d2a0f97107929a446e73b9d4d37df6daa2440bf690ec8a9"
+    },
+    "L01-08-mobile-paused-caption-on.png": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-08-mobile-paused-caption-on.png",
+      "sha256": "bf7a698c1aa8c65ef913e3ef38afcd8c902616cf6d9ac58959d172be7c9df5ea"
+    },
+    "L01-08-mobile-paused-caption-off.png": {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L01-08-mobile-paused-caption-off.png",
+      "sha256": "cf2ca77085a9a4f5922a3907a26890372145e07eb1afd0217963634b77651285"
+    }
+  },
+  "visualFinding": "At desktop paused 2.77s, native two-line cue overlaps blank lower card field and bottom edge; Workflow and Receipt labels remain legible. Mobile cue is outside the art.",
+  "unqualified": [
+    "L01-06 candidate caption-off, Aa, theme, and control-interaction matrix",
+    "L01-07 whole-scene matrix",
+    "L01-08 learner-route candidate matrix",
+    "L02-01 and later scenes",
+    "consolidated walkthrough and Human QA"
+  ],
+  "boundary": "Review-only unbound; no learner media or approved frame replaced."
+}

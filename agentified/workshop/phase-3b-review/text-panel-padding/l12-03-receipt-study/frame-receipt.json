@@ -1,0 +1,99 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L12-03",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+  "approvedPlateSha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+  "approvedPlatePx": [
+    4000,
+    2500
+  ],
+  "frameworkPath": [
+    "Agent run",
+    "Receipt envelope",
+    "Human gate",
+    "Outcome"
+  ],
+  "method": "complete approved receipt plate in every frame plus distinct source-faithful artifact/approval path and narration-grounded proof-review cue; no crop or SVG art",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/overview-wide.png",
+      "sha256": "ffae81a8b9963c087ecad7fbdbff59a69a353fb71e32c1da7bdd185b13209347",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "7843f3638a94bd1626032c5afa0dbcd48cf603eacbb24b0b8214fc46f8195178",
+      "geometry": {
+        "completePlatePx": [
+          384,
+          145,
+          1152,
+          720
+        ],
+        "frameworkPath": [
+          "Agent run",
+          "Receipt envelope",
+          "Human gate",
+          "Outcome"
+        ]
+      }
+    },
+    {
+      "kind": "focus",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/proof-focus.png",
+      "sha256": "afdb28267cba9fb20de5efac4405572434c4eb037d1616799a1472c85e53ec86",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/proof-focus-mobile-preview.png",
+      "mobilePreviewSha256": "5a2394eee37eeeca6ec233aa380fe3e6af7d1327758b06089637393c51d7db7f",
+      "geometry": {
+        "completePlatePx": [
+          75,
+          440,
+          592,
+          370
+        ],
+        "pathCards": [
+          {
+            "label": "Agent run",
+            "boxPx": [
+              62,
+              165,
+              462,
+              335
+            ]
+          },
+          {
+            "label": "Receipt envelope",
+            "boxPx": [
+              522,
+              165,
+              922,
+              335
+            ]
+          },
+          {
+            "label": "Human gate",
+            "boxPx": [
+              982,
+              165,
+              1382,
+              335
+            ]
+          },
+          {
+            "label": "Outcome",
+            "boxPx": [
+              1442,
+              165,
+              1842,
+              335
+            ]
+          }
+        ],
+        "proofReview": [
+          "Artifact",
+          "Approval",
+          "Morgan reviews before sharing",
+          "Withhold unsafe fields with a reason"
+        ]
+      }
+    }
+  ]
+}

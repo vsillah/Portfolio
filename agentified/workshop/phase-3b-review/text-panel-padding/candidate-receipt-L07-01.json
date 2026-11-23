@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L07-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L07-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L07-01.png",
+      "frame_sha256": "63e4f6a7e38b57c25515a93e0c947e26a6862da59c37ec47a117133ba3707b18",
+      "visual_family": "L07-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A polished draft can hide a bad claim."
+      ],
+      "accessibility_text": "The staffing gap blocks the requirements sheet. Visual: Draft folder, missing source, and team tokens.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The staffing gap blocks the requirements sheet.",
+      "brief_sha256": "b827351c510bbddb61121385328a4930839aac26f47effdfc735709e769c0e3b",
+      "original_frame_sha256": "7dc200d9bc72976e66ab0373e426611b1ce638ec528b65fc196b648b115c863a",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 972,
+            "height": 193
+          },
+          "glyph": {
+            "x": 104,
+            "y": 705,
+            "width": 916,
+            "height": 137
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

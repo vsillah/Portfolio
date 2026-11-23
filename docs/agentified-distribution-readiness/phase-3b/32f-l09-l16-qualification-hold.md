@@ -1,0 +1,17 @@
+# L09–L16 exact-head qualification checkpoint
+
+Draft PR #1290 remains **HOLD**. This read-only audit used stacked PR #1293 at exact head `32f44fb97fd4c9ecbd04cf0e367f1c767464e282`. The source worktree at `/Users/vambahsillah/.codex/worktrees/5def/Portfolio` was not edited. An isolated copy of its `app`, `components`, and `lib` served `http://127.0.0.1:3112/agentified/learningplan?lesson=LXX&rev=32f44fb9` with placeholder Supabase configuration and outbound n8n disabled.
+
+## Ordered route samples
+
+The browser selected each L09–L16 video by its accessible LXX label, sought to the midpoint of each of its eight approved scene boundaries, and captured desktop 1280×720 and mobile 390×844. That is 64 scene positions and 128 viewport states. In all 128 states, the native text track was hidden and the external cue band exactly matched the active VTT cue; cue-free midpoints had no band. I inspected both contact sheets for every lesson. No caption collision or new responsive defect was found in these midpoint samples. The 16 contact sheets and eight machine-state records are under `agentified/workshop/phase-3b-review/32f-qualification/`. They do not prove every cue boundary, full playback, or the complete 104-position qualification.
+
+## Remaining gates
+
+- **L10 acoustic/caption:** The unbound corrected VTT still hashes to `0650d923e75357b672a493b40f633953b97c014efdd96767413f3679c2123ed3`. It preserves the envelope cue through 03:05.000 and starts “Mark it unapproved” at 03:05.520. The existing local acoustic receipt aligns “condition” through 03:05.000 and “Mark it” beginning at 03:05.520. The source MP4 hash is unchanged at `65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762`. Direct auditory confirmation of the full 02:46–03:16 passage remains pending; this runtime could not consume the extracted audio as an input. The candidate is unbound.
+- **L16 closing handoff:** The unbound candidate has 6,883 video frames and ends at 275.320 seconds. Audio ends at 267.309 and the last caption at 267.222. Source-bound card frames at 266.72, 267.30, and 275.00 are visible in `L16-review-candidate-handoff.png` beside the 266.50 moving-presenter frame. This confirms the local visual transition and approximately eight-second resting interval; learner-route binding and contextual browser playback of the candidate remain pending.
+- **Transcript provenance:** `source-map-v1.json` has 13 eligible records (L01, L05–L16). All 13 have `versionedTranscript: null`, an unattributed old transcript digest, and `spokenWordingReview: pending_contextual_listening`. No final spoken-word transcript can be attributed to an exact media version from this map. Final distribution rights also remain unconfirmed. This is an unresolved provenance stop.
+
+The ordered visual midpoint evidence may be used for captain review, but the acoustic, binding, full-context, and provenance gates prevent PASS. No media, caption word/cue time, teaching visual, presenter source, learner binding, or timing contract was changed. No provider contact, generation, spend, production or learner mutation, merge, deployment, publication, or release occurred.
+
+Next gate: captain technical listening of the exact L10 candidate and an attributable versioned transcript source or explicit derivation and spoken-word verification for each eligible lesson. Then validate the L16 candidate in the exact learner route and resume full contextual/cue-boundary qualification before considering PR #1290 PASS.

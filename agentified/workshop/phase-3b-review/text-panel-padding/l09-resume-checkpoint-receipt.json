@@ -1,0 +1,136 @@
+{
+  "status": "review_only_unbound",
+  "sourceVideoSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+  "sourceCaptionSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+  "specialScenes": [
+    {
+      "scene": "L09-02",
+      "frameReceiptSha256": "4bdf9886b8864774f2edbe27607a10b0e4918c089b8aa9668adf24d96a6c7680",
+      "clipReceiptSha256": "82562e518e9037efe2d11afcbd7ffa2bed41ec9aa5c445770a2735046a8c6d21",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "ffc1692c02960cbee976945508eaa3a065f6c1f0a4e3746ff4e499b44268fd17"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "69032d2e9873b181b3654a0bbc4067b70c801dc24e002996462fb0586483832a"
+        }
+      ]
+    },
+    {
+      "scene": "L09-04",
+      "frameReceiptSha256": "e8dfb8d15a30073b581cae5c4347f7d752531a204e9064b249c4735a7416199f",
+      "clipReceiptSha256": "b73a4144ae9a4726a42b68f4f506209d842f9f34960ca71e5602ac92b400d0ca",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "b89d0a69c20cc206ce019a931cd87df40d0884afb198101f2339706ddaa275c6"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "78804ac5a774a413ceb04225fa4c5d6c9d7adc79a4797653c512815c59edf033"
+        }
+      ]
+    }
+  ],
+  "otherScenes": [
+    {
+      "scene": "L09-01",
+      "frameSha256": "b384a3842a3507d09466f2a0a2f28276e69e4bf000bcf99439bff0971f290270",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "4fa321c6f70088f7c26f8607525afd8779ca9f9100f4fd634886f062cbc7562c",
+          "vttSha256": "699762271435476f2a47c2cc9ef8d35311dfa6c581ca9a61b33079954d238704"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "494fa4893918cfc78c865d6f34e0b51c3919d0f84aafed476fdb138294bcee22",
+          "vttSha256": "699762271435476f2a47c2cc9ef8d35311dfa6c581ca9a61b33079954d238704"
+        }
+      ]
+    },
+    {
+      "scene": "L09-03",
+      "frameSha256": "6e3243aa8b55bbdbdd7fa35556dca3ed870f3a52f1a14edf1dfebb2a39869233",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "5fadc3c5e6844cd3c68e2e42bd8649e0ab301a163db2f0cd4d86da126b79bc01",
+          "vttSha256": "ae0ea1064353a9f0b4c87e89a77216022ef44e9d88cfa6627625e2a35e52d149"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "a808e8710a9c8147a056469d74b65d2e0a744b04a4d4e43c6617c6773964a7cd",
+          "vttSha256": "ae0ea1064353a9f0b4c87e89a77216022ef44e9d88cfa6627625e2a35e52d149"
+        }
+      ]
+    },
+    {
+      "scene": "L09-05",
+      "frameSha256": "c63db1c803cf7bb43b0f59120a9d8a9946fbca9808aee96cabe028f6c6526143",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "54275b58edc0403e64687ba891db77d340bcfcf3cfbdeb62e2b1275e0227f8d6",
+          "vttSha256": "7f168c4cb1f48a75163cbabb87084ae77344e24a1d5398f3dd64f0049843fd3f"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "f165787c464cf95e15d8e1e624ff0a66874d3d5d3f68d027f96e1cbc95eb91ea",
+          "vttSha256": "7f168c4cb1f48a75163cbabb87084ae77344e24a1d5398f3dd64f0049843fd3f"
+        }
+      ]
+    },
+    {
+      "scene": "L09-06",
+      "frameSha256": "d12996ba8f67f660557dd536a1e13c9d9138472db0422b037e6796131db35c14",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "13401548234ed01c814e03305eba5f122933987e7a2d563fc95b36f8852e9360",
+          "vttSha256": "5f3ab70778aea7258b5c17fe5db9806592dd71e9836471bb109a64dbdeeb6902"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "bb356c06961bd8b1495be98753b2f67bff8eafa749137b5dabdf68a650f547de",
+          "vttSha256": "5f3ab70778aea7258b5c17fe5db9806592dd71e9836471bb109a64dbdeeb6902"
+        }
+      ]
+    },
+    {
+      "scene": "L09-07",
+      "frameSha256": "8d8b38335b23879a75fb0381ab928cb43b3305126a8520db46a5bb1e2c055cbb",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "681239c5f5eeb49478dbcd5f9930c27bbbb518fe648318a7278a19701ef3de00",
+          "vttSha256": "bd8d221ce781267f3c583704675b0f5883fe56add65cd046e2c5311ad4e47fd4"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "1a9c20e21f87d06d47c1ecb48d41ae82dacaad084654635ba60a4d4daf6046bb",
+          "vttSha256": "bd8d221ce781267f3c583704675b0f5883fe56add65cd046e2c5311ad4e47fd4"
+        }
+      ]
+    },
+    {
+      "scene": "L09-08",
+      "frameSha256": "d5c1793ec9ae17d718a6cce82d56164a9df5aac16b0decdad50d0afa51fb1851",
+      "clips": [
+        {
+          "layout": "desktop",
+          "sha256": "dfa16bba4e374edec6fa0e5559d10dd3a2a1c852b26ff85aa56a9ab213a7c174",
+          "vttSha256": "73420fdc06730575e08b8a09b5b3824e0f2a9d2dd742640613490ef3abac2bd0"
+        },
+        {
+          "layout": "mobile",
+          "sha256": "a6999ed0dd009355d9a70c8dd2166993680254394f61cd3ed35f91501cc1afa7",
+          "vttSha256": "73420fdc06730575e08b8a09b5b3824e0f2a9d2dd742640613490ef3abac2bd0"
+        }
+      ]
+    }
+  ],
+  "limits": "Complete-plate and scene-local candidate clips are not bound learner media; L09 source speech/VTT exact-word mismatch remains historical separate issue."
+}

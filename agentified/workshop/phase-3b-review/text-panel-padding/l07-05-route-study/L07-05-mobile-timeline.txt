@@ -1,0 +1,5 @@
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-overview.png'
+duration 1.500
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-route-focus.png'
+duration 24.871
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-route-focus.png'

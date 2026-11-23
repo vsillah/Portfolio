@@ -6,7 +6,7 @@ import request from './heygen-request.json'
 import assets from './asset-map.json'
 import approved from '../visual-production/manifest.json'
 
-const hash = (value: string) => createHash('sha256').update(value).digest('hex')
+const hash = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')
 
 describe('L01 review packet', () => {
   it('keeps the exact approved narration and contiguous nine minute scenes', () => {

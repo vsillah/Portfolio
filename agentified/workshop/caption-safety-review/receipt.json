@@ -1,0 +1,1114 @@
+{
+  "schemaVersion": 3,
+  "codeCommit": "1c56d0660",
+  "lessons": [
+    "L01",
+    "L05",
+    "L06",
+    "L07",
+    "L08",
+    "L09",
+    "L10",
+    "L11",
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L16"
+  ],
+  "mobileCaptionSystem": {
+    "maxWidth": 620,
+    "onTrackMode": "hidden",
+    "offTrackMode": "disabled"
+  },
+  "clearanceScenes": [
+    {
+      "id": "L07-01",
+      "start": 0,
+      "end": 27.99,
+      "line": 4
+    },
+    {
+      "id": "L07-06",
+      "start": 153.479,
+      "end": 160.078,
+      "line": 52
+    }
+  ],
+  "reviewScenes": [
+    {
+      "id": "L07-01",
+      "start": 0,
+      "end": 27.99
+    },
+    {
+      "id": "L07-06",
+      "start": 153.479,
+      "end": 160.078
+    },
+    {
+      "id": "L07-08",
+      "start": 233.648,
+      "end": 251.332
+    }
+  ],
+  "observations": [
+    {
+      "viewport": "desktop",
+      "lesson": "L01",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L01&rev=1c56d0660",
+      "cueCount": 55,
+      "activeCueChecks": 55,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L05",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L05&rev=1c56d0660",
+      "cueCount": 60,
+      "activeCueChecks": 60,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L05-04"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L06",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L06&rev=1c56d0660",
+      "cueCount": 50,
+      "activeCueChecks": 50,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L06-03"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L07",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=1c56d0660",
+      "cueCount": 56,
+      "activeCueChecks": 56,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L07-05",
+        "L07-07"
+      ],
+      "movedCues": {
+        "L07-01": 13,
+        "L07-06": 3
+      },
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L08",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L08&rev=1c56d0660",
+      "cueCount": 55,
+      "activeCueChecks": 55,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L08-05"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L09",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=1c56d0660",
+      "cueCount": 48,
+      "activeCueChecks": 48,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L09-02",
+        "L09-04"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L10",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L10&rev=1c56d0660",
+      "cueCount": 51,
+      "activeCueChecks": 51,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L10-03"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L11",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L11&rev=1c56d0660",
+      "cueCount": 41,
+      "activeCueChecks": 41,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L11-02"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L12",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L12&rev=1c56d0660",
+      "cueCount": 44,
+      "activeCueChecks": 44,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L12-03"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L13",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L13&rev=1c56d0660",
+      "cueCount": 49,
+      "activeCueChecks": 49,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L13-02"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L14",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=1c56d0660",
+      "cueCount": 54,
+      "activeCueChecks": 54,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L14-03",
+        "L14-04"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L15",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L15&rev=1c56d0660",
+      "cueCount": 57,
+      "activeCueChecks": 57,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L15-04"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L16",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=1c56d0660",
+      "cueCount": 63,
+      "activeCueChecks": 63,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L16-04",
+        "L16-05"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        },
+        "restored": {
+          "mode": "showing",
+          "paused": true,
+          "width": 621,
+          "height": 349.3125,
+          "band": null
+        }
+      }
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L07",
+      "scene": "L07-01",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=1c56d0660",
+      "recording": "agentified/workshop/caption-safety-review/desktop-L07-01-walkthrough.mp4"
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L07",
+      "scene": "L07-06",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=1c56d0660",
+      "recording": "agentified/workshop/caption-safety-review/desktop-L07-06-walkthrough.mp4"
+    },
+    {
+      "viewport": "desktop",
+      "lesson": "L07",
+      "scene": "L07-08",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=1c56d0660",
+      "recording": "agentified/workshop/caption-safety-review/desktop-L07-08-walkthrough.mp4"
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L01",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L01&rev=1c56d0660",
+      "cueCount": 55,
+      "activeCueChecks": 55,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Friday afternoon."
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Friday afternoon."
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L05",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L05&rev=1c56d0660",
+      "cueCount": 60,
+      "activeCueChecks": 60,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L05-04"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Friday arrives at Harbor Learning"
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Friday arrives at Harbor Learning"
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L06",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L06&rev=1c56d0660",
+      "cueCount": 50,
+      "activeCueChecks": 50,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L06-03"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "The Operating Map has a row that says"
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "The Operating Map has a row that says"
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L07",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=1c56d0660",
+      "cueCount": 56,
+      "activeCueChecks": 56,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L07-05",
+        "L07-07"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "A team becomes useful when a blocked"
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "A team becomes useful when a blocked"
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L08",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L08&rev=1c56d0660",
+      "cueCount": 55,
+      "activeCueChecks": 55,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L08-05"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "The Harbor source checker finishes its"
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "The Harbor source checker finishes its"
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L09",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L09&rev=1c56d0660",
+      "cueCount": 48,
+      "activeCueChecks": 48,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L09-02",
+        "L09-04"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Harbor Learning Circle has three neat classroom briefs on a table."
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Harbor Learning Circle has three neat classroom briefs on a table."
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L10",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L10&rev=1c56d0660",
+      "cueCount": 51,
+      "activeCueChecks": 51,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L10-03"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month."
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Morgan has a plausible Harbor proposal: add a free digital-skills session next month."
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L11",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L11&rev=1c56d0660",
+      "cueCount": 41,
+      "activeCueChecks": 41,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L11-02"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Morgan comes to Harbor's Friday planning table with three open questions."
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Morgan comes to Harbor's Friday planning table with three open questions."
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L12",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L12&rev=1c56d0660",
+      "cueCount": 44,
+      "activeCueChecks": 44,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L12-03"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session."
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "A Harbor board member asks Morgan what the preparation agent actually did for the proposed session."
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L13",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L13&rev=1c56d0660",
+      "cueCount": 49,
+      "activeCueChecks": 49,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L13-02"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Morgan opens Harbor's paper planning"
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "Morgan opens Harbor's paper planning"
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L14",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L14&rev=1c56d0660",
+      "cueCount": 54,
+      "activeCueChecks": 54,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L14-03",
+        "L14-04"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "A Harbor board reviewer asks Morgan a"
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "A Harbor board reviewer asks Morgan a"
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L15",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L15&rev=1c56d0660",
+      "cueCount": 57,
+      "activeCueChecks": 57,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L15-04"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "It is Friday at Harbor Learning Circle."
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "It is Friday at Harbor Learning Circle."
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L16",
+      "url": "http://127.0.0.1:3121/agentified/learningplan?lesson=L16&rev=1c56d0660",
+      "cueCount": 63,
+      "activeCueChecks": 63,
+      "cueGapChecked": true,
+      "mappedReadingPanels": [
+        "L16-04",
+        "L16-05"
+      ],
+      "movedCues": {},
+      "states": {
+        "before": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "At the end of Harbor's Friday, Morgan"
+        },
+        "off": {
+          "mode": "disabled",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": null
+        },
+        "restored": {
+          "mode": "hidden",
+          "paused": true,
+          "width": 292,
+          "height": 164.25,
+          "band": "At the end of Harbor's Friday, Morgan"
+        }
+      }
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L07",
+      "scene": "L07-01",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=1c56d0660",
+      "recording": "agentified/workshop/caption-safety-review/mobile-L07-01-walkthrough.mp4"
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L07",
+      "scene": "L07-06",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=1c56d0660",
+      "recording": "agentified/workshop/caption-safety-review/mobile-L07-06-walkthrough.mp4"
+    },
+    {
+      "viewport": "mobile",
+      "lesson": "L07",
+      "scene": "L07-08",
+      "reviewUrl": "http://127.0.0.1:3121/agentified/learningplan?lesson=L07&rev=1c56d0660",
+      "recording": "agentified/workshop/caption-safety-review/mobile-L07-08-walkthrough.mp4"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-01-captions-off.png",
+      "sha256": "821074b66a4ab01d5235cd72be6203ac38ed285f9e3a2ebd227c85cc8811d93a"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-01-captions-on.png",
+      "sha256": "e8f6ef0161100393ee9c4bc513b751bf59e9b69f783b841702d8135c40be51dd"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-01-paused-restored.png",
+      "sha256": "fdcb785a388fbdc72c1e51fb3097dc94b1bff968355bf7b7e9f2687a73ad3372"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-01-walkthrough.mp4",
+      "sha256": "55633d72fa8390f1e727c7b53c80090a34c0e25cf8efe96b71f7dc19de2a4a52"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-06-captions-off.png",
+      "sha256": "1f6a5eb75e4f14d44fe741452e8f230f68d78897a846e0e60e058a3da9e28922"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-06-captions-on.png",
+      "sha256": "abd6a64f4d89967bb5cef2e064a68fedc372ead285b9329b8a45d9c551adc4d9"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-06-paused-restored.png",
+      "sha256": "6910a193c040ca8a5e3b416417749dc5928a6749667e5526a6d3452eea06f6ba"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-06-walkthrough.mp4",
+      "sha256": "34c34ad9f1c46177484a94bd32d444abbeadd6f91fa96c26e0a251159c2fcb30"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-08-captions-off.png",
+      "sha256": "3e9cab35acd584af571aa1b18015b83260799a3583b5f465bf34b3af2d0baf06"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-08-captions-on.png",
+      "sha256": "bbd99ee96f093ac06caf3a2c263104de5a28c58eaea8e4d5d9cf9d6198990805"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-08-paused-restored.png",
+      "sha256": "f353fba8594d42d87bd387afea5573e933c9b5bb3c11133b0283b3f10d8c6bfb"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/desktop-L07-08-walkthrough.mp4",
+      "sha256": "16914656d97185c2f0ac8c977a4cf0c9d0ab6dc4b603029f04feb4091cf91bb4"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-01-captions-off.png",
+      "sha256": "c203fe5c31b1d9c80b8dd0a775648d59f0ef8cd5b03b58472df2786dbc087f82"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-01-captions-on.png",
+      "sha256": "1b402a1c2dffae045c715b2431c71d0025fea8acef437567e809843e2d763ae7"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-01-paused-restored.png",
+      "sha256": "f31131a0841e15e461b64af62879d048f5ff7f17401b787d0073768543828797"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-01-walkthrough.mp4",
+      "sha256": "22546b089ed9ed1d9ae221fea2b8305574021e6463ed8ee0f2473ffb02089540"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-06-captions-off.png",
+      "sha256": "9688fda94d1635525ecd6a3aedb2db3cf9fc6aee9942bebf20080a7890e71c6a"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-06-captions-on.png",
+      "sha256": "1de4658ae9a3275d630a82bdcd9080e30428b76d9c52a1337d635016054267fc"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-06-paused-restored.png",
+      "sha256": "81d2d25a8a337249d999b0acfcc22d73a61e6b5af766366dfe29a0c74e358229"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-06-walkthrough.mp4",
+      "sha256": "3cf2210038b5a64a95c3a64b44cdc82d342ffb072907a0250f2bd50471bb3222"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-08-captions-off.png",
+      "sha256": "3b42d2efac07bdc8baca2dc49f22877349bca3bbe9c443f79459247216d5b2f9"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-08-captions-on.png",
+      "sha256": "52101ee9fb7e14f81305677a533547718f7d198fafd38963941de65f91519b66"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-08-paused-restored.png",
+      "sha256": "2613074134c8a869c46631a7aaf785e9433a67625ccfb88507c8f279c79d5f00"
+    },
+    {
+      "path": "agentified/workshop/caption-safety-review/mobile-L07-08-walkthrough.mp4",
+      "sha256": "f0cac16f6026d6f3e98f81971903b01aabe65e5514480bc22fc70494a971773e"
+    }
+  ]
+}

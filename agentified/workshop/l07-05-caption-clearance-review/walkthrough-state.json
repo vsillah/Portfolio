@@ -1,0 +1,207 @@
+{
+  "generatedAt": "2026-11-22T01:34:38.133Z",
+  "captionHead": "96800788740341ae30a9c62b3c15c7ed23c5912e",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "states": [
+    {
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "adjacent L07-04 native",
+      "time": 126.9,
+      "mode": "showing",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "L07-05 caption clear",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "Small captions",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "Medium captions",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "Large captions",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "captions off",
+      "time": 128,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "paused caption restored",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "adjacent L07-06 native",
+      "time": 153.7,
+      "mode": "showing",
+      "cue": [
+        "Pause."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "adjacent L07-04 native",
+      "time": 126.9,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "M",
+      "controls": false
+    },
+    {
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "L07-05 caption clear",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "M",
+      "controls": false
+    },
+    {
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "Small captions",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "S",
+      "controls": false
+    },
+    {
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "Medium captions",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "M",
+      "controls": false
+    },
+    {
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "Large captions",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "L",
+      "controls": false
+    },
+    {
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "captions off",
+      "time": 128,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": false
+    },
+    {
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "paused caption restored",
+      "time": 128,
+      "mode": "hidden",
+      "cue": [
+        "The charter is narrow: prepare one\nevidence-bound option brief for Morgan."
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "size": "L",
+      "controls": false
+    },
+    {
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "label": "adjacent L07-06 native",
+      "time": 153.7,
+      "mode": "hidden",
+      "cue": [
+        "Pause."
+      ],
+      "band": "Pause.",
+      "size": "M",
+      "controls": false
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/overview-wide.png'
+duration 2.000
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-proof.png'
+duration 4.200
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-rollback.png'
+duration 6.300
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-revoke.png'
+duration 7.300
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-staffing.png'
+duration 8.200
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l16-05-audit-study/mobile-staffing.png'

@@ -1,0 +1,99 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L13-02",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+  "approvedPlateSha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+  "approvedPlatePx": [
+    3600,
+    4500
+  ],
+  "narrationStates": [
+    "Propose",
+    "Not run",
+    "Gate",
+    "Trace",
+    "Approve or discard"
+  ],
+  "method": "complete Amina plate in both frames as contextual framework; separate narration-derived proposal states; no crop or SVG",
+  "frames": [
+    {
+      "kind": "context",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/amina-complete.png",
+      "sha256": "693ae68159a8231bbd79ce5a6f75f0b87a621c5662005ee68c7401470ec2677a",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/amina-complete-mobile-preview.png",
+      "mobilePreviewSha256": "7023980aa23f6bed68432fff8da94dce7b2d1c5bd03f8615d53c8077aa1d8a49",
+      "geometry": {
+        "completePlatePx": [
+          625,
+          150,
+          640,
+          800
+        ],
+        "semanticRole": "Amina contextual framework"
+      }
+    },
+    {
+      "kind": "proposal",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/proposal-five-states.png",
+      "sha256": "555a625083b7e680d971dda0c0246d7193bf754672777c8345a31d605f7f7a08",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/proposal-five-states-mobile-preview.png",
+      "mobilePreviewSha256": "131e4ca4e7c979289770d2f1bf3e73cbfb8f2c35b8263dc94247d25016dcdcfd",
+      "geometry": {
+        "completePlatePx": [
+          96,
+          174,
+          544,
+          680
+        ],
+        "narrationStates": [
+          {
+            "label": "Propose",
+            "boxPx": [
+              720,
+              170,
+              1825,
+              295
+            ]
+          },
+          {
+            "label": "Not run",
+            "boxPx": [
+              720,
+              320,
+              1825,
+              445
+            ]
+          },
+          {
+            "label": "Gate",
+            "boxPx": [
+              720,
+              470,
+              1825,
+              595
+            ]
+          },
+          {
+            "label": "Trace",
+            "boxPx": [
+              720,
+              620,
+              1825,
+              745
+            ]
+          },
+          {
+            "label": "Approve or discard",
+            "boxPx": [
+              720,
+              770,
+              1825,
+              895
+            ]
+          }
+        ],
+        "semanticRole": "distinct narration-derived proposal states"
+      }
+    }
+  ]
+}

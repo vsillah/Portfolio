@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L11-03"
+  ],
+  "frames": [
+    {
+      "scene_id": "L11-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L11-03.png",
+      "frame_sha256": "e29dbcfcb252b6539f8e1e28bc0b82f959981540bace6e7c934d458ef8e03406",
+      "visual_family": "L11-operating-artifact:sequence:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Scan before stepping in.",
+        "Scan",
+        "Step in"
+      ],
+      "accessibility_text": "An operator reads, sorts, signals, then acts. Visual: Three cockpit dials and one trace ledger.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "An operator reads, sorts, signals, then acts.",
+      "brief_sha256": "0834e409c589c83e9f32c6f6cd0ce6c1abbae28bfcd95cb43dba799a9f024fcd",
+      "original_frame_sha256": "2bb9c7feefe93488dd90da4cd1c6ae38ceb70828485b8af0f87c7aeca1bfe6db",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 793,
+            "height": 117
+          },
+          "glyph": {
+            "x": 94,
+            "y": 79,
+            "width": 737,
+            "height": 61
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 95,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 95,
+            "y": 801,
+            "width": 158,
+            "height": 89
+          },
+          "glyph": {
+            "x": 124,
+            "y": 833,
+            "width": 102,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1190,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 1190,
+            "y": 801,
+            "width": 199,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1219,
+            "y": 833,
+            "width": 143,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

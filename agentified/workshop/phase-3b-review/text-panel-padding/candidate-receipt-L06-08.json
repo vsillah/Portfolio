@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L06-08"
+  ],
+  "frames": [
+    {
+      "scene_id": "L06-08",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-08.png",
+      "frame_sha256": "5e72e5319665d06eecedf8fca546c73de2e4ff13463af9bb9437f8eed995c097",
+      "visual_family": "L06-operating-artifact:file:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Keep the slip and cull together.",
+        "Permission",
+        "Cull"
+      ],
+      "accessibility_text": "The Operating File records permission and retirement. Visual: Permission slip and cull sheet in one folder.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The Operating File records permission and retirement.",
+      "brief_sha256": "8f3c2a8a1f3d9f41dba933e37e6b5d286a067014ece3ab58cb53253356241bbf",
+      "original_frame_sha256": "1c3e207f99c05ccc720ed87cfdd7a3290ddde6dc35cf6fb79b8e154f947fa10f",
+      "padding_decisions": [
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 586,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 586,
+            "width": 288,
+            "height": 89
+          },
+          "glyph": {
+            "x": 171,
+            "y": 618,
+            "width": 232,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 140,
+            "y": 751,
+            "width": 790,
+            "height": 94
+          },
+          "box": {
+            "x": 140,
+            "y": 751,
+            "width": 135,
+            "height": 89
+          },
+          "glyph": {
+            "x": 170,
+            "y": 783,
+            "width": 79,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

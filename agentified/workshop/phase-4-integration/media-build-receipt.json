@@ -1,0 +1,967 @@
+{
+  "schemaVersion": 1,
+  "lessons": {
+    "L01": {
+      "desktop": {
+        "path": "/agentified/qualified/l01/agentified-l01-desktop.mp4",
+        "sha256": "8cbbc8075730807fd84f1e3d6837e08ae51c35fb814e437463957d088a89551d",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "378.285000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l01/illustrated-1eeaa68b/agentified-l01-illustrated-composite.mp4",
+        "sourceSha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+        "overlayCount": 7
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l01/agentified-l01-desktop.mp4",
+        "sha256": "8cbbc8075730807fd84f1e3d6837e08ae51c35fb814e437463957d088a89551d",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "378.285000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l01/illustrated-1eeaa68b/agentified-l01-illustrated-composite.mp4",
+        "sourceSha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+        "overlayCount": 7
+      }
+    },
+    "L05": {
+      "desktop": {
+        "path": "/agentified/qualified/l05/agentified-l05-desktop.mp4",
+        "sha256": "048794ead3fdfee79731af3f764c0224cb26b37f1c460c8ee9b1f303713d81cb",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "237.687000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l05/illustrated-aa9b234a/agentified-l05-illustrated-composite.mp4",
+        "sourceSha256": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061",
+        "overlayCount": 10
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l05/agentified-l05-desktop.mp4",
+        "sha256": "048794ead3fdfee79731af3f764c0224cb26b37f1c460c8ee9b1f303713d81cb",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "237.687000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l05/illustrated-aa9b234a/agentified-l05-illustrated-composite.mp4",
+        "sourceSha256": "aa9b234ae717b8c54f90c1200db4f1657a21095b1714c33023cdc0431b062061",
+        "overlayCount": 10
+      }
+    },
+    "L06": {
+      "desktop": {
+        "path": "/agentified/qualified/l06/agentified-l06-desktop.mp4",
+        "sha256": "c831920ba6894d7edf1cef7188a20a629acd95491f6e8c299b80ab001544b6d9",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "258.960000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l06/illustrated-163e01e6/agentified-l06-illustrated-composite.mp4",
+        "sourceSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+        "overlayCount": 10
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l06/agentified-l06-mobile.mp4",
+        "sha256": "72a6428e8febcc19d97e408a6433a903dd69a93d94820276acffa1d40fbd12d1",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "258.960000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l06/illustrated-163e01e6/agentified-l06-illustrated-composite.mp4",
+        "sourceSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+        "overlayCount": 16
+      }
+    },
+    "L07": {
+      "desktop": {
+        "path": "/agentified/qualified/l07/agentified-l07-desktop.mp4",
+        "sha256": "fba1107e43b56588f03292de221f97f91c65479d614014aef8a0408c13bffe50",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "251.332000"
+          }
+        },
+        "sourcePath": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-source-brief/L07-01-source-brief-candidate.mp4",
+        "sourceSha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+        "overlayCount": 7
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l07/agentified-l07-mobile.mp4",
+        "sha256": "14a69adc13233f40195afe4db33c020660f95d904005b2f8fc884fa5d09a2d59",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "251.332000"
+          }
+        },
+        "sourcePath": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-source-brief/L07-01-source-brief-candidate.mp4",
+        "sourceSha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+        "overlayCount": 8
+      }
+    },
+    "L08": {
+      "desktop": {
+        "path": "/agentified/qualified/l08/agentified-l08-desktop.mp4",
+        "sha256": "aca6703c9c3d5eca74eb8c2ea0be0a1a3641090282081692f758b7d6313119ef",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "257.680000"
+          }
+        },
+        "sourcePath": "agentified/workshop/phase-3b-review/text-panel-padding/l08-caption-free-presenter/L08-caption-free-presenter-candidate.mp4",
+        "sourceSha256": "f709e881f3cf4816c05ac287a3181d50621c1e16df14212c5357890f08baedb0",
+        "overlayCount": 10
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l08/agentified-l08-mobile.mp4",
+        "sha256": "3373fedf801d8de31241d6f9ca28a9c689cbfe84dc762c46e17d5b2fc6435fcd",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "257.680000"
+          }
+        },
+        "sourcePath": "agentified/workshop/phase-3b-review/text-panel-padding/l08-caption-free-presenter/L08-caption-free-presenter-candidate.mp4",
+        "sourceSha256": "f709e881f3cf4816c05ac287a3181d50621c1e16df14212c5357890f08baedb0",
+        "overlayCount": 14
+      }
+    },
+    "L09": {
+      "desktop": {
+        "path": "/agentified/qualified/l09/agentified-l09-desktop.mp4",
+        "sha256": "3ec64628d1e6cabfd61329db4bacbf97a061eee5fece0bbee42adc4a36acfbb5",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "272.840000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l09/illustrated-998a5ccc/agentified-l09-illustrated-composite.mp4",
+        "sourceSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+        "overlayCount": 10
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l09/agentified-l09-mobile.mp4",
+        "sha256": "7780bd0431ed76cceb0afa3925af0a264fd005413e142465b973305f13f8beab",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "272.840000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l09/illustrated-998a5ccc/agentified-l09-illustrated-composite.mp4",
+        "sourceSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+        "overlayCount": 13
+      }
+    },
+    "L10": {
+      "desktop": {
+        "path": "/agentified/qualified/l10/agentified-l10-desktop.mp4",
+        "sha256": "43179a1e39c6483ab11c304879c697ef0da31826a48f8af415c14bd0502cca40",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "274.280000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l10/illustrated-65936cf3/agentified-l10-illustrated-composite.mp4",
+        "sourceSha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+        "overlayCount": 9
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l10/agentified-l10-mobile.mp4",
+        "sha256": "2c9f2c111e19fb00fc067ec995916743efd8c258508ef06f3561cde0a102d0e4",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "274.280000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l10/illustrated-65936cf3/agentified-l10-illustrated-composite.mp4",
+        "sourceSha256": "65936cf362e2299d70f9fea807102cbc3813dec491b4805d51d0ddaecd59a762",
+        "overlayCount": 11
+      }
+    },
+    "L11": {
+      "desktop": {
+        "path": "/agentified/qualified/l11/agentified-l11-desktop.mp4",
+        "sha256": "25d5f8ec04d995445b71527ef4905354490a4d5c07b3a3de8b28431e67cf0b4c",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "252.920000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l11/illustrated-169488ec/agentified-l11-illustrated-composite.mp4",
+        "sourceSha256": "169488eced03d6c5c300dc9241af14c7677389d9ed9997578266a7828cf842b3",
+        "overlayCount": 10
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l11/agentified-l11-desktop.mp4",
+        "sha256": "25d5f8ec04d995445b71527ef4905354490a4d5c07b3a3de8b28431e67cf0b4c",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "252.920000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l11/illustrated-169488ec/agentified-l11-illustrated-composite.mp4",
+        "sourceSha256": "169488eced03d6c5c300dc9241af14c7677389d9ed9997578266a7828cf842b3",
+        "overlayCount": 10
+      }
+    },
+    "L12": {
+      "desktop": {
+        "path": "/agentified/qualified/l12/agentified-l12-desktop.mp4",
+        "sha256": "5916fdb5a2748be83b201b44c31c99e704bd4666be5faecddf4c78cf557fde3b",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "268.120000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l12/illustrated-64039c97/agentified-l12-illustrated-composite.mp4",
+        "sourceSha256": "64039c97b99b884e2c12351210ec079469e2b4c6a872961d1eaac2ff845089d1",
+        "overlayCount": 10
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l12/agentified-l12-desktop.mp4",
+        "sha256": "5916fdb5a2748be83b201b44c31c99e704bd4666be5faecddf4c78cf557fde3b",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "268.120000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l12/illustrated-64039c97/agentified-l12-illustrated-composite.mp4",
+        "sourceSha256": "64039c97b99b884e2c12351210ec079469e2b4c6a872961d1eaac2ff845089d1",
+        "overlayCount": 10
+      }
+    },
+    "L13": {
+      "desktop": {
+        "path": "/agentified/qualified/l13/agentified-l13-desktop.mp4",
+        "sha256": "0debdd3601522b97e7d714377bac38423fdbc6b675f35949ce03d571f455c1fd",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "255.243000"
+          }
+        },
+        "sourcePath": "agentified/workshop/phase-3b-review/L13/agentified-l13-unknown-content-aware-candidate.mp4",
+        "sourceSha256": "878d262919c6e7f93997c1289aa9f22ff7dee9c8893b329b4920e8ef6d10ec02",
+        "overlayCount": 10
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l13/agentified-l13-desktop.mp4",
+        "sha256": "0debdd3601522b97e7d714377bac38423fdbc6b675f35949ce03d571f455c1fd",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "255.243000"
+          }
+        },
+        "sourcePath": "agentified/workshop/phase-3b-review/L13/agentified-l13-unknown-content-aware-candidate.mp4",
+        "sourceSha256": "878d262919c6e7f93997c1289aa9f22ff7dee9c8893b329b4920e8ef6d10ec02",
+        "overlayCount": 10
+      }
+    },
+    "L14": {
+      "desktop": {
+        "path": "/agentified/qualified/l14/agentified-l14-desktop.mp4",
+        "sha256": "9a9fdf410cbfd42d2132c594ae941baff77428e7cc7220cc08e252c8859b2f21",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "241.762000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l14/illustrated-a58c3a1c/agentified-l14-illustrated-composite.mp4",
+        "sourceSha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+        "overlayCount": 12
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l14/agentified-l14-desktop.mp4",
+        "sha256": "9a9fdf410cbfd42d2132c594ae941baff77428e7cc7220cc08e252c8859b2f21",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "241.762000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l14/illustrated-a58c3a1c/agentified-l14-illustrated-composite.mp4",
+        "sourceSha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+        "overlayCount": 12
+      }
+    },
+    "L15": {
+      "desktop": {
+        "path": "/agentified/qualified/l15/agentified-l15-desktop.mp4",
+        "sha256": "0554c4869da78bc06e79c7fec499365fce92c2dac3a6fc0eeed3ae741a053240",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "255.386000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l15/illustrated-0c5bac16/agentified-l15-illustrated-composite.mp4",
+        "sourceSha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+        "overlayCount": 11
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l15/agentified-l15-desktop.mp4",
+        "sha256": "0554c4869da78bc06e79c7fec499365fce92c2dac3a6fc0eeed3ae741a053240",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "255.386000"
+          }
+        },
+        "sourcePath": "public/agentified/lessons/l15/illustrated-0c5bac16/agentified-l15-illustrated-composite.mp4",
+        "sourceSha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+        "overlayCount": 11
+      }
+    },
+    "L16": {
+      "desktop": {
+        "path": "/agentified/qualified/l16/agentified-l16-desktop.mp4",
+        "sha256": "a4926b69c0e259a9e11bc25c09db4abd6332ca6d74291d0fd8cd651f87eb0202",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "267.309000"
+          }
+        },
+        "sourcePath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-caption-free-presenter/L16-caption-free-presenter-candidate.mp4",
+        "sourceSha256": "2fcae49deaf43251b8d4f05001401e8f13be1566ff31fbf9a3e069e58108dfc5",
+        "overlayCount": 11
+      },
+      "mobile": {
+        "path": "/agentified/qualified/l16/agentified-l16-mobile.mp4",
+        "sha256": "2de2c61de3c191ac5b12f821d5da7803f5466e2dc0a24e0090f8fd77fb3c60d6",
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "r_frame_rate": "25/1"
+            },
+            {
+              "index": 1,
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "r_frame_rate": "0/0"
+            },
+            {
+              "index": 2,
+              "codec_name": "mov_text",
+              "codec_type": "subtitle",
+              "r_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "duration": "267.309000"
+          }
+        },
+        "sourcePath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-caption-free-presenter/L16-caption-free-presenter-candidate.mp4",
+        "sourceSha256": "2fcae49deaf43251b8d4f05001401e8f13be1566ff31fbf9a3e069e58108dfc5",
+        "overlayCount": 16
+      }
+    }
+  }
+}

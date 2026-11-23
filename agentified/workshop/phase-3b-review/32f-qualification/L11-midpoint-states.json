@@ -1,0 +1,206 @@
+{
+  "stackedHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+  "lessonId": "L11",
+  "states": [
+    {
+      "scene": "L11-01",
+      "kind": "desktop",
+      "expected": 13.04,
+      "time": 13.04,
+      "mode": "hidden",
+      "active": [
+        "If the answers live in three people's heads, Morgan becomes the operating system."
+      ],
+      "band": [
+        "If the answers live in three people's heads, Morgan becomes the operating system."
+      ]
+    },
+    {
+      "scene": "L11-02",
+      "kind": "desktop",
+      "expected": 43.87,
+      "time": 43.87,
+      "mode": "hidden",
+      "active": [
+        "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note."
+      ],
+      "band": [
+        "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note."
+      ]
+    },
+    {
+      "scene": "L11-03",
+      "kind": "desktop",
+      "expected": 76.59,
+      "time": 76.59,
+      "mode": "hidden",
+      "active": [
+        "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold."
+      ],
+      "band": [
+        "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold."
+      ]
+    },
+    {
+      "scene": "L11-04",
+      "kind": "desktop",
+      "expected": 106.77,
+      "time": 106.77,
+      "mode": "hidden",
+      "active": [
+        "The staffing gap is an ask to Morgan for direction."
+      ],
+      "band": [
+        "The staffing gap is an ask to Morgan for direction."
+      ]
+    },
+    {
+      "scene": "L11-05",
+      "kind": "desktop",
+      "expected": 135.7,
+      "time": 135.7,
+      "mode": "hidden",
+      "active": [
+        "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure."
+      ],
+      "band": [
+        "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure."
+      ]
+    },
+    {
+      "scene": "L11-06",
+      "kind": "desktop",
+      "expected": 152.75,
+      "time": 152.75,
+      "mode": "hidden",
+      "active": [
+        "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+      ],
+      "band": [
+        "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+      ]
+    },
+    {
+      "scene": "L11-07",
+      "kind": "desktop",
+      "expected": 195.48000000000002,
+      "time": 195.48,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L11-08",
+      "kind": "desktop",
+      "expected": 243.88,
+      "time": 243.88,
+      "mode": "hidden",
+      "active": [
+        "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+      ],
+      "band": [
+        "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+      ]
+    },
+    {
+      "scene": "L11-01",
+      "kind": "mobile",
+      "expected": 13.04,
+      "time": 13.04,
+      "mode": "hidden",
+      "active": [
+        "If the answers live in three people's heads, Morgan becomes the operating system."
+      ],
+      "band": [
+        "If the answers live in three people's heads, Morgan becomes the operating system."
+      ]
+    },
+    {
+      "scene": "L11-02",
+      "kind": "mobile",
+      "expected": 43.87,
+      "time": 43.87,
+      "mode": "hidden",
+      "active": [
+        "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note."
+      ],
+      "band": [
+        "Start with exceptions, not a wall of charts: the Session Option Brief is draft; the facilitator note is unconfirmed; the staffing hold names Morgan; the print request is unapproved; the next action is to request a current, permitted staffing note."
+      ]
+    },
+    {
+      "scene": "L11-03",
+      "kind": "mobile",
+      "expected": 76.59,
+      "time": 76.59,
+      "mode": "hidden",
+      "active": [
+        "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold."
+      ],
+      "band": [
+        "For Harbor, Morgan scans the staffing hold, routes the request for a fresh note to the course coordinator, records that the print envelope is still closed, and leaves the session proposal on hold."
+      ]
+    },
+    {
+      "scene": "L11-04",
+      "kind": "mobile",
+      "expected": 106.77,
+      "time": 106.77,
+      "mode": "hidden",
+      "active": [
+        "The staffing gap is an ask to Morgan for direction."
+      ],
+      "band": [
+        "The staffing gap is an ask to Morgan for direction."
+      ]
+    },
+    {
+      "scene": "L11-05",
+      "kind": "mobile",
+      "expected": 135.7,
+      "time": 135.7,
+      "mode": "hidden",
+      "active": [
+        "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure."
+      ],
+      "band": [
+        "It cannot invent a new scope, promote memory, order printing, book a room, publish a session, or override a source failure."
+      ]
+    },
+    {
+      "scene": "L11-06",
+      "kind": "mobile",
+      "expected": 152.75,
+      "time": 152.75,
+      "mode": "hidden",
+      "active": [
+        "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+      ],
+      "band": [
+        "If Morgan handed this sketch to a colleague tomorrow morning, what would that colleague still have to ask?"
+      ]
+    },
+    {
+      "scene": "L11-07",
+      "kind": "mobile",
+      "expected": 195.48000000000002,
+      "time": 195.48,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L11-08",
+      "kind": "mobile",
+      "expected": 243.88,
+      "time": 243.88,
+      "mode": "hidden",
+      "active": [
+        "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+      ],
+      "band": [
+        "Next we will show proof of that work safely, and test a new idea without pretending a score is permission to build."
+      ]
+    }
+  ]
+}

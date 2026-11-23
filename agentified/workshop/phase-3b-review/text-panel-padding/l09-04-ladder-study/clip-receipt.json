@@ -1,0 +1,91 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L09-04",
+  "paddingHead": "252a73e62",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 103.02,
+  "durationSeconds": 35.06,
+  "sourceVideoSha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6",
+  "sourceCaptionSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+  "trimmedCaptionSha256": "288b76ffae38c7798f8425fb106bb989de834c5cad1255beb174930f70c1b38c",
+  "frameReceiptSha256": "e8dfb8d15a30073b581cae5c4347f7d752531a204e9064b249c4735a7416199f",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-04-ladder-study/L09-04-desktop-review.mp4",
+      "sha256": "b89d0a69c20cc206ce019a931cd87df40d0884afb198101f2339706ddaa275c6",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png",
+          "durationSeconds": 35.06
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "877"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1645"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "13"
+          }
+        ],
+        "format": {
+          "duration": "35.080000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-04-ladder-study/L09-04-mobile-review.mp4",
+      "sha256": "78804ac5a774a413ceb04225fa4c5d6c9d7adc79a4797653c512815c59edf033",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-04-stage.png",
+          "durationSeconds": 21.5
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-05-execute.png",
+          "durationSeconds": 11.96
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "877"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1645"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "13"
+          }
+        ],
+        "format": {
+          "duration": "35.080000"
+        }
+      }
+    }
+  ]
+}

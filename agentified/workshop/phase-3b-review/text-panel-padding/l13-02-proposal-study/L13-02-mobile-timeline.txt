@@ -1,0 +1,5 @@
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/amina-complete.png'
+duration 1.600
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/proposal-five-states.png'
+duration 28.400
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/proposal-five-states.png'

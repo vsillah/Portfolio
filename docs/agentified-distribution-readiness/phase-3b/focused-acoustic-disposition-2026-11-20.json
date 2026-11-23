@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "status": "phase_3_hold_at_l09_l13_exact_word_alignment",
+  "recordedDate": "2026-11-20",
+  "evidenceProvenance": "Integration Captain focused acoustic evidence delivered to the Queen Nzinga Phase 3B lane on 2026-11-20; five independent provider-free decodes per cited clip were reported by the captain. The lane separately verified the source-map hash, stacked-code head, and canonical caption/transcript bytes, but did not repeat or directly listen to those focused decodes.",
+  "sourceMap": {
+    "path": "docs/agentified-distribution-readiness/phase-3b/source-map-v1.json",
+    "sha256": "6316aa15a232e99019f938ccbaae397e5314f5d4035a626346caad5f6b8aebad"
+  },
+  "approvedStackedCodeHead": "11fc4cb663028240016d144364e8ac4030b3372e",
+  "firstSemanticStop": "L13",
+  "findings": [
+    {
+      "lessonId": "L09",
+      "sourceVideo": {
+        "path": "public/agentified/lessons/l09/illustrated-998a5ccc/agentified-l09-illustrated-composite.mp4",
+        "sha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6"
+      },
+      "boundCaption": {
+        "path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-captions.vtt",
+        "sha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d"
+      },
+      "canonicalScript": {
+        "path": "agentified/workshop/scripts/L09-metrics-and-review.md",
+        "sha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79"
+      },
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L09-fc1388fa740b.txt",
+        "sha256": "85f7620a874c67f066fd5b3a5e66f3e7fc86d5b3c94587464b636ae9cb48d7df",
+        "sourceScriptSha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79",
+        "boundCaptionSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+        "normalizedWordCount": 582,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
+      "sourceClipOffsetsSeconds": [
+        150.6,
+        151.0
+      ],
+      "canonicalCaptionAndTranscriptWord": "approve",
+      "reportedSourceAudioWord": "approved",
+      "focusedProviderFreeDecodesReportedByCaptain": 5,
+      "disposition": "open_exact_audio_caption_mismatch",
+      "meaningAssessment": "teaching meaning not materially changed; exact alignment still fails"
+    },
+    {
+      "lessonId": "L12",
+      "sourceVideo": {
+        "path": "public/agentified/lessons/l12/illustrated-64039c97/agentified-l12-illustrated-composite.mp4",
+        "sha256": "64039c97b99b884e2c12351210ec079469e2b4c6a872961d1eaac2ff845089d1"
+      },
+      "boundCaption": {
+        "path": "public/agentified/lessons/l12/approved-0d58c706/agentified-l12-native-captions.vtt",
+        "sha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467"
+      },
+      "canonicalScript": {
+        "path": "agentified/workshop/scripts/L12-proof-and-foundry.md",
+        "sha256": "5201a7b99266d2a7f227679e3b7719ae42d6322ac6f6ce053b780b6c4d1dc4e4"
+      },
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L12-5201a7b99266.txt",
+        "sha256": "660e4a5dc977fc63b1bd337cacf340c151f94538c6ba777cbe40812456bf172b",
+        "sourceScriptSha256": "5201a7b99266d2a7f227679e3b7719ae42d6322ac6f6ce053b780b6c4d1dc4e4",
+        "boundCaptionSha256": "b054480cb0067f7a3d8c2cc727a7c47bd9734a3e1e85c3cb4b0672d9d8104467",
+        "normalizedWordCount": 578,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
+      "sourceClipOffsetsSeconds": [
+        52.98,
+        53.42
+      ],
+      "canonicalCaptionAndTranscriptWord": "Exclude",
+      "reportedSourceAudioWord": "Exclude",
+      "focusedProviderFreeDecodesReportedByCaptain": 5,
+      "disposition": "resolved_false_asr_omission",
+      "meaningAssessment": "source speech agrees with canonical caption and transcript"
+    },
+    {
+      "lessonId": "L13",
+      "sourceVideo": {
+        "path": "public/agentified/lessons/l13/illustrated-4ae75aa1/agentified-l13-illustrated-composite.mp4",
+        "sha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f"
+      },
+      "boundCaption": {
+        "path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-captions.vtt",
+        "sha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27"
+      },
+      "canonicalScript": {
+        "path": "agentified/workshop/scripts/L13-research-with-a-gate.md",
+        "sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e"
+      },
+      "versionedTranscript": {
+        "path": "docs/agentified-distribution-readiness/phase-3b/transcripts/L13-75f6c95a9d16.txt",
+        "sha256": "eee524348ce2509403704677658b5a591c2e132ed313efc6ea518c84239636d6",
+        "sourceScriptSha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+        "boundCaptionSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+        "normalizedWordCount": 523,
+        "derivation": "eight Spoken narration \u2014 read in full cells, in order; outer table quotes removed"
+      },
+      "sourceClipOffsetsSeconds": [
+        69.86,
+        70.34
+      ],
+      "canonicalCaptionAndTranscriptWord": "unknown",
+      "reportedSourceAudioWord": "nay",
+      "focusedProviderFreeDecodesReportedByCaptain": 5,
+      "disposition": "open_potential_changed_meaning",
+      "meaningAssessment": "nay may be spoken N/A; N/A and unknown are not equivalent; interpretation requires direct contextual listening",
+      "reportedWordProbabilityApproximate": 0.8
+    }
+  ],
+  "nextGate": "Captain must resolve L09 exact wording and L13 meaning and align approved source audio/captions/scripts through a separately scoped correction; direct whole-lesson acoustic and contextual visual qualification remain open.",
+  "executionBoundary": "Documentation only. No media, captions, canonical scripts, bindings, provider contact, spending, merge, deployment, publication, release, or learner-data mutation."
+}

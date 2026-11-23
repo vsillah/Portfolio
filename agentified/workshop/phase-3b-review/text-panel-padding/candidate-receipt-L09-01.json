@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L09-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L09-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L09-01.png",
+      "frame_sha256": "b384a3842a3507d09466f2a0a2f28276e69e4bf000bcf99439bff0971f290270",
+      "visual_family": "L09-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Count supported work, not drafts."
+      ],
+      "accessibility_text": "One of three folders has a defensible source. Visual: Supported, held, and wrong drafts beside a scale.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "One of three folders has a defensible source.",
+      "brief_sha256": "50234f29154b68fcce599cd4a036c98ff76e09896ef985ada25b8496a9e387d7",
+      "original_frame_sha256": "a9ef0d7eacf8143e89ec8803d62a3b3e8202ef3a19c94640051360bb66273ad9",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 974,
+            "height": 193
+          },
+          "glyph": {
+            "x": 106,
+            "y": 705,
+            "width": 918,
+            "height": 137
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

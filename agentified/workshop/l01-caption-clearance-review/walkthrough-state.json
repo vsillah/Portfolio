@@ -1,0 +1,394 @@
+{
+  "generatedAt": "2026-11-21T10:17:21.822Z",
+  "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+  "states": [
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-01 adjacent boundary",
+      "time": 33.5,
+      "mode": "showing",
+      "cue": [
+        "The work needs a trail."
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 Small band",
+      "time": 52,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 Medium band",
+      "time": 52,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 Large band",
+      "time": 52,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 captions off",
+      "time": 52,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 captions restored",
+      "time": 52,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 cue gap",
+      "time": 55.8,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-03 adjacent boundary",
+      "time": 76,
+      "mode": "showing",
+      "cue": [
+        "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’"
+      ],
+      "band": null,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-01 adjacent boundary",
+      "time": 33.5,
+      "mode": "hidden",
+      "cue": [
+        "The work needs a trail."
+      ],
+      "band": "The work needs a trail.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 Small band",
+      "time": 52,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 Medium band",
+      "time": 52,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 Large band",
+      "time": 52,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 captions off",
+      "time": 52,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 captions restored",
+      "time": 52,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-02 cue gap",
+      "time": 55.8,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "step": "L01-03 adjacent boundary",
+      "time": 76,
+      "mode": "hidden",
+      "cue": [
+        "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’"
+      ],
+      "band": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’",
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=desktop&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "Small band",
+      "time": 2.00858,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=desktop&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "Medium band",
+      "time": 2.00858,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=desktop&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "Large band",
+      "time": 2.00858,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=desktop&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "captions off",
+      "time": 2.00858,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=desktop&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "captions restored",
+      "time": 2.00858,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=mobile&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "Small band",
+      "time": 2.010329,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=mobile&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "Medium band",
+      "time": 2.010329,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=mobile&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "Large band",
+      "time": 2.010329,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=mobile&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "captions off",
+      "time": 2.010329,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-caption-clearance-review/candidate/review.html?layout=mobile&revision=16f26aa1",
+      "codeCommit": "97ca5bf242002be6cfe735f55aa367d010580ab2",
+      "candidateCommit": "16f26aa19411e8303f9cdad5b6c4ad5f1d4fb824",
+      "step": "captions restored",
+      "time": 2.010329,
+      "mode": "hidden",
+      "cue": [
+        "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary."
+      ],
+      "band": "If we give the system a loose command like ‘run the workshop program,’ we have no useful boundary.",
+      "controls": true
+    }
+  ]
+}

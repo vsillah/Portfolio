@@ -1,0 +1,9 @@
+# L05 mobile plate correction
+
+This stacked correction addresses only the L05-04 teaching window, 78.582–105.560 seconds. At 390×844 the approved video remains 292×164 CSS pixels, so its embedded Open Brain and Harness detail is too small to read. During that window the learner route now presents the complete approved publication plate beneath the native player, followed by its exact two labels and supporting descriptions at readable mobile size. The panel leaves the screen at the next scene. It is hidden at desktop widths.
+
+The publication plate copy is byte-identical to the approved source. No video, audio, caption, presenter, cue, worksheet, or other lesson media changed. The full plate preserves the connected diagram; the larger wording is a source-faithful reading aid, not a new framework claim. No provider media or SVG teaching art was created.
+
+`node docs/agentified-distribution-readiness/l05-mobile-plate/record.cjs 4e7deaa09` replays the exact L05 route with external requests blocked and records desktop and 390×844 screenshots plus playable MP4s. `agentified/workshop/l05-mobile-plate-review/receipt.json` binds the source copy, unchanged media, viewport results and evidence hashes. The recorder checks the adjacent scene at 01:15 and 01:48, the teaching scene at 01:30, native controls, and captions on and off. It does not claim a full-lesson spoken transcript or complete Phase 3B qualification.
+
+Validation: focused Hero and Workshop tests passed (35/35), the 128-scene illustrated-media validator passed, and all 16 bound source/composite/caption/duration checks passed. The broader Agentified suite had 79 passes and 3 unrelated launch-campaign expectation failures; the same 3 fail on the PR #1290 base worktree. Repository typecheck also fails in files outside this lane. These baseline failures remain captain review items, and this correction should not be merged until the captain accepts the relevant validation scope.

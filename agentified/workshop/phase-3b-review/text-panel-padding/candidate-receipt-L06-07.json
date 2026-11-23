@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L06-07"
+  ],
+  "frames": [
+    {
+      "scene_id": "L06-07",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-07.png",
+      "frame_sha256": "bba2d0d159daa1a887237720b2ed4775a5a9b174059a47ac95c18a31a1648949",
+      "visual_family": "L06-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the permission slip.",
+        "Scope",
+        "Escalation"
+      ],
+      "accessibility_text": "The learner records scope and escalation. Visual: Permission worksheet over the sealed gate.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records scope and escalation.",
+      "brief_sha256": "0e324bc97f5beccfa4c4eb53e74c77ebe40f4720ec2d59d2f53a53b071d16d57",
+      "original_frame_sha256": "bba2d0d159daa1a887237720b2ed4775a5a9b174059a47ac95c18a31a1648949",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    }
+  ]
+}

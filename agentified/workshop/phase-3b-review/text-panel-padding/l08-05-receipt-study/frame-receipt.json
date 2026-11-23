@@ -1,0 +1,666 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L08-05",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+  "approvedPlateSha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+  "approvedPlatePx": [
+    4000,
+    2500
+  ],
+  "frameworkPath": [
+    "Agent run",
+    "Receipt envelope",
+    "Human gate",
+    "Outcome"
+  ],
+  "receiptFields": [
+    "Intent",
+    "Agent",
+    "Source",
+    "Action",
+    "Artifact",
+    "Approval",
+    "Cost",
+    "Outcome",
+    "Rollback"
+  ],
+  "method": "complete approved plate in every frame plus provider-free raster recreation of the Agent run to Receipt envelope to Human gate to Outcome path; mobile case details follow exact narration and retain outcome/rollback; no source crop or SVG art",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/overview-wide.png",
+      "sha256": "9013025193d43b6dae65d64dcdbed539adaf988bbbed5fc2dea41ea37ab98b4f",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "3e7f0711c2c40d1725d975e5cf686e07bd5b4006850fe7624802b3aa1b810355",
+      "geometry": {
+        "platePx": [
+          68,
+          202,
+          1120,
+          700
+        ],
+        "path": [
+          "Agent run",
+          "Receipt envelope",
+          "Human gate",
+          "Outcome"
+        ],
+        "receiptFields": [
+          "Intent",
+          "Agent",
+          "Source",
+          "Action",
+          "Artifact",
+          "Approval",
+          "Cost",
+          "Outcome",
+          "Rollback"
+        ]
+      }
+    },
+    {
+      "kind": "focus",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/focus-a.png",
+      "sha256": "efe94458cf495f40994216fe9a601ee8f18387de209b30827c64a4259c9031a0",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/focus-a-mobile-preview.png",
+      "mobilePreviewSha256": "b1733d4a44ee9ebcd2d68aa05c9456ea37ac4e7a630df9a9f85e9bdd6485568b",
+      "geometry": {
+        "case": "A",
+        "premise": "Facilitator unconfirmed",
+        "disposition": "Pass checks; wait for Morgan",
+        "platePx": [
+          74,
+          313,
+          520,
+          325
+        ],
+        "pathCards": [
+          {
+            "label": "Agent run",
+            "boxPx": [
+              67,
+              95,
+              467,
+              255
+            ],
+            "text": {
+              "fontPx": 68,
+              "glyphPx": [
+                106,
+                143,
+                321,
+                64
+              ]
+            }
+          },
+          {
+            "label": "Receipt envelope",
+            "boxPx": [
+              526,
+              95,
+              926,
+              255
+            ],
+            "text": [
+              {
+                "fontPx": 54,
+                "glyphPx": [
+                  628,
+                  124,
+                  195,
+                  50
+                ]
+              },
+              {
+                "fontPx": 54,
+                "glyphPx": [
+                  609,
+                  177,
+                  234,
+                  50
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Human gate",
+            "boxPx": [
+              985,
+              95,
+              1385,
+              255
+            ],
+            "text": {
+              "fontPx": 60,
+              "glyphPx": [
+                1014,
+                147,
+                343,
+                56
+              ]
+            }
+          },
+          {
+            "label": "Outcome",
+            "boxPx": [
+              1444,
+              95,
+              1844,
+              255
+            ],
+            "text": {
+              "fontPx": 68,
+              "glyphPx": [
+                1496,
+                150,
+                295,
+                51
+              ]
+            }
+          }
+        ],
+        "caseBoxPx": [
+          660,
+          290,
+          1835,
+          853
+        ],
+        "titleText": {
+          "fontPx": 121,
+          "glyphPx": [
+            1044,
+            354,
+            406,
+            89
+          ]
+        },
+        "premiseText": {
+          "fontPx": 88,
+          "glyphPx": [
+            802,
+            526,
+            890,
+            65
+          ]
+        },
+        "dispositionText": {
+          "fontPx": 73,
+          "glyphPx": [
+            734,
+            703,
+            1026,
+            70
+          ]
+        },
+        "fieldBoxPx": [
+          75,
+          695,
+          594,
+          862
+        ],
+        "fieldText": {
+          "fontPx": 49,
+          "glyphPx": [
+            106,
+            760,
+            456,
+            37
+          ]
+        }
+      }
+    },
+    {
+      "kind": "focus",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/focus-b.png",
+      "sha256": "6e14337d8dbe0d64fa16a2d1b2bf52eed477616c0dcd55a057329071e46ac458",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/focus-b-mobile-preview.png",
+      "mobilePreviewSha256": "df7960684eb6458acc818cb1135ce879f7c620b545b55569f90b999a4b351c64",
+      "geometry": {
+        "case": "B",
+        "premise": "Stale facilitator note",
+        "disposition": "Fail freshness; hold",
+        "platePx": [
+          74,
+          313,
+          520,
+          325
+        ],
+        "pathCards": [
+          {
+            "label": "Agent run",
+            "boxPx": [
+              67,
+              95,
+              467,
+              255
+            ],
+            "text": {
+              "fontPx": 68,
+              "glyphPx": [
+                106,
+                143,
+                321,
+                64
+              ]
+            }
+          },
+          {
+            "label": "Receipt envelope",
+            "boxPx": [
+              526,
+              95,
+              926,
+              255
+            ],
+            "text": [
+              {
+                "fontPx": 54,
+                "glyphPx": [
+                  628,
+                  124,
+                  195,
+                  50
+                ]
+              },
+              {
+                "fontPx": 54,
+                "glyphPx": [
+                  609,
+                  177,
+                  234,
+                  50
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Human gate",
+            "boxPx": [
+              985,
+              95,
+              1385,
+              255
+            ],
+            "text": {
+              "fontPx": 60,
+              "glyphPx": [
+                1014,
+                147,
+                343,
+                56
+              ]
+            }
+          },
+          {
+            "label": "Outcome",
+            "boxPx": [
+              1444,
+              95,
+              1844,
+              255
+            ],
+            "text": {
+              "fontPx": 68,
+              "glyphPx": [
+                1496,
+                150,
+                295,
+                51
+              ]
+            }
+          }
+        ],
+        "caseBoxPx": [
+          660,
+          290,
+          1835,
+          853
+        ],
+        "titleText": {
+          "fontPx": 121,
+          "glyphPx": [
+            1042,
+            354,
+            410,
+            89
+          ]
+        },
+        "premiseText": {
+          "fontPx": 88,
+          "glyphPx": [
+            861,
+            526,
+            773,
+            65
+          ]
+        },
+        "dispositionText": {
+          "fontPx": 84,
+          "glyphPx": [
+            850,
+            700,
+            794,
+            75
+          ]
+        },
+        "fieldBoxPx": [
+          75,
+          695,
+          594,
+          862
+        ],
+        "fieldText": {
+          "fontPx": 49,
+          "glyphPx": [
+            106,
+            760,
+            456,
+            37
+          ]
+        }
+      }
+    },
+    {
+      "kind": "focus",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/focus-c.png",
+      "sha256": "6093b20762a0f189411a5272177806396a50ecaaed8450023c926c4adb74884e",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/focus-c-mobile-preview.png",
+      "mobilePreviewSha256": "0680a69e46f25968a05497a8cbefe50f9f58383cc8447210d135c701eb514fb8",
+      "geometry": {
+        "case": "C",
+        "premise": "Unsupported staffing claim",
+        "disposition": "Fail wording; return",
+        "platePx": [
+          74,
+          313,
+          520,
+          325
+        ],
+        "pathCards": [
+          {
+            "label": "Agent run",
+            "boxPx": [
+              67,
+              95,
+              467,
+              255
+            ],
+            "text": {
+              "fontPx": 68,
+              "glyphPx": [
+                106,
+                143,
+                321,
+                64
+              ]
+            }
+          },
+          {
+            "label": "Receipt envelope",
+            "boxPx": [
+              526,
+              95,
+              926,
+              255
+            ],
+            "text": [
+              {
+                "fontPx": 54,
+                "glyphPx": [
+                  628,
+                  124,
+                  195,
+                  50
+                ]
+              },
+              {
+                "fontPx": 54,
+                "glyphPx": [
+                  609,
+                  177,
+                  234,
+                  50
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Human gate",
+            "boxPx": [
+              985,
+              95,
+              1385,
+              255
+            ],
+            "text": {
+              "fontPx": 60,
+              "glyphPx": [
+                1014,
+                147,
+                343,
+                56
+              ]
+            }
+          },
+          {
+            "label": "Outcome",
+            "boxPx": [
+              1444,
+              95,
+              1844,
+              255
+            ],
+            "text": {
+              "fontPx": 68,
+              "glyphPx": [
+                1496,
+                150,
+                295,
+                51
+              ]
+            }
+          }
+        ],
+        "caseBoxPx": [
+          660,
+          290,
+          1835,
+          853
+        ],
+        "titleText": {
+          "fontPx": 121,
+          "glyphPx": [
+            1042,
+            354,
+            410,
+            89
+          ]
+        },
+        "premiseText": {
+          "fontPx": 87,
+          "glyphPx": [
+            733,
+            517,
+            1029,
+            82
+          ]
+        },
+        "dispositionText": {
+          "fontPx": 84,
+          "glyphPx": [
+            853,
+            699,
+            789,
+            78
+          ]
+        },
+        "fieldBoxPx": [
+          75,
+          695,
+          594,
+          862
+        ],
+        "fieldText": {
+          "fontPx": 49,
+          "glyphPx": [
+            106,
+            760,
+            456,
+            37
+          ]
+        }
+      }
+    },
+    {
+      "kind": "focus",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/focus-final.png",
+      "sha256": "01b33ba97ae389817aa6b51474fd55fb27445ca1957a135b88eab879d42cef24",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l08-05-receipt-study/focus-final-mobile-preview.png",
+      "mobilePreviewSha256": "c560e573bdbc64ba64a28211f5f4ef38464ff5381f96b006d32961646099294c",
+      "geometry": {
+        "case": "Final",
+        "premise": "Three cases are not proof",
+        "disposition": "Investigate judge and rubric",
+        "platePx": [
+          74,
+          313,
+          520,
+          325
+        ],
+        "pathCards": [
+          {
+            "label": "Agent run",
+            "boxPx": [
+              67,
+              95,
+              467,
+              255
+            ],
+            "text": {
+              "fontPx": 68,
+              "glyphPx": [
+                106,
+                143,
+                321,
+                64
+              ]
+            }
+          },
+          {
+            "label": "Receipt envelope",
+            "boxPx": [
+              526,
+              95,
+              926,
+              255
+            ],
+            "text": [
+              {
+                "fontPx": 54,
+                "glyphPx": [
+                  628,
+                  124,
+                  195,
+                  50
+                ]
+              },
+              {
+                "fontPx": 54,
+                "glyphPx": [
+                  609,
+                  177,
+                  234,
+                  50
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Human gate",
+            "boxPx": [
+              985,
+              95,
+              1385,
+              255
+            ],
+            "text": {
+              "fontPx": 60,
+              "glyphPx": [
+                1014,
+                147,
+                343,
+                56
+              ]
+            }
+          },
+          {
+            "label": "Outcome",
+            "boxPx": [
+              1444,
+              95,
+              1844,
+              255
+            ],
+            "text": {
+              "fontPx": 68,
+              "glyphPx": [
+                1496,
+                150,
+                295,
+                51
+              ]
+            }
+          }
+        ],
+        "caseBoxPx": [
+          660,
+          290,
+          1835,
+          853
+        ],
+        "titleText": {
+          "fontPx": 105,
+          "glyphPx": [
+            904,
+            351,
+            688,
+            96
+          ]
+        },
+        "premiseText": {
+          "fontPx": 88,
+          "glyphPx": [
+            742,
+            518,
+            1011,
+            81
+          ]
+        },
+        "dispositionText": {
+          "fontPx": 77,
+          "glyphPx": [
+            734,
+            702,
+            1027,
+            71
+          ]
+        },
+        "fieldBoxPx": [
+          75,
+          695,
+          594,
+          862
+        ],
+        "fieldText": {
+          "fontPx": 49,
+          "glyphPx": [
+            106,
+            760,
+            456,
+            37
+          ]
+        }
+      }
+    }
+  ]
+}

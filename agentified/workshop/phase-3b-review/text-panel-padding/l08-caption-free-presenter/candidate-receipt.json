@@ -1,0 +1,64 @@
+{
+  "status": "review_only_unbound",
+  "baseCommit": "b11360d1dc0b63a1d9c7ea126aa50dea196fa649",
+  "stackHeads": {
+    "pr1292": "3ca22b88162de93182d07eee89fbc062feea129f",
+    "pr1293": "8948462d35c7b3b28d315341046b45bafae25805",
+    "pr1295": "7bb6267c9fb98172679e161aafa208dfc7a276c3"
+  },
+  "prior": {
+    "path": "public/agentified/lessons/l08/illustrated-5ea78c36/agentified-l08-illustrated-composite.mp4",
+    "sha256": "5ea78c3647a901be84eddc1647185fcbea7178d79a5588befb467f92d20c93bd"
+  },
+  "originalPresenter": {
+    "path": "agentified/workshop/l05-l08-native-source/L08/agentified-l08-heygen-native-source.mp4",
+    "sha256": "efc86671550629e2c3f8ebcd1d4f1faebddde80ec27157eab0e00ee0a023d2c8"
+  },
+  "retainedCaptionFreeSource": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l08-caption-free-presenter/Agentified_L08_297bf76b-caption-free-source.mp4",
+    "sha256": "72dce8821a60578d5d683b1815b24423a919a7cff96c8d9813a72dd6dae8bb76",
+    "jobId": "76d5248d34be0265512f59385e163415"
+  },
+  "backdrop": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l08-caption-free-presenter/studio-backdrop.png",
+    "sha256": "850c7f829f6c81788d6a88a36038e998ca1fab505651b51ff942b23ea04bc010"
+  },
+  "timing": {
+    "path": "agentified/workshop/l05-l08-continuous-narration/l08-validation-receipt.json",
+    "sha256": "658343afafecbb802a11bda1a3529693d26a667c4dd5b8a1cc90d987ee46a62b",
+    "opening": {
+      "source_start": 0,
+      "source_end": 13.525,
+      "sequence_start": 0,
+      "sequence_end": 13.525
+    },
+    "closing": {
+      "source_start": 13.525,
+      "source_end": 20.904,
+      "sequence_start": 247.29171900000003,
+      "sequence_end": 254.67071900000002
+    }
+  },
+  "vtt": {
+    "path": "public/agentified/lessons/l08/continuous-3c5b399f/agentified-l08-continuous-narration-captions.vtt",
+    "sha256": "25261c89f43785ba30239c37d1c1e17e9a484614efd20a241e25ab0554c92011"
+  },
+  "candidate": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l08-caption-free-presenter/L08-caption-free-presenter-candidate.mp4",
+    "sha256": "f709e881f3cf4816c05ac287a3181d50621c1e16df14212c5357890f08baedb0",
+    "durationSeconds": 257.68,
+    "frames": 6442
+  },
+  "panelRect": [
+    1048,
+    326,
+    768,
+    432
+  ],
+  "mediaStreams": [
+    "video",
+    "prior audio copy",
+    "prior subtitle copy"
+  ],
+  "binding": "none"
+}

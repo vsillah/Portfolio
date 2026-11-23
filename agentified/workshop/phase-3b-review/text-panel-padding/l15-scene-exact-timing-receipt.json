@@ -1,0 +1,23 @@
+{
+  "status": "derived_scene_exact_route_timing_review_only_unbound",
+  "basis": {
+    "registeredBoundaries": "agentified/workshop/presentation-illustration-audit/audit-boundaries.json",
+    "authoredStudy": "agentified/workshop/phase-3b-review/text-panel-padding/l15-checkpoint-receipt.json",
+    "studySourceVideoSha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+    "nativeSourceVideoSha256": "80fb28550e6ad7a0a28cb54f349e28af473ca762a72fae6a74fb9905f3ca11e5",
+    "sourceCaptionSha256": "f417d3083212b036af00319a84443a8e3f5ddbda5e9daf47d2796eff07f85522"
+  },
+  "rule": "Retain the authored 1.6-second complete-plate overview at the registered scene entrance. Hold the authored limited-approval focus frame for the remainder of that registered scene. Use the global 25 fps source timeline for frame assignment. Do not shift narration, captions, presenter, countdown, or adjacent scene boundaries; do not edit the unbound 29-second study clips or their receipts.",
+  "scene": "L15-04",
+  "registeredWindowSeconds": [74.662, 103.33],
+  "registeredDurationSeconds": 28.668,
+  "studyWindowSeconds": [74.0, 103.0],
+  "studyDurationSeconds": 29.0,
+  "routeTimelineSeconds": [1.6, 27.068],
+  "routeFrameCountAt25Fps": 717,
+  "overviewFramesAt25Fps": 40,
+  "focusFramesAt25Fps": 677,
+  "overviewFrame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/overview-wide.png",
+  "focusFrame": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval.png",
+  "limits": "This receipt reconciles the study duration to the registered lesson window for temporary learner-route qualification. It is not a new approved media binding or a rewrite of the authored standalone study."
+}

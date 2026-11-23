@@ -3,14 +3,39 @@ import contract from '../artifacts/human-qa/social-video-production-controls-202
 import audioReceipt from '../artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-moderate-music-audio-validation.receipt.json'
 import { evaluateJevCompleteness, type JevCompletenessContract, type JevAudioGate } from './jev-social-video-completeness'
 
+const contractFixture = (): JevCompletenessContract => {
+  const value = structuredClone(contract)
+  if (value.story.subscribe_cta_window.length !== 2) throw new Error('Contract CTA window must have two bounds')
+  for (const entry of value.accepted_exceptions) {
+    if (entry.rule_id !== 'script.semantic_spoken_cta' || entry.accepted_by_user !== true || entry.visual_cta_present !== true || entry.weakens_future_default !== false) {
+      throw new Error('Unexpected accepted-exception fixture')
+    }
+  }
+  return {
+    ...value,
+    story: { ...value.story, subscribe_cta_window: [value.story.subscribe_cta_window[0], value.story.subscribe_cta_window[1]] },
+    accepted_exceptions: value.accepted_exceptions.map((entry) => ({
+      ...entry,
+      rule_id: 'script.semantic_spoken_cta' as const,
+      accepted_by_user: true as const,
+      visual_cta_present: true as const,
+      weakens_future_default: false as const,
+    })),
+  }
+}
+const audioFixture = (): JevAudioGate => {
+  const value = structuredClone(audioReceipt.mix_validation)
+  if (value.cta_window_seconds.length !== 2) throw new Error('Audio CTA window must have two bounds')
+  return { ...value, cta_window_seconds: [value.cta_window_seconds[0], value.cta_window_seconds[1]] }
+}
 const validContract = () => {
-  const value = structuredClone(contract) as JevCompletenessContract
+  const value = contractFixture()
   value.status = 'passed'
   value.story.cta_semantic_transcript_present = true
   return value
 }
 const validAudio = () => {
-  const value = structuredClone(audioReceipt.mix_validation) as JevAudioGate
+  const value = audioFixture()
   value.cta_semantic_transcript_present = true
   value.cta_spoken_track_passed = true
   return value
@@ -43,9 +68,9 @@ describe('Jev social-video completeness', () => {
   })
 
   it('accepts only the exact version-bound Jev visual-CTA exception', () => {
-    expect(evaluateJevCompleteness(structuredClone(contract) as JevCompletenessContract, structuredClone(audioReceipt.mix_validation) as JevAudioGate)).toEqual({ ready: true, blockers: [], observedMaxConcurrentTeachingAssets: 1 })
-    const value = structuredClone(contract) as JevCompletenessContract
+    expect(evaluateJevCompleteness(contractFixture(), audioFixture())).toEqual({ ready: true, blockers: [], observedMaxConcurrentTeachingAssets: 1 })
+    const value = contractFixture()
     value.input_version = 'sha256:different'
-    expect(evaluateJevCompleteness(value, structuredClone(audioReceipt.mix_validation) as JevAudioGate).ready).toBe(false)
+    expect(evaluateJevCompleteness(value, audioFixture()).ready).toBe(false)
   })
 })

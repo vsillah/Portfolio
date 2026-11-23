@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound_human_qa_hold",
+  "sourceMapSha256": "6316aa15a232e99019f938ccbaae397e5314f5d4035a626346caad5f6b8aebad",
+  "stackedCodeHead": "11fc4cb663028240016d144364e8ac4030b3372e",
+  "scope": "provider-free local review-only L09/L13 candidate; not learner-bound",
+  "findings": [
+    {
+      "lessonId": "L09",
+      "sourceVideo": {
+        "path": "public/agentified/lessons/l09/illustrated-998a5ccc/agentified-l09-illustrated-composite.mp4",
+        "sha256": "998a5ccc01d9a599025e27f035a72fe9b5104d98b69ce17bd12de5f6436a4dd6"
+      },
+      "sourceCaption": {
+        "path": "public/agentified/lessons/l09/approved-277c85aa/agentified-l09-native-captions.vtt",
+        "sha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d"
+      },
+      "sourceScript": {
+        "path": "agentified/workshop/scripts/L09-metrics-and-review.md",
+        "sha256": "fc1388fa740bf355a821a7e37ce065a49ed0ed95af25b5e62a29a2aeb093dc79"
+      },
+      "candidateVideo": {
+        "path": "agentified/workshop/phase-3b-review/L09/agentified-l09-approved-word-candidate.mp4",
+        "sha256": "45093cab91996a8866b70954002ca8f30d7109dfd2e2e35a46f437fa5fc756e6",
+        "bytes": 12610459
+      },
+      "captionedReviewClips": [
+        {
+          "path": "agentified/workshop/phase-3b-review/L09/context/L09-desktop-captioned.mp4",
+          "sha256": "aec9910d9bd1b11f1392af2b99e99a8a04f9df0ac48b099d28ed02b7f6fe3cab",
+          "bytes": 763670
+        },
+        {
+          "path": "agentified/workshop/phase-3b-review/L09/context/L09-mobile-captioned.mp4",
+          "sha256": "9c00dc0d2f4023ed83ef781e3dcc6cf70664cc38dc874598abd2a3fa36daa139",
+          "bytes": 524058
+        }
+      ],
+      "candidateCaption": {
+        "path": "agentified/workshop/phase-3b-review/L09/agentified-l09-approved-word-candidate.vtt",
+        "sha256": "d4cf4744cf5daa3f2ba78654516ec2f2765841c02d4d4b1d13e4c6aa5456d8ce",
+        "bytes": 5032
+      },
+      "change": "Only approve to approved in one VTT cue; cue times unchanged; video and audio elementary-stream SHA-256 match source.",
+      "reviewOnly": true,
+      "learnerBound": false
+    },
+    {
+      "lessonId": "L13",
+      "sourceVideo": {
+        "path": "public/agentified/lessons/l13/illustrated-4ae75aa1/agentified-l13-illustrated-composite.mp4",
+        "sha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f"
+      },
+      "sourceCaption": {
+        "path": "public/agentified/lessons/l13/approved-c84cc008/agentified-l13-native-captions.vtt",
+        "sha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27"
+      },
+      "sourceScript": {
+        "path": "agentified/workshop/scripts/L13-research-with-a-gate.md",
+        "sha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e"
+      },
+      "candidateVideo": {
+        "path": "agentified/workshop/phase-3b-review/L13/agentified-l13-unknown-content-aware-candidate.mp4",
+        "sha256": "878d262919c6e7f93997c1289aa9f22ff7dee9c8893b329b4920e8ef6d10ec02",
+        "bytes": 14343920
+      },
+      "captionedReviewClips": [
+        {
+          "path": "agentified/workshop/phase-3b-review/L13/context/L13-desktop-captioned.mp4",
+          "sha256": "1476647d4a185a3d7c1b603e42fe95a6fe1aed6e12a3506fb2ff7cfeaba6d0b5",
+          "bytes": 799383
+        },
+        {
+          "path": "agentified/workshop/phase-3b-review/L13/context/L13-mobile-captioned.mp4",
+          "sha256": "b551698620d5ee60e3fa76acc33bef181596eb562a549c21fa8da6ad25664f22",
+          "bytes": 493271
+        }
+      ],
+      "sourceUnknownSample": {
+        "path": "agentified/workshop/phase-3b-review/L13/l01-unknown-source-sample.wav",
+        "sha256": "7e2854b5b858eb8bf7526a583d5f8cdfa26235d6477c70f798ff7c4b6235f490",
+        "bytes": 92238
+      },
+      "processedUnknownSample": {
+        "path": "agentified/workshop/phase-3b-review/L13/l01-unknown-pitch-matched-sample.wav",
+        "sha256": "a3028a764aaf7f89ecaa7c7c56aa3b536dcca61446582bfa07dea67fe2759c93",
+        "bytes": 92238
+      },
+      "mapping": {
+        "sourceVideo": {
+          "path": "public/agentified/lessons/l01/illustrated-1eeaa68b/agentified-l01-illustrated-composite.mp4",
+          "sha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775"
+        },
+        "sourceWordAsrSeconds": [
+          222.98,
+          223.46
+        ],
+        "sourceCutSeconds": [
+          223.06,
+          223.54
+        ],
+        "targetVideo": {
+          "path": "public/agentified/lessons/l13/illustrated-4ae75aa1/agentified-l13-illustrated-composite.mp4",
+          "sha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f"
+        },
+        "targetReplaceSeconds": [
+          69.86,
+          70.34
+        ],
+        "sampleRateHz": 48000,
+        "channels": 2,
+        "framesReplaced": 23040,
+        "pitchRatio": 0.85,
+        "gain": 0.51,
+        "boundaryCrossfadeMilliseconds": 12
+      },
+      "checks": [
+        "source word recognized as unknown in local ASR",
+        "candidate phrase recognized as unknown in local ASR at 69.84-70.22 seconds with word probability 0.391",
+        "source VTT unchanged",
+        "PCM patch changes only 23040 target frames before whole-audio AAC encode",
+        "no presenter shown in corrected illustration scene",
+        "audio stream duration 255.243 seconds exactly matches source after PCM end trim; 11966 AAC frames",
+        "original L13-03 frame reproduced byte for byte from editable master and original overlay",
+        "revised frame changes only pixels within old panel bounds",
+        "source master complete beneath reduced panel; no unfinished crop exposed",
+        "video dimensions 1920x1080, 6368 frames and 254.720 seconds preserved",
+        "desktop/mobile caption-off and caption-on contextual stills visually inspected; panel clears lower native-controls zone",
+        "final review candidate keeps the exact verified L13 audio splice and unchanged subtitle stream",
+        "only L13-03 visual treatment is revised in the final review video"
+      ],
+      "contentAwareFrame": {
+        "path": "agentified/workshop/phase-3b-review/L13/L13-03-content-aware.png",
+        "sha256": "40f8786a0b8b06a3c9f6aa6dcb3833213b205f3405c5577f4c45e46282a5632e",
+        "bytes": 4388093,
+        "sourceRender": "agentified/workshop/presentation-illustration-audit/render-semantic-visuals.mjs",
+        "localReproductionScript": "agentified/workshop/phase-3b-review/L13/render-content-aware-frame.mjs",
+        "originalFrameSha256": "a6b16e793fe6659d93f120b9aa4405e5fe493b112ef1d3fe348a3ab73269a672",
+        "originalPanelPx": {
+          "x": 62,
+          "y": 195,
+          "width": 690,
+          "height": 625
+        },
+        "revisedPanelPx": {
+          "x": 62,
+          "y": 195,
+          "width": 637,
+          "height": 181
+        },
+        "changedPixelBounds": [
+          60,
+          193,
+          754,
+          822
+        ],
+        "sceneSeconds": [
+          56.587,
+          90.371
+        ]
+      },
+      "reviewOnly": true,
+      "learnerBound": false
+    }
+  ],
+  "reviewClipPresentation": "MP4s have visible review captions burned into the frame and native caption tracks; they are media-context clips, not exact learner-route browser recordings.",
+  "passedTechnicalChecks": [
+    "L09 VTT one-word-only diff with unchanged timestamps",
+    "L09 video and audio elementary streams byte-identical to source",
+    "L13 audio replacement candidate preserved source video until the scoped L13-03 visual correction; final candidate changes only that scene treatment",
+    "L13 candidate focused ASR recognizes unknown",
+    "desktop and 390x844 contextual MP4s decoded cleanly and stills visually inspected",
+    "L13 candidate audio stream duration 255.243 seconds matches source metadata after end trim",
+    "L13-03 content-aware panel measured at 581x125 px and fitted to 637x181 px with 28 px padding with original type and source art",
+    "desktop 1280x720 and mobile 390x844 caption-off/on stills visually clear; native-controls bottom zone remains separate",
+    "L13 desktop QA caption relocated into y=12-100 top clearance; teaching panel begins y=129 and baseline label occupies y=541-603",
+    "L13 desktop prior/new audio and subtitle elementary streams and 16-second/400-frame timing are identical",
+    "L13 desktop/mobile review artifacts regenerated for the tighter panel; audio and subtitle streams unchanged"
+  ],
+  "openGate": "Combined Human QA must judge the L13 content-aware panel and direct source-to-insert/insert-to-source audio joins, speaker timbre, pitch, pacing, and sentence flow. This runtime cannot accept audio for direct listening. The review correction does not authorize learner binding, merge, deployment, publication, or release.",
+  "boundary": "No source media/caption/script binding, provider contact, spend, merge, deployment, publication, release, or learner-data mutation.",
+  "basePrHead": "9a1c272f5102b9ff9dc2bd83c255abd298f214ff",
+  "learnerBound": false,
+  "humanQaStatus": "PENDING: four exact-context MP4s for combined L13 panel and audio-join Human QA; no approval recorded",
+  "reproduction": {
+    "command": "AGENTIFIED_AUDIO_PYTHON=<python-with-numpy-2.5.5> bash agentified/workshop/phase-3b-review/build-l09-l13-review.sh",
+    "requirements": [
+      "ffmpeg/ffprobe",
+      "Node.js with repository sharp dependency",
+      "Python 3 with numpy 2.5.5 and Pillow 13.0.0"
+    ],
+    "sources": [
+      "agentified/workshop/phase-3b-review/build-l09-l13-review.sh",
+      "agentified/workshop/phase-3b-review/L13/splice_unknown.py",
+      "agentified/workshop/phase-3b-review/L13/render-content-aware-frame.mjs",
+      "agentified/workshop/phase-3b-review/render-l09-l13-context.sh",
+      "agentified/workshop/phase-3b-review/burn-review-captions.py",
+      "agentified/workshop/phase-3b-review/verify-review-candidates.py"
+    ]
+  },
+  "reviewCaptionCorrection": {
+    "scope": "L13 desktop burned-caption QA copy only",
+    "priorDesktopClipSha256": "35919f3974a5e85cd964db8c4583afe75875c9118c457a3b685cbf44e8031a43",
+    "correctedDesktopClipSha256": "1476647d4a185a3d7c1b603e42fe95a6fe1aed6e12a3506fb2ff7cfeaba6d0b5",
+    "sourceVttUnchanged": true,
+    "cueTextAndTimingUnchanged": true,
+    "priorCaptionBoxPx": [
+      72,
+      560,
+      1208,
+      692
+    ],
+    "correctedCaptionBoxMaxPx": [
+      72,
+      12,
+      1208,
+      100
+    ],
+    "teachingPanelStartsAtYPx": 129,
+    "baselineLabelYPx": [
+      541,
+      603
+    ],
+    "nativeControlsBottomZoneStartsAtYPx": 656,
+    "mobileCaptionStartsAtYPx": 552,
+    "mobileVideoEndsAtYPx": 531,
+    "desktopAudioStreamSha256": "a4c3b809e53c846c6a3e0615c4c8446f32f8771544af58b47763e0d5fc28ee99",
+    "desktopSubtitleStreamSha256": "23cf5da93148d68a0120927fbba8ac4aa09375e11fa7cb7585d9cf8c86faf8b3",
+    "outputGeometry": "1280x720 desktop and 390x844 mobile unchanged; all contextual clips 16.000 s for L13",
+    "learnerRouteChanged": false,
+    "correctedMobileClipSha256": "b551698620d5ee60e3fa76acc33bef181596eb562a549c21fa8da6ad25664f22"
+  },
+  "panelCorrection": {
+    "scope": "L13-03 review-only visual panel; candidate remains unbound",
+    "humanQaFinding": "The prior 690x252 panel retained excessive blank space around the two-line headline.",
+    "headlineLines": [
+      "Leave the baseline",
+      "unknown."
+    ],
+    "measuredHeadlinePx": {
+      "width": 581,
+      "height": 125
+    },
+    "paddingPx": 28,
+    "priorPanelPx": {
+      "x": 62,
+      "y": 195,
+      "width": 690,
+      "height": 252
+    },
+    "revisedPanelPx": {
+      "x": 62,
+      "y": 195,
+      "width": 637,
+      "height": 181
+    },
+    "priorFrameSha256": "63b784ce6ede9d9fea609e90c688534d6f1a57b5de43fb42dd686cf5cb395977",
+    "priorCandidateVideoSha256": "d0ee71135484f5c1d7aae8cd935f2026ffe2e54f45b04377db49bfdc592c6d82",
+    "priorDesktopClipSha256": "c86dfa83e65f0e587afef707843f1d8dd9bf01302ab0361f69384eda31bef546",
+    "priorMobileClipSha256": "728fb8e579a75c008910ab8af81efe64b92ac4d2f71e9342e0e603009601ec64",
+    "candidateAudioStreamSha256": "c01585a1bbd37e18b26b6d92502e13825c8be0d01c4a4514c83125026ff7d543",
+    "candidateSubtitleStreamSha256": "a5a6ca90b5569f046cae5e7292c2aefb452f383e2179ae905190dcda0df60cb4",
+    "contextAudioStreamSha256": "a4c3b809e53c846c6a3e0615c4c8446f32f8771544af58b47763e0d5fc28ee99",
+    "contextSubtitleStreamSha256": "23cf5da93148d68a0120927fbba8ac4aa09375e11fa7cb7585d9cf8c86faf8b3",
+    "visualReview": "Inspected 1920x1080 source frame and first-cue desktop 1280x720 and mobile 390x844 contextual stills; panel, caption bands, HOLD marker, baseline label, and controls clear."
+  }
+}

@@ -1,0 +1,6920 @@
+{
+  "binding": {
+    "video": "/agentified/lessons/l07/review-b9016102/L07-01-source-brief-candidate.mp4",
+    "compositeSha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+    "sourceVideo": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+    "sourceSha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+    "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+    "captionsSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+    "transcriptSha256": "417fa294df5b969317bcb9885b5984fd5aa50fff23c34e32586aee60dac93750",
+    "durationSeconds": 251.332
+  },
+  "heads": {
+    "caption": "602d43d21",
+    "player": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "candidate": "b11360d1dc0b63a1d9c7ea126aa50dea196fa649",
+    "detail": "3ca22b88162de93182d07eee89fbc062feea129f"
+  },
+  "states": [
+    {
+      "width": 1280,
+      "label": "01-start",
+      "expectedTime": 0.4,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 0.4,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Morgan receives a polished Session",
+          "start": 0,
+          "end": 1.87
+        }
+      ],
+      "band": "Morgan receives a polished Session",
+      "bandCount": 1,
+      "bandTop": 985.84375,
+      "videoBottom": 977.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter",
+      "expectedTime": 8.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 985.84375,
+      "videoBottom": 977.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-S-on",
+      "expectedTime": 8.2,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-S-off",
+      "expectedTime": 8.2,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-S-restored",
+      "expectedTime": 8.2,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-M-on",
+      "expectedTime": 8.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-M-off",
+      "expectedTime": 8.2,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-M-restored",
+      "expectedTime": 8.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-L-on",
+      "expectedTime": 8.2,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-L-off",
+      "expectedTime": 8.2,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-presenter-L-restored",
+      "expectedTime": 8.2,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "01-end",
+      "expectedTime": 27.8,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 27.8,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-start",
+      "expectedTime": 28.1,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 28.1,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Eleven turns the request into an\nAgentic PRD Packet.",
+          "start": 27.99,
+          "end": 31.884
+        }
+      ],
+      "band": "Chapter Eleven turns the request into an\nAgentic PRD Packet.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid",
+      "expectedTime": 45,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-S-on",
+      "expectedTime": 45,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-S-off",
+      "expectedTime": 45,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-S-restored",
+      "expectedTime": 45,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-M-on",
+      "expectedTime": 45,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-M-off",
+      "expectedTime": 45,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-M-restored",
+      "expectedTime": 45,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-L-on",
+      "expectedTime": 45,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-L-off",
+      "expectedTime": 45,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-mid-L-restored",
+      "expectedTime": 45,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "02-end",
+      "expectedTime": 65.3,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 65.3,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-start",
+      "expectedTime": 65.6,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 65.599999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Reversal is modest here.",
+          "start": 65.494,
+          "end": 67.125
+        }
+      ],
+      "band": "Reversal is modest here.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid",
+      "expectedTime": 79.082,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-S-on",
+      "expectedTime": 79.082,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-S-off",
+      "expectedTime": 79.082,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-S-restored",
+      "expectedTime": 79.082,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-M-on",
+      "expectedTime": 79.082,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-M-off",
+      "expectedTime": 79.082,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-M-restored",
+      "expectedTime": 79.082,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-L-on",
+      "expectedTime": 79.082,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-L-off",
+      "expectedTime": 79.082,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-mid-L-restored",
+      "expectedTime": 79.082,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "03-end",
+      "expectedTime": 92.5,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 92.5,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-start",
+      "expectedTime": 92.8,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 92.8,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Now give the work an organization.",
+          "start": 92.669,
+          "end": 94.341
+        }
+      ],
+      "band": "Now give the work an organization.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid",
+      "expectedTime": 109,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-S-on",
+      "expectedTime": 109,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-S-off",
+      "expectedTime": 109,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-S-restored",
+      "expectedTime": 109,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-M-on",
+      "expectedTime": 109,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-M-off",
+      "expectedTime": 109,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-M-restored",
+      "expectedTime": 109,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-L-on",
+      "expectedTime": 109,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-L-off",
+      "expectedTime": 109,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-mid-L-restored",
+      "expectedTime": 109,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "04-end",
+      "expectedTime": 126.9,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 126.9,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-start",
+      "expectedTime": 127.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 127.2,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid",
+      "expectedTime": 140.3,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-S-on",
+      "expectedTime": 140.3,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-S-off",
+      "expectedTime": 140.3,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-S-restored",
+      "expectedTime": 140.3,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-M-on",
+      "expectedTime": 140.3,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-M-off",
+      "expectedTime": 140.3,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-M-restored",
+      "expectedTime": 140.3,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-L-on",
+      "expectedTime": 140.3,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-L-off",
+      "expectedTime": 140.3,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-mid-L-restored",
+      "expectedTime": 140.3,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "05-end",
+      "expectedTime": 153.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 153.2,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Write that ownership into the handoff now.",
+          "start": 150.962,
+          "end": 153.202
+        }
+      ],
+      "band": "Write that ownership into the handoff now.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-start",
+      "expectedTime": 153.55,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 153.55,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Pause.",
+          "start": 153.479,
+          "end": 153.948
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-S-on",
+      "expectedTime": 156.779,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-S-off",
+      "expectedTime": 156.779,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-S-restored",
+      "expectedTime": 156.779,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-M-on",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-M-off",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-M-restored",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-L-on",
+      "expectedTime": 156.779,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-L-off",
+      "expectedTime": 156.779,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-mid-L-restored",
+      "expectedTime": 156.779,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "06-end",
+      "expectedTime": 159.9,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 159.9,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-start",
+      "expectedTime": 160.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 160.2,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Draft the seven-field PRD in under a page.",
+          "start": 160.078,
+          "end": 162.83
+        }
+      ],
+      "band": "Draft the seven-field PRD in under a page.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields",
+      "expectedTime": 175,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-S-on",
+      "expectedTime": 175,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-S-off",
+      "expectedTime": 175,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-S-restored",
+      "expectedTime": 175,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-M-on",
+      "expectedTime": 175,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-M-off",
+      "expectedTime": 175,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-M-restored",
+      "expectedTime": 175,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-L-on",
+      "expectedTime": 175,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-L-off",
+      "expectedTime": 175,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-fields-L-restored",
+      "expectedTime": 175,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 392.84375,
+      "videoBottom": 384.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-gate-before",
+      "expectedTime": 188.514,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 188.514,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-gate-start",
+      "expectedTime": 188.515,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 188.515,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank",
+      "expectedTime": 196.863,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-S-on",
+      "expectedTime": 196.863,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-S-off",
+      "expectedTime": 196.863,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-S-restored",
+      "expectedTime": 196.863,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-M-on",
+      "expectedTime": 196.863,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-M-off",
+      "expectedTime": 196.863,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-M-restored",
+      "expectedTime": 196.863,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-L-on",
+      "expectedTime": 196.863,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-L-off",
+      "expectedTime": 196.863,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-blank-L-restored",
+      "expectedTime": 196.863,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-gate-end",
+      "expectedTime": 233.515,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.515,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "07-end",
+      "expectedTime": 233.6,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.6,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-start",
+      "expectedTime": 233.8,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.8,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "Save revision seven as a draft.",
+          "start": 233.648,
+          "end": 235.931
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter",
+      "expectedTime": 242.5,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-S-on",
+      "expectedTime": 242.5,
+      "size": "S",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-S-off",
+      "expectedTime": 242.5,
+      "size": "S",
+      "enabled": false,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-S-restored",
+      "expectedTime": 242.5,
+      "size": "S",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-M-on",
+      "expectedTime": 242.5,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-M-off",
+      "expectedTime": 242.5,
+      "size": "M",
+      "enabled": false,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-M-restored",
+      "expectedTime": 242.5,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-L-on",
+      "expectedTime": 242.5,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-L-off",
+      "expectedTime": 242.5,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-presenter-L-restored",
+      "expectedTime": 242.5,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "08-close",
+      "expectedTime": 246,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 246,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "Next we will test that handoff with",
+          "start": 245.492,
+          "end": 246.982
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "end-screen",
+      "expectedTime": 248.2,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 248.2,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": true
+    },
+    {
+      "width": 1280,
+      "label": "played-27.99",
+      "expectedTime": 28.189999999999998,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 28.217165,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Eleven turns the request into an\nAgentic PRD Packet.",
+          "start": 27.99,
+          "end": 31.884
+        }
+      ],
+      "band": "Chapter Eleven turns the request into an\nAgentic PRD Packet.",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "played-65.494",
+      "expectedTime": 65.694,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 65.699689,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Reversal is modest here.",
+          "start": 65.494,
+          "end": 67.125
+        }
+      ],
+      "band": "Reversal is modest here.",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "played-92.669",
+      "expectedTime": 92.869,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 92.881728,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Now give the work an organization.",
+          "start": 92.669,
+          "end": 94.341
+        }
+      ],
+      "band": "Now give the work an organization.",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "played-127.108",
+      "expectedTime": 127.308,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 127.325059,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "played-153.479",
+      "expectedTime": 153.679,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 153.686323,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Pause.",
+          "start": 153.479,
+          "end": 153.948
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "played-160.078",
+      "expectedTime": 160.278,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 160.291999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Draft the seven-field PRD in under a page.",
+          "start": 160.078,
+          "end": 162.83
+        }
+      ],
+      "band": "Draft the seven-field PRD in under a page.",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "played-188.515",
+      "expectedTime": 188.71499999999997,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 188.722839,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "played-233.515",
+      "expectedTime": 233.71499999999997,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.73159,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "Save revision seven as a draft.",
+          "start": 233.648,
+          "end": 235.931
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "played-233.648",
+      "expectedTime": 233.84799999999998,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.860451,
+      "mode": "showing",
+      "cues": [
+        {
+          "text": "Save revision seven as a draft.",
+          "start": 233.648,
+          "end": 235.931
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 1280,
+      "label": "replay-seek",
+      "expectedTime": 65.6,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 65.599999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Reversal is modest here.",
+          "start": 65.494,
+          "end": 67.125
+        }
+      ],
+      "band": "Reversal is modest here.",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "mobileControls": false,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-start",
+      "expectedTime": 0.4,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 0.4,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Morgan receives a polished Session",
+          "start": 0,
+          "end": 1.87
+        }
+      ],
+      "band": "Morgan receives a polished Session",
+      "bandCount": 1,
+      "bandTop": 1124.125,
+      "videoBottom": 1058.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter",
+      "expectedTime": 8.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 1124.125,
+      "videoBottom": 1058.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-S-on",
+      "expectedTime": 8.2,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-S-off",
+      "expectedTime": 8.2,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-S-restored",
+      "expectedTime": 8.2,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-M-on",
+      "expectedTime": 8.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-M-off",
+      "expectedTime": 8.2,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-M-restored",
+      "expectedTime": 8.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-L-on",
+      "expectedTime": 8.2,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-L-off",
+      "expectedTime": 8.2,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-presenter-L-restored",
+      "expectedTime": 8.2,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 8.199999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The source said ‘available for review.’",
+          "start": 7.3,
+          "end": 9.27
+        }
+      ],
+      "band": "The source said ‘available for review.’",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "01-end",
+      "expectedTime": 27.8,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 27.8,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-start",
+      "expectedTime": 28.1,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 28.1,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Eleven turns the request into an\nAgentic PRD Packet.",
+          "start": 27.99,
+          "end": 31.884
+        }
+      ],
+      "band": "Chapter Eleven turns the request into an\nAgentic PRD Packet.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid",
+      "expectedTime": 45,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-S-on",
+      "expectedTime": 45,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-S-off",
+      "expectedTime": 45,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-S-restored",
+      "expectedTime": 45,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-M-on",
+      "expectedTime": 45,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-M-off",
+      "expectedTime": 45,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-M-restored",
+      "expectedTime": 45,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-L-on",
+      "expectedTime": 45,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-L-off",
+      "expectedTime": 45,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-mid-L-restored",
+      "expectedTime": 45,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 45,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+          "start": 41.368,
+          "end": 45.39
+        }
+      ],
+      "band": "The outcome is a comparison Morgan can review,\nnot a session announcement.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "02-end",
+      "expectedTime": 65.3,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 65.3,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-start",
+      "expectedTime": 65.6,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 65.599999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Reversal is modest here.",
+          "start": 65.494,
+          "end": 67.125
+        }
+      ],
+      "band": "Reversal is modest here.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid",
+      "expectedTime": 79.082,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-S-on",
+      "expectedTime": 79.082,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-S-off",
+      "expectedTime": 79.082,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-S-restored",
+      "expectedTime": 79.082,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-M-on",
+      "expectedTime": 79.082,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-M-off",
+      "expectedTime": 79.082,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-M-restored",
+      "expectedTime": 79.082,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-L-on",
+      "expectedTime": 79.082,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-L-off",
+      "expectedTime": 79.082,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-mid-L-restored",
+      "expectedTime": 79.082,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 79.082,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+          "start": 73.961,
+          "end": 81.609
+        }
+      ],
+      "band": "A test result belongs beside the draft as\nevidence: source IDs checked, staffing wording\nchecked, review gate present.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "03-end",
+      "expectedTime": 92.5,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 92.5,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-start",
+      "expectedTime": 92.8,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 92.8,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Now give the work an organization.",
+          "start": 92.669,
+          "end": 94.341
+        }
+      ],
+      "band": "Now give the work an organization.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid",
+      "expectedTime": 109,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-S-on",
+      "expectedTime": 109,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-S-off",
+      "expectedTime": 109,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-S-restored",
+      "expectedTime": 109,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-M-on",
+      "expectedTime": 109,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-M-off",
+      "expectedTime": 109,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-M-restored",
+      "expectedTime": 109,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-L-on",
+      "expectedTime": 109,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-L-off",
+      "expectedTime": 109,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-mid-L-restored",
+      "expectedTime": 109,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 109,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+          "start": 107.721,
+          "end": 114.121
+        }
+      ],
+      "band": "Chapter Twelve's Pod Model asks for a charter,\nlead, specialists, board, standup, and handoff.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "04-end",
+      "expectedTime": 126.9,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 126.9,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-start",
+      "expectedTime": 127.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 127.2,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid",
+      "expectedTime": 140.3,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-S-on",
+      "expectedTime": 140.3,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-S-off",
+      "expectedTime": 140.3,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-S-restored",
+      "expectedTime": 140.3,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-M-on",
+      "expectedTime": 140.3,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-M-off",
+      "expectedTime": 140.3,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-M-restored",
+      "expectedTime": 140.3,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-L-on",
+      "expectedTime": 140.3,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-L-off",
+      "expectedTime": 140.3,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 257.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-mid-L-restored",
+      "expectedTime": 140.3,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 140.3,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 323.125,
+      "videoBottom": 257.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "05-end",
+      "expectedTime": 153.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 153.2,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Write that ownership into the handoff now.",
+          "start": 150.962,
+          "end": 153.202
+        }
+      ],
+      "band": "Write that ownership into the handoff now.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-start",
+      "expectedTime": 153.55,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 153.55,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Pause.",
+          "start": 153.479,
+          "end": 153.948
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-S-on",
+      "expectedTime": 156.779,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-S-off",
+      "expectedTime": 156.779,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-S-restored",
+      "expectedTime": 156.779,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-M-on",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-M-off",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-M-restored",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-L-on",
+      "expectedTime": 156.779,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-L-off",
+      "expectedTime": 156.779,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-mid-L-restored",
+      "expectedTime": 156.779,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 156.779,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "06-end",
+      "expectedTime": 159.9,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 159.9,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-start",
+      "expectedTime": 160.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 160.2,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Draft the seven-field PRD in under a page.",
+          "start": 160.078,
+          "end": 162.83
+        }
+      ],
+      "band": "Draft the seven-field PRD in under a page.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields",
+      "expectedTime": 175,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-S-on",
+      "expectedTime": 175,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-S-off",
+      "expectedTime": 175,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-S-restored",
+      "expectedTime": 175,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-M-on",
+      "expectedTime": 175,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-M-off",
+      "expectedTime": 175,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-M-restored",
+      "expectedTime": 175,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-L-on",
+      "expectedTime": 175,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-L-off",
+      "expectedTime": 175,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-fields-L-restored",
+      "expectedTime": 175,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 175,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+          "start": 168.739,
+          "end": 176.273
+        }
+      ],
+      "band": "Then sketch the Pod Model: charter, lead,\nspecialists, board, standup, handoff, and human\nowner.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-gate-before",
+      "expectedTime": 188.514,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 188.514,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-gate-start",
+      "expectedTime": 188.515,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 188.515,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank",
+      "expectedTime": 196.863,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-S-on",
+      "expectedTime": 196.863,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-S-off",
+      "expectedTime": 196.863,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-S-restored",
+      "expectedTime": 196.863,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-M-on",
+      "expectedTime": 196.863,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-M-off",
+      "expectedTime": 196.863,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-M-restored",
+      "expectedTime": 196.863,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-L-on",
+      "expectedTime": 196.863,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-L-off",
+      "expectedTime": 196.863,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-blank-L-restored",
+      "expectedTime": 196.863,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 196.863,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-gate-end",
+      "expectedTime": 233.515,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.515,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "07-end",
+      "expectedTime": 233.6,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.6,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-start",
+      "expectedTime": 233.8,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.8,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Save revision seven as a draft.",
+          "start": 233.648,
+          "end": 235.931
+        }
+      ],
+      "band": "Save revision seven as a draft.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter",
+      "expectedTime": 242.5,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-S-on",
+      "expectedTime": 242.5,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-S-off",
+      "expectedTime": 242.5,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-S-restored",
+      "expectedTime": 242.5,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-M-on",
+      "expectedTime": 242.5,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-M-off",
+      "expectedTime": 242.5,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-M-restored",
+      "expectedTime": 242.5,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-L-on",
+      "expectedTime": 242.5,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-L-off",
+      "expectedTime": 242.5,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "disabled",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-presenter-L-restored",
+      "expectedTime": 242.5,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 242.5,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "A team becomes useful when a blocked",
+          "start": 242.252,
+          "end": 243.832
+        }
+      ],
+      "band": "A team becomes useful when a blocked",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "08-close",
+      "expectedTime": 246,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 246,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Next we will test that handoff with",
+          "start": 245.492,
+          "end": 246.982
+        }
+      ],
+      "band": "Next we will test that handoff with",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "end-screen",
+      "expectedTime": 248.2,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 248.2,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": true
+    },
+    {
+      "width": 390,
+      "label": "played-27.99",
+      "expectedTime": 28.189999999999998,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 28.202831,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Chapter Eleven turns the request into an\nAgentic PRD Packet.",
+          "start": 27.99,
+          "end": 31.884
+        }
+      ],
+      "band": "Chapter Eleven turns the request into an\nAgentic PRD Packet.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "played-65.494",
+      "expectedTime": 65.694,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 65.70428,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Reversal is modest here.",
+          "start": 65.494,
+          "end": 67.125
+        }
+      ],
+      "band": "Reversal is modest here.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "played-92.669",
+      "expectedTime": 92.869,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 92.886292,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Now give the work an organization.",
+          "start": 92.669,
+          "end": 94.341
+        }
+      ],
+      "band": "Now give the work an organization.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "played-127.108",
+      "expectedTime": 127.308,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 127.313939,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "played-153.479",
+      "expectedTime": 153.679,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 153.68612,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Pause.",
+          "start": 153.479,
+          "end": 153.948
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "played-160.078",
+      "expectedTime": 160.278,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 160.280624,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Draft the seven-field PRD in under a page.",
+          "start": 160.078,
+          "end": 162.83
+        }
+      ],
+      "band": "Draft the seven-field PRD in under a page.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "played-188.515",
+      "expectedTime": 188.71499999999997,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 188.724041,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 254.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": true,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "played-233.515",
+      "expectedTime": 233.71499999999997,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.720168,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Save revision seven as a draft.",
+          "start": 233.648,
+          "end": 235.931
+        }
+      ],
+      "band": "Save revision seven as a draft.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "played-233.648",
+      "expectedTime": 233.84799999999998,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 233.85519,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Save revision seven as a draft.",
+          "start": 233.648,
+          "end": 235.931
+        }
+      ],
+      "band": "Save revision seven as a draft.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    },
+    {
+      "width": 390,
+      "label": "replay-seek",
+      "expectedTime": 65.6,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=602d43d21-7bb6267c9f-b11360d1dc-3ca22b8816",
+      "time": 65.599999,
+      "mode": "hidden",
+      "cues": [
+        {
+          "text": "Reversal is modest here.",
+          "start": 65.494,
+          "end": 67.125
+        }
+      ],
+      "band": "Reversal is modest here.",
+      "bandCount": 1,
+      "bandTop": 320.125,
+      "videoBottom": 254.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "mobileControls": true,
+      "detail": false,
+      "end": false
+    }
+  ]
+}

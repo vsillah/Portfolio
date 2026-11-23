@@ -1,0 +1,5 @@
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/overview-wide.png'
+duration 1.600
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval.png'
+duration 27.400
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval.png'

@@ -1,0 +1,58 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L07-05",
+  "approvedPlateSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+  "method": "intact approved plate in overview and Route focus, source-faithful enlarged Route words/gate, plus separate Handoff to Morgan teaching cue; no source crop or SVG art",
+  "frameworkOrderBottomToTop": [
+    "Prepare",
+    "Recommend",
+    "Route",
+    "Stage",
+    "Execute"
+  ],
+  "gateByRung": {
+    "Recommend": "Rollback path required",
+    "Route": "Human gate required",
+    "Stage": "Source check required",
+    "Execute": "Receipt required"
+  },
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-overview.png",
+      "sha256": "02302d9b89f4be8ec905e18b090f937516cfdf007133c0aea16eb2b04a7e70ff",
+      "sourceFramePath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png",
+      "sourceFrameSha256": "02302d9b89f4be8ec905e18b090f937516cfdf007133c0aea16eb2b04a7e70ff",
+      "fullPlatePx": [
+        92,
+        91,
+        562,
+        880
+      ],
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-overview-mobile-preview.png",
+      "mobilePreviewSha256": "9d50c8179f889e567c8ea01d71ae0b836e6143b49ec8edefbb3f762575018b4e",
+      "handoffBoxPx": null
+    },
+    {
+      "kind": "route-focus",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-route-focus.png",
+      "sha256": "47af44514ff526ca3e980297a0e56dd50f67acc340f00a25f7f4b1e2aab25006",
+      "sourceFramePath": "agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-03-route.png",
+      "sourceFrameSha256": "c4273af0ca616a606cc8deb0c8f7379855e5f408bb8222f50c283b4cbfce1e11",
+      "fullPlatePx": [
+        170,
+        284,
+        345,
+        540
+      ],
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l07-05-route-study/l07-05-route-focus-mobile-preview.png",
+      "mobilePreviewSha256": "a26c42d2a515584996c4c79781bd6bee243069ce9b265bac298be6fa824c5993",
+      "handoffBoxPx": [
+        83,
+        39,
+        1837,
+        127
+      ]
+    }
+  ]
+}

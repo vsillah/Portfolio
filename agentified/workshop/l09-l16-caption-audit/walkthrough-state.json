@@ -1,0 +1,185 @@
+{
+  "generatedAt": "2026-11-20T21:42:32.120Z",
+  "states": [
+    {
+      "width": 1280,
+      "lesson": "L09",
+      "time": 1.5,
+      "name": "Small",
+      "cue": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "trackMode": "hidden",
+      "bandText": "Harbor Learning Circle has three neat classroom briefs on a table."
+    },
+    {
+      "width": 1280,
+      "lesson": "L09",
+      "time": 1.5,
+      "name": "Medium",
+      "cue": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "trackMode": "hidden",
+      "bandText": "Harbor Learning Circle has three neat classroom briefs on a table."
+    },
+    {
+      "width": 1280,
+      "lesson": "L09",
+      "time": 1.5,
+      "name": "Large",
+      "cue": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "trackMode": "hidden",
+      "bandText": "Harbor Learning Circle has three neat classroom briefs on a table."
+    },
+    {
+      "width": 1280,
+      "lesson": "L10",
+      "time": 35.2,
+      "name": "Medium",
+      "cue": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval.",
+      "trackMode": "hidden",
+      "bandText": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval."
+    },
+    {
+      "width": 1280,
+      "lesson": "L11",
+      "time": 63.16,
+      "name": "Medium",
+      "cue": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed.",
+      "trackMode": "hidden",
+      "bandText": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed."
+    },
+    {
+      "width": 1280,
+      "lesson": "L12",
+      "time": 67.86,
+      "name": "Medium",
+      "cue": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes.",
+      "trackMode": "hidden",
+      "bandText": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes."
+    },
+    {
+      "width": 1280,
+      "lesson": "L13",
+      "time": 58.087,
+      "name": "Medium",
+      "cue": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate.",
+      "trackMode": "hidden",
+      "bandText": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate."
+    },
+    {
+      "width": 1280,
+      "lesson": "L14",
+      "time": 1.5,
+      "name": "Medium",
+      "cue": "A Harbor board reviewer asks Morgan a",
+      "trackMode": "hidden",
+      "bandText": "A Harbor board reviewer asks Morgan a"
+    },
+    {
+      "width": 1280,
+      "lesson": "L15",
+      "time": 30.282,
+      "name": "Medium",
+      "cue": "The Six-Beat Day begins with a brief.",
+      "trackMode": "hidden",
+      "bandText": "The Six-Beat Day begins with a brief."
+    },
+    {
+      "width": 1280,
+      "lesson": "L16",
+      "time": 35.712,
+      "name": "Medium",
+      "cue": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review.",
+      "trackMode": "hidden",
+      "bandText": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review."
+    },
+    {
+      "width": 390,
+      "lesson": "L09",
+      "time": 1.5,
+      "name": "Small",
+      "cue": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "trackMode": "hidden",
+      "bandText": "Harbor Learning Circle has three neat classroom briefs on a table."
+    },
+    {
+      "width": 390,
+      "lesson": "L09",
+      "time": 1.5,
+      "name": "Medium",
+      "cue": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "trackMode": "hidden",
+      "bandText": "Harbor Learning Circle has three neat classroom briefs on a table."
+    },
+    {
+      "width": 390,
+      "lesson": "L09",
+      "time": 1.5,
+      "name": "Large",
+      "cue": "Harbor Learning Circle has three neat classroom briefs on a table.",
+      "trackMode": "hidden",
+      "bandText": "Harbor Learning Circle has three neat classroom briefs on a table."
+    },
+    {
+      "width": 390,
+      "lesson": "L10",
+      "time": 35.2,
+      "name": "Medium",
+      "cue": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval.",
+      "trackMode": "hidden",
+      "bandText": "Chapter Seventeen's Spend Envelope names amount, counterparty, purpose, execution window, retry limit, trace, and approval."
+    },
+    {
+      "width": 390,
+      "lesson": "L11",
+      "time": 63.16,
+      "name": "Medium",
+      "cue": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed.",
+      "trackMode": "hidden",
+      "bandText": "Use the chapter's four-part morning loop: scan the exceptions, sort by owner, signal the useful change, then step in where judgment is needed."
+    },
+    {
+      "width": 390,
+      "lesson": "L12",
+      "time": 67.86,
+      "name": "Medium",
+      "cue": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes.",
+      "trackMode": "hidden",
+      "bandText": "The workbook calls for capability boundaries, scoped trace references, approval decisions, cost authority summary, export metadata, and reviewer notes."
+    },
+    {
+      "width": 390,
+      "lesson": "L13",
+      "time": 58.087,
+      "name": "Medium",
+      "cue": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate.",
+      "trackMode": "hidden",
+      "bandText": "The workbook's AutoResearch Proposal asks for the baseline, experiment configuration, expected impact, touched settings, metric gate, risk, rollback, approval question, and next gate."
+    },
+    {
+      "width": 390,
+      "lesson": "L14",
+      "time": 1.5,
+      "name": "Medium",
+      "cue": "A Harbor board reviewer asks Morgan a",
+      "trackMode": "hidden",
+      "bandText": "A Harbor board reviewer asks Morgan a"
+    },
+    {
+      "width": 390,
+      "lesson": "L15",
+      "time": 30.282,
+      "name": "Medium",
+      "cue": "The Six-Beat Day begins with a brief.",
+      "trackMode": "hidden",
+      "bandText": "The Six-Beat Day begins with a brief."
+    },
+    {
+      "width": 390,
+      "lesson": "L16",
+      "time": 35.712,
+      "name": "Medium",
+      "cue": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review.",
+      "trackMode": "hidden",
+      "bandText": "Chapter Twenty-Six names five operating questions: route, log, gate, memory, review."
+    }
+  ]
+}

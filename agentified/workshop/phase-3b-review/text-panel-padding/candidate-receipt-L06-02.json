@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L06-02"
+  ],
+  "frames": [
+    {
+      "scene_id": "L06-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-02.png",
+      "frame_sha256": "537789f44df0fb3d8db456332eaaed132436fcc6137070855d59ae9fbc32aa2d",
+      "visual_family": "L06-operating-artifact:boundary:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name the role boundary.",
+        "Prepare only",
+        "Execution closed"
+      ],
+      "accessibility_text": "Scope, ceiling, and expiry shape permission. Visual: Permission slip beside a closed key.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Scope, ceiling, and expiry shape permission.",
+      "brief_sha256": "31a0e2a4f26f8019f07b85f4748f30a76c52d145a81203225f54582e5d16d182",
+      "original_frame_sha256": "100b52343e4dd8d2b158b0fff1406b2a95ad42dc119b301e7213947462febe1b",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 42,
+            "y": 700,
+            "width": 1560,
+            "height": 265
+          },
+          "box": {
+            "x": 42,
+            "y": 700,
+            "width": 839,
+            "height": 120
+          },
+          "glyph": {
+            "x": 100,
+            "y": 761,
+            "width": 783,
+            "height": 64
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 296,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 296,
+            "width": 319,
+            "height": 98
+          },
+          "glyph": {
+            "x": 971,
+            "y": 328,
+            "width": 263,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 940,
+            "y": 436,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 940,
+            "y": 436,
+            "width": 413,
+            "height": 89
+          },
+          "glyph": {
+            "x": 971,
+            "y": 468,
+            "width": 357,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

@@ -1,0 +1,1672 @@
+{
+  "generatedAt": "2026-11-22T01:32:39.195Z",
+  "captionHead": "96800788740341ae30a9c62b3c15c7ed23c5912e",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "binding": {
+    "video": "/agentified/lessons/l07/illustrated-42782f17/agentified-l07-illustrated-composite.mp4",
+    "compositeSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+    "sourceVideo": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-composite.mp4",
+    "sourceSha256": "869a0ff48d513535d6734260fe0a7719b643549f568a390e3908a9f1342f2951",
+    "captions": "/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+    "captionsSha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21",
+    "transcriptSha256": "417fa294df5b969317bcb9885b5984fd5aa50fff23c34e32586aee60dac93750",
+    "durationSeconds": 251.332
+  },
+  "states": [
+    {
+      "width": 1280,
+      "label": "before",
+      "expectedTime": 127.107,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 127.107,
+      "mode": "showing",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 977.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "scene-start",
+      "expectedTime": 127.108,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 127.108,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 985.84375,
+      "videoBottom": 977.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "collision",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 985.84375,
+      "videoBottom": 977.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "collision-S-on",
+      "expectedTime": 128,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "collision-S-off",
+      "expectedTime": 128,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 0
+    },
+    {
+      "width": 1280,
+      "label": "collision-S-restored",
+      "expectedTime": 128,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "collision-M-on",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "collision-M-off",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 0
+    },
+    {
+      "width": 1280,
+      "label": "collision-M-restored",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "collision-L-on",
+      "expectedTime": 128,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "collision-L-off",
+      "expectedTime": 128,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 0
+    },
+    {
+      "width": 1280,
+      "label": "collision-L-restored",
+      "expectedTime": 128,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "midpoint",
+      "expectedTime": 140.293,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-S-on",
+      "expectedTime": 140.293,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-S-off",
+      "expectedTime": 140.293,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 0
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-S-restored",
+      "expectedTime": 140.293,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "14px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-M-on",
+      "expectedTime": 140.293,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-M-off",
+      "expectedTime": 140.293,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 0
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-M-restored",
+      "expectedTime": 140.293,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-L-on",
+      "expectedTime": 140.293,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-L-off",
+      "expectedTime": 140.293,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 466.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 0
+    },
+    {
+      "width": 1280,
+      "label": "midpoint-L-restored",
+      "expectedTime": 140.293,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "24px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "scene-end-minus",
+      "expectedTime": 153.478,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 153.478,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "adjacent-start",
+      "expectedTime": 153.479,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 153.479,
+      "mode": "showing",
+      "active": [
+        {
+          "text": "Pause.",
+          "line": 52,
+          "start": 153.479,
+          "end": 153.948
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "adjacent-mid",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 156.779,
+      "mode": "showing",
+      "active": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "line": 52,
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "played-through-127.108",
+      "expectedTime": 127.308,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 127.320528,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 373.84375,
+      "videoBottom": 365.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "played-through-153.479",
+      "expectedTime": 153.679,
+      "size": "M",
+      "enabled": true,
+      "external": false,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 153.687018,
+      "mode": "showing",
+      "active": [
+        {
+          "text": "Pause.",
+          "line": 52,
+          "start": 153.479,
+          "end": 153.948
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 431.84375,
+      "font": null,
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 1280,
+      "label": "dark-theme",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 439.84375,
+      "videoBottom": 431.84375,
+      "font": "18px",
+      "geometry": [
+        621,
+        349
+      ],
+      "controls": true,
+      "rail": false,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "before",
+      "expectedTime": 127.107,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 127.107,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 1058.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "scene-start",
+      "expectedTime": 127.108,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 127.108,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 1124.125,
+      "videoBottom": 1058.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "collision",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 1124.125,
+      "videoBottom": 1058.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "collision-S-on",
+      "expectedTime": 128,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": -15.875,
+      "videoBottom": -81.875,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "collision-S-off",
+      "expectedTime": 128,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 0
+    },
+    {
+      "width": 390,
+      "label": "collision-S-restored",
+      "expectedTime": 128,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "collision-M-on",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "collision-M-off",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 0
+    },
+    {
+      "width": 390,
+      "label": "collision-M-restored",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "collision-L-on",
+      "expectedTime": 128,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "collision-L-off",
+      "expectedTime": 128,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 0
+    },
+    {
+      "width": 390,
+      "label": "collision-L-restored",
+      "expectedTime": 128,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "midpoint",
+      "expectedTime": 140.293,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "midpoint-S-on",
+      "expectedTime": 140.293,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "midpoint-S-off",
+      "expectedTime": 140.293,
+      "size": "S",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 0
+    },
+    {
+      "width": 390,
+      "label": "midpoint-S-restored",
+      "expectedTime": 140.293,
+      "size": "S",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "14px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "midpoint-M-on",
+      "expectedTime": 140.293,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "midpoint-M-off",
+      "expectedTime": 140.293,
+      "size": "M",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 0
+    },
+    {
+      "width": 390,
+      "label": "midpoint-M-restored",
+      "expectedTime": 140.293,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "midpoint-L-on",
+      "expectedTime": 140.293,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "midpoint-L-off",
+      "expectedTime": 140.293,
+      "size": "L",
+      "enabled": false,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "disabled",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 0
+    },
+    {
+      "width": 390,
+      "label": "midpoint-L-restored",
+      "expectedTime": 140.293,
+      "size": "L",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 140.293,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+          "line": "auto",
+          "start": 139.887,
+          "end": 143.897
+        }
+      ],
+      "band": "The coordinator may route a blocked packet to\nMorgan, not override the block.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "24px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "scene-end-minus",
+      "expectedTime": 153.478,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 153.478,
+      "mode": "hidden",
+      "active": [],
+      "band": null,
+      "bandCount": 0,
+      "bandTop": null,
+      "videoBottom": 164.125,
+      "font": null,
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "adjacent-start",
+      "expectedTime": 153.479,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 153.479,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "Pause.",
+          "line": "auto",
+          "start": 153.479,
+          "end": 153.948
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "adjacent-mid",
+      "expectedTime": 156.779,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 156.779,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+          "line": "auto",
+          "start": 154.162,
+          "end": 157.895
+        }
+      ],
+      "band": "Who would receive the brief if the facilitator\nnote stays unconfirmed?",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "played-through-127.108",
+      "expectedTime": 127.308,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 127.316853,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "played-through-153.479",
+      "expectedTime": 153.679,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 153.686438,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "Pause.",
+          "line": "auto",
+          "start": 153.479,
+          "end": 153.948
+        }
+      ],
+      "band": "Pause.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "mobile-controls-restored",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    },
+    {
+      "width": 390,
+      "label": "dark-theme",
+      "expectedTime": 128,
+      "size": "M",
+      "enabled": true,
+      "external": true,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L07&rev=96800788740341ae30a9c62b3c15c7ed23c5912e-7bb6267c9f",
+      "time": 128,
+      "mode": "hidden",
+      "active": [
+        {
+          "text": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+          "line": "auto",
+          "start": 127.108,
+          "end": 131.29
+        }
+      ],
+      "band": "The charter is narrow: prepare one\nevidence-bound option brief for Morgan.",
+      "bandCount": 1,
+      "bandTop": 230.125,
+      "videoBottom": 164.125,
+      "font": "18px",
+      "geometry": [
+        292,
+        164
+      ],
+      "controls": false,
+      "rail": true,
+      "sizeGroup": 1
+    }
+  ]
+}

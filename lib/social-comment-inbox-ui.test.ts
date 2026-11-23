@@ -48,8 +48,6 @@ function item(overrides: Partial<SocialCommentInboxItem> = {}): SocialCommentInb
     submittedReplyLocked: false,
     submittedReplyLockReason: null,
     approvalState: 'not_started',
-    submittedReplyLocked: false,
-    submittedReplyLockReason: null,
     providerCapability: {
       provider: 'linkedin_organization',
       automaticReply: false,

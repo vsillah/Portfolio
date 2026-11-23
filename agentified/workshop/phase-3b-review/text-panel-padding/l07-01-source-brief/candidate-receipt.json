@@ -1,0 +1,123 @@
+{
+  "status": "review_only_unbound",
+  "baseCommit": "a07b0a62a4226176a2276a613da4da8863ce5d8f",
+  "prior": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-caption-free-presenter/L07-caption-free-closing-candidate.mp4",
+    "sha256": "0c07d394a842513b57a9d873dd618974d11effaa8e6696b5a534e179a63c68b4"
+  },
+  "cleanPresenter": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-caption-free-presenter/Agentified_L07_f35b6f52-caption-free-source.mp4",
+    "sha256": "795252b7c7a13a6905f5b828b458d39a55bdfc02e27e69d7a72a50bb847f9c8b",
+    "retainedProjectId": "c3cc7090dde04b9483d9f4d4de6b852b"
+  },
+  "vtt": {
+    "path": "public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+    "sha256": "984fa64e556279730d30a602b3ce160620822ef0577a7ff6cf7de7028e3f8f21"
+  },
+  "script": {
+    "path": "agentified/workshop/scripts/L07-prd-and-pod.md",
+    "sha256": "9c59a8a5108133077c75b0b9dfaa401080ea4513e58869e5e30b657b3c827952"
+  },
+  "packet": {
+    "path": "agentified/workshop/scene-production/packets/L07.json",
+    "sha256": "fefbdc1e3cf386b7220284ace5ac8c818030f2c8e8b8c94db9c3f7a83e8dcf87"
+  },
+  "sourceMap": {
+    "path": "docs/agentified-distribution-readiness/phase-3b/source-map-v1.json",
+    "sha256": "6316aa15a232e99019f938ccbaae397e5314f5d4035a626346caad5f6b8aebad"
+  },
+  "backdrop": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-08-caption-free-presenter/studio-backdrop.png",
+    "sha256": "850c7f829f6c81788d6a88a36038e998ca1fab505651b51ff942b23ea04bc010"
+  },
+  "rasterField": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-source-brief/studio-field.png",
+    "sha256": "4912f83a4019a34215ffbfe87994c3825620e6de124e3e0325b34ea8835efa9c"
+  },
+  "states": [
+    {
+      "start": 0,
+      "end": 2.8,
+      "file": "brief-presenter-0.png",
+      "meaning": "brief received",
+      "sha256": "b2db4069b6e23b5ae4d54566d15ebf3ac44050525918d7cdc25970b36281697f"
+    },
+    {
+      "start": 2.8,
+      "end": 4.47,
+      "file": "brief-presenter-1.png",
+      "meaning": "three source notes compared",
+      "sha256": "98bcf3cccbae14a7ef14943c5fec1b287eb61b448ae52071cf3b5d350bdfc55f"
+    },
+    {
+      "start": 4.47,
+      "end": 5.93,
+      "file": "brief-presenter-2.png",
+      "meaning": "incorrect confirmed claim shown",
+      "sha256": "d461a18fdf66d1ad9377101807a5f232f5dd6ec018c37ab392824c05bf4948cf"
+    },
+    {
+      "start": 5.93,
+      "end": 7.3,
+      "file": "brief-presenter-3.png",
+      "meaning": "incorrect claim marked wrong",
+      "sha256": "d40f8796260c3dae710891fd87903087da1ed2c07873bc0f0336c701cdebdab0"
+    },
+    {
+      "start": 7.3,
+      "end": 9.37,
+      "file": "brief-presenter-4.png",
+      "meaning": "actual source wording shown",
+      "sha256": "f457333043efe3b0b245c9f1da7195fdb652603caff157a7f3d302860de73fb0"
+    },
+    {
+      "start": 9.37,
+      "end": 15.423,
+      "file": "brief-expanded-4.png",
+      "meaning": "brief remains populated after presenter exit",
+      "sha256": "7dd6a53014185163392ff3dfa5dd9d4c6bcc4399a73a4402516d10f63cc0cffc"
+    },
+    {
+      "start": 15.423,
+      "end": 18.409,
+      "file": "brief-expanded-5.png",
+      "meaning": "wrong staffing claim summary",
+      "sha256": "f171c5f88da41cc94570cf4a97e70b67822a30178a1a4b3018387c75978e1891"
+    },
+    {
+      "start": 18.409,
+      "end": 27.99,
+      "file": "brief-expanded-6.png",
+      "meaning": "source-defined requirement question",
+      "sha256": "0ed91adedff96bbe1e386cb22c278de4b39ce0f54f1e3d43a88e3df387451e2e"
+    }
+  ],
+  "candidate": {
+    "path": "agentified/workshop/phase-3b-review/text-panel-padding/l07-01-source-brief/L07-01-source-brief-candidate.mp4",
+    "sha256": "b9016102fc8272f1c51f1fcee9b5f0aafe5c8928988beaf970645e337446a5b4",
+    "durationSeconds": 251.332,
+    "frames": 6283
+  },
+  "protectedPresenter": {
+    "start": 0,
+    "end": 9.37,
+    "panelRect": [
+      1048,
+      326,
+      768,
+      432
+    ],
+    "sourceCropRect": [
+      1038,
+      316,
+      788,
+      452
+    ]
+  },
+  "mediaStreams": [
+    "video",
+    "prior audio copy",
+    "prior embedded subtitles copy"
+  ],
+  "binding": "none"
+}

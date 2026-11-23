@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L11-04"
+  ],
+  "frames": [
+    {
+      "scene_id": "L11-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L11-04.png",
+      "frame_sha256": "309c38a28e42c81e2f71e5925c72ee85d0292a6a6c898ee6f722e9c0d9df992c",
+      "visual_family": "L11-operating-artifact:compare:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Match the signal to the stakes.",
+        "Status",
+        "Escalate"
+      ],
+      "accessibility_text": "A status note differs from an external escalation. Visual: Three instruments with escalating color and review.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A status note differs from an external escalation.",
+      "brief_sha256": "6280421f6106225d49bf42e764e17b9da74f62faa5b5fa928d2e12b79b938dbb",
+      "original_frame_sha256": "a62bc86c8e80eaa8bb63c5206199fc9f4747bb66d22ec959264b59e0b3b263bc",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 976,
+            "height": 116
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 920,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 188,
+            "height": 89
+          },
+          "glyph": {
+            "x": 139,
+            "y": 878,
+            "width": 132,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 230,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1121,
+            "y": 878,
+            "width": 174,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

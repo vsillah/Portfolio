@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L10-04"
+  ],
+  "frames": [
+    {
+      "scene_id": "L10-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L10-04.png",
+      "frame_sha256": "398e2542e9564a8b981b99b3bbb5190f2eda1e114fa094b82af2e4b751652139",
+      "visual_family": "L10-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Offer options before a decision.",
+        "Options",
+        "Reversibility"
+      ],
+      "accessibility_text": "The brief shows choices and reversibility. Visual: Recommendation sheet beside the sealed envelope.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The brief shows choices and reversibility.",
+      "brief_sha256": "43bead4c697305b14f19902cf81ce07c338d2e44d68b8a1d9556c1b1212ca5a9",
+      "original_frame_sha256": "18e834ac04298042dd20d7c3cb68e04994667fc87c51c03e6cfa35a4fcb5780b",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1014,
+            "height": 116
+          },
+          "glyph": {
+            "x": 94,
+            "y": 79,
+            "width": 958,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 220,
+            "height": 97
+          },
+          "glyph": {
+            "x": 139,
+            "y": 878,
+            "width": 164,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 314,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1121,
+            "y": 878,
+            "width": 258,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

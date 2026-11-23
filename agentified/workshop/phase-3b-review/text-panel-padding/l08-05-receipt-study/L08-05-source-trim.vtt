@@ -1,0 +1,31 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:01.366
+Use three Harbor cases.
+
+00:00:01.622 --> 00:00:10.892
+Case A: all notes current, facilitator
+unconfirmed, draft says unconfirmed; pass the
+source and wording checks, then wait for
+Morgan.
+
+00:00:11.203 --> 00:00:17.069
+Case B: facilitator note stale; fail the
+freshness check and hold before drafting.
+
+00:00:17.347 --> 00:00:24.052
+Case C: notes current, but the draft claims a
+teacher is confirmed; fail the wording check
+and return it.
+
+00:00:24.315 --> 00:00:28.369
+Three cases are a classroom starting set, not
+proof of reliability.
+
+00:00:28.625 --> 00:00:35.515
+If Morgan's review disagrees with a later
+automated judge, investigate the judge and
+rubric before changing any permission.
+
+00:00:35.793 --> 00:00:35.793
+Pause.

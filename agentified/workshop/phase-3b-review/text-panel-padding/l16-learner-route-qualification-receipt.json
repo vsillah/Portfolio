@@ -1,0 +1,33 @@
+{
+  "status": "targeted_L16_learner_route_review_passed_unbound",
+  "reviewBranch": "codex/agentified-phase3b-provider-free-normalization",
+  "reviewHeadBeforeReceipt": "008e2ea28490c9a04b70228818feaa2c52f50917",
+  "temporaryStackHeads": {
+    "captionSafety": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+    "player": "7bb6267c9fb98172679e161aafa208dfc7a276c3"
+  },
+  "timingReceipt": "agentified/workshop/phase-3b-review/text-panel-padding/l16-scene-exact-timing-receipt.json",
+  "method": "A temporary isolated learner-route app loaded scene-exact 25 fps desktop and mobile full-lesson composites. Original source audio, VTT, native presenter windows, and protected countdown windows were retained. No product media binding changed.",
+  "media": {
+    "sourceDurationSeconds": 267.309,
+    "renderedFramesPerLayout": 6683,
+    "L16-04FramesPerLayout": 685,
+    "L16-05FramesPerLayout": 718,
+    "decodeCheck": "ffmpeg -v error -f null passed for desktop and mobile composites"
+  },
+  "mobile390x844": {
+    "L16-04": "Complete overview at 1:30; roles, prohibitions, and hold focus states at 1:36, 1:43, 1:50, and 1:56. Captions and source wording stayed below the player.",
+    "L16-05": "Complete overview at 1:58; proof, rollback, revoke, and staffing focus states at 2:01, 2:05, 2:12, and 2:20. L16-06 appeared at 2:26.",
+    "protectedWindows": "Native countdown observed at 3:40 and closing presenter at 4:20."
+  },
+  "desktop1280x720": {
+    "L16-04": "Audit focus observed at 1:42 with matching prohibition narration and caption.",
+    "L16-05": "Audit focus observed at 2:17 with matching staffing-gate narration and caption.",
+    "captionGapPx": 8
+  },
+  "limits": [
+    "This qualifies the L16 timing reconciliation and targeted learner-route states. It is not a complete scene-by-scene L07-L16 interaction matrix or a Human QA artifact.",
+    "The temporary composites, app, server, and browser tab were removed after review; authored standalone clips and product bindings remain unbound.",
+    "No merge, deployment, provider activation, spending, publication, or release."
+  ]
+}

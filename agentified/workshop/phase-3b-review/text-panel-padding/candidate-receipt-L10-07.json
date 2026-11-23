@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L10-07"
+  ],
+  "frames": [
+    {
+      "scene_id": "L10-07",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L10-07.png",
+      "frame_sha256": "88e3cb49c886e197054f7645d6d72acf81a027a81844e7fc80e09e31de811ded",
+      "visual_family": "L10-operating-artifact:worksheet:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Build the spend envelope.",
+        "Amount",
+        "Approval"
+      ],
+      "accessibility_text": "The learner records amount and approval. Visual: Spend worksheet over the sealed envelope.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner records amount and approval.",
+      "brief_sha256": "eb4814347a42d1f95f8e62d6b1e168463cf4002f93fcf192a955d71c9fd6c6fc",
+      "original_frame_sha256": "88e3cb49c886e197054f7645d6d72acf81a027a81844e7fc80e09e31de811ded",
+      "padding_decisions": [],
+      "review_only_unbound": true
+    }
+  ]
+}

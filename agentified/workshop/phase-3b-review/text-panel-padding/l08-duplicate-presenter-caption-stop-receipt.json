@@ -1,0 +1,33 @@
+{
+  "recordedAtUtc": "2026-11-22T19:33:25Z",
+  "status": "STOP_at_L08-01_duplicate_presenter_and_lesson_captions",
+  "scope": "Provider-free ordered L08-L16 Phase 3B learner-route qualification after exact L07 Human QA approval",
+  "reviewPr": 1290,
+  "reviewHeadBeforeThisReceipt": "3204db53f",
+  "dependencyHeads": {
+    "pr1292": "3ca22b88162de93182d07eee89fbc062feea129f",
+    "pr1293": "8948462d35c7b3b28d315341046b45bafae25805",
+    "pr1295": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "pr1296": "b11360d1dc0b63a1d9c7ea126aa50dea196fa649"
+  },
+  "preflightCorrection": "The prior stack-conflict stop was superseded by the caption lane's saved temporary Hero/CSS/test resolution. Its focused player, workshop, and end-screen test suite passed 63 tests in the disposable app. No committed product source was changed.",
+  "temporaryFixture": {
+    "route": "http://127.0.0.1:3155/agentified/learningplan?lesson=L08",
+    "browser": "Chrome fallback; integrated in-app Browser absent from inventory",
+    "data": "synthetic guest state",
+    "sourceMedia": "public/agentified/lessons/l08/illustrated-5ea78c36/agentified-l08-illustrated-composite.mp4",
+    "sourceSha256": "5ea78c3647a901be84eddc1647185fcbea7178d79a5588befb467f92d20c93bd",
+    "candidateMedia": "/tmp/phase3b-l08-stack/app/public/agentified/lessons/l08/review-l08-01/L08-first-scene-review.mp4",
+    "candidateSha256": "620701ad4baad37d82bc8e517e2dffddd77c10b5c860490349066c50a0e19705",
+    "candidateMethod": "Only L08-01 [13.525,25.414) received the exact padded still. L08-01 opening presenter [0,13.525) remains the source video; audio, VTT, duration, frame count, and other scenes were preserved. Temporary L08 manifest and end-screen hash only."
+  },
+  "firstObservedFailure": {
+    "scene": "L08-01",
+    "observation": "The playing presenter section visibly contains burned-in speech text while the learner route renders a second English caption band below the video. At approximately 4 seconds, the presenter frame shows 'Room okay.' and the separate lesson band displays the narration. Turning English captions off removes the lower band but leaves the tiny presenter text visible, so the control cannot disable all captions.",
+    "sourceEvidence": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L08-01-embedded-presenter-caption.png",
+    "sourceEvidenceSha256": "a3ece43185fb2b7b85e9b38a4836b5dcb28c5623041af226eab7efe014e462e6",
+    "relatedPriorFinding": "agentified/workshop/phase-3b-review/text-panel-padding/l07-l16-a07-resume-stop-receipt.json recorded the same class at L07-01."
+  },
+  "qualification": "Stopped on the first observed L08 visual regression. L08-01 later states and L08-L16 full matrix remain unqualified in this exact stack. The temporary candidate is not a product binding or Human QA artifact.",
+  "nextGate": "The source-media owner should supply a caption-free native presenter source for L08-01 while preserving the approved native background, framing, audio, timing, and lesson VTT. Rebind by hash and restart ordered L08-L16 learner-route qualification at L08-01. Inspect other presenter windows for the same source-caption defect before calling the matrix complete."
+}

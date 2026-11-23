@@ -1,0 +1,94 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L14-04",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+  "approvedPlateSha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+  "approvedPlatePx": [
+    3000,
+    4700
+  ],
+  "sourceRole": "Route and human gate",
+  "method": "complete approved source plate in both frames; separate narration-grounded teaching cues; no crop or SVG",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l14-04-plate-study/overview-wide.png",
+      "sha256": "3c6b979f2caa5d8b12237d2e89bfac2abf3632e0b94dd80866f593162e9008c5",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l14-04-plate-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "c018a83a134c34c269d2da83804b35c1889dc182a7d40b7ee7cbcf9ab3a6e5d5",
+      "geometry": {
+        "completePlatePx": [
+          720,
+          145,
+          480,
+          752
+        ],
+        "sourceRole": "Route and human gate"
+      }
+    },
+    {
+      "kind": "focus",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l14-04-plate-study/focus.png",
+      "sha256": "174af552ee15a31cbd904c508a569346405b5d24af433826bd66543e07b46e7a",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l14-04-plate-study/focus-mobile-preview.png",
+      "mobilePreviewSha256": "0fe3401426f6eefdaed82d78fde9147b0ca757c9f968d4bd83461cb58838026b",
+      "geometry": {
+        "completePlatePx": [
+          80,
+          173,
+          420,
+          658
+        ],
+        "sourceRole": "Route and human gate",
+        "narrationCards": [
+          {
+            "label": "Owner",
+            "boxPx": [
+              625,
+              322,
+              1790,
+              395
+            ]
+          },
+          {
+            "label": "Scope",
+            "boxPx": [
+              625,
+              421,
+              1790,
+              494
+            ]
+          },
+          {
+            "label": "Source reference",
+            "boxPx": [
+              625,
+              520,
+              1790,
+              593
+            ]
+          },
+          {
+            "label": "Status",
+            "boxPx": [
+              625,
+              619,
+              1790,
+              692
+            ]
+          },
+          {
+            "label": "Review date",
+            "boxPx": [
+              625,
+              718,
+              1790,
+              791
+            ]
+          }
+        ],
+        "narrationClaim": "Draft \u00b7 a person confirms staffing."
+      }
+    }
+  ]
+}

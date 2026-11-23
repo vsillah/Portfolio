@@ -1,0 +1,462 @@
+{
+  "generatedAt": "2026-11-21T12:55:13.067Z",
+  "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+  "states": [
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-07 adjacent boundary",
+      "time": 342,
+      "mode": "showing",
+      "cue": [],
+      "band": null,
+      "endScreen": false,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 Small band",
+      "time": 350,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "endScreen": false,
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 Medium band",
+      "time": 350,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "endScreen": false,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 Large band",
+      "time": 350,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "endScreen": false,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 captions off",
+      "time": 350,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "endScreen": false,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 captions restored",
+      "time": 350,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "endScreen": false,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 cue gap",
+      "time": 356.5,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "endScreen": false,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 final cue before end screen",
+      "time": 359.644,
+      "mode": "hidden",
+      "cue": [
+        "Next we will name the decision Morgan actually owns."
+      ],
+      "band": "Next we will name the decision Morgan actually owns.",
+      "endScreen": false,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 protected end-screen boundary",
+      "time": 359.645,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "endScreen": true,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 1280,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 protected end screen",
+      "time": 360.559,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "endScreen": true,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-07 adjacent boundary",
+      "time": 342,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "endScreen": false,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 Small band",
+      "time": 350,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "endScreen": false,
+      "size": "S",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 Medium band",
+      "time": 350,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "endScreen": false,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 Large band",
+      "time": 350,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "endScreen": false,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 captions off",
+      "time": 350,
+      "mode": "disabled",
+      "cue": [],
+      "band": null,
+      "endScreen": false,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 captions restored",
+      "time": 350,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "endScreen": false,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 cue gap",
+      "time": 356.5,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "endScreen": false,
+      "size": "L",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 final cue before end screen",
+      "time": 359.644,
+      "mode": "hidden",
+      "cue": [
+        "Next we will name the decision Morgan actually owns."
+      ],
+      "band": "Next we will name the decision Morgan actually owns.",
+      "endScreen": false,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 protected end-screen boundary",
+      "time": 359.645,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "endScreen": true,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "learner",
+      "width": 390,
+      "route": "http://127.0.0.1:3137/agentified/learningplan?lesson=L01&rev=d49c07676741d2c6ee7b89720976203ce1227470",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "step": "L01-08 protected end screen",
+      "time": 360.559,
+      "mode": "hidden",
+      "cue": [],
+      "band": null,
+      "endScreen": true,
+      "size": "M",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=desktop&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "Small band",
+      "time": 2.803216,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=desktop&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "Medium band",
+      "time": 2.803216,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=desktop&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "Large band",
+      "time": 2.803216,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=desktop&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "captions off",
+      "time": 2.803216,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "desktop",
+      "width": 1280,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=desktop&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "captions restored",
+      "time": 2.803216,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=mobile&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "Small band",
+      "time": 2.804011,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=mobile&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "Medium band",
+      "time": 2.804011,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=mobile&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "Large band",
+      "time": 2.804011,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=mobile&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "captions off",
+      "time": 2.804011,
+      "mode": "disabled",
+      "cue": [],
+      "band": "",
+      "controls": true
+    },
+    {
+      "surface": "fixed-candidate",
+      "layout": "mobile",
+      "width": 390,
+      "route": "http://127.0.0.1:8767/agentified/workshop/l01-08-caption-clearance-review/candidate/review.html?layout=mobile&revision=55ebd09c",
+      "codeCommit": "d49c07676741d2c6ee7b89720976203ce1227470",
+      "candidateCommit": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+      "step": "captions restored",
+      "time": 2.804011,
+      "mode": "hidden",
+      "cue": [
+        "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper."
+      ],
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "controls": true
+    }
+  ]
+}

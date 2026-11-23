@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L06-04"
+  ],
+  "frames": [
+    {
+      "scene_id": "L06-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L06-04.png",
+      "frame_sha256": "a9300061d14e8842f5b30d977ca0817deec268358a4643582b8822a7f9444c38",
+      "visual_family": "L06-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L06.png",
+      "source_sha256": "df168fca57df5262d0fa5f6f9d7025c2ff054f7b6b3377b027c779bb6d2a9666",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Retire work that has lost proof.",
+        "Current proof",
+        "Retire or revise"
+      ],
+      "accessibility_text": "A useful-looking task can outlive its evidence. Visual: Weather-summary slip beside a review seal.",
+      "continuity": {
+        "id": "L06-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A useful-looking task can outlive its evidence.",
+      "brief_sha256": "5c7a55cb93fc0b50c8b9943e2338f4062c9c72f8a3f71d9da63b56a1de602664",
+      "original_frame_sha256": "7d8c5bcbab401bfbc82f2257b2b1d3308713024beea5edade43a107292bc9c59",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 990,
+            "height": 116
+          },
+          "glyph": {
+            "x": 96,
+            "y": 79,
+            "width": 934,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 339,
+            "height": 97
+          },
+          "glyph": {
+            "x": 140,
+            "y": 878,
+            "width": 283,
+            "height": 41
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 372,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1121,
+            "y": 878,
+            "width": 316,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

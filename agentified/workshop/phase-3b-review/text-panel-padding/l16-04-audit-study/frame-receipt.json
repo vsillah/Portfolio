@@ -1,0 +1,97 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L16-04",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-3-amina-inside-sam-publication-plate.png",
+  "approvedPlateSha256": "730c5fb6319845a015fa8c4c6c95a28148887e57daa8919246a0edadf50989fd",
+  "approvedPlatePx": [
+    3600,
+    4500
+  ],
+  "method": "complete approved plate in both frames beside distinct narration-derived audit; no crop or SVG",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide.png",
+      "sha256": "9d7812b23c2b67d94ce6e015bac7956d703c1e1d7ca83bb25f05a8d3d2071dc4",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "a0e235aa601d98b45802579846831f56cb84c011f517f706a292b2643cfd0684",
+      "geometry": {
+        "completePlatePx": [
+          672,
+          135,
+          576,
+          720
+        ],
+        "narrationAudit": []
+      }
+    },
+    {
+      "kind": "audit",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit.png",
+      "sha256": "ae8e293a55f34a586b914d99486ca848f8bfb7905047e134e0b7d582642a18f2",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/audit-mobile-preview.png",
+      "mobilePreviewSha256": "d29fe3a9759a5e023d1c44c07736023805c23aa40511292418879897b9ee57b1",
+      "geometry": {
+        "completePlatePx": [
+          82,
+          190,
+          480,
+          600
+        ],
+        "narrationAudit": [
+          "Preparation role: draft brief",
+          "Morgan: session recommendation",
+          "Separate owner: spend review",
+          "Staffing: no evidence yet",
+          "Hold: no book, send, or buy"
+        ]
+      }
+    },
+    {
+      "kind": "mobile_roles",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-roles.png",
+      "sha256": "1e39550f6468e9788eaa992da3f80c6c563ab27ade8d92b14d728678c1131aaa",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-roles-mobile-preview.png",
+      "mobilePreviewSha256": "fde1c2c3998e1d7cecad2874ed043a0c56cb35cd3db420273a32fd0d69d0dca4",
+      "geometry": {
+        "narrationAudit": [
+          "Prepare: brief only",
+          "Morgan: recommends",
+          "Spend: separate owner"
+        ],
+        "completePlatePx": null
+      }
+    },
+    {
+      "kind": "mobile_prohibitions",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-prohibitions.png",
+      "sha256": "a53380a88fd58ce029aa2d3ee2d52927f7c13fa0df0a298d1f16a1ddaced8057",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-prohibitions-mobile-preview.png",
+      "mobilePreviewSha256": "41f495feb95ac25817d61d0a979226fde84e89796762ef0f54abcb4791ef8734",
+      "geometry": {
+        "narrationAudit": [
+          "No booking or sending",
+          "No buying",
+          "No team rule from draft"
+        ],
+        "completePlatePx": null
+      }
+    },
+    {
+      "kind": "mobile_hold",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-hold.png",
+      "sha256": "f369c99bf83b0f04b9cc7723b678e299c9f8212efbbfde6a8448cc85e2ca4dc3",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l16-04-audit-study/mobile-hold-mobile-preview.png",
+      "mobilePreviewSha256": "06b7d78ccde6f4665ca95cd5f57af90383eec116f172e2346a23769c6e02d5c2",
+      "geometry": {
+        "narrationAudit": [
+          "Staffing: no evidence",
+          "Hold remains",
+          "Score cannot lift it",
+          "Human decides with evidence"
+        ],
+        "completePlatePx": null
+      }
+    }
+  ]
+}

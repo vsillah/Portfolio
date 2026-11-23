@@ -1,0 +1,105 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L11-02",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-8-1-portfolio-first-stack-publication-plate.png",
+  "approvedPlateSha256": "292383540d22053939e927a791c28c4c316c220d05d297dc87bb2a59979c09e4",
+  "approvedPlatePx": [
+    4000,
+    2500
+  ],
+  "sourcePath": [
+    "Open Brain",
+    "Harness",
+    "Agent roles",
+    "Mission Control"
+  ],
+  "method": "complete approved Portfolio stack in every frame plus source-faithful enlarged Open Brain to Mission Control path and controls; no crop or SVG art",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/overview-wide.png",
+      "sha256": "1803164a39913952acfd6c0ea66b833d755896134b0e3f2a6bffc7d31b0ddd36",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "169faa8cb38e17f61a0820f0783e9fbe8cc1651607d96562cb973025066c9263",
+      "geometry": {
+        "completePlatePx": [
+          384,
+          145,
+          1152,
+          720
+        ],
+        "sourcePath": [
+          "Open Brain",
+          "Harness",
+          "Agent roles",
+          "Mission Control"
+        ]
+      }
+    },
+    {
+      "kind": "mission",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/mission-focus.png",
+      "sha256": "5b0fa3d02e47e4e3af314a0b7b3611c5c4ee88b15af882574971cacd5d6fe175",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/mission-focus-mobile-preview.png",
+      "mobilePreviewSha256": "5d3cc98893a958a613d37bf4df34776d56dd14acceaa3bcb8f50af8b4ef5b3f5",
+      "geometry": {
+        "completePlatePx": [
+          74,
+          429,
+          592,
+          370
+        ],
+        "pathCards": [
+          {
+            "name": "Open Brain",
+            "boxPx": [
+              72,
+              172,
+              472,
+              340
+            ]
+          },
+          {
+            "name": "Harness",
+            "boxPx": [
+              532,
+              172,
+              932,
+              340
+            ]
+          },
+          {
+            "name": "Agent roles",
+            "boxPx": [
+              992,
+              172,
+              1392,
+              340
+            ]
+          },
+          {
+            "name": "Mission Control",
+            "boxPx": [
+              1452,
+              172,
+              1852,
+              340
+            ]
+          }
+        ],
+        "missionSourceFunctions": [
+          "intake",
+          "route",
+          "approve",
+          "recover"
+        ],
+        "controls": [
+          "receipts",
+          "approvals",
+          "evals",
+          "drift checks"
+        ]
+      }
+    }
+  ]
+}

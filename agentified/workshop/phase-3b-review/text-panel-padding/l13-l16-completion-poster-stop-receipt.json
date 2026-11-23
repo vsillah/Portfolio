@@ -1,0 +1,23 @@
+{
+  "recordedAtUtc": "2026-11-22T23:06:29Z",
+  "status": "ordered_matrix_stopped_at_first_reported_visual_regression",
+  "source": "Vambah's Human QA feedback in the current Codex chat",
+  "project": "Portfolio Agentified",
+  "phase": "Phase 3B provider-free learner-route qualification",
+  "pr": 1290,
+  "reviewedCommit": "dd9db4d7dc227d4ee80561b90c0ed669936c4922",
+  "focusedL13HumanQa": "Approved for the two L13 audio joins, voice consistency, sentence flow, caption clearance, and Baseline unknown panel only; see l13-unknown-join-review/human-qa-approval.json.",
+  "regression": {
+    "routePath": "/agentified/learningplan?lesson=L08",
+    "state": "L08 video completion screen, at or after the 254.357-second end-screen start; Up next · L09 card visible",
+    "surface": "L09 poster image in the L08 completion card",
+    "observedBy": "Vambah during Human QA",
+    "finding": "The poster is cropped so its title is not fully visible.",
+    "sourceBinding": "lib/agentified-end-screens.ts L08 -> L09; app/agentified/AgentifiedLessonHero.tsx completion card",
+    "independentReproduction": "Pending in the source-composition correction lane; this stop records the user's visual finding without claiming a new Phase 3B browser pass."
+  },
+  "matrixDisposition": "Stop before further L13-L16 qualification. Preserve the focused L13 checkpoint; do not infer whole-lesson or L14-L16 passes.",
+  "correctionOwner": "Existing Port: Amanirenas — Agentified L07 Composition source-composition lane, dependent on the player PR stack.",
+  "nextGate": "Consume a validated, source-authored correction for the full L09 poster on the exact L08 completion route, then resume the ordered provider-free matrix from the stopped checkpoint with temporary bindings only.",
+  "exclusions": "No product fix in Phase 3B, learner binding, provider contact, spending, PR readiness change, merge, deployment, publication, or release. All related PRs remain draft."
+}

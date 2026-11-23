@@ -1,0 +1,91 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L13-02",
+  "paddingHead": "2dc9bbc5f",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 26.0,
+  "durationSeconds": 30.0,
+  "sourceVideoSha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f",
+  "sourceCaptionSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+  "trimmedCaptionSha256": "4dc173b1d27d0d12e6e6ec1442dc8e2ba8253d1763818eb941bde5c670892b7f",
+  "frameReceiptSha256": "ec819e026d8a2721b1a72db2b3bebcc22eb3eb66b2a59750c8aa2b4b61e59e71",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/L13-02-desktop-review.mp4",
+      "sha256": "6d75ebf871ae3dc482a339127f49bcd6d0f0b02ee4a92c9642c1c5512ee0f271",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/amina-complete.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/proposal-five-states.png",
+          "durationSeconds": 28.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "750"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1408"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "30.000000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/L13-02-mobile-review.mp4",
+      "sha256": "13dd42a7b0bdff2515e693131e9f9a770c203aecce7aea27e58c915077b57b3c",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/amina-complete.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l13-02-proposal-study/proposal-five-states.png",
+          "durationSeconds": 28.4
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "750"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1408"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "14"
+          }
+        ],
+        "format": {
+          "duration": "30.000000"
+        }
+      }
+    }
+  ]
+}

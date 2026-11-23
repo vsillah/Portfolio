@@ -1,0 +1,52 @@
+{
+  "recordedAtUtc": "2026-11-22T13:41:49Z",
+  "status": "STOP_at_L07-01_opening_blank_checklist_and_duplicate_presenter_caption",
+  "scope": "Version-bound provider-free L07-L16 learner-route matrix, beginning with exact PR #1296 caption-free closing candidate and the new progressive-artifact rule",
+  "reviewPr": 1290,
+  "reviewHead": "b31ee53dfacaa5421db21610b43f2a4a7f6b2027",
+  "captionPr": 1293,
+  "captionHead": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "playerPr": 1295,
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "sourcePr": 1296,
+  "sourceHead": "a07b0a62a4226176a2276a613da4da8863ce5d8f",
+  "laneClassification": "Dependent review lane. PR #1296 stacks on #1290; the caption and player heads supply the disposable learner fixture. No committed high-conflict product surface was edited.",
+  "sourceHashesVerified": {
+    "closingCandidate": "0c07d394a842513b57a9d873dd618974d11effaa8e6696b5a534e179a63c68b4",
+    "captionFreeNativeSource": "795252b7c7a13a6905f5b828b458d39a55bdfc02e27e69d7a72a50bb847f9c8b",
+    "priorClipboardProgressionCandidate": "eb0e2d5662b2fac5a9e1150b4c2ad14187f58a8ac4a21e5db23e3fc25dcbc46d",
+    "checkedStudioField": "51fcb31ed7a6cec80ae73f2e7f404e2a92c75d8c77a460e2615021db05dd0eed",
+    "studioBackdrop": "850c7f829f6c81788d6a88a36038e998ca1fab505651b51ff942b23ea04bc010"
+  },
+  "temporaryFixture": {
+    "requestedRoute": "http://127.0.0.1:3153/agentified/learningplan?lesson=L07&rev=a07b0a62-0c07d394",
+    "selectedRoute": "http://127.0.0.1:3153/agentified/learningplan?lesson=L07",
+    "loadedMedia": "http://127.0.0.1:3153/agentified/lessons/l07/review-0c07d394/L07-caption-free-closing-candidate.mp4",
+    "viewport": "1280x844",
+    "method": "Disposable app from exact PR #1290 head with exact player tree from 7bb6267; only its local L07 manifest and end-screen hash were rebound to the hash-verified source candidate. No product binding or learner data changed.",
+    "browser": "Chrome fallback; the integrated in-app Browser was absent from this lane's inventory",
+    "data": "synthetic guest state"
+  },
+  "firstObservedFailure": {
+    "scene": "L07-01",
+    "lessonTimeSeconds": 2.51332,
+    "finding": "The opening teaching field shows a three-row clipboard with all labels and checkboxes empty while the narration introduces the Session Option Brief, three notes, and a wrong staffing claim. The L07 source packet does not identify this opening checklist as an empty input state; it explicitly reserves a blank workspace for L07-07. This violates the progressive-artifact rule and leaves the checklist without narration-aligned meaning.",
+    "coincidentCaptionFinding": "At the same time, the native opening presenter image contains the baked-in words 'Option Brief.' while the lesson VTT renders 'Option Brief.' as a second caption. PR #1296 replaces only the closing presenter source; it leaves the opening source with baked captions. This is a separate source-media failure class.",
+    "sourceNarration": "agentified/workshop/scene-production/packets/L07.json, L07-01; the explicit blank workspace occurs in L07-07",
+    "evidence": [
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-01-opening-blank-checklist-a07.png",
+        "sha256": "042ea801c580f28ded16531cd6ab9349f1650e7da59583abca84668b61a4faf7",
+        "details": "Frame at 2.513 seconds from the exact source candidate loaded on the learner route; it shows the blank three-row clipboard and baked-in presenter caption."
+      },
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-01-opening-blank-checklist-a07.mp4",
+        "sha256": "eb56b8f1baaff859a072ce6a292a2f876f1192f18efe467a5b02246b5ede0723",
+        "details": "First 9.32 seconds of the same hash-bound source candidate, H.264/AAC; decoded successfully. The independent learner-route observation and caption-on control are recorded in this task transcript."
+      }
+    ]
+  },
+  "qualification": "Stopped at the first observed new content regression in L07-01. The L07-08 caption-free closing, L07 mobile, remaining L07 windows, L08-L16, control and Aa matrix, completion, replay, and full-route contextual MP4s were not independently qualified in this pass. Prior targeted receipts remain limited observations. Human QA for the wider matrix is pending.",
+  "bindings": "Temporary local manifest and end-screen edits only; committed learner bindings remain unchanged and unbound to this review candidate.",
+  "nextGate": "Return the L07-01 opening teaching artifact and opening native presenter caption issue to a separate source lane. Use source-authored, narration-aligned clipboard content and state changes, or an attributable source instruction for an intentional empty state. Supply a caption-free opening presenter source while preserving its native recorded background, crop, position, audio, VTT words and timing, and the validated composition geometry. Re-run the version-bound learner matrix from L07-01 after source correction."
+}

@@ -1,11 +1,12 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { AnchorHTMLAttributes, ImgHTMLAttributes, ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AGENTIFIED_GUEST_KEY } from '@/lib/agentified-workshop'
 import { GUEST_PROGRESS_KEY as ACCELERATED_GUEST_KEY } from '@/lib/accelerated-member-progress'
-import illustrated from '@/lib/agentified-illustrated-bindings.json'
+import qualified from '@/lib/agentified-qualified-bindings.json'
 import { supabase } from '@/lib/supabase'
 import { AgentifiedWorkshop } from './AgentifiedWorkshop'
+import { CAPTION_SIZE_STORAGE_KEY } from '@/lib/caption-size-preference'
 
 vi.mock('next/image', () => ({ default: ({ alt, src, priority: _priority, ...props }: ImgHTMLAttributes<HTMLImageElement> & { src: string; priority?: boolean }) => (
   // eslint-disable-next-line @next/next/no-img-element
@@ -23,6 +24,79 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     localStorage.clear()
     window.history.replaceState(null, '', '/agentified/learningplan')
     window.matchMedia = vi.fn().mockReturnValue({ matches: false })
+  })
+
+  it('shares the chosen caption size across lessons and a reload', async () => {
+    const view = render(<AgentifiedWorkshop mode="plan" />)
+    const first = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
+    expect(first).toHaveAttribute('data-caption-size', 'M')
+    fireEvent.click(screen.getByRole('button', { name: 'Large captions' }))
+    expect(first).toHaveAttribute('data-caption-size', 'L')
+    expect(localStorage.getItem(CAPTION_SIZE_STORAGE_KEY)).toBe('L')
+    fireEvent.click(screen.getByRole('button', { name: 'English captions on' }))
+    expect(screen.queryByRole('group', { name: 'Caption size' })).not.toBeInTheDocument()
+    expect(localStorage.getItem(CAPTION_SIZE_STORAGE_KEY)).toBe('L')
+    fireEvent.click(screen.getByRole('button', { name: 'English captions off' }))
+    expect(screen.getByRole('group', { name: 'Caption size' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Large captions' })).toHaveAttribute('aria-pressed', 'true')
+    expect(first).toHaveAttribute('data-caption-size', 'L')
+    fireEvent.click(screen.getByRole('button', { name: /^L05:/ }))
+    expect(await screen.findByLabelText(/^L05 .* guided video$/)).toHaveAttribute('data-caption-size', 'L')
+    view.unmount()
+    render(<AgentifiedWorkshop mode="plan" />)
+    expect(await screen.findByLabelText(/^L05 .* guided video$/)).toHaveAttribute('data-caption-size', 'L')
+  })
+
+  it('keeps the exact L01 source playable with its corrected duration and L02 resting handoff', async () => {
+    const { container } = render(<AgentifiedWorkshop mode="plan" />)
+    const video = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
+    expect(video.querySelector('source')).toHaveAttribute('src', qualified.bindings.L01.video)
+    expect(video).toHaveAttribute('controls')
+    expect(screen.getByText('Ready · 06:18')).toBeInTheDocument()
+    let currentTime = 359.644
+    Object.defineProperty(video, 'currentTime', { configurable: true, get: () => currentTime })
+    fireEvent.timeUpdate(video)
+    expect(screen.queryByText('UP NEXT · L02')).toBeNull()
+    currentTime = 359.645
+    fireEvent.seeking(video)
+    expect(screen.getByText('UP NEXT · L02')).toBeInTheDocument()
+    currentTime = 90
+    fireEvent.seeking(video)
+    expect(screen.queryByText('UP NEXT · L02')).toBeNull()
+    expect(container.querySelector('video')).toBe(video)
+  })
+
+  it('selects the qualified portrait lesson source on a 390px learner route', async () => {
+    window.history.replaceState(null, '', '/agentified/learningplan?lesson=L06')
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({ matches: query.includes('max-width'), media: query, addEventListener: vi.fn(), removeEventListener: vi.fn() }))
+    render(<AgentifiedWorkshop mode="plan" />)
+    await waitFor(() => expect(screen.getByLabelText(/^L06 .* guided video$/).querySelector('source')).toHaveAttribute('src', qualified.bindings.L06.portraitVideo))
+  })
+
+  it.each(['L01', 'L10', 'L16'])('keeps %s caption status aligned with the selected caption surface while paused and ended', async (id) => {
+    window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
+    const track = { mode: 'disabled' }
+    const tracks = Object.assign(new EventTarget(), { 0: track, length: 1 })
+    const originalTracks = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'textTracks')
+    Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', { configurable: true, get: () => tracks })
+    render(<AgentifiedWorkshop mode="plan" />)
+    const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
+    fireEvent.loadedMetadata(video)
+    expect(track.mode).toBe(id === 'L01' ? 'showing' : 'hidden')
+    expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    track.mode = 'disabled'
+    act(() => { tracks.dispatchEvent(new Event('change')) })
+    fireEvent.pause(video)
+    expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Caption size' })).not.toBeInTheDocument()
+    fireEvent.ended(video)
+    expect(screen.getByText('Captions are off. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    track.mode = 'showing'
+    act(() => { tracks.dispatchEvent(new Event('change')) })
+    expect(track.mode).toBe('hidden')
+    expect(screen.getByText('Captions are on. Your place is saved with your workshop progress.')).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'Caption size' })).toBeInTheDocument()
+    if (originalTracks) Object.defineProperty(HTMLMediaElement.prototype, 'textTracks', originalTracks)
   })
 
   it.each([['L01', 540], ['L05', 237.687], ['L09', 272.84], ['L13', 255.243]] as const)('restores claimed member playback for %s without claiming guest progress', async (id, duration) => {
@@ -43,35 +117,17 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
   })
 
 
-  it.each([
-    ['L02', 'e2b5ecbc', 510, '08:30'],
-    ['L03', '8749ae9a', 600, '10:00'],
-    ['L04', '8d0245ff', 600, '10:00'],
-  ])('opens %s directly with captions, transcript, worksheet and guest resume', async (id, hash, duration, display) => {
+  it.each(['L02', 'L03', 'L04'])('keeps %s transcript and worksheet available while unqualified video remains locked', async (id) => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
-    const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
-    const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings[id as keyof typeof illustrated.bindings].video)
-    expect(video.querySelector('track')).toHaveAttribute('src', expect.stringContaining(`corrected-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`))
-    expect(video.querySelector('track')).toHaveAttribute('default')
-    expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
-    fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
-    expect(screen.getByText('Spoken audio')).toBeInTheDocument()
+    const { container } = render(<AgentifiedWorkshop mode="plan" />)
+    expect(await screen.findByText('Video unavailable')).toBeInTheDocument()
+    expect(container.querySelector('video')).toBeNull()
+    fireEvent.click(screen.getByText('Read lesson transcript'))
+    expect(screen.queryByText('Spoken audio')).not.toBeInTheDocument()
     const answer = container.querySelector(`#answer-${id}`)!
     fireEvent.change(answer, { target: { value: `${id} decision evidence` } })
-    Object.defineProperty(video, 'currentTime', { configurable: true, value: 75 })
-    fireEvent.timeUpdate(video)
-    await waitFor(() => expect(JSON.parse(localStorage.getItem(AGENTIFIED_GUEST_KEY)!).videoSeconds[id]).toBe(75))
     await waitFor(() => expect(JSON.parse(localStorage.getItem(AGENTIFIED_GUEST_KEY)!).worksheet.answers[id]).toBe(`${id} decision evidence`))
     expect(screen.getByRole('link', { name: /Open this page in the full file/ })).toHaveAttribute('href', `/agentified/operating-file#${id}`)
-    unmount()
-    const resumed = render(<AgentifiedWorkshop mode="plan" />)
-    const resumedVideo = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    Object.defineProperty(resumedVideo, 'duration', { configurable: true, value: duration })
-    fireEvent.loadedMetadata(resumedVideo)
-    expect((resumedVideo as HTMLVideoElement).currentTime).toBe(75)
-    expect(resumed.container.querySelector(`#answer-${id}`)).toHaveValue(`${id} decision evidence`)
-    resumed.unmount()
   })
 
   it.each([
@@ -79,12 +135,12 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     ['L06', '991cb8b6', 258.96, '04:18'],
     ['L07', '869a0ff4', 251.332, '04:11'],
     ['L08', '3c5b399f', 257.68, '04:17'],
-  ])('opens %s continuous narration with captions, complete transcript, worksheet and resume', async (id, hash, duration, display) => {
+  ])('opens %s continuous narration with captions, complete transcript, worksheet and resume', async (id, _hash, duration, display) => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings[id as keyof typeof illustrated.bindings].video)
-    expect(video.querySelector('track')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/continuous-${hash}/agentified-${id.toLowerCase()}-continuous-narration-captions.vtt`)
+    expect(video.querySelector('source')).toHaveAttribute('src', qualified.bindings[id as keyof typeof qualified.bindings].video)
+    expect(video.querySelector('track')).toHaveAttribute('src', qualified.bindings[id as keyof typeof qualified.bindings].captions)
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
     fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
@@ -111,12 +167,12 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     ['L10', 'a2dfdec5', 274.28, '04:34'],
     ['L11', '46973271', 252.92, '04:12'],
     ['L12', '0d58c706', 268.12, '04:28'],
-  ])('opens %s approved native composite with captions, transcript, worksheet and resume', async (id, hash, duration, display) => {
+  ])('opens %s approved native composite with captions, transcript, worksheet and resume', async (id, _hash, duration, display) => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings[id as keyof typeof illustrated.bindings].video)
-    expect(video.querySelector('track')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/approved-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`)
+    expect(video.querySelector('source')).toHaveAttribute('src', qualified.bindings[id as keyof typeof qualified.bindings].video)
+    expect(video.querySelector('track')).toHaveAttribute('src', qualified.bindings[id as keyof typeof qualified.bindings].captions)
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
     fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
@@ -143,12 +199,12 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     ['L14', 'de258e9b', 241.762, '04:01'],
     ['L15', '80fb2855', 255.386, '04:15'],
     ['L16', 'e890f6a9', 267.309, '04:27'],
-  ])('opens %s approved composite with captions, transcript, worksheet, and resume', async (id, hash, duration, display) => {
+  ])('opens %s approved composite with captions, transcript, worksheet, and resume', async (id, _hash, duration, display) => {
     window.history.replaceState(null, '', `/agentified/learningplan?lesson=${id}`)
     const { container, unmount } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText(new RegExp(`^${id} .* guided video$`))
-    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings[id as keyof typeof illustrated.bindings].video)
-    expect(video.querySelector('track')).toHaveAttribute('src', `/agentified/lessons/${id.toLowerCase()}/approved-${hash}/agentified-${id.toLowerCase()}-native-captions.vtt`)
+    expect(video.querySelector('source')).toHaveAttribute('src', qualified.bindings[id as keyof typeof qualified.bindings].video)
+    expect(video.querySelector('track')).toHaveAttribute('src', qualified.bindings[id as keyof typeof qualified.bindings].captions)
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText(`Ready · ${display}`)).toBeInTheDocument()
     fireEvent.click(screen.getByText(`Read along with ${id} transcript`))
@@ -173,8 +229,8 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     const { container } = render(<AgentifiedWorkshop mode="plan" />)
     const video = await screen.findByLabelText('L01 Give the agent a job and a receipt guided video')
     expect(video).toHaveAttribute('poster', '/agentified/posters/l01-poster.webp')
-    expect(video.querySelector('source')).toHaveAttribute('src', illustrated.bindings.L01.video)
-    expect(video.querySelector('track')).toHaveAttribute('src', illustrated.bindings.L01.captions)
+    expect(video.querySelector('source')).toHaveAttribute('src', qualified.bindings.L01.video)
+    expect(video.querySelector('track')).toHaveAttribute('src', qualified.bindings.L01.captions)
     expect(video.querySelector('track')).toHaveAttribute('default')
     expect(screen.getByText('Ready · 06:18')).toBeInTheDocument()
     fireEvent.click(screen.getByText('Read along with L01 transcript'))
@@ -205,7 +261,7 @@ describe('Agentified Learning Plan cover and Operating File continuity', () => {
     expect(screen.getByRole('button', { name: 'Collapse lesson navigation' })).toHaveAttribute('aria-expanded', 'true')
 
     expect(screen.getByRole('button', { name: /L01: Give the agent a job and a receipt, Current/ })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /L02: Start with the decision, Ready/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /L02: Start with the decision, Text only/ })).toBeInTheDocument()
     expect(screen.queryByText('Read')).not.toBeInTheDocument()
 
     const complete = screen.getByRole('button', { name: 'Mark lesson complete' })

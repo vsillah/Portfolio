@@ -1,0 +1,1997 @@
+{
+  "generatedAt": "2026-11-21T10:49:11.355Z",
+  "codeCommit": "0b53f3436fbba0e162f5f9413b6cb773b2bd74ad",
+  "candidateCommit": "e3462078666d0f99596d14a3c4b15649ffa8f8b7",
+  "base": "http://127.0.0.1:3137",
+  "candidateBase": "http://127.0.0.1:8767",
+  "source": {
+    "video": "/agentified/lessons/l01/illustrated-1eeaa68b/agentified-l01-illustrated-composite.mp4",
+    "videoHash": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+    "captions": "/agentified/lessons/l01/continuous-10f9ea26/agentified-l01-continuous-narration-captions.vtt",
+    "captionsHash": "6dee645eafea79649d17711c589a84acbe45a478b7a5994f718ccbbc6297492e"
+  },
+  "candidateHashes": {
+    "L01-04-desktop.mp4": "1dd7218a67663a948a5cff3caeda38ae9a0656a535dbe8b71f6a8bce4676ee4c",
+    "L01-04-desktop.vtt": "c0d93b54dd99916f304464c3e2c97b656b11bd5b2a19af9fe8baea1fa2326e41",
+    "L01-04-mobile.mp4": "3dc7b04098a108ebea68e547a7cd6bec7ed59cf14fe03f4e0f2fe98a7a01427e",
+    "L01-04-mobile.vtt": "c0d93b54dd99916f304464c3e2c97b656b11bd5b2a19af9fe8baea1fa2326e41"
+  },
+  "learner": [
+    {
+      "width": 1280,
+      "scene": "L01-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 0.2,
+          "end": 1.699,
+          "text": "Friday afternoon."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 977.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-01",
+      "sample": "midpoint",
+      "time": 25.568999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 977.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-02",
+      "sample": "boundary",
+      "time": 36.084999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 34.585,
+          "end": 39.18,
+          "text": "Our job today is small: design one preparation role and one receipt."
+        }
+      ],
+      "band": "Our job today is small: design one preparation role and one receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 985.84375,
+      "videoBottom": 977.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-02",
+      "sample": "midpoint",
+      "time": 55.999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 977.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-03",
+      "sample": "boundary",
+      "time": 75.697,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 74.197,
+          "end": 83.794,
+          "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’"
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 977.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-03",
+      "sample": "midpoint",
+      "time": 91.979,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 476.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "boundary",
+      "time": 115.858,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 114.358,
+          "end": 116.264,
+          "text": "Now attach the receipt."
+        }
+      ],
+      "band": "Now attach the receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 484.84375,
+      "videoBottom": 476.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "midpoint",
+      "time": 135.205,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 432.84375,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "boundary",
+      "time": 152.001,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-05",
+      "sample": "midpoint",
+      "time": 166.779999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 165.389,
+          "end": 169.381,
+          "text": "If the source for room capacity is missing, mark the brief blocked."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-06",
+      "sample": "boundary",
+      "time": 184.558999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-06",
+      "sample": "midpoint",
+      "time": 193.058999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 192.165,
+          "end": 194.678,
+          "text": "Use a fictional or approved example."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-07",
+      "sample": "boundary",
+      "time": 204.558999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 203.059,
+          "end": 205.537,
+          "text": "Fill the Job and Receipt boxes."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-07",
+      "sample": "midpoint",
+      "time": 273.058999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-08",
+      "sample": "boundary",
+      "time": 344.558999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 343.059,
+          "end": 346.984,
+          "text": "Save those two boxes in your Agentified Operating File as a draft."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-08",
+      "sample": "midpoint",
+      "time": 360.558999,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04-boundary",
+      "sample": "before",
+      "time": 113,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 108.186,
+          "end": 113.558,
+          "text": "A useful agent job names the work it finishes and the work it leaves alone."
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04-boundary",
+      "sample": "start-minus",
+      "time": 114.357,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04-boundary",
+      "sample": "start",
+      "time": 114.358,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 114.358,
+          "end": 116.264,
+          "text": "Now attach the receipt."
+        }
+      ],
+      "band": "Now attach the receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 432.84375,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04-boundary",
+      "sample": "collision",
+      "time": 132,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 432.84375,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "collision",
+      "time": 132,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 432.84375,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "restored",
+      "time": 132,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 432.84375,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "off",
+      "size": "S",
+      "off": {
+        "time": 132,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "collision",
+      "time": 132,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 432.84375,
+      "videoBottom": 424.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "restored",
+      "time": 132,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "off",
+      "size": "M",
+      "off": {
+        "time": 132,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "collision",
+      "time": 132,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "restored",
+      "time": 132,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 412.84375,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04",
+      "sample": "off",
+      "size": "L",
+      "off": {
+        "time": 132,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          621,
+          349
+        ]
+      }
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04-boundary",
+      "sample": "gap",
+      "time": 136.3,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04-boundary",
+      "sample": "end-minus",
+      "time": 150.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04-boundary",
+      "sample": "end",
+      "time": 150.501,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 1280,
+      "scene": "L01-04-boundary",
+      "sample": "after",
+      "time": 152,
+      "size": "M",
+      "external": false,
+      "mode": "showing",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 404.84375,
+      "video": [
+        621,
+        349
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 1280
+    },
+    {
+      "width": 390,
+      "scene": "L01-01",
+      "sample": "boundary",
+      "time": 1.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 0.2,
+          "end": 1.699,
+          "text": "Friday afternoon."
+        }
+      ],
+      "band": "Friday afternoon.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 1066.125,
+      "videoBottom": 1058.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-01",
+      "sample": "midpoint",
+      "time": 25.568999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 1058.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-02",
+      "sample": "boundary",
+      "time": 36.084999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 34.585,
+          "end": 39.18,
+          "text": "Our job today is small: design one preparation role and one receipt."
+        }
+      ],
+      "band": "Our job today is small: design one preparation role and one receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 1066.125,
+      "videoBottom": 1058.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-02",
+      "sample": "midpoint",
+      "time": 55.999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 1058.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-03",
+      "sample": "boundary",
+      "time": 75.697,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 74.197,
+          "end": 83.794,
+          "text": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’"
+        }
+      ],
+      "band": "Write the job in one sentence: ‘When Morgan requests a monthly session review, prepare one brief comparing a proposed free session against the three cleared inputs.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 1066.125,
+      "videoBottom": 1058.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-03",
+      "sample": "midpoint",
+      "time": 91.979,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "boundary",
+      "time": 115.858,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 114.358,
+          "end": 116.264,
+          "text": "Now attach the receipt."
+        }
+      ],
+      "band": "Now attach the receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "midpoint",
+      "time": 135.205,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "boundary",
+      "time": 152.001,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": "In our case, approval is ‘pending Morgan.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-05",
+      "sample": "midpoint",
+      "time": 166.779999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 165.389,
+          "end": 169.381,
+          "text": "If the source for room capacity is missing, mark the brief blocked."
+        }
+      ],
+      "band": "If the source for room capacity is missing, mark the brief blocked.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-06",
+      "sample": "boundary",
+      "time": 184.558999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-06",
+      "sample": "midpoint",
+      "time": 193.058999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 192.165,
+          "end": 194.678,
+          "text": "Use a fictional or approved example."
+        }
+      ],
+      "band": "Use a fictional or approved example.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-07",
+      "sample": "boundary",
+      "time": 204.558999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 203.059,
+          "end": 205.537,
+          "text": "Fill the Job and Receipt boxes."
+        }
+      ],
+      "band": "Fill the Job and Receipt boxes.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-07",
+      "sample": "midpoint",
+      "time": 273.058999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-08",
+      "sample": "boundary",
+      "time": 344.558999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 343.059,
+          "end": 346.984,
+          "text": "Save those two boxes in your Agentified Operating File as a draft."
+        }
+      ],
+      "band": "Save those two boxes in your Agentified Operating File as a draft.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-08",
+      "sample": "midpoint",
+      "time": 360.558999,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04-boundary",
+      "sample": "before",
+      "time": 113,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 108.186,
+          "end": 113.558,
+          "text": "A useful agent job names the work it finishes and the work it leaves alone."
+        }
+      ],
+      "band": "A useful agent job names the work it finishes and the work it leaves alone.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04-boundary",
+      "sample": "start-minus",
+      "time": 114.357,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04-boundary",
+      "sample": "start",
+      "time": 114.358,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 114.358,
+          "end": 116.264,
+          "text": "Now attach the receipt."
+        }
+      ],
+      "band": "Now attach the receipt.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04-boundary",
+      "sample": "collision",
+      "time": 132,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "collision",
+      "time": 132,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "restored",
+      "time": 132,
+      "size": "S",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "14px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Small captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "off",
+      "size": "S",
+      "off": {
+        "time": 132,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "collision",
+      "time": 132,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "restored",
+      "time": 132,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "off",
+      "size": "M",
+      "off": {
+        "time": 132,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "collision",
+      "time": 132,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 398.125,
+      "videoBottom": 390.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "restored",
+      "time": 132,
+      "size": "L",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 130.258,
+          "end": 135.976,
+          "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+        }
+      ],
+      "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+      "bandCount": 1,
+      "bandFont": "24px",
+      "bandTop": 381.125,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Large captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04",
+      "sample": "off",
+      "size": "L",
+      "off": {
+        "time": 132,
+        "mode": "disabled",
+        "bandCount": 0,
+        "sizeGroup": 0,
+        "video": [
+          292,
+          164
+        ]
+      }
+    },
+    {
+      "width": 390,
+      "scene": "L01-04-boundary",
+      "sample": "gap",
+      "time": 136.3,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04-boundary",
+      "sample": "end-minus",
+      "time": 150.5,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [],
+      "band": null,
+      "bandCount": 0,
+      "bandFont": null,
+      "bandTop": null,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04-boundary",
+      "sample": "end",
+      "time": 150.501,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": "In our case, approval is ‘pending Morgan.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 381.125,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    },
+    {
+      "width": 390,
+      "scene": "L01-04-boundary",
+      "sample": "after",
+      "time": 152,
+      "size": "M",
+      "external": true,
+      "mode": "hidden",
+      "cues": [
+        {
+          "start": 150.501,
+          "end": 153.756,
+          "text": "In our case, approval is ‘pending Morgan.’"
+        }
+      ],
+      "band": "In our case, approval is ‘pending Morgan.’",
+      "bandCount": 1,
+      "bandFont": "18px",
+      "bandTop": 381.125,
+      "videoBottom": 373.125,
+      "video": [
+        292,
+        164
+      ],
+      "controls": true,
+      "selected": [
+        "Medium captions"
+      ],
+      "scrollWidth": 391
+    }
+  ],
+  "candidate": [
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "S",
+      "on": {
+        "time": 2.00595,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 1.828,
+            "end": 7.546,
+            "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+          }
+        ],
+        "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+        "bandTop": 582,
+        "videoBottom": 574,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.00595
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "M",
+      "on": {
+        "time": 2.00595,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 1.828,
+            "end": 7.546,
+            "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+          }
+        ],
+        "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+        "bandTop": 629,
+        "videoBottom": 621,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.00595
+      }
+    },
+    {
+      "layout": "desktop",
+      "width": 1280,
+      "size": "L",
+      "on": {
+        "time": 2.00595,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 1.828,
+            "end": 7.546,
+            "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+          }
+        ],
+        "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+        "bandTop": 623,
+        "videoBottom": 615,
+        "video": [
+          1248,
+          702
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.00595
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "S",
+      "on": {
+        "time": 2.010792,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 1.828,
+            "end": 7.546,
+            "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+          }
+        ],
+        "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+        "bandTop": 669.65625,
+        "videoBottom": 661.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "14px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.010792
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "M",
+      "on": {
+        "time": 2.010792,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 1.828,
+            "end": 7.546,
+            "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+          }
+        ],
+        "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+        "bandTop": 731.65625,
+        "videoBottom": 723.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "18px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.010792
+      }
+    },
+    {
+      "layout": "mobile",
+      "width": 390,
+      "size": "L",
+      "on": {
+        "time": 2.010792,
+        "mode": "hidden",
+        "cues": [
+          {
+            "start": 1.828,
+            "end": 7.546,
+            "text": "The receipt also records cost or resource use, outcome, and how to pull the draft back."
+          }
+        ],
+        "band": "The receipt also records cost or resource use, outcome, and how to pull the draft back.",
+        "bandTop": 630.65625,
+        "videoBottom": 622.65625,
+        "video": [
+          358,
+          776
+        ],
+        "controls": true,
+        "font": "24px"
+      },
+      "off": {
+        "mode": "disabled",
+        "band": "",
+        "sizeHidden": true,
+        "time": 2.010792
+      }
+    }
+  ]
+}

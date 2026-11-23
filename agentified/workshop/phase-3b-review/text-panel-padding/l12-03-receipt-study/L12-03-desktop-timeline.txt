@@ -1,0 +1,5 @@
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/overview-wide.png'
+duration 1.600
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/proof-focus.png'
+duration 28.580
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l12-03-receipt-study/proof-focus.png'

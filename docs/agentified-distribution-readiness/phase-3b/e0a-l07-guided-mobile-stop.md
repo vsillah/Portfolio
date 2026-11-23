@@ -1,0 +1,11 @@
+# Phase 3B stacked audit: L07 guided-work mobile readability stop
+
+**Reviewed state:** draft PR #1293 head `e0a99a60d218b6a5c833643af842b2b6f34f8d00`. The source worktree `/Users/vambahsillah/.codex/worktrees/5def/Portfolio` remained unchanged. A temporary preview copied its application source outside that worktree and served `http://127.0.0.1:3112` with placeholder localhost Supabase values and outbound n8n disabled. Evidence was written only to PR #1290.
+
+The exact route `http://127.0.0.1:3112/agentified/learningplan?lesson=L07&rev=e0a99a60d` was verified to have L07 selected before playback. At 00:14 on desktop, the caption clears the L07-01 headline. At 02:37 on desktop, the caption clears the L07-06 “Block owner” tag; mobile retains native caption placement. `e0a-verified-L07-01-{desktop,mobile}.png` and `e0a-verified-L07-06-{desktop,mobile}.png` show those states. Initial captures made before L07 hydration were discarded and are not evidence.
+
+**First new non-plate failure: L07-07 guided-work card.** At approximately 03:17 in the 390×844 learner route, the native 16:9 player is 292×164.25 CSS pixels. The card's supporting line “Human review remains the gate” is too small to read at that size, although the same line is readable in the 621×349 desktop player. This is a guided-work scene, not one of the 15 approved teaching-plate scenes owned by PR #1292. The text track is in `showing` mode but has zero active cues at this countdown moment, so captions do not provide the line. The native controls can be shown, but do not enlarge the card.
+
+Evidence in `agentified/workshop/phase-3b-review/`: `e0a-L07-07-desktop.png`, `e0a-L07-07-mobile.png`, and decoded route recordings `e0a-L07-07-desktop.mp4` / `e0a-L07-07-mobile.mp4`. The recordings use isolated guest state and do not contain production or learner data. No media, captions, cue timing, or learner binding changed.
+
+The ordered audit stopped at L07-07. L07-08 and L08–L16 are **not qualified**, and no consolidated full-scope packet or final transcript provenance is claimed. A separate scoped mobile guided-work readability correction must retain source meaning, narration, optional captions, native controls, presenter windows, and countdown timing. Recheck the exact L07-07 desktop/mobile path before resuming L07-08.

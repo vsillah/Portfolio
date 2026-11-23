@@ -1,0 +1,198 @@
+{
+  "stackedHead": "32f44fb97fd4c9ecbd04cf0e367f1c767464e282",
+  "lessonId": "L10",
+  "states": [
+    {
+      "scene": "L10-01",
+      "kind": "desktop",
+      "expected": 16.85,
+      "time": 16.85,
+      "mode": "hidden",
+      "active": [
+        "The amount sounds minor."
+      ],
+      "band": [
+        "The amount sounds minor."
+      ]
+    },
+    {
+      "scene": "L10-02",
+      "kind": "desktop",
+      "expected": 51.35,
+      "time": 51.35,
+      "mode": "hidden",
+      "active": [
+        "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window."
+      ],
+      "band": [
+        "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window."
+      ]
+    },
+    {
+      "scene": "L10-03",
+      "kind": "desktop",
+      "expected": 83.95,
+      "time": 83.95,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L10-04",
+      "kind": "desktop",
+      "expected": 116.67,
+      "time": 116.67,
+      "mode": "hidden",
+      "active": [
+        "Option B is to hold the proposal and gather a fresh staffing commitment."
+      ],
+      "band": [
+        "Option B is to hold the proposal and gather a fresh staffing commitment."
+      ]
+    },
+    {
+      "scene": "L10-05",
+      "kind": "desktop",
+      "expected": 150,
+      "time": 150,
+      "mode": "hidden",
+      "active": [
+        "A flyer sent into the community cannot be pulled back with the same ease."
+      ],
+      "band": [
+        "A flyer sent into the community cannot be pulled back with the same ease."
+      ]
+    },
+    {
+      "scene": "L10-06",
+      "kind": "desktop",
+      "expected": 168.3,
+      "time": 168.3,
+      "mode": "hidden",
+      "active": [
+        "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+      ],
+      "band": [
+        "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+      ]
+    },
+    {
+      "scene": "L10-07",
+      "kind": "desktop",
+      "expected": 211.82999999999998,
+      "time": 211.829999,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L10-08",
+      "kind": "desktop",
+      "expected": 263.45,
+      "time": 263.45,
+      "mode": "hidden",
+      "active": [
+        "Next we will make the pending work visible without turning a phone notification into a second control room."
+      ],
+      "band": [
+        "Next we will make the pending work visible without turning a phone notification into a second control room."
+      ]
+    },
+    {
+      "scene": "L10-01",
+      "kind": "mobile",
+      "expected": 16.85,
+      "time": 16.85,
+      "mode": "hidden",
+      "active": [
+        "The amount sounds minor."
+      ],
+      "band": [
+        "The amount sounds minor."
+      ]
+    },
+    {
+      "scene": "L10-02",
+      "kind": "mobile",
+      "expected": 51.35,
+      "time": 51.35,
+      "mode": "hidden",
+      "active": [
+        "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window."
+      ],
+      "band": [
+        "In the Harbor case, use a proposed forty-dollar print test with the course printer and a two-day window."
+      ]
+    },
+    {
+      "scene": "L10-03",
+      "kind": "mobile",
+      "expected": 83.95,
+      "time": 83.95,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L10-04",
+      "kind": "mobile",
+      "expected": 116.67,
+      "time": 116.67,
+      "mode": "hidden",
+      "active": [
+        "Option B is to hold the proposal and gather a fresh staffing commitment."
+      ],
+      "band": [
+        "Option B is to hold the proposal and gather a fresh staffing commitment."
+      ]
+    },
+    {
+      "scene": "L10-05",
+      "kind": "mobile",
+      "expected": 150,
+      "time": 150,
+      "mode": "hidden",
+      "active": [
+        "A flyer sent into the community cannot be pulled back with the same ease."
+      ],
+      "band": [
+        "A flyer sent into the community cannot be pulled back with the same ease."
+      ]
+    },
+    {
+      "scene": "L10-06",
+      "kind": "mobile",
+      "expected": 168.3,
+      "time": 168.3,
+      "mode": "hidden",
+      "active": [
+        "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+      ],
+      "band": [
+        "Which sentence in the brief would stop 'available for review' from becoming 'confirmed'?"
+      ]
+    },
+    {
+      "scene": "L10-07",
+      "kind": "mobile",
+      "expected": 211.82999999999998,
+      "time": 211.829999,
+      "mode": "hidden",
+      "active": [],
+      "band": []
+    },
+    {
+      "scene": "L10-08",
+      "kind": "mobile",
+      "expected": 263.45,
+      "time": 263.45,
+      "mode": "hidden",
+      "active": [
+        "Next we will make the pending work visible without turning a phone notification into a second control room."
+      ],
+      "band": [
+        "Next we will make the pending work visible without turning a phone notification into a second control room."
+      ]
+    }
+  ]
+}

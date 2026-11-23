@@ -1,0 +1,190 @@
+WEBVTT
+
+00:00:00.210 --> 00:00:02.180
+At the end of Harbor's Friday, Morgan
+
+00:00:02.350 --> 00:00:03.970
+has a full Operating File.
+
+00:00:04.220 --> 00:00:07.420
+It contains a job, sources, receipts,
+
+00:00:07.590 --> 00:00:09.920
+authority limits, a team handoff,
+
+00:00:10.070 --> 00:00:13.180
+evaluation cases, a proof outline, a
+
+00:00:13.230 --> 00:00:15.530
+research proposal, and a six-beat
+
+00:00:15.570 --> 00:00:16.140
+rehearsal.
+
+00:00:16.516 --> 00:00:19.716
+The file is impressive in one sense: its gaps are visible.
+
+00:00:20.185 --> 00:00:21.679
+Staffing is still unconfirmed.
+
+00:00:22.063 --> 00:00:23.087
+Spend is unapproved.
+
+00:00:23.556 --> 00:00:25.092
+The research test has not run.
+
+00:00:25.476 --> 00:00:27.097
+The board proof has not been shared.
+
+00:00:27.598 --> 00:00:33.572
+The capstone asks whether this design deserves to continue, in what smaller form, and under whose care.
+
+00:00:34.212 --> 00:00:40.740
+Chapter Twenty-Six names five operating questions: route, log, gate, memory, review.
+
+00:00:41.380 --> 00:00:42.318
+Who receives the work?
+
+00:00:42.762 --> 00:00:43.957
+What record explains it?
+
+00:00:44.341 --> 00:00:45.237
+Where does a human decide?
+
+00:00:45.877 --> 00:00:47.669
+What may be remembered, and by whom?
+
+00:00:48.138 --> 00:00:49.717
+When will someone revisit the rule?
+
+00:00:50.357 --> 00:00:55.008
+The companion workbook expands these into an Accountability Stack from source through rollback.
+
+00:00:55.619 --> 00:01:02.020
+We will use the larger worksheet to audit the single Harbor workflow, while keeping the five questions as a readable spine.
+
+00:01:02.745 --> 00:01:03.982
+Begin with source and event.
+
+00:01:04.409 --> 00:01:08.420
+Harbor's three course inputs use opaque references and a source-status field.
+
+00:01:09.034 --> 00:01:11.807
+No raw private record belongs in the learner export.
+
+00:01:12.362 --> 00:01:16.714
+The receipt describes a paper event shape; it does not certify that an agent ran.
+
+00:01:17.294 --> 00:01:24.206
+Next, proposal and memory: the staffing rule and source-status rule are proposals until Morgan approves a local plan.
+
+00:01:24.633 --> 00:01:26.339
+A missing approval date stays blank.
+
+00:01:26.766 --> 00:01:28.985
+Do not backfill it to make the stack look complete.
+
+00:01:29.687 --> 00:01:32.759
+Move to routing, action, approval, and cost.
+
+00:01:33.356 --> 00:01:35.916
+The preparation role may draft a Session Option Brief.
+
+00:01:36.343 --> 00:01:37.964
+Morgan owns the session recommendation.
+
+00:01:38.391 --> 00:01:40.012
+A separate owner must review spend.
+
+00:01:40.671 --> 00:01:45.578
+The agent cannot book, send, buy, or turn a proposal into a team rule.
+
+00:01:46.047 --> 00:01:50.015
+We have no evidence that staffing is available, so the next action is still hold.
+
+00:01:50.442 --> 00:01:52.746
+A capstone score cannot lift that hold.
+
+00:01:53.354 --> 00:01:56.640
+It can identify who must decide and what evidence they need.
+
+00:01:57.109 --> 00:01:58.730
+Finish with export and rollback.
+
+00:01:59.242 --> 00:02:02.528
+The proof outline is scoped to an audience and remains `not shared`.
+
+00:02:03.232 --> 00:02:08.949
+If a claim is wrong, Harbor can retain the prior draft, correct the paper brief, and record the reason.
+
+00:02:09.845 --> 00:02:16.416
+If a local rule later causes harm, a named owner must be able to narrow, revoke, or retire it.
+
+00:02:16.902 --> 00:02:22.577
+The weakest gate today is staffing confirmation: without it, the brief cannot become a team proposal.
+
+00:02:22.961 --> 00:02:25.435
+That is a useful result, even though nothing launches.
+
+00:02:25.819 --> 00:02:26.075
+Pause.
+
+00:02:26.886 --> 00:02:28.464
+Pick the weakest gate in your workflow.
+
+00:02:28.912 --> 00:02:33.178
+Would you keep the design as a paper trial, shrink its scope, or retire it?
+
+00:02:33.733 --> 00:02:37.232
+Name the human who can make that call and the evidence that person would need.
+
+00:02:37.829 --> 00:02:39.706
+Use a fictional or approved example.
+
+00:02:40.218 --> 00:02:42.053
+Do not use private operational data.
+
+00:02:42.628 --> 00:02:45.188
+A blank disposition is pending, never consent.
+
+00:02:45.700 --> 00:02:48.303
+Present your Operating File as a one-page audit.
+
+00:02:48.772 --> 00:02:56.879
+Walk source, event, proposal, memory, routing, action, approval, cost, export, and rollback.
+
+00:02:57.401 --> 00:03:04.100
+For each layer, write owner, evidence, privacy tier, gate, failure mode, and next improvement.
+
+00:03:04.441 --> 00:03:05.934
+Mark missing evidence openly.
+
+00:03:06.532 --> 00:03:12.633
+Then write a human disposition field with decision, owner, date, reason, and next review date.
+
+00:03:13.285 --> 00:03:14.565
+You may leave the decision pending.
+
+00:03:15.162 --> 00:04:07.586
+This is a design review: do not deploy, publish, spend, contact anyone, or run an agent because a worksheet is complete.
+
+00:04:08.226 --> 00:04:09.890
+Save revision sixteen for review.
+
+00:04:10.554 --> 00:04:17.722
+Morgan's safest current recommendation is to keep the paper design and shrink the next test to staffing evidence and a reviewed brief format.
+
+00:04:18.262 --> 00:04:20.312
+Only Morgan and the appropriate owners
+
+00:04:20.442 --> 00:04:22.142
+can make that disposition real.
+
+00:04:22.442 --> 00:04:24.232
+The file gives them a way to see what is
+
+00:04:24.322 --> 00:04:26.582
+ready, what is missing, and what must
+
+00:04:26.712 --> 00:04:27.222
+stop.

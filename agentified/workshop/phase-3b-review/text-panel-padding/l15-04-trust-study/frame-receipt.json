@@ -1,0 +1,110 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L15-04",
+  "approvedPlatePath": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+  "approvedPlateSha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+  "approvedPlatePx": [
+    4000,
+    2500
+  ],
+  "trustPath": [
+    "Source",
+    "Receipt",
+    "Gate",
+    "Eval",
+    "Proof"
+  ],
+  "method": "complete approved SAM trust plate in both frames and distinct narration-grounded limited approval; no crop or SVG",
+  "frames": [
+    {
+      "kind": "overview",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/overview-wide.png",
+      "sha256": "1145a2867246cc3d360b8397676f7852a747c94cf90053b383debab3e2a18977",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/overview-wide-mobile-preview.png",
+      "mobilePreviewSha256": "ccc3440e8d24ae55cbc94fb64944b9ce6ec91cba9a58a3fbf52e0d6d7b7c6204",
+      "geometry": {
+        "completePlatePx": [
+          384,
+          145,
+          1152,
+          720
+        ],
+        "trustPath": [
+          "Source",
+          "Receipt",
+          "Gate",
+          "Eval",
+          "Proof"
+        ]
+      }
+    },
+    {
+      "kind": "review",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval.png",
+      "sha256": "4f0692959281416f2ee73a68ac939da95488c0f23d4b0a1883f5ed544e32233a",
+      "mobilePreviewPath": "agentified/workshop/phase-3b-review/text-panel-padding/l15-04-trust-study/limited-approval-mobile-preview.png",
+      "mobilePreviewSha256": "39b17341d9c57491d7ed1d03851485c8499dafe4f1abbd46d2549f94ede5063f",
+      "geometry": {
+        "completePlatePx": [
+          70,
+          440,
+          592,
+          370
+        ],
+        "trustPathCards": [
+          {
+            "label": "Source",
+            "boxPx": [
+              60,
+              170,
+              390,
+              329
+            ]
+          },
+          {
+            "label": "Receipt",
+            "boxPx": [
+              429,
+              170,
+              759,
+              329
+            ]
+          },
+          {
+            "label": "Gate",
+            "boxPx": [
+              798,
+              170,
+              1128,
+              329
+            ]
+          },
+          {
+            "label": "Eval",
+            "boxPx": [
+              1167,
+              170,
+              1497,
+              329
+            ]
+          },
+          {
+            "label": "Proof",
+            "boxPx": [
+              1536,
+              170,
+              1866,
+              329
+            ]
+          }
+        ],
+        "narrationReview": [
+          "Stale course source",
+          "Claim unsupported",
+          "Staffing hold remains",
+          "Paper correction only"
+        ]
+      }
+    }
+  ]
+}

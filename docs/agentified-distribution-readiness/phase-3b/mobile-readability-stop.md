@@ -1,0 +1,11 @@
+# Phase 3B stop: L05 mobile plate readability
+
+**Status: FAIL / stop condition.** Do not use this packet to complete Phase 3B, bind the L10/L16 candidates, or request Human QA.
+
+At code commit `4b5e666c2`, load `http://127.0.0.1:3108/agentified/learningplan?lesson=L05&rev=4b5e666c2` with a 390×844 viewport, scroll to Guided lesson, and seek to 01:30 (L05-04, 78.582–105.560 s). The native video box is 292×164.25 CSS pixels. The approved plate's meaningful “Open Brain” and “Harness” labels and their supporting source/tool descriptions are too small to read in that rendered route. The main headline and separate “Source” / “Receipt” tags remain visible, so this is specifically a detailed visual-information failure at portrait mobile size, not an assertion that the entire lesson is blank.
+
+Evidence: `agentified/workshop/phase-3b-review/l05-mobile-plate-stop.png` and playable `l05-mobile-plate-stop.mp4`. Compare the full-resolution exact scene visual at `agentified/workshop/presentation-illustration-audit/frames/illustrated/L05-04.png`; the detailed labels exist in the source frame. The browser recording used isolated guest state, placeholder local Supabase values and disabled outbound n8n calls. It did not write production or learner data.
+
+The historic matrix contains 128 positions across L01–L16. L02–L04 (24 positions) are excluded by the current provider-free scope, leaving 104 eligible positions. Source hashes and the static 128-scene validator previously passed, and the contact sheets were inspected as an initial sweep. That inspection does not establish contextual caption/visual quality or a pass for 104 positions. This first reproducible mobile failure stops the requested broader qualification. Consolidated full-lesson desktop/mobile walkthroughs and final transcript provenance were not produced or claimed.
+
+Next action belongs in a separately scoped visual/mobile correction and review. The correction must make the approved plate's instructional labels legible at 390×844 without changing narration, captions, source meaning, rights, or protected presenter windows. Re-run this exact route and the adjacent L05 scenes before resuming the 104-position qualification. L10's acoustic timing and L16's resting handoff remain unbound review candidates.

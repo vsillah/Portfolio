@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L09-02"
+  ],
+  "frames": [
+    {
+      "scene_id": "L09-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L09-02.png",
+      "frame_sha256": "d802699291cd51a57ecffeb7a15d3584763fd3e23f6e79911560d070086c6bea",
+      "visual_family": "L09-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-0-1-sam-trust-layer-publication-plate.png",
+      "source_sha256": "fc3621b103f102664c5a455adade3e6df5dbbbf19d49d9491e1f0ccea35c0ed1",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          950,
+          300,
+          2100,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            65,
+            55,
+            45,
+            75
+          ],
+          "feather_px": 40,
+          "focus": "receipt, gate, and evaluation",
+          "edge_risk": "neighboring decorative borders",
+          "mask_sha256": "1e8dd3f1b37edc8c01f5bcdd44c07b9fa54b0c8a04e37f102f53f9dcbf23d57e"
+        }
+      },
+      "display_copy": [
+        "Measure the path to authority.",
+        "Evidence",
+        "Authority"
+      ],
+      "accessibility_text": "Activity alone is not a trusted outcome. Visual: Approved trust-layer plate focused on the gate and proof.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Activity alone is not a trusted outcome.",
+      "brief_sha256": "8bed4417d19ce4641e547a1ef5635082b6d058eed8ea4e6d0345b2668cc865ce",
+      "original_frame_sha256": "75e1a6a752ff710b3203d96a9ff7716ce82af4681ee4c69f670ca64ec3a436b5",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 685,
+            "height": 196
+          },
+          "glyph": {
+            "x": 96,
+            "y": 266,
+            "width": 629,
+            "height": 140
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 755,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          },
+          "box": {
+            "x": 755,
+            "y": 837,
+            "width": 245,
+            "height": 89
+          },
+          "glyph": {
+            "x": 786,
+            "y": 868,
+            "width": 189,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1300,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          },
+          "box": {
+            "x": 1300,
+            "y": 837,
+            "width": 251,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1328,
+            "y": 868,
+            "width": 195,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

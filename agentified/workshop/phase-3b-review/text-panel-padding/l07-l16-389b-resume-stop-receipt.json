@@ -1,0 +1,45 @@
+{
+  "recordedAtUtc": "2026-11-22T11:54:01Z",
+  "status": "STOP_at_L07-08_desktop_duplicate_presenter_and_lesson_captions",
+  "scope": "Provider-free Phase 3B L07-L16 learner-route matrix; first validate the authored L07-08 closing correction at desktop and 390x844",
+  "reviewPr": 1290,
+  "reviewBaseHead": "258f92cda9acdedfc63041a7ae10ee0d8d9c3367",
+  "sourceCompositionPr": 1296,
+  "sourceCompositionHead": "389b8954d56fe5251ae10269e12ea9b42d43d0c0",
+  "sourceCandidateSha256": "8c3cbcddd420977f2664931e73878e2b1e939a6b7ee0c961ff2c1b42c6eb9446",
+  "captionCommit": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "laneClassification": "Dependent: PR #1296 stacks on #1290 and the exact caption/player heads supply the disposable learner fixture; no high-conflict product file was changed in this review lane.",
+  "temporaryFixture": {
+    "route": "http://127.0.0.1:3149/agentified/learningplan?lesson=L07",
+    "method": "Disposable app copied from PR #1290 exact head, with exact player files from 7bb6267, temporary L07 binding to the hash-verified PR #1296 candidate, and temporary end-screen hash. No repository product binding changed.",
+    "candidateDurationSeconds": 251.332,
+    "candidateVideoFrames": 6283,
+    "candidateAudioPackets": 11783,
+    "candidateSubtitlePackets": 112,
+    "data": "synthetic guest state; no private user data"
+  },
+  "observedBeforeStop": "At a desktop 1728x962 browser viewport, the corrected L07-08 Operating File card and complete checklist cleared the fixed native presenter. The exact candidate loaded on the learner route. The lesson captions toggle was on and the video text track mode was showing.",
+  "firstFailure": {
+    "scene": "L07-08",
+    "layout": "desktop 1728x962",
+    "lessonTimeSeconds": 246.30568,
+    "finding": "The lesson player displayed the active external cue 'Next we will test that handoff with' below the video while the same words were burned into the native presenter image. Turning the lesson CC control off cannot remove text baked into the video. This is a different failure class from the resolved presenter-art overlap and was independently observed in the disposable learner browser.",
+    "externalCue": "00:04:05.492 --> 00:04:06.982 in public/agentified/lessons/l07/continuous-869a0ff4/agentified-l07-continuous-narration-captions.vtt",
+    "evidence": [
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-08-duplicate-captions-candidate-frame.png",
+        "sha256": "43b0f6bead0acdd648887aa0a7aa4495c8cb6c4112764c267ae83b33f1f04fbe",
+        "details": "Frame at 246.3 seconds from the hash-bound PR #1296 candidate; the presenter crop visibly contains the baked-in words."
+      },
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-08-duplicate-captions-source-route-desktop.mp4",
+        "sha256": "77a67bfa3c289804f87289730ff59ad1f5e1186a6e2de4732548317f8143ec61",
+        "details": "Exact 1280x844 learner-route capture supplied by the source author in PR #1296, retained as corroborating route evidence; decoded successfully. The independent reviewer observation used the disposable route above."
+      }
+    ]
+  },
+  "qualification": "Stopped at the first different failure class. L07-08 mobile and L08-L16 full matrix, controls beyond the caption state, completion, and replay were not independently tested in this pass. Previous receipts remain targeted observations. Human QA remains pending.",
+  "bindings": "Temporary learner and end-screen bindings existed only inside the disposable app; committed product bindings remain unbound.",
+  "nextGate": "Source owner must provide a clean native presenter source without burned-in words or an approved source-faithful correction that preserves the recorded background, crop, position, audio, VTT words and timing, and both L07 composition fixes. Verify caption on/off at desktop and 390x844 on the exact learner route, then restart the version-bound matrix."
+}

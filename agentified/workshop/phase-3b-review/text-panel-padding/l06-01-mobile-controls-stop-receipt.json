@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "status": "rejected_presenter_art_obstruction",
+  "sceneId": "L06-01",
+  "paddingPr": 1290,
+  "paddingBaseHead": "c9c4bacc48b5baab58b882154a5eb9e16cacac58",
+  "captionPr": 1293,
+  "captionRemoteHead": "46b2c166ec012a06b8e0a458d6c189c5911f4a03",
+  "captionLocalEvidenceHead": "e74c66c39ed161c10f5df485f78f1ad15ff84ed1",
+  "sourceVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+  "sourceCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+  "desktopCandidateSha256": "9f042b9ec24e1c3a78bc1668775d879d05757aa89e5c4649ee88d18c537b76c1",
+  "rejectedMobileFrameSha256": "c37cdb29246a739124a10d1fb746f5f1878b53e2a144a73dc4ed8ba62a7b5228",
+  "rejectedMobileClipSha256": "70977a5e832d09b5e38dc5fa90fd36abcf1f4b9b6fffd11f3a8230f99125a057",
+  "rejectedMobileVttSha256": "fd8e501c7431cde26a05906d4b6dbd3d208b4c8c4d46b503c29af3108b37111b",
+  "failureScreenshotSha256": "54ec53e6a764b04d1ef84d02367f7157d7d577dd36dd563ce0012935a7247bc0",
+  "candidateDurationSeconds": 28.639,
+  "candidateAspectRatio": "16:9",
+  "presenterWindowSeconds": [0, 13.64],
+  "presenterSourceRectPx": [1048, 326, 768, 432],
+  "presenterCandidateRectPx": [1060, 190, 704, 396],
+  "firstFailure": {
+    "timeSeconds": 1,
+    "state": "moving presenter candidate",
+    "observation": "presenter section covers the gate upper bars and handoff envelope",
+    "failureClass": ["presenter_art_obstruction", "changed_presenter_geometry"],
+    "screenshotPath": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-01-mobile-controls-clear-presenter-stop.png"
+  },
+  "candidateBoundToLearner": false,
+  "remainingMatrixQualified": false
+}

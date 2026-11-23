@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L11-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L11-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L11-01.png",
+      "frame_sha256": "d78289cf322fdce7724730b874a4ed6eb4827ea321d167df5555bb9d5c781b1d",
+      "visual_family": "L11-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L11.png",
+      "source_sha256": "f07f706916b47ad0f9c167d08ed0f6eb832f296a5d1fccef622a9f4115ea576a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "See the job in one glance."
+      ],
+      "accessibility_text": "Status, blocker, and next step are visible. Visual: Three physical cockpit instruments around one job card.",
+      "continuity": {
+        "id": "L11-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Status, blocker, and next step are visible.",
+      "brief_sha256": "212ee5dc5347f75f3faf897aa1dcf5ab7408f4aa0eb0f070a916a237173c1152",
+      "original_frame_sha256": "e499e70c66540d4d04285d8c043e0dcc60a60e371cc8ed3c3a7d78ba19a7e22b",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 934,
+            "height": 125
+          },
+          "glyph": {
+            "x": 106,
+            "y": 705,
+            "width": 878,
+            "height": 69
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

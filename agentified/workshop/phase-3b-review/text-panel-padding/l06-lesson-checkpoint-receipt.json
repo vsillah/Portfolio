@@ -1,0 +1,113 @@
+{
+  "status": "review_only_unbound",
+  "sourceVideoSha256": "163e01e6eb8f1a014b7155b40063bc2b6fa3546fc6bc4329579775581e6f9ef3",
+  "sourceCaptionSha256": "018418cc1d4bf2333ed6525f1926b8b052f57677a136976e42c80c8f703c69ba",
+  "scenes": [
+    {
+      "scene": "L06-04",
+      "receipt": "agentified/workshop/phase-3b-review/text-panel-padding/candidate-receipt-L06-04.json",
+      "receiptSha256": "a1d64d8931146587e54e43b697ec2e5da7bf909ee67a56d40125cc64546fc654",
+      "frameSha256": "a9300061d14e8842f5b30d977ca0817deec268358a4643582b8822a7f9444c38",
+      "fittedPanels": 3,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-04-desktop.mp4",
+          "sha256": "d8e81ccf1e83165c77df0bb7b289cce8ea49c51ea6f0b056febdccc107a2b62b",
+          "vttSha256": "8536213fdd717224b907d1105653f8033b42fb5f51bd940bd86f310c8d7e5865"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-04-mobile.mp4",
+          "sha256": "c0cba49430a7309f79fffeb04c0256e7eec534abf9c0ca8cdcbe082cccd6fe77",
+          "vttSha256": "8536213fdd717224b907d1105653f8033b42fb5f51bd940bd86f310c8d7e5865"
+        }
+      ]
+    },
+    {
+      "scene": "L06-05",
+      "receipt": "agentified/workshop/phase-3b-review/text-panel-padding/candidate-receipt-L06-05.json",
+      "receiptSha256": "dbc8aa53acc29ae86682ee73fdab909f14230e5a42c66dcd863f6a2d8d0d0993",
+      "frameSha256": "0453e0ff889afc7a4e4624fb96be83428167262299a2c3b68ccdc4bc04d4ad48",
+      "fittedPanels": 3,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-05-desktop.mp4",
+          "sha256": "ea95c00ab309dae0179591539967f13cf1747e841f8273100e4be7abf50bf05d",
+          "vttSha256": "fa85502dc19b5ab0b994228f914e4671fa857522e7bd42c1866d1ccc3883a933"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-05-mobile.mp4",
+          "sha256": "c72afadd36c4272a399c63d2b51f64b4aced96a05da2ebcbd63e65e7de35884a",
+          "vttSha256": "fa85502dc19b5ab0b994228f914e4671fa857522e7bd42c1866d1ccc3883a933"
+        }
+      ]
+    },
+    {
+      "scene": "L06-06",
+      "receipt": "agentified/workshop/phase-3b-review/text-panel-padding/candidate-receipt-L06-06.json",
+      "receiptSha256": "63df1fc997d3745c78d540b7e6b00f63ca8335009982afcb4c69b2e995916830",
+      "frameSha256": "de702f9b88543872bac7100e5cf96a3e3402f3b827be9833c9daa7028f3eef3b",
+      "fittedPanels": 3,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-06-desktop.mp4",
+          "sha256": "f962892ce2bdb38b695bddcc90217dc13369cc1fcc252effbee624ea21f8220b",
+          "vttSha256": "512847dcdf573c1a29be6cfbb04e75ef57b7eb5a76b44d6142953b67a4972c6f"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-06-mobile.mp4",
+          "sha256": "8ed44a43aae5fbc8d59d0588f0f0cb8cd7ed51131f436344f732937c5373f7e0",
+          "vttSha256": "512847dcdf573c1a29be6cfbb04e75ef57b7eb5a76b44d6142953b67a4972c6f"
+        }
+      ]
+    },
+    {
+      "scene": "L06-07",
+      "receipt": "agentified/workshop/phase-3b-review/text-panel-padding/candidate-receipt-L06-07.json",
+      "receiptSha256": "4c579c521b2d452e54aeb013a39d21bc3273126a0b83878153521fe5a12ac86a",
+      "frameSha256": "bba2d0d159daa1a887237720b2ed4775a5a9b174059a47ac95c18a31a1648949",
+      "fittedPanels": 0,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-07-desktop.mp4",
+          "sha256": "e709cb59cd38bf7dbee46d37c443ff8710f0b29b5839cd770a13813cf5ec7c5f",
+          "vttSha256": "72f9a598396c06a23ec137caf338c403311c9c98440d460365696c624af02e91"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-07-mobile.mp4",
+          "sha256": "7c8e000e1006164bd626b851fda220d21c65a62ce609d56127b092c19024c035",
+          "vttSha256": "72f9a598396c06a23ec137caf338c403311c9c98440d460365696c624af02e91"
+        }
+      ]
+    },
+    {
+      "scene": "L06-08",
+      "receipt": "agentified/workshop/phase-3b-review/text-panel-padding/candidate-receipt-L06-08.json",
+      "receiptSha256": "892d2c4ae2f4ea29c0c6f8e4434bef2a58866a12dadb59d3396b44050a3f5562",
+      "frameSha256": "5e72e5319665d06eecedf8fca546c73de2e4ff13463af9bb9437f8eed995c097",
+      "fittedPanels": 2,
+      "clips": [
+        {
+          "layout": "desktop",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-08-desktop.mp4",
+          "sha256": "7cba62927430d165bfb107487b0a326581d30b427d0ec472a5feb46445e0e025",
+          "vttSha256": "f675857c3e8dba140108de4310ff63f4b583cb07a4f5ec8eb7f2b56f73ea1735"
+        },
+        {
+          "layout": "mobile",
+          "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/lesson-order/L06-08-mobile.mp4",
+          "sha256": "a93c8a97583871c3f6ec9f9bd1c4d7952c209209733894f8c04ae52022c0a457",
+          "vttSha256": "f675857c3e8dba140108de4310ff63f4b583cb07a4f5ec8eb7f2b56f73ea1735"
+        }
+      ]
+    }
+  ],
+  "limits": "Scene-local clips and pixel checks; no candidate learner binding or L06-04..08 browser matrix."
+}

@@ -1,0 +1,39 @@
+{
+  "recordedAtUtc": "2026-11-22T19:25:54Z",
+  "status": "SUPERSEDED_by_l08-duplicate-presenter-caption-stop-receipt",
+  "supersededBy": "agentified/workshop/phase-3b-review/text-panel-padding/l08-duplicate-presenter-caption-stop-receipt.json",
+  "scope": "Provider-free ordered L08-L16 Phase 3B learner-route qualification after L07 Human QA approval",
+  "reviewPr": 1290,
+  "reviewHead": "f0f91d46fa3dbc2ba5286b7cb3c7a355475c2a2f",
+  "dependencyHeads": {
+    "pr1292": "3ca22b88162de93182d07eee89fbc062feea129f",
+    "pr1293": "8948462d35c7b3b28d315341046b45bafae25805",
+    "pr1295": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "pr1296": "b11360d1dc0b63a1d9c7ea126aa50dea196fa649"
+  },
+  "headsVerified": "All five GitHub PR heads matched the delegated exact values and remained draft at preflight. PR #1290 matched the current validated review head; no source-media files or product bindings were changed in this lane.",
+  "l07HumanQaApproval": {
+    "status": "approved_for_exact_scope",
+    "pr": 1293,
+    "head": "8948462d35c7b3b28d315341046b45bafae25805",
+    "intervalSeconds": [188.515, 233.515],
+    "scope": "L07-07 cue-driven caption bands, captions-off, Aa Small/Medium/Large, pause and seeking, completion and replay, desktop and 390x844",
+    "recordedPrComment": "https://github.com/vsillah/Portfolio/pull/1293#issuecomment-7084392728",
+    "verification": "The PR comment was read back and its head remained exact."
+  },
+  "firstBlocker": {
+    "classification": "dependency source conflict",
+    "pr": 1295,
+    "githubMergeable": "CONFLICTING",
+    "githubMergeStateStatus": "DIRTY",
+    "mergeBase": "af647b6adc101cafade371d5ca53047670d53213",
+    "command": "git merge-tree --write-tree 8948462d35c7b3b28d315341046b45bafae25805 7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "exitCode": 1,
+    "path": "app/agentified/AgentifiedLessonHero.tsx",
+    "result": "CONFLICT (content): Merge conflict in app/agentified/AgentifiedLessonHero.tsx",
+    "finding": "The updated caption branch and the mobile-control branch both change the lesson player. Their exact heads cannot form a reproducible learner fixture without choosing a product-code resolution. The matrix lane has no authority to reinterpret either implementation or silently use an older caption head."
+  },
+  "qualification": "Stopped before any L08 temporary binding, route playback, screenshot, MP4, or matrix result. Preserved existing validated L07 evidence. L08-L16 remain untested against the requested exact stack.",
+  "bindings": "No temporary learner binding was created; committed product bindings remain unchanged.",
+  "nextGate": "The owning player lane or Integration Captain must reconcile PR #1295 with exact PR #1293 head, publish a new reviewable player head, and revalidate the combined caption/mobile-control behavior. Then rebind the full exact stack and restart the L08-L16 matrix in lesson order. The L07 Human QA approval remains bound only to PR #1293 head 8948462d and its recorded scope."
+}

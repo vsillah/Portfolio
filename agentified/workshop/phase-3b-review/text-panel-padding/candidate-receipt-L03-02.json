@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L03-02"
+  ],
+  "frames": [
+    {
+      "scene_id": "L03-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L03-02.png",
+      "frame_sha256": "eeddb7062f0f49678b6edd03757b9ee92a7fe463d271f763bef532f36f45da5a",
+      "visual_family": "L03-operating-artifact:plate:center",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-1-1-first-receipt-publication-plate.png",
+      "source_sha256": "1f5d13085c97dc9937bdd30362a17729b95d1401775706faa474bfe87858b669",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          900,
+          350,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            150,
+            40,
+            190,
+            180
+          ],
+          "feather_px": 40,
+          "focus": "agent, source, and artifact fields",
+          "edge_risk": "adjacent human-gate label at right and receipt banner below",
+          "mask_sha256": "28da7c7cdcebdb3f916bf05dfc14cc15e9dc9d9e0ce04de5dd4082ebbee233ac"
+        }
+      },
+      "display_copy": [
+        "Show how the claim was prepared.",
+        "Claim",
+        "Source"
+      ],
+      "accessibility_text": "A trace makes the claim inspectable. Visual: Approved receipt plate focused on agent, source, and artifact.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A trace makes the claim inspectable.",
+      "brief_sha256": "06d43b7211b7adb8b50831937f58484d32cfc7ff7a5028b23a5bbd1f955f07e6",
+      "original_frame_sha256": "d7cdb97de769162bd07c089e9f6fb172f00c2020809aff5d17b80fdccf469252",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 692,
+            "height": 196
+          },
+          "glyph": {
+            "x": 94,
+            "y": 265,
+            "width": 636,
+            "height": 140
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 755,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          },
+          "box": {
+            "x": 755,
+            "y": 837,
+            "width": 171,
+            "height": 89
+          },
+          "glyph": {
+            "x": 785,
+            "y": 868,
+            "width": 115,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1300,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          },
+          "box": {
+            "x": 1300,
+            "y": 837,
+            "width": 203,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1329,
+            "y": 868,
+            "width": 147,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

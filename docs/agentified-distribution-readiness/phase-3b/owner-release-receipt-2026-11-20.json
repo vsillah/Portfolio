@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "status": "owner_rights_confirmed_for_identified_workshop_distribution",
+  "approvalDate": "2026-11-20",
+  "authorizer": "Vambah Sillah, on behalf of AmaduTown and for the presenter likeness and voice",
+  "approvalContext": "Owner authorization conveyed through the Portfolio Integration Captain task 01a1c704-3bcc-7d63-a927-c409241c061b to the Queen Nzinga Phase 3 qualification lane on 2026-11-20",
+  "sourceMap": {
+    "path": "docs/agentified-distribution-readiness/phase-3b/source-map-v1.json",
+    "sha256": "6316aa15a232e99019f938ccbaae397e5314f5d4035a626346caad5f6b8aebad"
+  },
+  "approvedStackedCodeHead": "11fc4cb663028240016d144364e8ac4030b3372e",
+  "coveredLessons": ["L01", "L05", "L06", "L07", "L08", "L09", "L10", "L11", "L12", "L13", "L14", "L15", "L16"],
+  "coveredIdentifiedAssets": [
+    "versioned scripts and their paraphrases",
+    "presenter footage, likeness, and voice",
+    "current composite MP4s identified by the exact source map",
+    "current captions and script-derived transcripts identified by the exact source map",
+    "illustrations and embedded visual/audio elements within those identified composites"
+  ],
+  "approvedUse": {
+    "purpose": "Agentified workshop distribution as public open learning",
+    "entryPoints": ["AmaduTown Agentified landing page", "Agentified Learning Plan"],
+    "accessModel": "guest access with optional sign-in for saved progress",
+    "delivery": "workshop playback and ordinary delivery only"
+  },
+  "excludedUses": [
+    "separate raw-source redistribution",
+    "provider-training reuse",
+    "unrelated commercial reuse"
+  ],
+  "executionNotAuthorized": [
+    "binding unbound media or captions",
+    "editing stacked PRs #1291-#1294",
+    "merge or manual deployment",
+    "provider contact, generation, or spending",
+    "publication or release",
+    "learner-data mutation"
+  ],
+  "scopeBoundary": "This receipt grants the named distribution rights for assets identified by the exact source-map hash. It does not identify or grant rights to unbound L10/L16 candidates or independent assets absent from that map. Earlier review-only provider/job permissions remain lineage and do not expand execution authority. Specific contrary rights evidence blocks only the affected element or lesson."
+}

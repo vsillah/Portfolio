@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L09-05"
+  ],
+  "frames": [
+    {
+      "scene_id": "L09-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L09-05.png",
+      "frame_sha256": "c63db1c803cf7bb43b0f59120a9d8a9946fbca9808aee96cabe028f6c6526143",
+      "visual_family": "L09-operating-artifact:detail:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Show uncertainty with evidence.",
+        "Evidence",
+        "Uncertainty"
+      ],
+      "accessibility_text": "A review packet carries both proof and its limits. Visual: Three draft folders weighed against sources.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A review packet carries both proof and its limits.",
+      "brief_sha256": "54d34da0ffb05f64a43b2baa113cd689e426294d0d1f3293b8f50642c271e755",
+      "original_frame_sha256": "951ce2ef777700bf2e570adc274cd1dd810836a2725f502133a63f8c55d01b6a",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 614,
+            "height": 183
+          },
+          "glyph": {
+            "x": 94,
+            "y": 265,
+            "width": 558,
+            "height": 127
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 856,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 856,
+            "width": 245,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 888,
+            "width": 189,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 736,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 736,
+            "width": 295,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 768,
+            "width": 239,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

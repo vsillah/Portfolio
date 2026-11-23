@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L08-02"
+  ],
+  "frames": [
+    {
+      "scene_id": "L08-02",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L08-02.png",
+      "frame_sha256": "985d5f6be0f62bc1aed36b9289a11a631f361e516af6f098b2b9b83ae985493c",
+      "visual_family": "L08-operating-artifact:detail:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L08.png",
+      "source_sha256": "cc5af0964b2ae690d309acf21f4bb75e48897f0c0d805415ab72200ba170e61a",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Agree on payload and rejection.",
+        "Payload",
+        "Reject rule"
+      ],
+      "accessibility_text": "Both sides know what passes and what fails. Visual: Contract sheet beneath the sealed envelope.",
+      "continuity": {
+        "id": "L08-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Both sides know what passes and what fails.",
+      "brief_sha256": "d2f604651ede98354299b92113a652c4316a14b04ff1ff6d990058e8385562ad",
+      "original_frame_sha256": "394b7c21aba4299d590d7cce88c58bd5140727bfa5308612f0bc51eb2968bc82",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 614,
+            "height": 196
+          },
+          "glyph": {
+            "x": 94,
+            "y": 266,
+            "width": 558,
+            "height": 140
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 856,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 856,
+            "width": 219,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 888,
+            "width": 163,
+            "height": 42
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1030,
+            "y": 736,
+            "width": 690,
+            "height": 94
+          },
+          "box": {
+            "x": 1030,
+            "y": 736,
+            "width": 277,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1061,
+            "y": 768,
+            "width": 221,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

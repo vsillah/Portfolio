@@ -1,0 +1,7 @@
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/overview-wide.png'
+duration 1.600
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-04-stage.png'
+duration 21.500
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-05-execute.png'
+duration 11.960
+file '/Users/vambahsillah/.codex/worktrees/205e/Portfolio/agentified/workshop/phase-3b-review/text-panel-padding/l06-03-responsive-study/focus-05-execute.png'

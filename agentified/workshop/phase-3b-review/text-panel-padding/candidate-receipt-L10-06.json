@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L10-06"
+  ],
+  "frames": [
+    {
+      "scene_id": "L10-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L10-06.png",
+      "frame_sha256": "17f51bfa198470554963648ebdd5f67e42a6b98ad58c0d417529420a8c0e4ab5",
+      "visual_family": "L10-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L10.png",
+      "source_sha256": "89e9c886ed66466c369de58f01f461f81e2071287575a512acb19bd9e12dab9f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Write the condition clearly.",
+        "Condition",
+        "Fresh review"
+      ],
+      "accessibility_text": "The learner states what would permit the next step. Visual: Condition slip beside the key.",
+      "continuity": {
+        "id": "L10-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner states what would permit the next step.",
+      "brief_sha256": "24bd507f55cd992df868b22ca70f438b2faea2bc3ff68bd0f51636a8080070f5",
+      "original_frame_sha256": "fc451755f917b5f90bf09f53e7525bb854eb5cdad2ea3eafbf943e9f69bb2164",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 864,
+            "height": 116
+          },
+          "glyph": {
+            "x": 92,
+            "y": 80,
+            "width": 808,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 257,
+            "height": 89
+          },
+          "glyph": {
+            "x": 145,
+            "y": 788,
+            "width": 201,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 322,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 266,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

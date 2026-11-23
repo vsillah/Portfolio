@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L07-05"
+  ],
+  "frames": [
+    {
+      "scene_id": "L07-05",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L07-05.png",
+      "frame_sha256": "5159b5444497cc8e8b41a935435258d34d2231b13d4d794dc507befd11868661",
+      "visual_family": "L07-operating-artifact:plate:middle",
+      "source_path": "agentified/manuscript/visuals/rendered/publication-plates/figure-ii-1-authority-ladder-publication-plate.png",
+      "source_sha256": "073e9a29915a5a001b02819aefea65b546cfe45a4b2e4a82ce72df140f84845b",
+      "source_rights": "approved for this exact bound Agentified lesson scene",
+      "approved_plate_rendered_px": {
+        "x": 600,
+        "y": 130,
+        "width": 1280,
+        "height": 850,
+        "source_crop_px": [
+          450,
+          1750,
+          2200,
+          1500
+        ],
+        "crop_safety": {
+          "insets_px": [
+            170,
+            240,
+            70,
+            190
+          ],
+          "feather_px": 40,
+          "focus": "Route rung and receiver path",
+          "edge_risk": "Stage and adjacent rung fragments",
+          "mask_sha256": "9e49b7a673955ad870a0d145d1e5d48bf74c2bece927ac9afb126fe36ad73172"
+        }
+      },
+      "display_copy": [
+        "Name each receiver.",
+        "Handoff",
+        "Morgan"
+      ],
+      "accessibility_text": "Source checker, drafter, and coordinator pass work to Morgan. Visual: Approved authority ladder focused on the Route rung.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Source checker, drafter, and coordinator pass work to Morgan.",
+      "brief_sha256": "01460f28c48918f2964fec521c3e0b79b7fa07e5fe6ac80ed894cf95b2c88799",
+      "original_frame_sha256": "438954e807bd6d0f9a2c1636a2b01991af471f051d83e37ab6ca96cb6416132b",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 44,
+            "y": 172,
+            "width": 690,
+            "height": 700
+          },
+          "box": {
+            "x": 44,
+            "y": 172,
+            "width": 692,
+            "height": 105
+          },
+          "glyph": {
+            "x": 98,
+            "y": 266,
+            "width": 636,
+            "height": 49
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 755,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          },
+          "box": {
+            "x": 755,
+            "y": 837,
+            "width": 221,
+            "height": 89
+          },
+          "glyph": {
+            "x": 786,
+            "y": 868,
+            "width": 165,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1300,
+            "y": 837,
+            "width": 510,
+            "height": 93
+          },
+          "box": {
+            "x": 1300,
+            "y": 837,
+            "width": 209,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1331,
+            "y": 868,
+            "width": 153,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

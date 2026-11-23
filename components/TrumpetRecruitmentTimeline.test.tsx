@@ -51,7 +51,7 @@ describe("Trumpet recruitment milestones", () => {
       x: left, y: top, left, top, width, height, right: left + width, bottom: top + height, toJSON: () => ({}),
     } as DOMRect);
     const original = HTMLElement.prototype.getBoundingClientRect;
-    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function () {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
       if (this.hasAttribute("data-timeline-layout")) return rect(0, 0, 900, 510);
       if (this.hasAttribute("data-timeline-stage")) return rect(365, 0, 170, 510);
       if (this.matches("button[data-side]")) {

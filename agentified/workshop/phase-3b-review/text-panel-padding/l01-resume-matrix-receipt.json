@@ -1,0 +1,711 @@
+{
+  "status": "PASS",
+  "codeHead": "b93450a8d98f1d325dd5914b5a4c2f50df640099",
+  "candidateHead": "55ebd09cba902ccc681a1289601e8f8c773d38a8",
+  "states": [
+    {
+      "scene": "L01-06",
+      "width": 1280,
+      "size": "S",
+      "on": true,
+      "time": 188,
+      "mode": "showing",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 1280,
+      "size": "S",
+      "on": false,
+      "time": 188,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 1280,
+      "size": "M",
+      "on": true,
+      "time": 188,
+      "mode": "showing",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 1280,
+      "size": "M",
+      "on": false,
+      "time": 188,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 1280,
+      "size": "L",
+      "on": true,
+      "time": 188,
+      "mode": "hidden",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 1280,
+      "size": "L",
+      "on": false,
+      "time": 188,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 1280,
+      "size": "S",
+      "on": true,
+      "time": 342,
+      "mode": "showing",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 1280,
+      "size": "S",
+      "on": false,
+      "time": 342,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 1280,
+      "size": "M",
+      "on": true,
+      "time": 342,
+      "mode": "showing",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 1280,
+      "size": "M",
+      "on": false,
+      "time": 342,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 1280,
+      "size": "L",
+      "on": true,
+      "time": 342,
+      "mode": "hidden",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 1280,
+      "size": "L",
+      "on": false,
+      "time": 342,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 1280,
+      "size": "S",
+      "on": true,
+      "time": 350,
+      "mode": "hidden",
+      "controls": true,
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 1280,
+      "size": "S",
+      "on": false,
+      "time": 350,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 1280,
+      "size": "M",
+      "on": true,
+      "time": 350,
+      "mode": "hidden",
+      "controls": true,
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 1280,
+      "size": "M",
+      "on": false,
+      "time": 350,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 1280,
+      "size": "L",
+      "on": true,
+      "time": 350,
+      "mode": "hidden",
+      "controls": true,
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        },
+        {
+          "tag": "g",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1288.2928466796875
+        },
+        {
+          "tag": "circle",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1288.2928466796875
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 1280,
+      "size": "L",
+      "on": false,
+      "time": 350,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 1280,
+      "viewport": 1280,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1386.6666259765625
+        },
+        {
+          "tag": "g",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1307.328125
+        },
+        {
+          "tag": "circle",
+          "cls": "[object SVGAnimatedString]",
+          "right": 1307.328125
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 390,
+      "size": "S",
+      "on": true,
+      "time": 188,
+      "mode": "hidden",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 390,
+      "size": "S",
+      "on": false,
+      "time": 188,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 390,
+      "size": "M",
+      "on": true,
+      "time": 188,
+      "mode": "hidden",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 390,
+      "size": "M",
+      "on": false,
+      "time": 188,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 390,
+      "size": "L",
+      "on": true,
+      "time": 188,
+      "mode": "hidden",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-06",
+      "width": 390,
+      "size": "L",
+      "on": false,
+      "time": 188,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 390,
+      "size": "S",
+      "on": true,
+      "time": 342,
+      "mode": "hidden",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 390,
+      "size": "S",
+      "on": false,
+      "time": 342,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 390,
+      "size": "M",
+      "on": true,
+      "time": 342,
+      "mode": "hidden",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 390,
+      "size": "M",
+      "on": false,
+      "time": 342,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 390,
+      "size": "L",
+      "on": true,
+      "time": 342,
+      "mode": "hidden",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-07",
+      "width": 390,
+      "size": "L",
+      "on": false,
+      "time": 342,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 390,
+      "size": "S",
+      "on": true,
+      "time": 350,
+      "mode": "hidden",
+      "controls": true,
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 390,
+      "size": "S",
+      "on": false,
+      "time": 350,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 390,
+      "size": "M",
+      "on": true,
+      "time": 350,
+      "mode": "hidden",
+      "controls": true,
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 390,
+      "size": "M",
+      "on": false,
+      "time": 350,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 390,
+      "size": "L",
+      "on": true,
+      "time": 350,
+      "mode": "hidden",
+      "controls": true,
+      "band": "Your stop condition is simple: if the owner, source, or review gate is missing, the draft stays on paper.",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    },
+    {
+      "scene": "L01-08",
+      "width": 390,
+      "size": "L",
+      "on": false,
+      "time": 350,
+      "mode": "disabled",
+      "controls": true,
+      "band": "",
+      "scrollWidth": 391,
+      "viewport": 390,
+      "overflowElements": [
+        {
+          "tag": "ellipse",
+          "cls": "[object SVGAnimatedString]",
+          "right": 495.5
+        }
+      ]
+    }
+  ]
+}

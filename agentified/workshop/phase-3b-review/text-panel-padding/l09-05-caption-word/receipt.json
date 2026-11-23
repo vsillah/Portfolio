@@ -1,0 +1,43 @@
+{
+  "recordedAtUtc": "2026-11-22T22:16:02Z",
+  "status": "PASS_targeted_review_only_unbound",
+  "scope": "Provider-free L09-05 VTT word correction at PR #1290 head 739ec029cb947e75d6ad7ec9b7a7e22e04702422",
+  "sourceVttSha256": "68371ffd0a983e3f599be63acb57851bd96dd9bceebc574516db86680c093f3d",
+  "candidateVttSha256": "d4cf4744cf5daa3f2ba78654516ec2f2765841c02d4d4b1d13e4c6aa5456d8ce",
+  "change": "Only approve. to approved. in the 147.780-150.980 second cue; reverse byte comparison proves all other VTT bytes equal the bound source.",
+  "temporaryLearnerRoute": "http://127.0.0.1:3157/agentified/learningplan?lesson=L09&rev=d4cf4744-876c0bce",
+  "temporaryVideoSha256": {
+    "desktop": "2f2d7aaf0d79e612744fabb53bc70a99d6ee3e589c1ec27c83345304e42f74e3",
+    "mobile": "876c0bce2702192a1a4cf5b952f5fae1a13367f7581649078b4a3adb0489f6af"
+  },
+  "sourceAndCandidateAudioPayloadSha256": "8e3d50d235fcee3c1df582bbdc6fe6137ed4dd4cd371ecb5f104c779d8f64bdc",
+  "sourceAndCandidateEmbeddedSubtitlePayloadSha256": "5f0d8e6b84b45de7fcd49535cc82c046a7eff6dcaf6cabd8019ce5438414fde4",
+  "streamParity": "Source and both disposable composites have 272.84 seconds, 6821 video frames, 12791 audio packets, and 92 embedded subtitle packets. Audio and embedded subtitle payload hashes are identical.",
+  "browserValidation": "Chrome fallback because no integrated in-app browser was available. Exact synthetic guest route at 1280x844 and 390x844 showed approved in one external caption band at about 150 seconds. Small, Medium, and Large sizes remained legible. Captions off removed the band; on restored the same cue while paused. Natural playback crossed L09-04, L09-05, and L09-06 boundaries on both layouts. The affected scene has no presenter caption text in the video frame.",
+  "focusedTests": "63/63 Hero, Workshop, and end-screen tests passed in a disposable app. Its fixed-path L09 track expectation was rebound only in /tmp to match the temporary candidate manifest; no committed test or product source changed.",
+  "contextEvidence": [
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-05-caption-word/evidence/L09-05-desktop-context.mp4",
+      "sha256": "bae1bb528bb55aa71b92da4400b6899c3dc9720c46db92c21e5c84bea26461d3",
+      "dimensions": "1280x844",
+      "durationSeconds": 35
+    },
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l09-05-caption-word/evidence/L09-05-mobile-context.mp4",
+      "sha256": "432e28baaddfced0099641f12725b244003256f16fe6aaa1d81296068f8fe92e",
+      "dimensions": "390x844",
+      "durationSeconds": 35
+    }
+  ],
+  "evidenceLimit": "Context MP4s show candidate video, original audio, and corrected external VTT text in a separate band; they are media-context aids, not browser screen recordings. Browser UI observations are recorded in the task transcript.",
+  "nextGate": "Resume the ordered L09-L16 learner-route matrix at L09-01. Stop at the first new defect. Keep all PRs draft and all review media unbound.",
+  "orderedL09Checkpoint": {
+    "status": "L09_desktop_and_targeted_mobile_pass_review_only",
+    "desktopFullCandidateSha256": "dc26a3458aff6a3c5bf21bf80402d09742995eea7515f61ceb6eaca536fa5293",
+    "mobileFullCandidateSha256": "53a559782610aa2cfa3fc1f6348f4549651f469827529349a106dafbaf95e080",
+    "method": "Disposable full-duration videos use original source outside exact scene windows; desktop and mobile completed L09-01 through L09-08 visual frames are overlaid only in their scene intervals. Original countdown and native presenter windows are preserved. Audio payload hash matches the source.",
+    "routeReview": "Desktop 1280x844: L09-01 through L09-08 sought in order, with caption and scene screenshots, closing presenter at 261.919 seconds and completion at 272.832. Mobile 390x844: exercise workspace at 180 seconds, closing card at 255, closing presenter at 261.5, and completion. Earlier targeted mobile L09-05 on/off and S/M/L checks passed.",
+    "duplicateCaptionFinding": "No baked spoken caption in L09 opening or closing presenter windows inspected. Lesson caption remained a separate band. Teaching labels inside the video express scene concepts rather than transcribe the active narration.",
+    "limit": "L10-L16 ordered matrix remains in progress; no full-scope pass claimed."
+  }
+}

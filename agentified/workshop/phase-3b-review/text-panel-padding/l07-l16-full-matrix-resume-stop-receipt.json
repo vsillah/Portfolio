@@ -1,0 +1,46 @@
+{
+  "recordedAtUtc": "2026-11-22T05:02:06Z",
+  "status": "STOP_at_L07-01_desktop_presenter_art_overlap",
+  "scope": "Resumed full L07-L16 scene-by-scene desktop and 390x844 learner-route qualification",
+  "reviewPr": 1290,
+  "reviewBaseHead": "bd8115d631f3882d12228ba954acecfc840569eb",
+  "sourceCompositionPr": 1296,
+  "sourceCompositionHead": "fa7ac61b5ff763c16d5a0bb5a78de553ddaa36df",
+  "captionCommit": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "mobileSourceCandidateSha256": "3483cf107f42368d958561b064359f1176fee167f844f5080b53f342d474ea72",
+  "desktopSourceSha256": "42782f17a49cc35e3e01be1f29f7de18d13ee5406004a84da7e9602aa06f2f55",
+  "temporaryFullLessonMedia": {
+    "method": "Disposable learner app with exact caption and player files. L07-01 mobile uses the source-authored 0-9.37-second correction. Review frames for L07-01 after 9.37 seconds and L07-02 through L07-06 were overlaid at registered boundaries; the source worksheet, countdown, closing presenter, audio, and subtitle streams were retained. Candidate hashes were reflected only in the disposable manifest and end-screen lookup.",
+    "mobileSha256": "829498c98dd39b60810df9e1901a9b7d035fa32dea57116254c72fcc8f498e89",
+    "desktopSha256": "ee3ff06150b4b5a68d6e949db364ae9bbb083304fba353e48df102db35b46d86",
+    "framesPerLayout": 6283,
+    "audioPacketsPerLayout": 11783,
+    "subtitlePacketsPerLayout": 112,
+    "durationSeconds": 251.332,
+    "decode": "passed"
+  },
+  "mobileObserved": "At 390x844, L07-01 presenter art remained separate at 0:00 and 0:03, full art returned at 9.37 seconds, all eight registered L07 scene entries and exits were visually checked, the L07-05 authority overview/focus and full-plate link worked, the protected countdown appeared, captions off/on and S/M/L measured 14/18/24 CSS pixels, play/pause, seek, mute/unmute, keyboard volume, clear fullscreen failure, paused reload, natural completion, and replay worked. These observations do not qualify the incomplete L07-L16 matrix.",
+  "firstFailure": {
+    "scene": "L07-01",
+    "layout": "desktop 1280x844",
+    "route": "http://127.0.0.1:3141/agentified/learningplan?lesson=L07&rev=ee3ff061-desktop-full",
+    "timeSeconds": [0, 2.5],
+    "finding": "The unchanged desktop source puts an opaque blank presenter rectangle over the team-and-checklist illustration at 0:00. The native presenter appears in that same overlapping position at about 0:02.5. The illustration continues behind the presenter window, contrary to the distinct, non-overlapping presenter composition rule. PR #1296 corrects the mobile opening only.",
+    "evidence": [
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-01-presenter-overlap-desktop.mp4",
+        "sha256": "2b94a4db5fe0943271257a2726d320cbf413cf11f2187072aa299ed0725ec04f",
+        "details": "Six-second H.264/AAC excerpt from the exact full desktop composite loaded on the learner route; decoded successfully."
+      },
+      {
+        "path": "agentified/workshop/phase-3b-review/text-panel-padding/checks/full-matrix/L07-01-presenter-overlap-desktop.png",
+        "sha256": "a390d692bb2b63cad92d11845c9e061800fcba828738f646db966a636e53509a",
+        "details": "Presenter frame at 2.5 seconds from the same composite."
+      }
+    ]
+  },
+  "qualification": "Stopped at the first reproducible desktop regression. Remaining desktop L07 scenes and all L08-L16 full learner-route states are untested in this pass. Earlier targeted receipts remain limited observations. Human QA is pending.",
+  "bindings": "Temporary local media and end-screen bindings only; repository product bindings remain unbound.",
+  "nextGate": "Return L07-01 desktop composition to the source author for a distinct presenter-safe teaching field while preserving the native presenter, source audio, subtitles, duration, and mobile correction. Rerun the full matrix from desktop L07-01 after the authored candidate is available."
+}

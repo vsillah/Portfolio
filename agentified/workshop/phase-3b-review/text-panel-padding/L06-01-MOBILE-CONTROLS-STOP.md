@@ -1,0 +1,11 @@
+# L06-01 mobile controls clearance: rejected candidate
+
+Status: **STOP / rejected review-only candidate / unbound**. Padding PR #1290 began at `c9c4bacc48b5baab58b882154a5eb9e16cacac58`; remote caption PR #1293 remains at `46b2c166ec012a06b8e0a458d6c189c5911f4a03`. The separate caption lane's preserved local visual stop is `e74c66c39ed161c10f5df485f78f1ad15ff84ed1`. No branches were restacked, bound, or merged.
+
+The bounded mobile study moved only the L06-01 measured headline panel to the top-left of a 1920×1080 review frame. It retained the exact words, font, 28 px measured padding, full source illustration, and desktop frame. A 28.639-second 16:9 review clip used the exact mapped MP4 audio/VTT and the original moving presenter section during 0–13.64 seconds. The presenter source rectangle was proportionally scaled from 768×432 to 704×396 and moved within the candidate frame to avoid the lower native-control band. The clip decodes, and its source hashes match the map.
+
+**First candidate failure: presenter/art obstruction at 1.0 second.** The repositioned presenter section covers the gate's upper bars and part of the handoff envelope. The gate and envelope are required teaching objects in the L06-01 visual description. The presenter geometry also differs from the protected source composition. The exact failed frame is `checks/lesson-order/L06-01-mobile-controls-clear-presenter-stop.png`; the moving candidate and reproducible scripts are retained solely to inspect the failure. This candidate must not be bound or treated as a passed mobile correction.
+
+Stop here. Native controls visible/hidden, playback/pause, seeking, caption on/off and S/M/L, theme and Aa restoration, desktop comparison, and adjacent boundaries were **not** qualified after this first failure. The source-route mobile paused-control collision from the caption lane remains open. A separate visual composition decision is needed for a presenter-safe zone that clears native controls while preserving the complete gate and envelope; the padding lane cannot certify this candidate.
+
+No approved video, source audio, caption words/cues, native presenter source, learner binding, completion, controls, provider action, spending, merge, deployment, publication, or release changed. The two pre-existing untracked L10 WAVs remain untouched.

@@ -1,0 +1,68 @@
+{
+  "status": "review_only_source_candidate_pass_human_qa_pending",
+  "date": "2026-11-22",
+  "pr": 1296,
+  "authorized_pr_head": "981ffe94dd83e92a4a1c1b7a773a270c06e1f53c",
+  "source": {
+    "provider": "HeyGen retained download; no generation or provider call in this lane",
+    "project_id": "c3cc7090dde04b9483d9f4d4de6b852b",
+    "caption_mode": "downloaded without burned-in captions",
+    "sha256": "795252b7c7a13a6905f5b828b458d39a55bdfc02e27e69d7a72a50bb847f9c8b",
+    "external_receipt": "/Users/vambahsillah/.codex/visualizations/2026/11/22/01a1c704-3bcc-7d63-a927-c409241c061b/heygen-l07-caption-free-receipt.json",
+    "external_source_comparison": "The retained source receipt measured 50.564519 dB PSNR in the upper 650 pixels against the earlier source and found the presenter, microphone, motion, recorded background, framing and timing matched."
+  },
+  "candidate": {
+    "path": "L07-caption-free-closing-candidate.mp4",
+    "sha256": "0c07d394a842513b57a9d873dd618974d11effaa8e6696b5a534e179a63c68b4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 25,
+    "duration_seconds": 251.332,
+    "frames": 6283,
+    "replaced_sequence_window_seconds": [242.222438, 248.332438],
+    "presenter_panel_rect": [1048, 326, 768, 432],
+    "prior_audio_streamhash_sha256": "bc8175fe09f757be095058e7cac33b2245d9ecea53f068447518cef9e383b177",
+    "candidate_audio_streamhash_sha256": "bc8175fe09f757be095058e7cac33b2245d9ecea53f068447518cef9e383b177",
+    "prior_subtitle_streamhash_sha256": "f2cc54ddc5a21765dac67bac18494e1aa8db87f635b7b7411b7b882623ce28ed",
+    "candidate_subtitle_streamhash_sha256": "f2cc54ddc5a21765dac67bac18494e1aa8db87f635b7b7411b7b882623ce28ed"
+  },
+  "synthetic_route": {
+    "player_checkout_head": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+    "requested_local_url": "http://127.0.0.1:3151/agentified/learningplan?lesson=L07&rev=0c07d394",
+    "selected_route_url": "http://127.0.0.1:3151/agentified/learningplan?lesson=L07",
+    "loaded_media_url": "http://127.0.0.1:3151/agentified/lessons/l07/review-0c07d394/L07-caption-free-closing-candidate.mp4",
+    "binding": "temporary disposable checkout only",
+    "data": "synthetic guest session",
+    "browser": "Chrome fallback; integrated in-app Browser unavailable in current chat",
+    "observations": [
+      "Desktop 1280x844 and mobile 390x844: all three named clipboard rows progress to checked and the closing Operating File and presenter remain visible within the established geometry.",
+      "Captions off: no burned-in closing text or duplicate caption; captions on: one optional WebVTT line in the player caption treatment.",
+      "Small, medium and large Aa controls changed caption presentation at both widths; mobile caption band cleared the frame and controls.",
+      "Play, pause, seek, paused position restoration after reload, completion and replay responded on the rendered route.",
+      "The encoded desktop and mobile MP4 walkthroughs decoded successfully and were visually inspected at multiple states."
+    ],
+    "walkthroughs": [
+      {
+        "path": "route-evidence/L07-caption-free-desktop-learner-route.mp4",
+        "sha256": "1d8267a44a0a261c53b7aacadd2f334c80563265b7e8045d855e1cae27954186",
+        "viewport": "1280x844",
+        "duration_seconds": 18.6,
+        "frames": 465
+      },
+      {
+        "path": "route-evidence/L07-caption-free-mobile-learner-route.mp4",
+        "sha256": "674a80a304577b518c8c07050c4ddd0d12e85511a0985a6f826c9970e8aaaa83",
+        "viewport": "390x844",
+        "duration_seconds": 18.64,
+        "frames": 466
+      }
+    ]
+  },
+  "limits": [
+    "The in-app Browser was absent from inventory and explicitly rejected tab creation, so the required durable in-app Human QA route could not be supplied. Human QA remains pending.",
+    "The fixture removes the revision query after L07 selection; the loaded media URL and its candidate hash were checked directly.",
+    "This is a targeted closing-source check, not the full L07-L16 Phase 3B matrix or production smoke.",
+    "No permanent learner binding, merge, deployment, provider activation, external publishing, spending or release occurred."
+  ],
+  "next_gate": "Integration captain review, both Vercel context checks, and a commit-bound latest-build in-app Browser route before any client-facing Human QA handoff."
+}

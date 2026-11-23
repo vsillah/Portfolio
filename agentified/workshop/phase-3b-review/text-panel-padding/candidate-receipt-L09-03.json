@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L09-03"
+  ],
+  "frames": [
+    {
+      "scene_id": "L09-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L09-03.png",
+      "frame_sha256": "6e3243aa8b55bbdbdd7fa35556dca3ed870f3a52f1a14edf1dfebb2a39869233",
+      "visual_family": "L09-operating-artifact:compare:left",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L09.png",
+      "source_sha256": "a13976c3cba0eff04c4de79f89556cd7bfd61db0d08d0bf375747a76fe442bb5",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Name a measure and its decider.",
+        "Measure",
+        "Decision"
+      ],
+      "accessibility_text": "A number matters when it changes a choice. Visual: Brass scale beside the human review token.",
+      "continuity": {
+        "id": "L09-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "A number matters when it changes a choice.",
+      "brief_sha256": "4ebd3630fcfc55272a8db7fb295c2062709f9b205decf0f25f4857ab0bab145b",
+      "original_frame_sha256": "1169935cd8f925161cb9f0ab8ad3b7f9f7311cca59c9a49e048c149f5518811a",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 1041,
+            "height": 103
+          },
+          "glyph": {
+            "x": 96,
+            "y": 80,
+            "width": 985,
+            "height": 47
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 110,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 110,
+            "y": 846,
+            "width": 230,
+            "height": 89
+          },
+          "glyph": {
+            "x": 141,
+            "y": 878,
+            "width": 174,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1090,
+            "y": 846,
+            "width": 710,
+            "height": 94
+          },
+          "box": {
+            "x": 1090,
+            "y": 846,
+            "width": 234,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1121,
+            "y": 878,
+            "width": 178,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

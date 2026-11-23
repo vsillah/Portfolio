@@ -1,0 +1,7 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:01.359
+Here the baseline is `unknown`, not zero.
+
+00:00:02.098 --> 00:00:08.000
+The proposed metric is whether a reviewer correctly identifies the staffing hold, with time to find it as a secondary observation.

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L02-01"
+  ],
+  "frames": [
+    {
+      "scene_id": "L02-01",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L02-01.png",
+      "frame_sha256": "916f8d36fac538eb9c7656388a0a52c5e5df51eae64ff0862bd8522c34e2644a",
+      "visual_family": "L02-operating-artifact:master:full",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L02.png",
+      "source_sha256": "fd2f751ef33201aab9d9229160fa65d7a31d8e9c29d834a07a6ad22e914ffc1d",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A draft is not a decision."
+      ],
+      "accessibility_text": "The brief arrives with three paths still open. Visual: Three decision folders beside a blank brief.",
+      "continuity": {
+        "id": "L02-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The brief arrives with three paths still open.",
+      "brief_sha256": "69d5e262b3b859ec05fa4e6863ecd1aac87019c39c3ef5a954c3e89364d9c620",
+      "original_frame_sha256": "20d9ba1097f5fe2107fd242a65e38978234405ef2fcc06d001d9421d25e314a2",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 46,
+            "y": 624,
+            "width": 1120,
+            "height": 335
+          },
+          "box": {
+            "x": 46,
+            "y": 624,
+            "width": 885,
+            "height": 110
+          },
+          "glyph": {
+            "x": 104,
+            "y": 705,
+            "width": 829,
+            "height": 54
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

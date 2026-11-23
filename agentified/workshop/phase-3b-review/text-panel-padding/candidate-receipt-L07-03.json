@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L07-03"
+  ],
+  "frames": [
+    {
+      "scene_id": "L07-03",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L07-03.png",
+      "frame_sha256": "d936167945961d2e09548f8237744538c1e61a39dcce5dd4f630a7d6b75b1a1d",
+      "visual_family": "L07-operating-artifact:hold:center",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "A failed test stops the draft.",
+        "Test failed",
+        "Draft withdrawn"
+      ],
+      "accessibility_text": "Morgan withdraws unsupported staffing claims. Visual: Red block on the draft folder.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Morgan withdraws unsupported staffing claims.",
+      "brief_sha256": "c284e8c429bed72d7e9ae6f514f0354fd36b0720a576b578142856690339a4e8",
+      "original_frame_sha256": "d41556b823872fbfcf230e37a6f1ddde0df3a119daa0a8a982dacb12af219511",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 62,
+            "y": 195,
+            "width": 690,
+            "height": 625
+          },
+          "box": {
+            "x": 62,
+            "y": 195,
+            "width": 529,
+            "height": 194
+          },
+          "glyph": {
+            "x": 108,
+            "y": 271,
+            "width": 473,
+            "height": 138
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 875,
+            "y": 811,
+            "width": 520,
+            "height": 94
+          },
+          "box": {
+            "x": 875,
+            "y": 811,
+            "width": 268,
+            "height": 89
+          },
+          "glyph": {
+            "x": 903,
+            "y": 843,
+            "width": 212,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

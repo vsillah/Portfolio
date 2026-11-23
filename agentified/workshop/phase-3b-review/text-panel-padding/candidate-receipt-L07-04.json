@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L07-04"
+  ],
+  "frames": [
+    {
+      "scene_id": "L07-04",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L07-04.png",
+      "frame_sha256": "6cee2cb198aa4d70b19d815c354fa251e6afea5b7566130439ba40ef6bb1dedb",
+      "visual_family": "L07-operating-artifact:sequence:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Give the pod one outcome.",
+        "One outcome",
+        "Morgan owns it"
+      ],
+      "accessibility_text": "Clear handoffs keep a small team accountable. Visual: Four worker tokens around one shared job.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "Clear handoffs keep a small team accountable.",
+      "brief_sha256": "6a06b829ce5284f7661c3517d1de04e02edb7636a71a200b900248007c1784fb",
+      "original_frame_sha256": "af321676d370f2d63a18cf12b390513c05973f6d569f35d98b977afbb16c48a4",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 870,
+            "height": 116
+          },
+          "glyph": {
+            "x": 95,
+            "y": 79,
+            "width": 814,
+            "height": 60
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 95,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 95,
+            "y": 801,
+            "width": 335,
+            "height": 89
+          },
+          "glyph": {
+            "x": 124,
+            "y": 833,
+            "width": 279,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1190,
+            "y": 801,
+            "width": 630,
+            "height": 94
+          },
+          "box": {
+            "x": 1190,
+            "y": 801,
+            "width": 376,
+            "height": 98
+          },
+          "glyph": {
+            "x": 1221,
+            "y": 833,
+            "width": 320,
+            "height": 42
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

@@ -97,7 +97,7 @@ function approvedRagContext() {
         performance_calibration: {
           status: 'bounded_fallback',
           reference_ids: [],
-          fallback_reason: 'No measured performance history is attached; the approved static reference shapes voice and structure only.',
+          fallback_reason: 'No measured performance history is attached; the approved static reference shapes voice and structure only.' as string | null,
           causal_claim_boundary: 'correlational_only',
         },
         content_shape: {

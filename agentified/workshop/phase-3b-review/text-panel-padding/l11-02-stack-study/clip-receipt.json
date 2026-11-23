@@ -1,0 +1,91 @@
+{
+  "status": "review_only_unbound",
+  "scene": "L11-02",
+  "paddingHead": "7916b3a7f",
+  "captionHead": "af647b6adc101cafade371d5ca53047670d53213",
+  "playerHead": "7bb6267c9fb98172679e161aafa208dfc7a276c3",
+  "lessonStartSeconds": 26.08,
+  "durationSeconds": 35.58,
+  "sourceVideoSha256": "169488eced03d6c5c300dc9241af14c7677389d9ed9997578266a7828cf842b3",
+  "sourceCaptionSha256": "e9b13aa8a32affc3da8022f8365b8dd0161e038f3bec6a069720820041d45c78",
+  "trimmedCaptionSha256": "c212667b68fb1df949530e2cfeef6b520abc70830429b9e08c03cebab481bb71",
+  "frameReceiptSha256": "e1a63259471c4ea96af7ade19df011a9e8139c5f81ea36e14e4f30e9fc58c6b2",
+  "clips": [
+    {
+      "layout": "desktop",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/L11-02-desktop-review.mp4",
+      "sha256": "cd4c655962a834019be2550ca19fa42930d10fb094532f5304b071a32b03bf81",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/mission-focus.png",
+          "durationSeconds": 33.98
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "890"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1669"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "8"
+          }
+        ],
+        "format": {
+          "duration": "35.600000"
+        }
+      }
+    },
+    {
+      "layout": "mobile",
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/L11-02-mobile-review.mp4",
+      "sha256": "19a73e96713378dea725cb44a6fc8af75ec9816daee0270b1c6dbbb22cf26b2a",
+      "timeline": [
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/overview-wide.png",
+          "durationSeconds": 1.6
+        },
+        {
+          "frame": "agentified/workshop/phase-3b-review/text-panel-padding/l11-02-stack-study/mission-focus.png",
+          "durationSeconds": 33.98
+        }
+      ],
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_type": "video",
+            "width": 780,
+            "height": 438,
+            "nb_frames": "890"
+          },
+          {
+            "codec_type": "audio",
+            "nb_frames": "1669"
+          },
+          {
+            "codec_type": "subtitle",
+            "nb_frames": "8"
+          }
+        ],
+        "format": {
+          "duration": "35.600000"
+        }
+      }
+    }
+  ]
+}

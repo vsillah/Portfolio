@@ -1,0 +1,64 @@
+{
+  "status": "STOP_at_L14-03_checkpoint_timing_ambiguity",
+  "reviewBranch": "codex/agentified-phase3b-provider-free-normalization",
+  "reviewHeadBeforeReceipt": "408418b1ca7a9a8878ce5204bbbdfbb423b8a939",
+  "temporaryStackHeads": {
+    "captionSafety": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+    "player": "7bb6267c9fb98172679e161aafa208dfc7a276c3"
+  },
+  "method": "Temporary isolated learner-route app and scene-exact local composites. Composite frames used registered scene boundaries and checkpoint timelines; original source audio, VTT, presenter windows, and protected countdown windows were retained. No product media binding was changed.",
+  "checked": [
+    {
+      "lesson": "L07",
+      "result": "targeted route check passed",
+      "evidence": "At 2:08 desktop, small and medium captions used the below-player band and cleared the L07-05 callout by 8 px. Adjacent L07 scenes returned to native captions. At 390x844, the checkpoint's 1.5 s overview transitioned to the focused authority frame, and the source wording stayed visible below the player. Native presenter and protected countdown were observed. Play/pause, mute, volume, and saved caption size were exercised. Fullscreen returned an explicit unavailable notice in the automated browser."
+    },
+    {
+      "lesson": "L08",
+      "result": "targeted route check passed",
+      "evidence": "L08-05 mobile receipt focus and source wording were visible at 2:07 and 2:20. The desktop caption band cleared the video by 8 px at 2:20."
+    },
+    {
+      "lesson": "L09",
+      "result": "targeted route check passed",
+      "evidence": "L09-02 metrics focus at 0:45 and L09-04 authority focus at 1:55 were visible at 390x844 with captions below the player and source wording beneath. Desktop route loaded the exact local composite and retained an 8 px caption gap."
+    },
+    {
+      "lesson": "L10",
+      "result": "targeted route check passed",
+      "evidence": "L10-03 authority focus at 1:12 was visible at 390x844 with the spend warning below the player. Desktop route loaded the exact local composite with an 8 px caption gap."
+    },
+    {
+      "lesson": "L11",
+      "result": "targeted route check passed",
+      "evidence": "L11-02 mission focus at 0:30 was visible at 390x844, with source wording below the player. Desktop route loaded the exact local composite with an 8 px caption gap."
+    },
+    {
+      "lesson": "L12",
+      "result": "targeted route check passed",
+      "evidence": "L12-03 proof focus at 1:10 was visible at 390x844, with source wording below the player. Desktop route loaded the exact local composite with an 8 px caption gap."
+    },
+    {
+      "lesson": "L13",
+      "result": "targeted route check passed",
+      "evidence": "L13-02 five-state proposal focus at 0:30 was visible at 390x844, with source wording below the player. Desktop route loaded the exact local composite with an 8 px caption gap."
+    }
+  ],
+  "stop": {
+    "scene": "L14-03",
+    "registeredBoundarySeconds": [52.814, 78.338],
+    "registeredDurationSeconds": 25.524,
+    "checkpointTimelineSeconds": 26.0,
+    "checkpointSource": "agentified/workshop/phase-3b-review/text-panel-padding/l14-checkpoint-receipt.json",
+    "boundarySource": "agentified/workshop/presentation-illustration-audit/audit-boundaries.json",
+    "adjacentScene": "L14-04",
+    "adjacentRegisteredDurationSeconds": 26.388,
+    "adjacentCheckpointTimelineSeconds": 26.0,
+    "effect": "The checkpoint durations do not fit the registered learner scene windows. Choosing a trim or shift would change the authored timing without a source decision; the temporary composer stopped before rendering L14."
+  },
+  "notQualified": [
+    "Complete scene-by-scene L07-L13 playback and interaction matrix",
+    "L14-L16 learner-route playback",
+    "Human QA, merge, deployment, provider activation, spending, publication, and release"
+  ]
+}

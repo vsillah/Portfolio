@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L07-06"
+  ],
+  "frames": [
+    {
+      "scene_id": "L07-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L07-06.png",
+      "frame_sha256": "434c63db751371eaca5440189d5c706d8bcea10088e9ede56ce548db9042a498",
+      "visual_family": "L07-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L07.png",
+      "source_sha256": "50b45f7cd69ca37e3ea8c29f52d935a87af88446f26417943dee1d0af154ad0f",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Choose the receiver.",
+        "Next receiver",
+        "Block owner"
+      ],
+      "accessibility_text": "The learner names who must take the next handoff. Visual: One open team position beside the pod.",
+      "continuity": {
+        "id": "L07-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner names who must take the next handoff.",
+      "brief_sha256": "a7f35ad1c8500d387e82edc7385f0ffe6098090c2c6f94c99623ae2556e4b73e",
+      "original_frame_sha256": "00096efec8b571a379fe2f2f079c0ad5229aedb780ab5808b474a726bcd2f798",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 675,
+            "height": 104
+          },
+          "glyph": {
+            "x": 95,
+            "y": 79,
+            "width": 619,
+            "height": 48
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 330,
+            "height": 89
+          },
+          "glyph": {
+            "x": 146,
+            "y": 788,
+            "width": 274,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 316,
+            "height": 89
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 260,
+            "height": 33
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "status": "review_only_unbound",
+  "baseAuditSha256": "ad56768bba0a3c8dfc4599204e1aff7e05802a44f75f1f2cf39b567b908d624c",
+  "headlinesOnly": false,
+  "selectedScenes": [
+    "L03-06"
+  ],
+  "frames": [
+    {
+      "scene_id": "L03-06",
+      "frame_path": "agentified/workshop/phase-3b-review/text-panel-padding/frames/illustrated/L03-06.png",
+      "frame_sha256": "7fb260ddb428aa6c1bae6d20c48caf48518a0f7ec4fae8104a3f93d969224cec",
+      "visual_family": "L03-operating-artifact:choice:right",
+      "source_path": "agentified/workshop/presentation-illustration-audit/assets/lesson-masters/L03.png",
+      "source_sha256": "e1df956d2b3ddcfe220e59141e63a5eb9600a7496fbbc06bfabfb6ec64f05734",
+      "source_rights": "original generated project-local illustration",
+      "approved_plate_rendered_px": null,
+      "display_copy": [
+        "Choose one defensible source.",
+        "Select a record",
+        "Explain its use"
+      ],
+      "accessibility_text": "The learner selects evidence for the claim. Visual: Magnifier poised over candidate records.",
+      "continuity": {
+        "id": "L03-operating-artifact",
+        "reason": "The same lesson-specific physical work surface is revisited as its job, evidence, decision, exercise, and Operating File develop."
+      },
+      "one_second_read": "The learner selects evidence for the claim.",
+      "brief_sha256": "fff14c132b02638b6afb43b6bbfbf1674910d4a1d834c76ac1f00efab1590217",
+      "original_frame_sha256": "b2d1b6fc29d9448f56502a00ec2a47eb3d43b9c4635adeeac26b6bf9cba7809b",
+      "padding_decisions": [
+        {
+          "kind": "headline",
+          "action": "fitted",
+          "old": {
+            "x": 48,
+            "y": 38,
+            "width": 1510,
+            "height": 180
+          },
+          "box": {
+            "x": 48,
+            "y": 38,
+            "width": 995,
+            "height": 104
+          },
+          "glyph": {
+            "x": 95,
+            "y": 79,
+            "width": 939,
+            "height": 48
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-a",
+          "action": "fitted",
+          "old": {
+            "x": 115,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 115,
+            "y": 756,
+            "width": 368,
+            "height": 89
+          },
+          "glyph": {
+            "x": 144,
+            "y": 788,
+            "width": 312,
+            "height": 33
+          },
+          "paddingPx": 28
+        },
+        {
+          "kind": "label-b",
+          "action": "fitted",
+          "old": {
+            "x": 1150,
+            "y": 756,
+            "width": 650,
+            "height": 94
+          },
+          "box": {
+            "x": 1150,
+            "y": 756,
+            "width": 360,
+            "height": 97
+          },
+          "glyph": {
+            "x": 1181,
+            "y": 788,
+            "width": 304,
+            "height": 41
+          },
+          "paddingPx": 28
+        }
+      ],
+      "review_only_unbound": true
+    }
+  ]
+}

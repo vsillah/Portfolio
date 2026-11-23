@@ -1,0 +1,81 @@
+{
+  "recordedAtUtc": "2026-11-22T22:56:31Z",
+  "status": "review_only_human_acoustic_qa_pending",
+  "scope": "L13 unknown word audio join and content-aware baseline panel; no learner binding",
+  "basePr": 1290,
+  "basePrHead": "189c6e1530ebe49cbfb1bf5d3ff62cada7564859",
+  "sourceMap": {
+    "path": "docs/agentified-distribution-readiness/phase-3b/source-map-v1.json",
+    "sha256": "6316aa15a232e99019f938ccbaae397e5314f5d4035a626346caad5f6b8aebad"
+  },
+  "provenance": {
+    "wordDonorVideoSha256": "1eeaa68bde9529da7e2aeb8ccbd36b4dd41c56f408e191792765230b9c861775",
+    "wordDonorSourceSeconds": [223.06, 223.54],
+    "l13SourceVideoSha256": "4ae75aa1afeef376820edf3390313c5a4239fa70e94abf7e0b558bbca093a18f",
+    "l13SourceCaptionSha256": "a1050902601ede710453ed94d895bcbb63f071666fc6173734a66bb75137bf27",
+    "l13SourceScriptSha256": "75f6c95a9d16af6d18ef13092668d386cdf34c7acc000515076aad79f5cf6b7e",
+    "originalWordSampleSha256": "7e2854b5b858eb8bf7526a583d5f8cdfa26235d6477c70f798ff7c4b6235f490",
+    "pitchMatchedSampleSha256": "a3028a764aaf7f89ecaa7c7c56aa3b536dcca61446582bfa07dea67fe2759c93",
+    "splice": {
+      "targetSeconds": [69.86, 70.34],
+      "sampleRateHz": 48000,
+      "channels": 2,
+      "targetFrames": 23040,
+      "pitchRatio": 0.85,
+      "gain": 0.51,
+      "crossfadeMs": 12,
+      "sourceAndPatchedPcmFrames": 12252160,
+      "changedPcmFrames": 23022,
+      "outsideTargetPcmByteIdentical": true,
+      "reconstructedAndCandidateAudioStreamSha256": "c01585a1bbd37e18b26b6d92502e13825c8be0d01c4a4514c83125026ff7d543"
+    },
+    "candidateVideoSha256": "878d262919c6e7f93997c1289aa9f22ff7dee9c8893b329b4920e8ef6d10ec02",
+    "candidateFrameSha256": "40f8786a0b8b06a3c9f6aa6dcb3833213b205f3405c5577f4c45e46282a5632e"
+  },
+  "timing": {
+    "sourceAndCandidateVideo": "1920x1080, 6368 frames, 254.720 seconds",
+    "sourceAndCandidateAudio": "11966 AAC frames, 255.243 seconds",
+    "subtitle": "99 packets; L13 source VTT and candidate embedded subtitle stream unchanged"
+  },
+  "newContextClips": [
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l13-unknown-join-review/L13-desktop-60-80.mp4",
+      "sha256": "9e7b90a5ac067c61e9b4d930b60c1fe930960fd01319767b52eecfe669c91d19",
+      "resolution": "1280x844",
+      "videoFrames": 500,
+      "audioFrames": 939
+    },
+    {
+      "path": "agentified/workshop/phase-3b-review/text-panel-padding/l13-unknown-join-review/L13-mobile-60-80.mp4",
+      "sha256": "ff7893a64684eff150c75eeb94f18d9b48968c798ab78a154447c814bddb1cfb",
+      "resolution": "390x844",
+      "videoFrames": 500,
+      "audioFrames": 939
+    }
+  ],
+  "contextClipContract": {
+    "sourceSeconds": [60, 80],
+    "durationSeconds": 20,
+    "audioStreamSha256Both": "7505a9433d4704fdd12c534ff7cb2b81b09ee23550d4772901665a22f2235d0d",
+    "reviewVttSha256": "8c83871e3b3ee9908a26ae56353af8b194cd7d3b9fbd562aad7ba0cf0a5ed2f6",
+    "captionTreatment": "One burned review-caption layer below the teaching video; no embedded subtitle stream, preventing a second caption layer in media players",
+    "privacy": "Synthetic Harbor lesson art and narration only; no private account, record, secret, or unrelated browser content",
+    "validated": "Both final MP4s decode without error; each has one video stream, one audio stream, 500 frames, and 20.000-second duration. Source-to-insert and insert-to-source joins fall at 9.86 and 10.34 seconds in each clip."
+  },
+  "joinSignalChecks": {
+    "sourceToInsertBoundaryDeltaPerChannel": [164, 164],
+    "sourceToInsertNearbyP99SampleDelta": 2020.03,
+    "insertToSourceBoundaryDeltaPerChannel": [8, 8],
+    "insertToSourceNearbyP99SampleDelta": 1626.03,
+    "interpretation": "No numeric sample discontinuity at the two joins; these measurements do not prove a perceptually seamless voice match."
+  },
+  "temporaryLearnerRoute": {
+    "url": "http://127.0.0.1:3157/agentified/learningplan?lesson=L13&rev=189c6e153-878d2629",
+    "videoPath": "/agentified/lessons/l13/review-878d2629/agentified-l13-unknown-content-aware-candidate.mp4",
+    "fixture": "Disposable /tmp/phase3b-l09-word/app with synthetic guest state and temporary manifest/end-screen hash; dev server restarted after binding",
+    "browser": "Chrome fallback because integrated in-app Browser was absent from this task's inventory",
+    "checked": "Current route and exact video source after restart, 1280x844 and 390x844 panel and caption clearance, paused captions off/on and S/M/L, seeking before and after the joins, play/pause, mute/unmute, and recovery message when fullscreen was denied by this browser session",
+    "handoff": "Durable tab left open on the exact route, paused near the corrected cue"
+  },
+  "limits": "No direct human listening occurred in this runtime. Timbre, pitch, pacing, sentence flow, and audible seam judgment remain Human QA. The MP4s are source-bound media-context clips, not browser screen recordings. Fullscreen behavior remains untested because this browser session denied it with an in-context recovery message. All PRs remain draft; learner bindings and production remain unchanged. No provider contact, spend, merge, deployment, publication, or release occurred."
+}

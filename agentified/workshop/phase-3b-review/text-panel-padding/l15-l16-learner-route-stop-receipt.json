@@ -1,0 +1,42 @@
+{
+  "status": "STOP_at_L16_checkpoint_timing_ambiguity",
+  "reviewBranch": "codex/agentified-phase3b-provider-free-normalization",
+  "reviewHeadBeforeReceipt": "83465327258745a9e19993992d467e9a48487878",
+  "temporaryStackHeads": {
+    "captionSafety": "37a1b4a77d58468af2aba9aaf4222c5199a4e71f",
+    "player": "7bb6267c9fb98172679e161aafa208dfc7a276c3"
+  },
+  "L15": {
+    "timingReceipt": "agentified/workshop/phase-3b-review/text-panel-padding/l15-scene-exact-timing-receipt.json",
+    "result": "targeted learner-route review passed",
+    "evidence": "The temporary full-lesson desktop and mobile composites decoded at the original 255.386-second source duration. At 390x844, L15-04 showed its complete overview at 1:15, its limited-approval focus at 1:17 and 1:43, and the next scene at 1:44. Captions and source wording remained below the player. At 1280x720, limited-approval focus appeared at 1:19 and its caption band cleared the video by 8 px. Source audio, VTT, native presenter windows, and countdown windows were preserved in the temporary composites. No product media binding changed."
+  },
+  "stop": {
+    "boundarySource": "agentified/workshop/presentation-illustration-audit/audit-boundaries.json",
+    "checkpointSource": "agentified/workshop/phase-3b-review/text-panel-padding/l16-checkpoint-receipt.json",
+    "scenes": [
+      {
+        "scene": "L16-04",
+        "registeredBoundarySeconds": [89.687, 117.109],
+        "registeredDurationSeconds": 27.422,
+        "checkpointStudyWindowSeconds": [89.0, 117.0],
+        "checkpointTimelineSeconds": 28.0,
+        "mobileStudyStateDurationsSeconds": [4.2, 7.3, 5.5, 11.0]
+      },
+      {
+        "scene": "L16-05",
+        "registeredBoundarySeconds": [117.109, 145.819],
+        "registeredDurationSeconds": 28.71,
+        "checkpointStudyWindowSeconds": [117.0, 145.0],
+        "checkpointTimelineSeconds": 28.0,
+        "mobileStudyStateDurationsSeconds": [2.0, 4.2, 6.3, 7.3, 8.2]
+      }
+    ],
+    "effect": "The two unbound studies do not fit the registered learner scene windows. Their distinct mobile focus-state sequences require an authored allocation decision. The temporary composer stopped before rendering or binding L16."
+  },
+  "notQualified": [
+    "Complete scene-by-scene L15 playback and interaction matrix",
+    "L16 learner-route playback",
+    "Human QA, merge, deployment, provider activation, spending, publication, and release"
+  ]
+}
