@@ -1,0 +1,92 @@
+{
+  "recordedAtUtc": "2026-11-23T00:27:36Z",
+  "status": "durable_local_review_media_verified_unbound",
+  "reviewOnly": true,
+  "pr": 1290,
+  "headBeforeEvidenceCommit": "d3edb123a0a32f7a22ba7a3c2d2bd0e81608a8b5",
+  "exactDraftHeads": {
+    "playerPr1295": "fb4404bec4efbd5e4dd2400e5279f98778a587f7",
+    "mobilePlatesPr1292": "3ca22b88162de93182d07eee89fbc062feea129f",
+    "captionsPr1293": "8948462d35c7b3b28d315341046b45bafae25805",
+    "sourceCorrectionPr1296": "02e06ec04eb70cb3c94816b018f41e5a1e951f03"
+  },
+  "isolatedApp": {
+    "path": "/tmp/phase3b-l09-word/app",
+    "playerFileSha256": "f498795bb7d6647f01c9ae60d7e7a3f5e463f120219b7cb19125295b1d0ea411",
+    "stylesheetSha256": "e1a820189ee73c3ca853d3d0016f8ff3a488dc5f28d1e1eb1275146202c61e5d",
+    "fileHashRelation": "Both files match the same paths at PR #1295 exact head.",
+    "localhost": "http://127.0.0.1:3157",
+    "localhostReadiness": "HTTP 200 on L13, L14, L15, and L16 routes and all five media URLs at recording time.",
+    "handoffRoute": "http://127.0.0.1:3157/agentified/learningplan?lesson=L16&rev=fb4404be-6fe47478",
+    "currentL16Variant": "desktop"
+  },
+  "verification": "SHA-256 of each durable copy equals its prior review candidate hash. ffmpeg -v error -i FILE -f null - decoded every copy. ffmpeg streamhash SHA256 of copied audio and subtitle streams equals the corresponding source streams. Durations come from ffprobe format.duration.",
+  "files": [
+    {
+      "name": "L13",
+      "path": "L13-scenes-01-08.mp4",
+      "sha256": "9943a556104ea55eee266f7442f58806258594719adfedc9b907c14fa617fda3",
+      "sizeBytes": 15218285,
+      "durationSeconds": 255.243,
+      "audioStreamSha256": "c01585a1bbd37e18b26b6d92502e13825c8be0d01c4a4514c83125026ff7d543",
+      "subtitleStreamSha256": "a5a6ca90b5569f046cae5e7292c2aefb452f383e2179ae905190dcda0df60cb4",
+      "sourcePath": "agentified/workshop/phase-3b-review/L13/agentified-l13-unknown-content-aware-candidate.mp4",
+      "sourceSha256": "878d262919c6e7f93997c1289aa9f22ff7dee9c8893b329b4920e8ef6d10ec02",
+      "route": "http://127.0.0.1:3157/agentified/learningplan?lesson=L13&rev=fb4404be-9943a556",
+      "reviewedStates": "Desktop and 390x844 mobile: full scene sequence, L13-02 approved Amina and proposal states, captions off/on and S/M/L, seek, guided work, completion L14 poster, and replay from ended state."
+    },
+    {
+      "name": "L14",
+      "path": "L14-scenes-01-08.mp4",
+      "sha256": "de35caea920cccf5874dc689113b2ec92261c7b006e0e88451816db7cb05fbde",
+      "sizeBytes": 13000100,
+      "durationSeconds": 241.762,
+      "audioStreamSha256": "4d26ee60e3bea8b4930c3ee4de8657f677bfab087aff8d49f986c676ad2d731f",
+      "subtitleStreamSha256": "cbe9c66eb8f988a3c5587e50a4133ca87ba35c14bc386eeaf70fe0fea9917cd1",
+      "sourcePath": "public/agentified/lessons/l14/illustrated-a58c3a1c/agentified-l14-illustrated-composite.mp4",
+      "sourceSha256": "a58c3a1cf8550d67a1f164e64008a6eeea342978264904242cb23ad5a5a1591c",
+      "route": "http://127.0.0.1:3157/agentified/learningplan?lesson=L14&rev=fb4404be-de35caea",
+      "reviewedStates": "390x844 mobile scenes 01-08 including L14-03 and L14-04 overview-to-focus transitions and L15 completion; desktop L14-04 focus, caption, and completion."
+    },
+    {
+      "name": "L15",
+      "path": "L15-scenes-01-08.mp4",
+      "sha256": "8a18601a96ecd2077ffb8ffd4ab1a5fab2c7f789052e9592addf0a25bf9363f1",
+      "sizeBytes": 14778304,
+      "durationSeconds": 255.386,
+      "audioStreamSha256": "6d389de8568150f869f2918f49b4cbc281f82727e54b6b65bf157384597d62b4",
+      "subtitleStreamSha256": "e539b3937606fbf68dcbfa9d12dc9d66f4f76ae608bb2d465c261ce32a87949a",
+      "sourcePath": "public/agentified/lessons/l15/illustrated-0c5bac16/agentified-l15-illustrated-composite.mp4",
+      "sourceSha256": "0c5bac1659ef43dd3737c77ffad29401f43477dd1add6d8c6ad799a43f42c1bf",
+      "route": "http://127.0.0.1:3157/agentified/learningplan?lesson=L15&rev=fb4404be-8a18601a",
+      "reviewedStates": "390x844 mobile scenes 01-08 including L15-04 overview-to-limited-approval focus, source wording, guided work, and L16 completion; desktop L15-04 focus, caption, and completion."
+    },
+    {
+      "name": "L16 desktop",
+      "path": "L16-desktop-scenes-01-08.mp4",
+      "sha256": "6fe474789848eb1001bba0d5b8bd059f55c6380acd7212880d624f163f80252b",
+      "sizeBytes": 14426435,
+      "durationSeconds": 267.309,
+      "audioStreamSha256": "79d8d7bfc6a29551f9234955ebb48e55ad7d2a97b071efc732056c93f1ab4a4c",
+      "subtitleStreamSha256": "57e0418faa26f82974260a27cf71e344cc1fbc80fa873882fe3db08c4ef7a180",
+      "sourcePath": "public/agentified/lessons/l16/illustrated-4283c8d8/agentified-l16-illustrated-composite.mp4",
+      "sourceSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+      "route": "http://127.0.0.1:3157/agentified/learningplan?lesson=L16&rev=fb4404be-6fe47478",
+      "reviewedStates": "1280x844: L16-04 audit focus near 102.58s, L16-05 audit focus near 137.33s, ended completion at 267.309s, and replay to time zero."
+    },
+    {
+      "name": "L16 mobile",
+      "path": "L16-mobile-scenes-01-08.mp4",
+      "sha256": "b461a757ff09ee05aec2011e0b727576b40a05609d47589ebb7b1acf2643ac05",
+      "sizeBytes": 13910446,
+      "durationSeconds": 267.309,
+      "audioStreamSha256": "79d8d7bfc6a29551f9234955ebb48e55ad7d2a97b071efc732056c93f1ab4a4c",
+      "subtitleStreamSha256": "57e0418faa26f82974260a27cf71e344cc1fbc80fa873882fe3db08c4ef7a180",
+      "sourcePath": "public/agentified/lessons/l16/illustrated-4283c8d8/agentified-l16-illustrated-composite.mp4",
+      "sourceSha256": "4283c8d8fb7eca85b9b0493aa07ac22901f0155d0742ebc61c0a0744698846fc",
+      "routeAtReview": "http://127.0.0.1:3157/agentified/learningplan?lesson=L16&rev=fb4404be-b461a757",
+      "reviewedStates": "390x844: opening through scene 08; L16-04 overview, roles, prohibitions, hold; L16-05 overview, proof, rollback, revoke, staffing; captions off/on and S/M/L, countdown, and final completion."
+    }
+  ],
+  "limits": "These are source-faithful full-lesson composites for captain evidence, not client-facing release bindings or a new Human QA approval. Desktop L14-L16 visual checks sampled focus and completion states; there was no continuous real-time acoustic pass. Current localhost L16 route uses the desktop variant; the mobile variant is a separate MP4 and was temporarily bound during its recorded route review."
+}
