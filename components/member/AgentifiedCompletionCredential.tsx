@@ -6,6 +6,7 @@ import { Download, Link2, RotateCcw, ShieldOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { agentifiedCertificateSvg, certificateRecordId, type CertificateDetails } from './agentified-certificate-artwork'
 import { COURSE_CERTIFICATE_FRAME } from './course-certificate-template'
+import { AGENTIFIED_SHARE_LINKS, AGENTIFIED_SHARE_MESSAGE, AGENTIFIED_SHARE_TEXT, AGENTIFIED_SHARE_URL } from './agentified-certificate-share'
 import styles from './AgentifiedCompletionCredential.module.css'
 
 type Credential = CertificateDetails & { revision: number }
@@ -26,6 +27,10 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
   const [name, setName] = useState(profileName ?? '')
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
+  const [shareStatus, setShareStatus] = useState('')
+  const [manualCopy, setManualCopy] = useState(false)
+  const [nativeShareAvailable, setNativeShareAvailable] = useState(false)
+  useEffect(() => { setNativeShareAvailable(typeof navigator.share === 'function') }, [])
   useEffect(() => {
     if (!preview || process.env.NODE_ENV === 'production') return
     const theme = new URLSearchParams(window.location.search).get('certificateTheme')
@@ -109,6 +114,27 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
     try { await navigator.clipboard.writeText(new URL(verificationUrl, window.location.origin).toString()); setNotice('Verification link copied.') }
     catch { setNotice('Copy is unavailable in this browser.') }
   }
+  async function shareAchievement() {
+    if (!credential || typeof navigator.share !== 'function') return
+    setShareStatus(''); setManualCopy(false)
+    try {
+      await navigator.share({ title: 'Agentified workshop completion', text: AGENTIFIED_SHARE_TEXT, url: AGENTIFIED_SHARE_URL })
+      setShareStatus('Share handoff completed. Review your destination to confirm the post.')
+    } catch (error) {
+      setShareStatus(error instanceof DOMException && error.name === 'AbortError' ? 'Sharing canceled.' : 'Sharing is unavailable here. Copy the message or choose a platform.')
+    }
+  }
+  async function copyAchievement() {
+    if (!credential) return
+    setShareStatus(''); setManualCopy(false)
+    try {
+      await navigator.clipboard.writeText(AGENTIFIED_SHARE_MESSAGE)
+      setShareStatus('Complete message copied. Paste and review it before posting.')
+    } catch {
+      setManualCopy(true)
+      setShareStatus('Automatic copy is unavailable. Select the message below to copy it manually.')
+    }
+  }
   return <section className={styles.card} aria-label="Agentified completion credential">
     <div className={styles.heading}><div><p className={styles.eyebrow}>AMADUTOWN · AGENTIFIED</p><h3>Workshop completion</h3></div><span className={styles.count}>{status?.completedCount ?? 0} / 16 lessons</span></div>
     {credential || status?.eligible ? <>
@@ -121,6 +147,20 @@ export default function AgentifiedCompletionCredential({ profileName, preview = 
           <button type="button" onClick={() => void download()} disabled={busy}><Download aria-hidden="true" /> Download certificate</button>
           {verificationUrl && !preview ? <><Link href={verificationUrl}>View verification</Link><button type="button" onClick={() => void copyLink()}><Link2 aria-hidden="true" /> Copy verification link</button></> : null}
           <button type="button" className={styles.secondary} disabled={busy} onClick={() => void command(verificationUrl ? 'revoke' : 'rotate')}>{verificationUrl ? <ShieldOff aria-hidden="true" /> : <RotateCcw aria-hidden="true" />}{verificationUrl ? 'Turn off verification link' : 'Create verification link'}</button>
+        </div>
+        <div className={styles.share} aria-label="Share your achievement">
+          <h4>Share your achievement</h4>
+          <p>Invite someone to learn how to build governed agent systems.</p>
+          <div className={styles.shareActions}>
+            {nativeShareAvailable && <button type="button" onClick={() => void shareAchievement()}>Share achievement</button>}
+            <button type="button" onClick={() => void copyAchievement()}>{nativeShareAvailable ? 'Copy complete message' : 'Copy message to share'}</button>
+            <a href={AGENTIFIED_SHARE_LINKS.linkedin} target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('LinkedIn opens with the workshop link. Paste the copied message if you want to include it.')}>LinkedIn <span className={styles.external} aria-hidden="true">↗</span></a>
+            <a href={AGENTIFIED_SHARE_LINKS.facebook} target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('Facebook opens with the workshop link. Paste the copied message if you want to include it.')}>Facebook <span className={styles.external} aria-hidden="true">↗</span></a>
+            <a href={AGENTIFIED_SHARE_LINKS.x} target="_blank" rel="noopener noreferrer" onClick={() => setShareStatus('X opens with a shorter message and the workshop link. Review it before posting.')}>X <span className={styles.external} aria-hidden="true">↗</span></a>
+          </div>
+          <p className={styles.shareHint}>LinkedIn and Facebook receive only the workshop link. Copy the complete message first if you want to include it.</p>
+          {manualCopy && <label className={styles.manualCopy}>Message to copy<textarea readOnly value={AGENTIFIED_SHARE_MESSAGE} onFocus={(event) => event.currentTarget.select()} /></label>}
+          {shareStatus && <p className={styles.shareStatus} role="status" aria-live="polite">{shareStatus}</p>}
         </div>
       </> : <><label className={styles.name}>Name on certificate<input value={name} onChange={(event) => setName(event.target.value)} maxLength={120} autoComplete="name" /></label><p className={styles.helper}>This name is fixed after you claim.</p><button type="button" className={styles.claim} disabled={busy || !name.trim()} onClick={() => void command('claim')}>Claim certificate</button></>}
       <p className={styles.disclaimer}>This records workshop completion. It is not a professional accreditation or certification.</p>

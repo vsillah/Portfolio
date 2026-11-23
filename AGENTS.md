@@ -131,6 +131,8 @@ Use the approved Accelerated certificate as the canonical visual and structural 
 
 Validate desktop and 390×844 previews in light, dark, and system themes, plus long names, claimed and unclaimed states, verification on and off, revoked links, download/export fidelity, keyboard accessibility, and readable responsive details. Compare the Accelerated and new-course artifacts side by side before Human QA; any Accelerated visual drift or reduced certificate fidelity blocks release. Use synthetic data for review. Keep raw verification tokens, private learner information, user IDs, and secrets out of public certificate artwork. Describe course or workshop completion accurately; never imply professional accreditation or certification.
 
+For each course, define a course-specific achievement message that states the learner outcome accurately and invites others to the canonical public course page. Offer user-initiated native sharing when available, plus accessible copy and platform handoffs. Explain when a platform accepts only the link and requires the learner to paste their message. Never put learner names, record IDs, verification tokens, private progress, or course work in public share text or URLs. Keep course wording in course-owned configuration rather than the reusable certificate contract; sharing must remain unavailable until the completion credential is claimed.
+
 ## Course Illustration Raster Quality Rule
 
 Drilled-down framework views must be complete, standalone high-fidelity recreations or approved plates with a consistent border and complete geometry. Preserve the full subject, its connectors, and its output path. Never simulate a drill-down by cropping fragments from a larger approved plate or assembling those fragments into a new diagram.
