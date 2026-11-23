@@ -35,10 +35,11 @@ vi.mock('@/components/Navigation', () => ({
 describe('Agentified public page purchase links', () => {
   it('states the public workshop format and access model', () => {
     render(<AgentifiedPage />)
-    expect(screen.getByText(/public open learning/)).toBeInTheDocument()
-    expect(screen.getByText(/Start as a guest: thirteen guided-video lessons and three transcript-led lessons/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Public open learning' })).toBeInTheDocument()
+    expect(screen.getByText(/Start as a guest/)).toBeInTheDocument()
+    expect(screen.getByText(/thirteen guided-video lessons and three transcript-led lessons/)).toBeInTheDocument()
     expect(screen.getByText(/Sign in only if you want to save progress across devices/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /Open the workshop/i })).toHaveAttribute('href', '/agentified/learningplan')
+    expect(screen.getByRole('link', { name: /Start the free workshop/i })).toHaveAttribute('href', '/agentified/learningplan')
   })
 
   it('publishes Agentified-specific canonical and social metadata', () => {
