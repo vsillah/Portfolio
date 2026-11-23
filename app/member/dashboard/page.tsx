@@ -83,7 +83,7 @@ function syntheticMember(state: string): MemberData {
 
 function syntheticAgentified(state: string) {
   const assessed = state === 'agentified-assessed' || state === 'agentified-paid' || state === 'agentified-credential'
-  const completed = state === 'agentified-credential' ? 16 : 5
+  const completed = state === 'agentified-credential' ? (new URLSearchParams(window.location.search).get('certificate') === 'blocked' ? 15 : 16) : 5
   return {
     enrollment: { current_lesson_id: completed === 16 ? 'L16' : 'L06' },
     lessons: agentifiedLessons.slice(0, completed).map((lesson) => ({ lesson_id: lesson.id, completed_at: '2026-11-05T12:00:00Z' })),
