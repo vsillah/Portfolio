@@ -55,6 +55,13 @@ describe('Member dashboard course loading', () => {
     expect(within(screen.getByRole('region', { name: 'Agentified progress' })).queryByText('Accelerated certificate')).not.toBeInTheDocument()
   })
 
+  it('keeps the blocked certificate fixture aligned with the lesson count', async () => {
+    window.history.replaceState({}, '', '/member/dashboard?qa=agentified-credential&certificate=blocked')
+    render(<MemberDashboardPage />)
+    const progress = await screen.findByRole('region', { name: 'Agentified progress' })
+    expect(within(progress).getByText('15 / 16')).toBeInTheDocument()
+  })
+
   it('keeps the reviewed Agentified assessment and offers in its own workshop section', async () => {
     window.history.replaceState({}, '', '/member/dashboard?qa=agentified-assessed')
     render(<MemberDashboardPage />)

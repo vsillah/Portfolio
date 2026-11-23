@@ -125,6 +125,14 @@ When developing Portfolio admin, agent-ops, content, outreach, review, or approv
 - During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, non-actionable pseudo-controls, clipped pills, label bleed-through, line-height collisions, or evidence-recorder layout artifacts as UX defects that must be resolved before Human QA.
 - Public-facing copy written in Vambah's voice must not refer to Vambah by name or in the third person. Normalize authored messaging to first person or fail messaging QA before Human QA. Internal provenance, audit, and reviewer-trace fields may retain the original source wording.
 
+## Course Certificate Template Rule
+
+Use the approved Accelerated certificate as the canonical visual and structural template for Agentified and every future Portfolio course certificate. Share its reusable frame, fixed-ratio geometry, hierarchy, recipient block, signature treatment, and issue/record/verification band through a course-certificate design contract. Keep each course's title, wording, palette accents, framework references, and visual identity distinct. A new course must reach the same visual maturity without changing the approved Accelerated appearance.
+
+Validate desktop and 390×844 previews in light, dark, and system themes, plus long names, claimed and unclaimed states, verification on and off, revoked links, download/export fidelity, keyboard accessibility, and readable responsive details. Compare the Accelerated and new-course artifacts side by side before Human QA; any Accelerated visual drift or reduced certificate fidelity blocks release. Use synthetic data for review. Keep raw verification tokens, private learner information, user IDs, and secrets out of public certificate artwork. Describe course or workshop completion accurately; never imply professional accreditation or certification.
+
+For each course, define a course-specific achievement message that states the learner outcome accurately and invites others to the canonical public course page. Offer user-initiated native sharing when available, plus accessible copy and platform handoffs. Explain when a platform accepts only the link and requires the learner to paste their message. Never put learner names, record IDs, verification tokens, private progress, or course work in public share text or URLs. Keep course wording in course-owned configuration rather than the reusable certificate contract; sharing must remain unavailable until the completion credential is claimed.
+
 ## Course Illustration Raster Quality Rule
 
 Drilled-down framework views must be complete, standalone high-fidelity recreations or approved plates with a consistent border and complete geometry. Preserve the full subject, its connectors, and its output path. Never simulate a drill-down by cropping fragments from a larger approved plate or assembling those fragments into a new diagram.

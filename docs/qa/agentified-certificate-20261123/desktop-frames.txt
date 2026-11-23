@@ -1,0 +1,13 @@
+file 'desktop-blocked.jpg'
+duration 2.5
+file 'desktop-eligible.jpg'
+duration 2.5
+file 'desktop-claimed.jpg'
+duration 2.5
+file 'desktop-verification-on.jpg'
+duration 2.5
+file 'desktop-verification-off.jpg'
+duration 2.5
+file 'desktop-download.jpg'
+duration 2.5
+file 'desktop-download.jpg'

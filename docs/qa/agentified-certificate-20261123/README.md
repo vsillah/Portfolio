@@ -1,0 +1,28 @@
+# Agentified completion certificate parity review
+
+Draft PR #1304 remains stacked on draft PR #1302. This packet replaces the earlier, plainer Agentified certificate evidence. All review states use a synthetic learner and the development-only member dashboard fixture.
+
+## Design checkpoint
+
+`parity-side-by-side-desktop.png` and `parity-side-by-side-mobile.png` place the approved Accelerated certificate on the left and the Agentified certificate on the right. Both use the unchanged, approved `public/accelerated/certificate-frame.png` (SHA-256 `37bf0de6734e2c3c238a0f28afb8dc96f61247449972af8a15d5f5e4421ca44c`) and the same fixed-ratio composition. Agentified keeps its own workshop wording, course title, teal ink/accent, signature attribution, and display-safe record reference. Accelerated's rendered markup, CSS, and frame were not changed; its download now reads the shared frame-path constant.
+
+## Review routes and evidence
+
+Use `http://127.0.0.1:3189/member/dashboard?qa=agentified-credential&certificate=claimed&certificateTheme=system&rev=<commit>` after restarting this worktree's localhost server from `<commit>`. Synthetic states are `blocked`, `eligible`, `claimed`, `verified`, `revoked`, and `long-name`. `certificateTheme=light` or `dark` sets only the development preview theme; omit it or use `system` for the browser preference.
+
+- `desktop-certificate-walkthrough.mp4`: blocked, eligible, claimed, verification on, verification off, downloaded artwork.
+- `mobile-certificate-walkthrough.mp4`: the same workflow through verification off, then a long learner name at 390×844.
+- `parity-desktop-*` and `parity-mobile-*`: exact-route captures of the named states and light, dark, and system theme views. `accelerated-regression-*` shows the untouched Accelerated fixture on this branch.
+- `approved-frame-download.svg` is an actual browser download at 1424×1104. `approved-frame-download.png` is its rendered raster inspection copy.
+
+The MP4s sequence exact-route captures as timed, silent states; each decoded cleanly and sampled frames were visually inspected. The browser download passed `xmllint --noout`, embeds the frame, shield, and signature, and contains no raw verification token, access token, or service-role value. Its public record label is derived from immutable claim fields and cannot authorize verification. The certificate describes workshop completion and does not imply professional accreditation.
+
+No real learner record, customer account, credential issuance, database mutation, provider call, external share, production canary, merge, or release was used in this lane. Captain review and Human QA remain pending.
+
+## Achievement sharing extension
+
+Commit `264095bb94bd8719edae311d161136f10c5f7c80` adds a share panel only after the credential is claimed. Its course-owned public message uses `https://amadutown.com/agentified`; native Web Share sends the same outcome text and URL as separate fields where supported. Commit `6f87a0b9d7472fb2f69db23e056d10491bb88a3f` makes each LinkedIn or Facebook click start a clipboard copy in that same user gesture while the native anchor opens the platform link once. Commit `29d39e980f425b84f0aa3e54c4b9804325746304` removes the persistent copy control. A single retry appears only when automatic copy fails, disappears after use, and exposes selectable text if retry also fails. Those platforms receive only the canonical URL, and the learner pastes the message. X uses a shorter public outcome message and the same URL without a clipboard write. No learner name, record ID, verification token, progress, or Operating File content enters any share payload. Nothing posts automatically.
+
+The platform controls use source-faithful LinkedIn, Facebook, and X paths from [Simple Icons v13.21.0](https://github.com/simple-icons/simple-icons/tree/v13.21.0/icons), with accessible names and focus/hover tooltips. Commit `c9eac1f7404aa539d6e1c5b227d7f6eb32af0bed` contains that icon change. Native Share and the conditional retry control keep visible labels.
+
+`share/desktop-share-walkthrough.mp4` (SHA-256 `c7d4060ad8e5caf1db6856c14b9f6a37a24d3c6dce14a5a84226c5051a04d3c1`) and `share/mobile-share-walkthrough.mp4` (SHA-256 `845c8d8d226cdd72a7379643a419b200a8ca6f4da1bb6171df874b93d669819c`) show revision `29d39e980f425b84f0aa3e54c4b9804325746304` on the synthetic localhost route at 1280×800 and 390×844. Frames cover the default state without a copy button, LinkedIn and Facebook one-click copy success and failure, failure-only retry and its removal after use, manual selection after a second failure, X intent, keyboard focus and Enter activation, verified and revoked credentials, eligible unclaimed and blocked states; mobile also covers a long name. The capture script asserts at least 44×44 brand-link targets, one-row placement, and no horizontal overflow. It intercepts all external share destinations before click, proves exactly one popup to the expected URL, and mocks the clipboard without contacting any platform. The screen-capture recipe is `scripts/record-agentified-certificate-share-qa.mjs`. The headless capture browser lacked native Web Share, so its button is absent in those MP4s; the live Chrome review tab displayed it, and focused tests exercise native success and cancellation. Both MP4s decoded successfully. No social composer was submitted and no real account was used.

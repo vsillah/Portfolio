@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import CompletionCredential from './CompletionCredential'
+import { COURSE_CERTIFICATE_FRAME, COURSE_CERTIFICATE_SIZE } from './course-certificate-template'
 
 vi.mock('@/lib/supabase', () => ({ supabase: { auth: { getSession: vi.fn(async () => ({ data: { session: null } })) } } }))
 vi.mock('next/image', () => ({ default: ({ alt, ...props }: { alt: string }) => <img alt={alt} {...props} /> }))
@@ -51,6 +53,9 @@ describe('Accelerated completion certificate', () => {
   })
 
   it('uses the approved fixed-ratio certificate frame inside the themed member card', () => {
+    expect(COURSE_CERTIFICATE_FRAME).toBe('/accelerated/certificate-frame.png')
+    expect(COURSE_CERTIFICATE_SIZE).toEqual({ width: 1424, height: 1104 })
+    expect(createHash('sha256').update(readFileSync('public/accelerated/certificate-frame.png')).digest('hex')).toBe('37bf0de6734e2c3c238a0f28afb8dc96f61247449972af8a15d5f5e4421ca44c')
     const css = readFileSync('components/member/CompletionCredential.module.css', 'utf8')
     for (const surface of ['.card', '.verificationPage', '.verificationCard']) expect(css).toContain(`:global(html.dark) ${surface}`)
     expect(css).toContain("url('/accelerated/certificate-frame.png')")
@@ -60,7 +65,7 @@ describe('Accelerated completion certificate', () => {
     expect(css).not.toContain('.botanical')
     expect(css).not.toContain('.artwork:before')
     const component = readFileSync('components/member/CompletionCredential.tsx', 'utf8')
-    expect(component).toContain("fetch('/accelerated/certificate-frame.png')")
+    expect(component).toContain('fetch(COURSE_CERTIFICATE_FRAME)')
     expect(component).toContain("fetch('/accelerated/vambah-signature.png')")
     expect(component).toContain('recordLabel(credential)')
     const config = readFileSync('next.config.js', 'utf8')

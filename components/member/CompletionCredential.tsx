@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
 import styles from './CompletionCredential.module.css'
+import { COURSE_CERTIFICATE_FRAME } from './course-certificate-template'
 
 type Credential = { learner_name: string; completed_at: string; verification_token: string | null; revision: number }
 type Status = { available?: boolean; eligible: boolean; completedCount: number; credential: Credential | null }
@@ -87,7 +88,7 @@ export default function CompletionCredential({ token, completedCount, profileNam
     try {
       const [logoResponse, frameResponse, signatureResponse] = await Promise.all([
         fetch('/amadutown-logo-upscaled.png'),
-        fetch('/accelerated/certificate-frame.png'),
+        fetch(COURSE_CERTIFICATE_FRAME),
         fetch('/accelerated/vambah-signature.png'),
       ])
       if (!logoResponse.ok || !frameResponse.ok || !signatureResponse.ok) throw new Error('Certificate artwork unavailable')
