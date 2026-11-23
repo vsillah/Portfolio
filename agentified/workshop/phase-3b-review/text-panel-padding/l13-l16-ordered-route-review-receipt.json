@@ -1,0 +1,78 @@
+{
+  "recordedAtUtc": "2026-11-23T00:06:16Z",
+  "status": "provider_free_ordered_L13_L16_learner_route_review_passed_unbound",
+  "project": "Portfolio Agentified",
+  "phase": "Phase 3B provider-free learner-route qualification",
+  "reviewBranch": "codex/agentified-phase3b-provider-free-normalization",
+  "reviewHeadBeforeReceipt": "e2859dcde3e33f83aee14f8fe7dde6a7f5573b30",
+  "focusedL13Checkpoint": {
+    "commit": "dd9db4d7dc227d4ee80561b90c0ed669936c4922",
+    "candidateSha256": "878d262919c6e7f93997c1289aa9f22ff7dee9c8893b329b4920e8ef6d10ec02",
+    "disposition": "Preserved the prior focused Human QA approval; this receipt records a separate full-scene learner-route review."
+  },
+  "temporaryDraftStack": {
+    "playerPr1295": "fb4404bec4efbd5e4dd2400e5279f98778a587f7",
+    "mobilePlatesPr1292": "3ca22b88162de93182d07eee89fbc062feea129f",
+    "captionsPr1293": "8948462d35c7b3b28d315341046b45bafae25805",
+    "sourceCorrectionPr1296": "02e06ec04eb70cb3c94816b018f41e5a1e951f03",
+    "allDraftAtReviewEnd": true
+  },
+  "method": "Copied the exact PR #1295 player and stylesheet into an isolated localhost review app. Bound review-only full-scene MP4s one lesson at a time, loaded exact learner routes with revision query strings, and inspected desktop 1280x844 and mobile 390x844. Product media bindings in the Portfolio worktree were not changed.",
+  "media": [
+    {
+      "lesson": "L13",
+      "reviewCompositeSha256": "9943a556104ea55eee266f7442f58806258594719adfedc9b907c14fa617fda3",
+      "durationSeconds": 255.243,
+      "videoFrames": 6368,
+      "audioFrames": 11966,
+      "subtitlePackets": 99,
+      "route": "http://127.0.0.1:3157/agentified/learningplan?lesson=L13&rev=fb4404be-9943a556"
+    },
+    {
+      "lesson": "L14",
+      "reviewCompositeSha256": "de35caea920cccf5874dc689113b2ec92261c7b006e0e88451816db7cb05fbde",
+      "durationSeconds": 241.762,
+      "videoFrames": 6032,
+      "audioFrames": 11334,
+      "subtitlePackets": 109
+    },
+    {
+      "lesson": "L15",
+      "reviewCompositeSha256": "8a18601a96ecd2077ffb8ffd4ab1a5fab2c7f789052e9592addf0a25bf9363f1",
+      "durationSeconds": 255.386,
+      "videoFrames": 6373,
+      "audioFrames": 11973,
+      "subtitlePackets": 115
+    },
+    {
+      "lesson": "L16 desktop",
+      "reviewCompositeSha256": "6fe474789848eb1001bba0d5b8bd059f55c6380acd7212880d624f163f80252b",
+      "durationSeconds": 267.309,
+      "videoFrames": 6667,
+      "audioFrames": 12532,
+      "subtitlePackets": 127,
+      "route": "http://127.0.0.1:3157/agentified/learningplan?lesson=L16&rev=fb4404be-6fe47478"
+    },
+    {
+      "lesson": "L16 mobile",
+      "reviewCompositeSha256": "b461a757ff09ee05aec2011e0b727576b40a05609d47589ebb7b1acf2643ac05",
+      "durationSeconds": 267.309,
+      "videoFrames": 6667,
+      "audioFrames": 12532,
+      "subtitlePackets": 127
+    }
+  ],
+  "checks": {
+    "media": "All five MP4s decoded with ffmpeg -v error -f null. Streamhash SHA256 of copied audio and subtitles matched each approved source byte stream.",
+    "mobile": "Inspected all eight scene states in lesson order for L13, L14, L15 and L16, including L14-03/04, L15-04, and L16-04/05 authored focus transitions; captions, guided-work countdown, and next-lesson completion poster. L16 had no horizontal page overflow at 390x844.",
+    "desktop": "Inspected L13 full-scene sequence and selected L14-L16 focus, caption, and completion states at 1280x844. L16 replay from the actual ended state restarted at time zero.",
+    "controls": "Checked caption off/on, small/medium/large captions, seeking, countdown, completion and replay on the relevant learner routes.",
+    "finding": "No new scene, caption-source, completion, or replay regression observed on the checked states. The earlier blank L13-02 panel was an interrupted temporary composite, not a completed learner-route candidate."
+  },
+  "disposition": "The historical L08 completion-poster stop in l13-l16-completion-poster-stop-receipt.json remains a record of the user's earlier finding. The corrected player at PR #1295 exact head and the ordered L13-L16 temporary review were inspected without reproducing that crop on checked completion states. This receipt does not rewrite the historical stop or approve a product binding.",
+  "limits": [
+    "Desktop L14-L16 inspection sampled source-critical focus and completion states; it was not continuous real-time playback of every minute at both viewport sizes.",
+    "Source audio and subtitle streams were copied and hash-checked; this was not a new full acoustic or spoken-copy Human QA pass.",
+    "The review composites and localhost app remain temporary. No learner media binding, PR readiness change, merge, deployment, provider action, spending, publication, or release occurred."
+  ]
+}
