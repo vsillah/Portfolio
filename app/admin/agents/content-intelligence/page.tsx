@@ -2199,6 +2199,13 @@ function ContentIntelligenceContent() {
 
         {activeSection === 'calendar' ? (
         <>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+          <div>
+            <p className="font-semibold text-amber-100">Agentified campaign Drafts</p>
+            <p className="text-xs text-amber-100/75">Review ten source-bound, inactive planning records without creating calendar or provider actions.</p>
+          </div>
+          <Link href="/admin/agents/content-intelligence/agentified-calendar" className="rounded-md border border-amber-400/50 px-3 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-500/10">Review Drafts</Link>
+        </div>
         <section className="agent-ops-card mb-6 rounded-lg border border-blue-500/25 bg-blue-500/10 p-4">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
