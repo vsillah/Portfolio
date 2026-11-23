@@ -28,6 +28,10 @@ const approvedMedia = Object.fromEntries(Object.entries(agentifiedSourceMedia).m
 })) as Record<keyof typeof agentifiedSourceMedia, ApprovedMedia | null>
 const mediaFor = (id: string) => approvedMedia[id as keyof typeof approvedMedia]
 const newState = (worksheetId: string): AgentifiedState => ({ version: AGENTIFIED_VERSION, worksheet: emptyAgentifiedDraft(worksheetId), completed: [], videoSeconds: {}, currentLessonId: 'L01', updatedAt: new Date().toISOString() })
+const requestedLessonId = () => {
+  const requested = new URLSearchParams(window.location.search).get('lesson')?.toUpperCase()
+  return requested && agentifiedLessons.some((item) => item.id === requested) ? requested : null
+}
 
 export function AgentifiedWorkshop({ mode }: { mode: Mode }) {
   const [state, setState] = useState<AgentifiedState | null>(null)
@@ -70,8 +74,8 @@ export function AgentifiedWorkshop({ mode }: { mode: Mode }) {
         else setNotice(checked.error)
       }
     } catch { setNotice('Local storage is unavailable. Download a copy to keep your work.') }
-    const requested = new URLSearchParams(window.location.search).get('lesson')?.toUpperCase()
-    if (requested && agentifiedLessons.some((item) => item.id === requested)) next = { ...next, currentLessonId: requested }
+    const requested = requestedLessonId()
+    if (requested) next = { ...next, currentLessonId: requested }
     setState(next)
     setReady(true)
   }, [])
@@ -103,7 +107,7 @@ export function AgentifiedWorkshop({ mode }: { mode: Mode }) {
           worksheet: result.worksheet ? { version: AGENTIFIED_VERSION, worksheetId: result.worksheet.worksheet_id, answers: result.worksheet.answers, updatedAt: result.worksheet.updated_at } : emptyAgentifiedDraft(crypto.randomUUID()),
           completed: result.lessons.filter((item: { completed_at: string | null }) => item.completed_at).map((item: { lesson_id: string }) => item.lesson_id),
           videoSeconds: Object.fromEntries(result.lessons.map((item: { lesson_id: string; video_seconds: number }) => [item.lesson_id, item.video_seconds])),
-          currentLessonId: result.enrollment.current_lesson_id,
+          currentLessonId: requestedLessonId() ?? result.enrollment.current_lesson_id,
           updatedAt: result.enrollment.updated_at,
         })
       } catch { setNotice('Account progress is unavailable. Your local work is still here.') }
