@@ -13,7 +13,7 @@ import {
 
 const AGENTIFIED_OWNER_AGENT_KEY = 'chief-of-staff'
 const PACKET_PATH = 'agentified/campaign/portfolio-campaign-packet.json'
-const FIRST_REVIEW_PACKET_PATH = 'agentified/campaign/launch-review-packet-2026-07-27.md'
+const FIRST_REVIEW_PACKET_PATH = 'agentified/campaign/workshop-review-packet-2026-11-23.md'
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 type PacketCampaign = typeof packet.campaign
@@ -63,19 +63,19 @@ function phaseLabel(phase: SocialContentCampaignPhase) {
   return `${phase.slice(0, 1).toUpperCase()}${phase.slice(1)}`
 }
 
-function approvedResearchPattern(item: AgentifiedLaunchCalendarItem) {
+function researchDirection(item: AgentifiedLaunchCalendarItem) {
   return {
     source_url: 'agentified/campaign/agentified-rollout-plan.md',
-    source_label: 'Agentified rollout plan',
-    pattern_status: 'usable_framework',
+    source_label: 'Agentified public workshop campaign plan',
+    pattern_status: 'pending_source_and_outlier_review',
     hook_structure: `${phaseLabel(item.campaign_phase as SocialContentCampaignPhase)} with a concrete trust/accountability tension before the framework.`,
     tension_or_missed_opportunity: item.planned_angle,
-    promise_value: 'Show how agentic scale becomes trustworthy only when the operating layer is visible.',
-    proof_style: 'Portfolio/Agent Ops workflow proof, source-safe manuscript positioning, and human approval gates.',
+    promise_value: 'Show how a public guest can practice a bounded agent job, receipt, permission slip, and human review gate.',
+    proof_style: 'Current public workshop route and privacy-safe first-party lesson or Operating File capture, after review.',
     title_pattern: `${phaseLabel(item.campaign_phase as SocialContentCampaignPhase)}: practical operating claim`,
-    thumbnail_pattern: 'Inspectable system artifact with AmaduTown restraint and a short trust-oriented phrase.',
-    cta_style: 'Invite operators to inspect the launch asset, request the book/workbook path, or compare their own approval gates.',
-    source_distance_boundary: 'Use as Vambah-owned campaign structure only; do not copy outside creator scripts or private manuscript text.',
+    thumbnail_pattern: 'Current workshop screen or owned lesson visual, subject to visual proof and thumbnail review.',
+    cta_style: 'Invite a guest to start the public workshop at https://amadutown.com/agentified.',
+    source_distance_boundary: 'Use the owned workshop as the factual basis; do not copy outside creator scripts or private learner material.',
   }
 }
 
@@ -89,17 +89,14 @@ function roundedDays(ms: number) {
   return Number((ms / MS_PER_DAY).toFixed(3))
 }
 
-function relativeAuthorizationDueAt(
-  item: Pick<AgentifiedLaunchCalendarItem, 'authorization_due_at'>,
+function relativeDate(
+  value: string,
   originalScheduled: Date,
   scheduled: Date,
 ) {
-  const originalAuthorizationDueAt = dateOrNull(item.authorization_due_at)
-  const authorizationOffsetMs = originalAuthorizationDueAt
-    ? originalAuthorizationDueAt.getTime() - originalScheduled.getTime()
-    : -MS_PER_DAY
-
-  return new Date(scheduled.getTime() + authorizationOffsetMs).toISOString()
+  const sourceDate = dateOrNull(value)
+  if (!sourceDate) throw new Error(`Invalid Agentified calendar date: ${value}`)
+  return new Date(scheduled.getTime() + sourceDate.getTime() - originalScheduled.getTime()).toISOString()
 }
 
 function resolveBackwardRelativeCalendarItems(
@@ -124,10 +121,15 @@ function resolveBackwardRelativeCalendarItems(
       ...item,
       scheduled_for: scheduled.toISOString(),
       due_status: deriveDueStatus(scheduled),
-      authorization_due_at: relativeAuthorizationDueAt(item, originalScheduled, scheduled),
+      preparation_deadline: relativeDate(item.preparation_deadline, originalScheduled, scheduled),
+      authorization_due_at: relativeDate(item.authorization_due_at, originalScheduled, scheduled),
       metadata: {
         ...item.metadata,
         schedule_mode: 'relative_to_final_shout',
+        jit_refresh: {
+          ...item.metadata.jit_refresh,
+          prepare_by: relativeDate(item.preparation_deadline, originalScheduled, scheduled),
+        },
         schedule_anchor: {
           mode: 'relative_to_final_shout',
           final_asset_id: finalItem?.asset_id ?? null,
@@ -135,6 +137,7 @@ function resolveBackwardRelativeCalendarItems(
           source_final_scheduled_for: sourceFinalDate.toISOString(),
           source_scheduled_for: item.scheduled_for,
           source_authorization_due_at: item.authorization_due_at,
+          source_preparation_deadline: item.preparation_deadline,
           offset_from_final_release_ms: scheduledOffsetMs,
           offset_from_final_release_days: roundedDays(scheduledOffsetMs),
           previous_asset_id: previousItem?.asset_id ?? null,
@@ -156,7 +159,11 @@ export function agentifiedLaunchImportPlan(
   return {
     packet_path: PACKET_PATH,
     packet_status: packet.packet_status,
-    campaign: packet.campaign,
+    campaign: options.finalReleaseAt ? {
+      ...packet.campaign,
+      starts_at: calendarItems[0]?.scheduled_for ?? packet.campaign.starts_at,
+      ends_at: calendarItems.at(-1)?.scheduled_for ?? packet.campaign.ends_at,
+    } : packet.campaign,
     calendar_items: calendarItems,
     supported_channels: supportedChannels,
     side_effects: {
@@ -208,7 +215,7 @@ export function buildAgentifiedWorkItemInput(item: AgentifiedLaunchCalendarItem)
   return {
     title: `Agentified ${phaseLabel(item.campaign_phase as SocialContentCampaignPhase)}: ${item.title}`,
     objective: [
-      `Prepare ${channelLabel(channel)} review assets for the Agentified trust-scale launch.`,
+      `Prepare ${channelLabel(channel)} review assets for the public Agentified workshop campaign.`,
       item.planned_angle,
       'Keep all provider generation, uploads, scheduling, and publishing behind later human gates.',
     ].join(' '),
@@ -227,10 +234,10 @@ export function buildAgentifiedWorkItemInput(item: AgentifiedLaunchCalendarItem)
       'agentified/campaign/human-gate-review.md',
       FIRST_REVIEW_PACKET_PATH,
     ],
-    overlapGroup: 'agentified-launch-campaign',
+    overlapGroup: 'agentified-workshop-campaign',
     metadata: {
       social_topic_trigger: true,
-      insight_version: 'agentified_launch_campaign_v1',
+      insight_version: 'agentified_workshop_campaign_v1',
       generated_at: now,
       generated_by: 'agentified_launch_import',
       trigger_source: 'agentified_campaign_packet',
@@ -239,7 +246,7 @@ export function buildAgentifiedWorkItemInput(item: AgentifiedLaunchCalendarItem)
         campaign_packet: 1,
         calendar_item: 1,
       },
-      privacy_boundary: 'Do not expose raw manuscript drafts, private chats, Chronicle notes, client data, or unpublished provider assets.',
+      privacy_boundary: 'Use synthetic or blank workshop proof only; exclude learner responses, identities, verification tokens, private chats, client data, and unpublished provider assets.',
       research_packet_ids: [],
       campaign_slug: item.campaign_slug,
       campaign_phase: item.campaign_phase,
@@ -247,27 +254,33 @@ export function buildAgentifiedWorkItemInput(item: AgentifiedLaunchCalendarItem)
       agentified_asset_id: item.asset_id,
       draft_asset_path: item.metadata.draft_asset_path,
       first_review_packet_path: FIRST_REVIEW_PACKET_PATH,
+      source_paths: item.metadata.source_paths,
+      preparation_deadline: item.preparation_deadline,
+      review_gates: item.metadata.review_gates,
+      external_action_locks: item.metadata.external_action_locks,
+      channel_lane_mapping_note: channel === 'instagram' ? 'The intelligence lane uses instagram_reels; this calendar item is a carousel and needs visual format review.' : null,
       channel_lanes: lanes,
       insight: {
         candidate_id: item.asset_id,
         title: item.title,
-        triggering_event: 'Agentified book and workbook rollout campaign',
+        triggering_event: 'Public Agentified workshop guest-learning campaign',
         source_type: 'agentified_campaign_packet',
         source_label: PACKET_PATH,
         source_ids: [item.asset_id],
-        why_vambah_can_speak: 'Vambah is actively building the Portfolio/Agent Ops operating layer that Agentified describes, including evidence, routing, approvals, evals, and human gates.',
-        brand_goal: 'Position Agentified as the practical bridge from AI experimentation to governed agentic execution.',
+        why_vambah_can_speak: 'The public Agentified workshop is an owned first-party learning surface with an Operating File, receipts, permissions, and review-gate exercises.',
+        brand_goal: 'Invite product leaders and builders to practice useful governed-agent work in the public workshop.',
         content_angle: item.planned_angle,
         suggested_hook: item.title,
         audience: 'Product leaders, builders, founders, nonprofit and small-business operators, and AI-curious teams carrying the risk of agentic work.',
         sensitivity: 'public_safe_review_required',
-        evidence_summary: 'Prepared from the Agentified campaign packet, release calendar, human gate review, manuscript/workbook proof paths, and Portfolio operating-system surfaces.',
+        evidence_summary: 'Prepared from the current workshop campaign packet and public workshop sources; current capture and source/outlier evidence are pending.',
         claim_boundaries: [
-          'Represent Agentified as a prepare-only launch campaign until Vambah approves public copy.',
-          'Use Portfolio/Agent Ops as proof of operating-system design without exposing private admin records.',
-          'Do not imply autonomous platform publishing, provider rendering, or external scheduling.',
+          'Treat this campaign as prepare-only until source, visual, challenger, and human gates pass.',
+          'Use current first-party workshop proof without exposing learner data or private admin records.',
+          'Do not imply autonomous platform publishing, provider rendering, external scheduling, accreditation, or job outcomes.',
         ],
-        approved_research_patterns: [approvedResearchPattern(item)],
+        approved_research_patterns: [],
+        research_direction: researchDirection(item),
       },
       side_effects: {
         provider_generation: false,
@@ -277,7 +290,7 @@ export function buildAgentifiedWorkItemInput(item: AgentifiedLaunchCalendarItem)
         external_post: false,
       },
     },
-    idempotencyKey: `agentified-launch:${item.asset_id}`,
+    idempotencyKey: `agentified-workshop:${item.asset_id}`,
   }
 }
 
@@ -306,6 +319,9 @@ export function buildAgentifiedCalendarRow(input: {
       campaign_slug: input.item.campaign_slug,
       source_packet_path: PACKET_PATH,
       first_review_packet_path: FIRST_REVIEW_PACKET_PATH,
+      preparation_deadline: input.item.preparation_deadline,
+      review_gates: input.item.metadata.review_gates,
+      external_action_locks: input.item.metadata.external_action_locks,
       external_execution_enabled: false,
       imported_from_agentified_packet: true,
       side_effects: {

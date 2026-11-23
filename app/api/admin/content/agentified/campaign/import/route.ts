@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[agentified-campaign-import] failed:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to import Agentified launch campaign' },
+      { error: error instanceof Error ? error.message : 'Failed to import Agentified workshop campaign' },
       { status: 500 },
     )
   }
