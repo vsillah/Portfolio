@@ -1,6 +1,6 @@
 {
-  "commit": "fe28c835df5f70368215d91906b06375a21313b7",
-  "route": "/admin/agents/content-intelligence?section=calendar&rev=fe28c835df5f70368215d91906b06375a21313b7",
+  "commit": "de9012ac8eb295b550648422d77afe35fcb5fc9c",
+  "route": "/admin/agents/content-intelligence?section=calendar&rev=de9012ac8eb295b550648422d77afe35fcb5fc9c",
   "fixture": "synthetic read-only",
   "persisted_rows": 5,
   "draft_rows": 10,
