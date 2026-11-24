@@ -321,6 +321,25 @@ describe('ContentIntelligencePage', () => {
                 agent_work_items: null,
                 social_content_queue: null,
               }] : []),
+              ...(agentifiedFixture.enabled ? Array.from({ length: 3 }, (_, index) => ({
+                id: `agentified-draft:qa-pagination-${index}`,
+                campaign_id: null,
+                agent_work_item_id: null,
+                social_content_id: null,
+                channel: 'instagram',
+                campaign_phase: 'teach',
+                title: `Pagination Draft ${index + 1}`,
+                planned_angle: 'Synthetic pagination fixture',
+                scheduled_for: `2026-12-0${index + 3}T17:00:00.000Z`,
+                due_status: 'planned',
+                authorization_status: 'draft',
+                authorization_due_at: `2026-11-2${index + 6}T17:00:00.000Z`,
+                autonomy_eligible: false,
+                metadata: { agentified_draft: true, provider_blocked: true, external_execution_enabled: false },
+                attraction_campaigns: null,
+                agent_work_items: null,
+                social_content_queue: null,
+              })) : []),
             ],
           }),
         }
@@ -1278,6 +1297,20 @@ describe('ContentIntelligencePage', () => {
     fireEvent.click(within(expanded).getByRole('button', { name: 'Close details' }))
     expect(screen.getByLabelText('Calendar row The six-field receipt')).toBeInTheDocument()
     expect(vi.mocked(fetch).mock.calls.some(([, init]) => init?.method === 'POST' || init?.method === 'PATCH')).toBe(false)
+  })
+
+  it('allows paging away from a focused Agentified Draft row', async () => {
+    agentifiedFixture.enabled = true
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=calendar&calendar_item=agentified-draft:agentified-workshop-2026-post-thanksgiving:AW-IG-CAR-01:v1')
+    render(<ContentIntelligencePage />)
+
+    expect(await screen.findByText('Linked calendar row focused')).toBeInTheDocument()
+    const count = screen.getByText(/Showing \d+-\d+ of \d+ release rows/)
+    const currentPage = count.textContent
+    fireEvent.click(within(count.parentElement as HTMLElement).getByRole('button', { name: 'Next' }))
+
+    await waitFor(() => expect(count.textContent).not.toBe(currentPage))
+    expect(screen.queryByText('Linked calendar row focused')).not.toBeInTheDocument()
   })
 
   it('stores recorded evidence without paid scraper fields', async () => {

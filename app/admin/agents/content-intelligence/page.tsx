@@ -1449,6 +1449,11 @@ function ContentIntelligenceContent() {
   const calendarTotalPages = Math.max(1, Math.ceil(filteredCalendarItems.length / CALENDAR_PAGE_SIZE))
   const focusedCalendarItem = calendarItems.find((item) => item.id === focusedCalendarItemId)
   const focusedAgentifiedDraft = recordValue(focusedCalendarItem?.metadata).agentified_draft === true
+  const changeCalendarPage = (page: number) => {
+    setFocusedCalendarItemId(null)
+    setCalendarFocusRecovery(null)
+    setCalendarPage(page)
+  }
 
   useEffect(() => {
     if (!focusedCalendarItemId) {
@@ -1466,8 +1471,8 @@ function ContentIntelligenceContent() {
     setCalendarFocusRecovery(null)
     setActiveSection('calendar')
     const page = Math.floor(focusedIndex / CALENDAR_PAGE_SIZE) + 1
-    if (calendarPage !== page) setCalendarPage(page)
-  }, [calendarItems, calendarPage, filteredCalendarItems, focusedCalendarItemId])
+    setCalendarPage((current) => current === page ? current : page)
+  }, [calendarItems, filteredCalendarItems, focusedCalendarItemId])
 
   useEffect(() => {
     if (!focusedCalendarItemId || activeSection !== 'calendar') return
@@ -2529,7 +2534,7 @@ function ContentIntelligenceContent() {
               totalPages={calendarTotalPages}
               total={filteredCalendarItems.length}
               pageSize={CALENDAR_PAGE_SIZE}
-              onPageChange={setCalendarPage}
+              onPageChange={changeCalendarPage}
             />
           </div>
 
@@ -2619,7 +2624,7 @@ function ContentIntelligenceContent() {
               totalPages={calendarTotalPages}
               total={filteredCalendarItems.length}
               pageSize={CALENDAR_PAGE_SIZE}
-              onPageChange={setCalendarPage}
+              onPageChange={changeCalendarPage}
             />
           </div>
 
