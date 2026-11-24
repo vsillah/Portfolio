@@ -39,6 +39,9 @@ export async function PATCH(
     if (isAuthError(auth)) {
       return NextResponse.json({ error: auth.error }, { status: auth.status })
     }
+    if (params.id.startsWith('agentified-draft:')) {
+      return NextResponse.json({ error: 'Agentified review Drafts are immutable in this route.' }, { status: 409 })
+    }
     if (isAcceleratedActivationCalendarId(params.id)) {
       return NextResponse.json({ error: 'The approved Accelerated campaign calendar binding is immutable in this route.' }, { status: 409 })
     }

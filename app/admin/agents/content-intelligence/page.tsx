@@ -1350,7 +1350,7 @@ function ContentIntelligenceContent() {
           ? authedFetch(`/api/admin/social-content/intelligence/research-packets?packet_id=${encodeURIComponent(focusedResearchPacketId)}`) : Promise.resolve(null),
         authedFetch('/api/admin/agents/work-items?source_type=social_topic_trigger&limit=12'),
         authedFetch('/api/admin/social-content/intelligence/daily-digest?lookback_days=5&limit=12'),
-        authedFetch('/api/admin/social-content/calendar?limit=50'),
+        authedFetch('/api/admin/social-content/calendar?limit=50&include_agentified_drafts=1'),
         authedFetch('/api/admin/campaigns?limit=50'),
       ])
       const packetBody = recordValue(await readJsonResponse(packetResponse))
@@ -4544,6 +4544,13 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
               className="inline-flex min-h-8 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-white/30 hover:text-foreground"
             >
               Handoff
+            </Link>
+          ) : metadata.agentified_draft === true ? (
+            <Link
+              href={`/admin/agents/content-intelligence/agentified-calendar?asset=${encodeURIComponent(String(metadata.agentified_asset_id))}`}
+              className="inline-flex min-h-8 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-white/30 hover:text-foreground"
+            >
+              Details
             </Link>
           ) : null}
           {isPending ? (

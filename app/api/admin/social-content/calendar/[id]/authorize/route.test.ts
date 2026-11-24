@@ -70,4 +70,10 @@ describe('/api/admin/social-content/calendar/[id]/authorize', () => {
       },
     })
   })
+
+  it('blocks an Agentified review Draft before any handoff', async () => {
+    const response = await POST(request() as never, { params: { id: 'agentified-draft:AW-LI-01' } })
+    expect(response.status).toBe(409)
+    expect(mocks.authorizeCalendarDraftHandoff).not.toHaveBeenCalled()
+  })
 })

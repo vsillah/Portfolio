@@ -14,6 +14,9 @@ export async function POST(
     if (isAuthError(auth)) {
       return NextResponse.json({ error: auth.error }, { status: auth.status })
     }
+    if (params.id.startsWith('agentified-draft:')) {
+      return NextResponse.json({ error: 'Agentified review Drafts are inactive and cannot authorize a handoff.' }, { status: 409 })
+    }
 
     const result = await authorizeCalendarDraftHandoff(params.id, auth)
 

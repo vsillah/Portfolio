@@ -95,3 +95,56 @@ export function agentifiedCalendarDrafts() {
     }
   })
 }
+
+export function agentifiedCalendarRows() {
+  return agentifiedCalendarDrafts().map((draft) => ({
+    id: draft.id,
+    campaign_id: null,
+    agent_work_item_id: null,
+    social_content_id: null,
+    channel: draft.channel,
+    campaign_phase: draft.campaign_phase,
+    title: draft.title,
+    planned_angle: draft.planned_angle,
+    scheduled_for: draft.scheduled_for,
+    due_status: 'planned',
+    authorization_status: draft.authorization_status,
+    authorization_due_at: draft.preparation_deadline,
+    autonomy_eligible: false,
+    metadata: {
+      agentified_draft: true,
+      agentified_asset_id: draft.asset_id,
+      campaign_slug: draft.campaign_slug,
+      template_key: draft.template_key,
+      template_label: 'Whisper to Shout',
+      source_packet_path: draft.packet_path,
+      source_packet_sha256: draft.packet_sha256,
+      copy_sha256: draft.copy_sha256,
+      visual_manifest_sha256: draft.manifest_sha256,
+      draft_asset_path: draft.draft_asset_path,
+      source_paths: draft.source_paths,
+      cta_url: draft.cta_url,
+      provider_blocked: true,
+      provider_boundary: draft.gate,
+      external_execution_enabled: false,
+      external_action_locks: {
+        provider_generation: true,
+        render: true,
+        upload: true,
+        schedule: true,
+        publish: true,
+        send: true,
+      },
+    },
+    attraction_campaigns: {
+      id: draft.campaign_slug,
+      name: draft.campaign_name,
+      slug: draft.campaign_slug,
+      status: 'draft',
+      starts_at: packet.campaign.starts_at,
+      ends_at: packet.campaign.ends_at,
+    },
+    agent_work_items: null,
+    social_content_queue: null,
+  }))
+}
