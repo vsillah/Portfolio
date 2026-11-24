@@ -41,7 +41,7 @@ function approvedPractitionerPattern() {
 }
 function seed(count = 12) {
   db.writes = []; db.fail = false; db.race = false
-  db.tables = { attraction_campaigns: [{ id: 'campaign', name: 'Synthetic campaign', status: 'active' }], social_content_calendar_items: [], agent_work_items: [], social_content_queue: [], social_content_research_packets: [{ id: 'evidence', title: 'Approved synthetic practitioner source', updated_at: '2026-10-04T12:00:00Z', status: 'approved', pattern_status: 'usable_framework', outlier_score: 80, source_url: 'https://example.test/research', privacy_notes: 'Synthetic anonymized operator evidence approved for public-use testing.', pattern_packet: approvedPractitionerPattern() }] }
+  db.tables = { attraction_campaigns: [{ id: 'campaign', name: 'Synthetic campaign', status: 'active' }], social_content_calendar_items: [], agent_work_items: [], social_content_queue: [], social_content_research_packets: [{ id: 'evidence', title: 'Approved synthetic practitioner source', updated_at: '2026-10-04T12:00:00Z', expires_at: '2026-10-31T00:00:00Z', status: 'approved', pattern_status: 'usable_framework', outlier_score: 80, source_url: 'https://example.test/research', privacy_notes: 'Synthetic anonymized operator evidence approved for public-use testing.', pattern_packet: approvedPractitionerPattern() }] }
   for (let i = 0; i < count; i++) {
     const c = { id: `calendar-${i}`, campaign_id: 'campaign', title: `Review ${i}`, channel: 'linkedin', campaign_phase: 'teach', social_content_id: `draft-${i}`, authorization_status: 'authorized', due_status: 'planned', scheduled_for: '2026-10-10T12:00:00Z', updated_at: 'v1', metadata: { platform_draft_handoff: { work_item_id: `work-${i}` } } }
     db.tables.social_content_calendar_items.push(c)
@@ -108,6 +108,48 @@ describe('campaign rolling review persistence', () => {
     const result = await getCampaignReviewBacklog('campaign', now)
     expect(result.rows[0]).toMatchObject({ state: 'blocked', reason: expect.stringContaining('Unscored packets observed: 1; required: 0') })
     expect((await prepareCampaignReviewBatch('campaign', { now })).prepared_count).toBe(0)
+  })
+  it('requires a future declared source expiry at the exact freshness boundary', async () => {
+    seed(1)
+    db.tables.social_content_research_packets[0].expires_at = now.toISOString()
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'blocked' })
+    db.tables.social_content_research_packets[0].expires_at = new Date(now.getTime() + 1).toISOString()
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'eligible' })
+  })
+  it('preserves canonical copy, records one blocked recovery, then replays one versioned ready receipt', async () => {
+    seed(1)
+    const originalCopy = db.tables.social_content_queue[0].post_text
+    const practitioner = structuredClone(db.tables.social_content_queue[0].rag_context.practitioner_content_quality)
+    delete db.tables.social_content_queue[0].rag_context.practitioner_content_quality
+    const options = { now, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true }
+
+    const blocked = await prepareCampaignReviewBatch('campaign', options)
+    expect(blocked.prepared_count).toBe(0)
+    expect(blocked.calendar_receipts).toEqual([expect.objectContaining({ calendar_item_id: 'calendar-0', state: 'blocked' })])
+    expect(blocked.blocked_items[0].recovery_action).toBe('/admin/social-content/draft-0?step=copy')
+    expect(db.tables.social_content_queue[0].post_text).toBe(originalCopy)
+    expect(db.writes.map(write => write.table)).toEqual(['social_content_calendar_items'])
+    const blockedWrites = db.writes.length
+    expect((await prepareCampaignReviewBatch('campaign', options)).calendar_receipts).toEqual([])
+    expect(db.writes).toHaveLength(blockedWrites)
+
+    db.tables.social_content_queue[0].rag_context.practitioner_content_quality = practitioner
+    const ready = await prepareCampaignReviewBatch('campaign', options)
+    expect(ready.prepared_count).toBe(1)
+    expect(ready.calendar_receipts).toEqual([expect.objectContaining({ calendar_item_id: 'calendar-0', state: 'ready', content_version: expect.stringMatching(/^[a-f0-9]{64}$/) })])
+    const receipt = structuredClone(db.tables.social_content_calendar_items[0].metadata.publish_preparation)
+    expect(receipt).toMatchObject({
+      status: 'ready', social_content_id: 'draft-0', trigger_at: '2026-10-04T12:00:00.000Z',
+      scheduled_for: '2026-10-10T12:00:00Z', review_path: '/admin/social-content/draft-0?step=copy',
+    })
+    expect(db.tables.social_content_queue[0].post_text).toBe(originalCopy)
+    const readyWrites = db.writes.length
+    expect((await prepareCampaignReviewBatch('campaign', options)).calendar_receipts).toEqual([])
+    expect(db.writes).toHaveLength(readyWrites)
+    expect(db.tables.social_content_calendar_items[0].metadata.publish_preparation).toEqual(receipt)
+    expect(db.tables.agent_work_items[0].metadata.side_effects)
+      .toEqual(expect.objectContaining({ publish: false, upload: false, provider_calls: false, slack_send: false }))
+    expect(Object.values(db.tables.agent_work_items[0].metadata.channel_lanes.linkedin.draft_packet.side_effects).every(value => value === false)).toBe(true)
   })
   it('prepares at most five existing channel packets, keeps provenance, and dedupes repeated/concurrent refill', async () => {
     const [a, b] = await Promise.all([prepareCampaignReviewBatch('campaign', { now }), prepareCampaignReviewBatch('campaign', { now })])
@@ -177,6 +219,8 @@ describe('campaign rolling review persistence', () => {
     db.tables.social_content_research_packets[0].expires_at = '2026-10-01T00:00:00Z'
     expect((await getCampaignReviewBacklog('campaign', now)).blocked).toBe(12)
     delete db.tables.social_content_research_packets[0].expires_at
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0].reason).toContain('Undated freshness windows observed: 1; required: 0')
+    db.tables.social_content_research_packets[0].expires_at = '2026-10-31T00:00:00Z'
     db.tables.social_content_calendar_items[0].authorization_status = 'pending'
     db.tables.agent_work_items[1].metadata.campaign_id = 'other'
     db.tables.agent_work_items[2].metadata.research_packet_ids = ['missing']
@@ -209,12 +253,15 @@ describe('campaign rolling review persistence', () => {
     expect(result.prepared_count).toBe(2); expect(result.config.target_ready).toBe(7)
     expect(db.writes[0].table).toBe('social_content_calendar_items')
   })
-  it('preserves a matching existing review packet and blocks changed sources', async () => {
+  it('blocks an unversioned existing review packet and changed sources', async () => {
     seed(1); await prepareCampaignReviewBatch('campaign', { now })
     const meta = db.tables.agent_work_items[0].metadata
     const packet = structuredClone(meta.channel_lanes.linkedin.draft_packet)
     delete meta.rolling_review
-    expect((await getCampaignReviewBacklog('campaign', now)).ready).toBe(1)
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({
+      state: 'blocked',
+      reason: expect.stringContaining('lacks a current version'),
+    })
     expect((await prepareCampaignReviewBatch('campaign', { now })).prepared_count).toBe(0)
     expect(meta.channel_lanes.linkedin.draft_packet).toEqual(packet)
     meta.channel_lanes.linkedin.draft_packet.shared_source.campaign_id = 'different'
@@ -519,7 +566,7 @@ describe('campaign rolling review persistence', () => {
     expect(projection.ready).toBe(0)
     expect(projection.rows[0]).toMatchObject({
       state: 'blocked',
-      reason: 'Source changed. Revise this packet in the existing review panel.',
+      reason: 'The prepared packet lacks a current version, trigger, or exact calendar binding. Recheck the source and revise it in the existing review panel.',
     })
   })
 

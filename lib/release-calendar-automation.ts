@@ -54,8 +54,7 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
     && claimTime <= now.getTime() && claimTime > now.getTime() - 5 * 60_000
   const jit = record(metadata.jit_refresh)
   const jitValue = string(metadata.jit_refresh_status) ?? string(jit.status)
-  const freshness = jitValue || 'unknown (no JIT/source receipt)'
-  const stale = ['stale', 'expired', 'blocked', 'failed'].includes(freshness.toLowerCase())
+  const staleJit = ['stale', 'expired', 'blocked', 'failed'].includes(jitValue?.toLowerCase() ?? '')
   const externalEnabled = [
     'external_execution_enabled', 'provider_generation_enabled', 'upload_enabled',
     'schedule_enabled', 'publish_enabled', 'outreach_send_enabled',
@@ -68,17 +67,21 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
         due_status: row.due_status,
         scheduled_for: row.scheduled_for,
         metadata,
-      }, row.social_content_id)
+      }, row.social_content_id, now)
     : null
-  const ready = preparationProjection?.state === 'ready'
+  const sourceFreshness = preparationProjection?.source_freshness_status ?? 'unknown'
+  const freshness = `JIT ${jitValue ?? 'unknown'} · source ${sourceFreshness}`
+  const jitRank = staleJit ? 0 : !jitValue ? 1 : 2
+  const sourceRank = sourceFreshness === 'expired' || sourceFreshness === 'stale' ? 0 : sourceFreshness === 'unknown' ? 1 : 2
+  const ready = preparationProjection?.state === 'ready' && Boolean(jitValue) && !staleJit
   const blocker = externalEnabled ? 'External execution flag is enabled. Stop and review the authorization boundary.'
     : string(preparation.blocker)
     ?? (row.authorization_status === 'rejected' || row.authorization_status === 'expired'
       ? `Authorization is ${row.authorization_status}. Revise the calendar gate.`
       : row.due_status === 'cancelled' ? 'Release cancelled.'
       : row.authorization_status === 'authorized' && preparation.status === 'ready' && !ready
-        ? 'Preparation receipt is incomplete or linked to another draft. Verify the content ID, version, and prepared time.'
-      : stale ? `JIT/source evidence is ${freshness}. Refresh approved evidence before review.`
+        ? `Preparation receipt or JIT/source freshness is incomplete, expired, or linked to another draft (${freshness}). Verify the content ID, version, trigger, source expiry, and prepared time.`
+      : staleJit ? `JIT/source evidence is ${freshness}. Refresh approved evidence before review.`
       : triggered && row.authorization_status === 'authorized' && !row.campaign_id
         ? 'Link this row to an active campaign before preparation.' : null)
   const eligible = triggered && row.authorization_status === 'authorized'
@@ -100,6 +103,10 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
     trigger,
     triggered,
     freshness,
+    jitRank,
+    sourceRank,
+    sourceExpiresAt: preparationProjection?.source_expires_at ?? null,
+    sourceLineage: string(preparation.source_lineage),
     blocker,
     recoveryPath,
     linkLabel: state === 'ready for human review' && reviewPath && recoveryPath === reviewPath ? 'Open review'
@@ -113,7 +120,7 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
     priorityRank,
     phaseRank: PHASE[row.campaign_phase],
     stateRank: STATE[state],
-    reason: blocker ?? (state === 'eligible' && !jitValue ? 'Preparation deadline reached; JIT/source freshness is unknown in this calendar record.'
+    reason: blocker ?? (state === 'eligible' && !jitValue ? 'Preparation deadline reached; JIT freshness is unknown in this calendar record.'
       : state === 'eligible' ? 'Preparation deadline reached; authorized draft is eligible.'
       : state === 'preparing' ? 'An active preparation claim is in progress.'
       : state === 'ready for human review' ? 'A versioned internal packet is ready for review.'
@@ -127,7 +134,8 @@ export function rankReleaseAutomation<T extends ReleaseAutomationRow>(rows: T[],
   return rows.map(row => ({ row, projection: projectReleaseAutomation(row, now) }))
     .sort((a, b) => a.projection.stateRank - b.projection.stateRank
       || a.projection.priorityRank - b.projection.priorityRank
-      || Number(b.projection.freshness.startsWith('unknown')) - Number(a.projection.freshness.startsWith('unknown'))
+      || a.projection.jitRank - b.projection.jitRank
+      || a.projection.sourceRank - b.projection.sourceRank
       || (Number.isFinite(Date.parse(a.projection.trigger ?? '')) ? Date.parse(a.projection.trigger!) : Number.MAX_SAFE_INTEGER)
         - (Number.isFinite(Date.parse(b.projection.trigger ?? '')) ? Date.parse(b.projection.trigger!) : Number.MAX_SAFE_INTEGER)
       || Date.parse(a.row.scheduled_for) - Date.parse(b.row.scheduled_for)

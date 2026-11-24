@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCampaignReviewBacklog, prepareCampaignReviewBatch } from '@/lib/campaign-review-backlog'
 import { preparationAttempt, preparationDeadline, PREPARATION_SCAN_LEAD_DAYS } from '@/lib/social-calendar-preparation-deadline'
+import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { runAgentSlackNotificationSweep } from '@/lib/agent-slack-notification-sweep'
@@ -81,36 +82,20 @@ function isDryRun(request: NextRequest, body: Record<string, unknown>) {
     || body.dry_run === true
 }
 
-async function notifyPreparedReviewItems(input: {
-  calendarItemIds: string[]
-  dryRun: boolean
-  actorLabel: string
-  triggerSource: string
-}) {
-  if (!input.calendarItemIds.length) return null
-  return runAgentSlackNotificationSweep({
-    mode: 'immediate',
-    kinds: ['review_ready'],
-    goalId: 'social-content-calendar',
-    calendarItemIds: [...new Set(input.calendarItemIds)],
-    dryRun: input.dryRun,
-    actorLabel: input.actorLabel,
-    triggerSource: input.triggerSource,
-  }).catch((notificationError) => ({
-    error: notificationError instanceof Error ? notificationError.message : 'Review-ready Slack sweep failed',
-  }))
-}
-
 function pingAlreadySent(item: SocialContentCalendarItem, window: '24h' | '2h') {
   return calendarDueGatePingAlreadySent(item, window)
 }
 
-function preparationAlreadyRecorded(item: SocialContentCalendarItem) {
+function preparationAlreadyRecorded(item: SocialContentCalendarItem, now: Date) {
   const metadata = parseMetadata(item.metadata)
   const preparation = parseMetadata(metadata.publish_preparation)
-  return preparation.status === 'ready'
-    && typeof preparation.content_version === 'string'
-    && preparation.content_version.length > 0
+  const socialContentId = item.social_content_queue?.id ?? item.social_content_id
+  return Boolean(socialContentId
+    && projectSocialCalendarPreparation(item as unknown as Record<string, unknown>, socialContentId, now)?.state === 'ready'
+    && preparation.scheduled_for === item.scheduled_for
+    && preparation.trigger_at === preparationDeadline(item)
+    && typeof preparation.source_lineage === 'string'
+    && preparation.source_lineage.length > 0)
 }
 
 function preparationTriggerAt(item: SocialContentCalendarItem) {
@@ -136,7 +121,7 @@ function needsPublishPreparation(item: SocialContentCalendarItem, now: Date) {
   if (item.authorization_status !== 'authorized' || !isWithinPreparationWindow(item, now)) return false
   const queue = item.social_content_queue
   if (!queue || !['draft', 'approved'].includes(queue.status)) return false
-  return !preparationAlreadyRecorded(item)
+  return !preparationAlreadyRecorded(item, now)
 }
 
 function calendarNeedsRecalibration(item: SocialContentCalendarItem, now: Date) {
@@ -302,40 +287,22 @@ async function runDueGateSweep(request: NextRequest) {
 
   try {
     const body = await bodyOrEmpty(request)
-    // This mode prepares internal review packets only. Slack may notify and deep-link
-    // after readiness is persisted; it never becomes the approval surface.
+    // Scheduled preparation stays inside Portfolio. Review links are persisted
+    // with the packet; external notification is deferred.
     if (new URL(request.url).searchParams.get('mode') === 'review_backlog' || body.mode === 'review_backlog') {
       const campaignId = new URL(request.url).searchParams.get('campaign_id') || body.campaign_id
       const dryRun = isDryRun(request, body)
-      const options = { scheduled: true, dryRun, dueOnly: true }
+      const options = { scheduled: true, dryRun, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true }
       if (typeof campaignId === 'string' && campaignId) {
         const result = await prepareCampaignReviewBatch(campaignId, options)
-        const calendarItemIds = dryRun
-          ? (result.rows ?? []).filter(row => row.state === 'eligible' && Date.parse(row.trigger_at) <= Date.now()).map(row => row.id)
-          : (result.prepared_items ?? []).map(row => row.calendar_item_id)
-        const slackNotificationResult = await notifyPreparedReviewItems({
-          calendarItemIds,
-          dryRun,
-          actorLabel: dryRun ? 'Campaign review backlog dry run' : 'Campaign review backlog cron',
-          triggerSource: dryRun ? 'dry_run_campaign_review_backlog' : 'campaign_review_backlog',
-        })
-        return NextResponse.json({ ...result, slack_notification_result: slackNotificationResult })
+        return NextResponse.json({ ...result, slack_notification_result: null })
       }
       const { data: campaigns, error: campaignError } = await supabaseAdmin.from('attraction_campaigns').select('id').eq('status', 'active').limit(51)
       if (campaignError) throw campaignError
       if ((campaigns?.length ?? 0) > 50) return NextResponse.json({ error: 'Review scan exceeds 50 active campaigns; run campaign-scoped sweeps.' }, { status: 409 })
       const results = []
       for (const campaign of campaigns ?? []) results.push(await prepareCampaignReviewBatch(campaign.id, options))
-      const calendarItemIds = dryRun
-        ? results.flatMap(result => (result.rows ?? []).filter(row => row.state === 'eligible' && Date.parse(row.trigger_at) <= Date.now()).map(row => row.id))
-        : results.flatMap(result => (result.prepared_items ?? []).map(row => row.calendar_item_id))
-      const slackNotificationResult = await notifyPreparedReviewItems({
-        calendarItemIds,
-        dryRun,
-        actorLabel: dryRun ? 'Campaign review backlog dry run' : 'Campaign review backlog cron',
-        triggerSource: dryRun ? 'dry_run_campaign_review_backlog' : 'campaign_review_backlog',
-      })
-      return NextResponse.json({ results, slack_notification_result: slackNotificationResult })
+      return NextResponse.json({ results, slack_notification_result: null })
     }
     getSlackAgentSource()
     const dryRun = isDryRun(request, body)
@@ -433,7 +400,7 @@ async function runDueGateSweep(request: NextRequest) {
     }
 
     const pinged: Array<{ calendar_item_id: string; work_item_id: string; window: '24h' | '2h' }> = []
-    const prepared: Array<{ calendar_item_id: string; social_content_id: string | null; work_item_id: string; review_path: string; content_version: string }> = []
+    const prepared: Array<{ calendar_item_id: string; social_content_id: string | null; work_item_id: string; review_path: string; content_version: string; source_expires_at: string | null }> = []
     const preparationBlocked: Array<{ calendar_item_id: string; blocker: string; recovery_action: string }> = []
     const recalibrated: Array<{
       anchor_calendar_item_id: string
@@ -558,10 +525,11 @@ async function runDueGateSweep(request: NextRequest) {
             now,
             calendarItemIds: [item.id],
             dueOnly: true,
+            preserveSocialContent: true,
           })
       const completed = result?.prepared_items?.find(row => row.calendar_item_id === item.id)
         ?? (current?.state === 'ready' && current.content_version && current.work_item_id
-          ? { calendar_item_id: item.id, work_item_id: current.work_item_id, review_path: current.href, content_version: current.content_version, lineage: current.lineage }
+          ? { calendar_item_id: item.id, work_item_id: current.work_item_id, review_path: `/admin/social-content/${encodeURIComponent(socialContentId ?? '')}?step=copy`, content_version: current.content_version, lineage: current.lineage, source_expires_at: current.source_expires_at }
           : undefined)
       const projected = result?.rows.find(row => row.id === item.id) ?? current
       const blocked = result?.blocked_items?.find(row => row.calendar_item_id === item.id)
@@ -620,6 +588,8 @@ async function runDueGateSweep(request: NextRequest) {
               review_path: completed.review_path,
               content_version: completed.content_version,
               source_lineage: completed.lineage,
+              source_expires_at: completed.source_expires_at,
+              source_freshness_status: 'fresh',
               evidence_version: completed.lineage,
               retry_count: attempt.retryCount,
               scheduled_for: item.scheduled_for,
@@ -638,6 +608,7 @@ async function runDueGateSweep(request: NextRequest) {
         work_item_id: completed.work_item_id,
         review_path: completed.review_path,
         content_version: completed.content_version,
+        source_expires_at: completed.source_expires_at ?? null,
       })
     }
 
@@ -709,18 +680,6 @@ async function runDueGateSweep(request: NextRequest) {
           error: notificationError instanceof Error ? notificationError.message : 'Slack sweep failed',
         })))
     }
-    if (prepared.length > 0) {
-      slackSweeps.push(await runAgentSlackNotificationSweep({
-        mode: 'immediate',
-        kinds: ['review_ready'],
-        goalId: 'social-content-calendar',
-        calendarItemIds: prepared.map(row => row.calendar_item_id),
-        actorLabel: request.method === 'GET' ? 'Calendar preparation cron' : 'Manual calendar preparation sweep',
-        triggerSource: `${triggerSource}_review_ready`,
-      }).catch((notificationError) => ({
-        error: notificationError instanceof Error ? notificationError.message : 'Review-ready Slack sweep failed',
-      })))
-    }
     const slackResult = slackSweeps.length ? {
       results: slackSweeps.flatMap(sweep => 'results' in sweep ? sweep.results : []),
       errors: slackSweeps.flatMap(sweep => 'error' in sweep ? [sweep.error] : []),
@@ -781,9 +740,9 @@ async function runDueGateSweep(request: NextRequest) {
       slack_notification_result: slackResult,
       side_effects: {
         ...CALENDAR_SIDE_EFFECTS,
-        internal_work_items_created: pinged.length + prepared.length + recalibrated.length,
+        internal_work_items_created: pinged.length + recalibrated.length,
         internal_calendar_recalibration: recalibrated.reduce((sum, item) => sum + item.affected_count, 0),
-        slack_notification_requested: pinged.length + prepared.length + recalibrated.length > 0,
+        slack_notification_requested: pinged.length + recalibrated.length > 0,
       },
     })
   } catch (error) {
