@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+vi.mock('server-only', () => ({}))
+
 const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
@@ -88,6 +90,32 @@ describe('/api/admin/social-content/calendar', () => {
 
     expect(response.status).toBe(200)
     expect(query.limit).toHaveBeenCalledWith(500)
+  })
+
+  it('projects ten inactive Agentified Drafts only for the calendar review request', async () => {
+    listQuery()
+    const response = await GET(request(
+      'http://localhost/api/admin/social-content/calendar?include_agentified_drafts=1',
+    ) as never)
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.items).toHaveLength(10)
+    expect(new Set(body.items.map((item: { id: string }) => item.id)).size).toBe(10)
+    expect(body.items.every((item: { authorization_status: string; autonomy_eligible: boolean; metadata: { external_execution_enabled: boolean } }) =>
+      item.authorization_status === 'draft' && item.autonomy_eligible === false && item.metadata.external_execution_enabled === false)).toBe(true)
+    const carousel = body.items.find((item: { metadata: { agentified_asset_id: string } }) => item.metadata.agentified_asset_id === 'AW-IG-CAR-01')
+    expect(carousel.metadata.approved_source_copy).toContain('## AW-IG-CAR-01')
+    expect(carousel.metadata.copy_sha256).toMatch(/^[a-f0-9]{64}$/)
+    expect(carousel.metadata.preview_media).toHaveLength(7)
+  })
+
+  it('fails closed if database rows claim an Agentified asset identity', async () => {
+    listQuery([{ id: 'db-row', metadata: { agentified_asset_id: 'AW-LI-01' } }])
+    const response = await GET(request(
+      'http://localhost/api/admin/social-content/calendar?include_agentified_drafts=1',
+    ) as never)
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({ error: expect.stringContaining('ownership conflict') })
   })
 
   it('creates a pending calendar item without external side effects', async () => {

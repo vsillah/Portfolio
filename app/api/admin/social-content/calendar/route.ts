@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { agentifiedCalendarRows } from '@/lib/agentified-calendar-drafts'
 import {
   CALENDAR_SIDE_EFFECTS,
   defaultAuthorizationDueAt,
@@ -25,6 +26,7 @@ function isoOrNull(value: unknown) {
 }
 
 function limitFrom(value: string | null) {
+  if (value === null) return 50
   const parsed = Number(value)
   if (!Number.isFinite(parsed)) return 50
   return Math.min(Math.max(Math.floor(parsed), 1), 500)
@@ -38,6 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
+    const includeAgentifiedDrafts = searchParams.get('include_agentified_drafts') === '1'
     const limit = limitFrom(searchParams.get('limit'))
     const campaignId = searchParams.get('campaign_id')
     const channel = searchParams.get('channel')
@@ -81,13 +84,32 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
     if (error) {
       if (error.code === '42P01' || error.code === 'PGRST205') {
-        return NextResponse.json({ items: [], side_effects: CALENDAR_SIDE_EFFECTS })
+        return NextResponse.json({ items: includeAgentifiedDrafts ? agentifiedCalendarRows() : [], side_effects: CALENDAR_SIDE_EFFECTS })
       }
       throw error
     }
 
+    const existing = data ?? []
+    const drafts = includeAgentifiedDrafts ? agentifiedCalendarRows() : []
+    const assetIds = new Set(drafts.map((draft) => draft.metadata.agentified_asset_id))
+    if (existing.some((row: { metadata?: unknown }) => assetIds.has(parseMetadata(row.metadata).agentified_asset_id as string))) {
+      return NextResponse.json({ error: 'Agentified calendar ownership conflict. Resolve existing rows before showing Draft projection.' }, { status: 409 })
+    }
+    const matchingDrafts = drafts.filter((draft) =>
+      !campaignId
+      && (!channel || draft.channel === normalizeCalendarChannel(channel))
+      && (!phase || draft.campaign_phase === normalizeCampaignPhase(phase))
+      && (!dueStatus || draft.due_status === normalizeDueStatus(dueStatus))
+      && (!authorizationStatus || draft.authorization_status === authorizationStatus)
+      && (!from || new Date(draft.scheduled_for).getTime() >= new Date(from).getTime())
+      && (!to || new Date(draft.scheduled_for).getTime() <= new Date(to).getTime())
+      && (!dueWindow || dueWindow === 'past_due' && new Date(draft.scheduled_for).getTime() < Date.now())
+    )
+    const items = [...existing, ...matchingDrafts]
+      .sort((a, b) => new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime())
+
     return NextResponse.json({
-      items: data ?? [],
+      items,
       side_effects: CALENDAR_SIDE_EFFECTS,
     })
   } catch (error) {

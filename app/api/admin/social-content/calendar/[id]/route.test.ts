@@ -45,6 +45,15 @@ describe('/api/admin/social-content/calendar/[id]', () => {
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
+  it('keeps Agentified review Drafts immutable', async () => {
+    const response = await PATCH(
+      request({ authorization_status: 'authorized' }) as never,
+      { params: { id: 'agentified-draft:AW-LI-01' } },
+    )
+    expect(response.status).toBe(409)
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
   it('records authorized state as internal draft-handoff only', async () => {
     const readMaybeSingle = vi.fn(async () => ({ data: { metadata: { existing: true } }, error: null }))
     const readSelect = vi.fn(() => ({ eq: vi.fn(() => ({ maybeSingle: readMaybeSingle })) }))
