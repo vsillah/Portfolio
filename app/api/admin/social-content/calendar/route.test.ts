@@ -31,8 +31,9 @@ function listQuery(data: unknown[] = []) {
   const query: Record<string, unknown> = {
     data,
     error: null,
+    count: data.length,
     order: vi.fn(() => query),
-    limit: vi.fn(() => query),
+    range: vi.fn(() => query),
     eq: vi.fn(() => query),
     gte: vi.fn(() => query),
     lte: vi.fn(() => query),
@@ -89,7 +90,31 @@ describe('/api/admin/social-content/calendar', () => {
     ) as never)
 
     expect(response.status).toBe(200)
-    expect(query.limit).toHaveBeenCalledWith(500)
+    expect(query.range).toHaveBeenCalledWith(0, 499)
+  })
+
+  it('pages more than 100 persisted releases without gaps or duplicates', async () => {
+    const rows = Array.from({ length: 125 }, (_, index) => ({
+      id: `release-${String(index).padStart(3, '0')}`,
+      scheduled_for: new Date(Date.UTC(2026, 0, index + 1)).toISOString(),
+      metadata: {},
+    }))
+    let start = 0
+    let end = 0
+    const query: Record<string, unknown> = {
+      order: vi.fn(() => query),
+      range: vi.fn((from: number, to: number) => { start = from; end = to; return query }),
+      then: (resolve: (value: unknown) => void) => resolve({ data: rows.slice(start, end + 1), count: rows.length, error: null }),
+    }
+    mocks.from.mockReturnValue({ select: vi.fn(() => query) })
+
+    const first = await (await GET(request('http://localhost/api/admin/social-content/calendar?limit=100&offset=0') as never)).json()
+    const second = await (await GET(request('http://localhost/api/admin/social-content/calendar?limit=100&offset=100') as never)).json()
+
+    expect(first.page).toEqual({ offset: 0, limit: 100, total: 125, next_offset: 100 })
+    expect(second.page).toEqual({ offset: 100, limit: 100, total: 125, next_offset: null })
+    expect([...first.items, ...second.items].map((item: { id: string }) => item.id)).toEqual(rows.map((row) => row.id))
+    expect(query.order).toHaveBeenCalledWith('id', { ascending: true })
   })
 
   it('projects ten inactive Agentified Drafts only for the calendar review request', async () => {

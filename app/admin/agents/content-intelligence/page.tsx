@@ -1340,30 +1340,60 @@ function ContentIntelligenceContent() {
     }
   }, [authedFetch])
 
+  const loadCalendar = useCallback(async () => {
+    const rows: CalendarItem[] = []
+    const ids = new Set<string>()
+    let offset = 0
+    let total: number | null = null
+    do {
+      const response = await authedFetch(`/api/admin/social-content/calendar?limit=100&offset=${offset}&include_agentified_drafts=1`)
+      const body = recordValue(await readJsonResponse(response))
+      if (!response.ok) throw new Error(errorMessage(body.error, `Calendar HTTP ${response.status}`))
+      const page = recordValue(body.page)
+      const pageTotal = page.total
+      const nextOffset = page.next_offset
+      const persistedCount = Array.isArray(body.items)
+        ? body.items.filter((item: CalendarItem) => recordValue(item.metadata).agentified_draft !== true).length : 0
+      if (!Array.isArray(body.items) || typeof pageTotal !== 'number' || pageTotal < 0 ||
+        (total !== null && total !== pageTotal) || page.offset !== offset ||
+        (nextOffset === null ? offset + persistedCount !== pageTotal :
+          typeof nextOffset !== 'number' || nextOffset !== offset + persistedCount || nextOffset > pageTotal)) {
+        throw new Error('Calendar pagination response is inconsistent. Refresh to retry.')
+      }
+      total = pageTotal
+      for (const item of body.items as CalendarItem[]) {
+        if (ids.has(item.id)) throw new Error('Calendar returned a duplicate release row. Refresh to retry.')
+        ids.add(item.id)
+        rows.push(item)
+      }
+      if (nextOffset === null) break
+      offset = nextOffset as number
+    } while (true)
+    return rows.sort((a, b) => new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime() || a.id.localeCompare(b.id))
+  }, [authedFetch])
+
   const load = useCallback(async (background = false) => {
     if (!background) setLoading(true)
     setError(null)
     try {
-      const [packetResponse, focusedPacketResponse, insightResponse, digestResponse, calendarResponse, campaignResponse] = await Promise.all([
+      const [packetResponse, focusedPacketResponse, insightResponse, digestResponse, completeCalendar, campaignResponse] = await Promise.all([
         authedFetch('/api/admin/social-content/intelligence/research-packets?limit=50'),
         focusedResearchPacketId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(focusedResearchPacketId)
           ? authedFetch(`/api/admin/social-content/intelligence/research-packets?packet_id=${encodeURIComponent(focusedResearchPacketId)}`) : Promise.resolve(null),
         authedFetch('/api/admin/agents/work-items?source_type=social_topic_trigger&limit=12'),
         authedFetch('/api/admin/social-content/intelligence/daily-digest?lookback_days=5&limit=12'),
-        authedFetch('/api/admin/social-content/calendar?limit=50&include_agentified_drafts=1'),
+        loadCalendar(),
         authedFetch('/api/admin/campaigns?limit=50'),
       ])
       const packetBody = recordValue(await readJsonResponse(packetResponse))
       const focusedPacketBody = focusedPacketResponse ? recordValue(await readJsonResponse(focusedPacketResponse)) : null
       const insightBody = recordValue(await readJsonResponse(insightResponse))
       const digestBody = recordValue(await readJsonResponse(digestResponse))
-      const calendarBody = recordValue(await readJsonResponse(calendarResponse))
       const campaignBody = recordValue(await readJsonResponse(campaignResponse))
       if (!packetResponse.ok) throw new Error(errorMessage(packetBody.error, `Research packets HTTP ${packetResponse.status}`))
       if (focusedPacketResponse && !focusedPacketResponse.ok) throw new Error(errorMessage(focusedPacketBody?.error, `Focused research packet HTTP ${focusedPacketResponse.status}`))
       if (!insightResponse.ok) throw new Error(errorMessage(insightBody.error, `Insights HTTP ${insightResponse.status}`))
       if (!digestResponse.ok) throw new Error(errorMessage(digestBody.error, `Digest HTTP ${digestResponse.status}`))
-      if (!calendarResponse.ok) throw new Error(errorMessage(calendarBody.error, `Calendar HTTP ${calendarResponse.status}`))
       if (!campaignResponse.ok) throw new Error(errorMessage(campaignBody.error, `Campaigns HTTP ${campaignResponse.status}`))
       const listedPackets = Array.isArray(packetBody.packets) ? packetBody.packets : []
       const focusedPacket = focusedPacketBody && Array.isArray(focusedPacketBody.packets) ? focusedPacketBody.packets[0] : null
@@ -1371,7 +1401,7 @@ function ContentIntelligenceContent() {
         ? [...listedPackets, focusedPacket] : listedPackets)
       setInsights(Array.isArray(insightBody.work_items) ? insightBody.work_items : [])
       setDigest(digestBody.digest ? digestBody.digest as DailyDigest : null)
-      setCalendarItems(Array.isArray(calendarBody.items) ? calendarBody.items : [])
+      setCalendarItems(completeCalendar)
       setCampaigns(Array.isArray(campaignBody.data) ? campaignBody.data : [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load Content Intelligence')
@@ -1383,7 +1413,7 @@ function ContentIntelligenceContent() {
     } finally {
       setLoading(false)
     }
-  }, [authedFetch, focusedResearchPacketId])
+  }, [authedFetch, focusedResearchPacketId, loadCalendar])
 
   useEffect(() => {
     load()
@@ -1397,11 +1427,19 @@ function ContentIntelligenceContent() {
 
   const strongestPacket = useMemo(() => packets[0] ?? null, [packets])
 
+  const calendarCampaignOptions = useMemo(() => {
+    const options = new Map(campaigns.map((campaign) => [campaign.id, campaign.name]))
+    for (const item of calendarItems) {
+      if (item.attraction_campaigns?.id) options.set(item.attraction_campaigns.id, item.attraction_campaigns.name)
+    }
+    return [...options].sort((a, b) => a[1].localeCompare(b[1]))
+  }, [calendarItems, campaigns])
+
   const filteredCalendarItems = useMemo(() => {
     const search = normalizeSearch(calendarContentSearch)
     return calendarItems.filter((item) => {
       if (focusedCalendarItemId && item.id === focusedCalendarItemId) return true
-      if (calendarCampaignFilter && item.campaign_id !== calendarCampaignFilter) return false
+      if (calendarCampaignFilter && (item.campaign_id ?? item.attraction_campaigns?.id) !== calendarCampaignFilter) return false
       if (calendarChannelFilter && item.channel !== calendarChannelFilter) return false
       if (calendarPhaseFilter && item.campaign_phase !== calendarPhaseFilter) return false
       if (calendarAuthorizationFilter && item.authorization_status !== calendarAuthorizationFilter) return false
@@ -2477,8 +2515,8 @@ function ContentIntelligenceContent() {
                 className={CONTENT_INTELLIGENCE_FIELD_CLASS}
               >
                 <option value="">All campaigns</option>
-                {campaigns.map((campaign) => (
-                  <option key={campaign.id} value={campaign.id}>{campaign.name}</option>
+                {calendarCampaignOptions.map(([id, name]) => (
+                  <option key={id} value={id}>{name}</option>
                 ))}
               </select>
             </label>
@@ -2516,6 +2554,7 @@ function ContentIntelligenceContent() {
                 className={CONTENT_INTELLIGENCE_FIELD_CLASS}
               >
                 <option value="">All states</option>
+                <option value="draft">Draft</option>
                 <option value="pending">Pending</option>
                 <option value="authorized">Authorized</option>
                 <option value="rejected">Rejected</option>

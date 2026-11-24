@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ContentIntelligencePage from './page'
 
 const protectedRouteSpy = vi.hoisted(() => vi.fn())
-const agentifiedFixture = vi.hoisted(() => ({ enabled: false }))
+const agentifiedFixture = vi.hoisted(() => ({ enabled: false, productionShape: false }))
 
 vi.mock('@/components/ProtectedRoute', () => ({
   default: ({ children }: { children: ReactNode }) => {
@@ -25,6 +25,7 @@ describe('ContentIntelligencePage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     agentifiedFixture.enabled = false
+    agentifiedFixture.productionShape = false
     window.history.replaceState({}, '', '/admin/agents/content-intelligence')
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
       callback(0)
@@ -165,8 +166,8 @@ describe('ContentIntelligencePage', () => {
       if (url.startsWith('/api/admin/social-content/calendar')) {
         return {
           ok: true,
-          json: async () => ({
-            items: [
+          json: async () => {
+            const items = [
               {
                 id: 'calendar-1',
                 campaign_id: 'campaign-1',
@@ -336,12 +337,42 @@ describe('ContentIntelligencePage', () => {
                 authorization_due_at: `2026-11-2${index + 6}T17:00:00.000Z`,
                 autonomy_eligible: false,
                 metadata: { agentified_draft: true, provider_blocked: true, external_execution_enabled: false },
-                attraction_campaigns: null,
+                attraction_campaigns: { id: 'agentified-workshop-2026-post-thanksgiving', name: 'Agentified: Public Workshop Practice', slug: 'agentified-workshop-2026-post-thanksgiving' },
                 agent_work_items: null,
                 social_content_queue: null,
               })) : []),
-            ],
-          }),
+            ]
+            const persisted = items.filter((item) => !item.metadata.agentified_draft)
+            const drafts = items.filter((item) => item.metadata.agentified_draft)
+            if (agentifiedFixture.productionShape) {
+              for (let index = 0; index < 85; index += 1) {
+                persisted.push({
+                  ...persisted[0],
+                  id: `synthetic-calendar-${String(index).padStart(3, '0')}`,
+                  title: `Synthetic release ${index + 1}`,
+                  campaign_id: index < 36 ? 'campaign-1' : null,
+                  attraction_campaigns: index < 36 ? persisted[0].attraction_campaigns : null,
+                  scheduled_for: new Date(Date.UTC(2026, 0, 1 + index)).toISOString(),
+                } as typeof persisted[number])
+              }
+              for (let index = 0; index < 6; index += 1) {
+                drafts.push({
+                  ...drafts[0],
+                  id: `agentified-draft:synthetic-${index}`,
+                  title: `Synthetic immutable draft ${index + 1}`,
+                  scheduled_for: new Date(Date.UTC(2026, 11, 10 + index)).toISOString(),
+                })
+              }
+            }
+            const params = new URL(url, 'http://localhost').searchParams
+            const offset = Number(params.get('offset') ?? 0)
+            const limit = agentifiedFixture.productionShape ? 40 : 100
+            const pageItems = persisted.slice(offset, offset + limit)
+            return {
+              items: offset === 0 ? [...pageItems, ...drafts] : pageItems,
+              page: { offset, limit, total: persisted.length, next_offset: offset + pageItems.length < persisted.length ? offset + pageItems.length : null },
+            }
+          },
         }
       }
       if (url.startsWith('/api/admin/campaigns')) {
@@ -1275,6 +1306,32 @@ describe('ContentIntelligencePage', () => {
     fireEvent.change(contentSearch, { target: { value: 'missing content title' } })
     expect(screen.queryByText('Tease: Approval gates')).not.toBeInTheDocument()
     expect(screen.getByText('Showing 0-0 of 0 release rows. Search checks content title, work item, planned angle, campaign, template label, and source basis.')).toBeInTheDocument()
+  })
+
+  it('loads the full 90 persisted plus ten immutable drafts before filtering and paging', async () => {
+    agentifiedFixture.enabled = true
+    agentifiedFixture.productionShape = true
+    render(<ContentIntelligencePage />)
+
+    await screen.findByText(/Showing 1-8 of 100 release rows/)
+    expect(vi.mocked(fetch).mock.calls.filter(([input]) => String(input).startsWith('/api/admin/social-content/calendar?'))
+      .map(([input]) => new URL(String(input), 'http://localhost').searchParams.get('offset')))
+      .toEqual(['0', '40', '80'])
+
+    fireEvent.change(screen.getByLabelText('Content title'), { target: { value: 'Synthetic release 85' } })
+    expect(screen.getByText(/Showing 1-1 of 1 release row/)).toBeInTheDocument()
+    const lateRow = screen.getByLabelText('Calendar row Synthetic release 85')
+    expect(within(lateRow).getByRole('link', { name: 'Details' })).toHaveAttribute('href', '/admin/social-content/social-1?step=copy#social-copy-gate')
+
+    fireEvent.change(screen.getByLabelText('Content title'), { target: { value: '' } })
+    fireEvent.change(screen.getByLabelText('Campaign'), { target: { value: 'campaign-1' } })
+    expect(screen.getByText(/Showing 1-8 of 41 release rows/)).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Campaign'), { target: { value: '' } })
+    fireEvent.change(screen.getByLabelText('Authorization'), { target: { value: 'draft' } })
+    expect(screen.getByText(/Showing 1-8 of 10 release rows/)).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Campaign'), { target: { value: 'agentified-workshop-2026-post-thanksgiving' } })
+    expect(screen.getByText(/Showing 1-8 of 10 release rows/)).toBeInTheDocument()
+    expect(vi.mocked(fetch).mock.calls.some(([, init]) => init?.method === 'POST' || init?.method === 'PATCH')).toBe(false)
   })
 
   it('opens Agentified Draft evidence in the existing calendar row without mutation actions', async () => {

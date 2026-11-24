@@ -32,6 +32,12 @@ function limitFrom(value: string | null) {
   return Math.min(Math.max(Math.floor(parsed), 1), 500)
 }
 
+function offsetFrom(value: string | null) {
+  if (value === null) return 0
+  const parsed = Number(value)
+  return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : 0
+}
+
 export async function GET(request: NextRequest) {
   try {
     const auth = await verifyAdmin(request)
@@ -42,6 +48,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const includeAgentifiedDrafts = searchParams.get('include_agentified_drafts') === '1'
     const limit = limitFrom(searchParams.get('limit'))
+    const offset = offsetFrom(searchParams.get('offset'))
     const campaignId = searchParams.get('campaign_id')
     const channel = searchParams.get('channel')
     const phase = searchParams.get('campaign_phase')
@@ -58,9 +65,10 @@ export async function GET(request: NextRequest) {
         attraction_campaigns (id, name, slug, status, starts_at, ends_at),
         agent_work_items (id, title, status, priority),
         social_content_queue (id, status, post_text, scheduled_for)
-      `)
+      `, { count: 'exact' })
       .order('scheduled_for', { ascending: true })
-      .limit(limit)
+      .order('id', { ascending: true })
+      .range(offset, offset + limit - 1)
 
     if (campaignId) query = query.eq('campaign_id', campaignId)
     if (channel) query = query.eq('channel', normalizeCalendarChannel(channel))
@@ -81,13 +89,19 @@ export async function GET(request: NextRequest) {
       query = query.lt('scheduled_for', new Date().toISOString())
     }
 
-    const { data, error } = await query
+    const { data, error, count } = await query
     if (error) {
       if (error.code === '42P01' || error.code === 'PGRST205') {
-        return NextResponse.json({ items: includeAgentifiedDrafts ? agentifiedCalendarRows() : [], side_effects: CALENDAR_SIDE_EFFECTS })
+        return NextResponse.json({
+          items: includeAgentifiedDrafts && offset === 0 ? agentifiedCalendarRows() : [],
+          page: { offset, limit, total: 0, next_offset: null },
+          side_effects: CALENDAR_SIDE_EFFECTS,
+        })
       }
       throw error
     }
+
+    if (typeof count !== 'number') throw new Error('Calendar count unavailable')
 
     const existing = data ?? []
     const drafts = includeAgentifiedDrafts ? agentifiedCalendarRows() : []
@@ -105,11 +119,12 @@ export async function GET(request: NextRequest) {
       && (!to || new Date(draft.scheduled_for).getTime() <= new Date(to).getTime())
       && (!dueWindow || dueWindow === 'past_due' && new Date(draft.scheduled_for).getTime() < Date.now())
     )
-    const items = [...existing, ...matchingDrafts]
-      .sort((a, b) => new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime())
+    const items = [...existing, ...(offset === 0 ? matchingDrafts : [])]
+      .sort((a, b) => new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime() || a.id.localeCompare(b.id))
 
     return NextResponse.json({
       items,
+      page: { offset, limit, total: count, next_offset: offset + existing.length < count ? offset + existing.length : null },
       side_effects: CALENDAR_SIDE_EFFECTS,
     })
   } catch (error) {
