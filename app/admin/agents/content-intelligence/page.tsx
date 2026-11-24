@@ -33,6 +33,7 @@ import { getCurrentSession } from '@/lib/auth'
 import type { AgentWorkItem } from '@/lib/agent-work-items'
 import type { CampaignType } from '@/lib/campaigns'
 import { projectReleaseAutomation, rankReleaseAutomation } from '@/lib/release-calendar-automation'
+import calendarLayout from './release-calendar-layout.module.css'
 import {
   CAMPAIGN_PHASE_LABELS,
   SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
@@ -2644,8 +2645,8 @@ function ContentIntelligenceContent() {
             </div>
           ) : null}
 
-          <div id="content-calendar-gate" className="scroll-mt-28 overflow-hidden rounded-lg border border-silicon-slate/70 bg-silicon-slate/20">
-            <div className="hidden border-b border-silicon-slate/70 bg-background/35 px-3 py-3 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:grid md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3">
+          <div id="content-calendar-gate" className={`${calendarLayout.queue} scroll-mt-28 overflow-hidden rounded-lg border border-silicon-slate/70 bg-silicon-slate/20`}>
+            <div className={`${calendarLayout.header} border-b border-silicon-slate/70 bg-background/35 px-3 py-3 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground`}>
               <span>Release</span>
               <span>Content</span>
               <span>Campaign</span>
@@ -4547,50 +4548,50 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
       ref={registerRowRef}
       tabIndex={isFocused ? -1 : undefined}
       aria-label={rowLabel}
-      className={`grid gap-4 px-3 py-4 outline-none transition hover:bg-background/30 md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3 ${
+      className={`${calendarLayout.row} px-3 py-4 outline-none transition hover:bg-background/30 ${
         isFocused ? 'border-l-4 border-amber-400 ring-2 ring-amber-300/60 ring-inset' : ''
       }`}
     >
-      <div>
-        <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Release</p>
+      <div className={calendarLayout.release}>
+        <p className={`${calendarLayout.cellLabel} mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground`}>Release</p>
         <p className="font-semibold text-foreground">{formatCalendarDate(item.scheduled_for)}</p>
         <p className="mt-1 text-xs text-muted-foreground">
           {item.authorization_due_at ? `${calendarApprovalLeadLabel(item)} due` : 'No approval deadline'}
         </p>
       </div>
-      <div className="min-w-0">
-        <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Content</p>
+      <div className={calendarLayout.content}>
+        <p className={`${calendarLayout.cellLabel} mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground`}>Content</p>
         <div className="min-w-0">
-          <p className="font-semibold leading-5 text-foreground">{item.title}</p>
+          <p className="break-words font-semibold leading-5 text-foreground">{item.title}</p>
           {item.planned_angle ? (
             <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{item.planned_angle}</p>
           ) : null}
           {rationaleSummary ? (
             <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-muted-foreground">{rationaleSummary}</p>
           ) : null}
-          <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+          <p className="mt-1 break-words text-[0.68rem] leading-5 text-muted-foreground">
             <span className="font-semibold capitalize text-foreground">{automation.state}</span>
             {' · '}Prepare by {automation.trigger ? formatCalendarDate(automation.trigger) : 'unavailable'}
             {' · '}JIT/source {automation.freshness}
           </p>
-          {automation.blocker ? <p className="mt-1 text-[0.68rem] leading-5 text-amber-100">{automation.blocker}</p> : null}
+          {automation.blocker ? <p className="mt-1 break-words text-[0.68rem] leading-5 text-amber-100">{automation.blocker}</p> : null}
           <div className="mt-2 flex flex-wrap gap-1.5">
             {templateLabel ? (
-              <span className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/80">
+              <span className="max-w-full break-words rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/80">
                 {templateLabel}
               </span>
             ) : null}
             {item.agent_work_items?.title ? (
-              <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
+              <span className="max-w-full break-words rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.62rem] text-muted-foreground">
                 {item.agent_work_items.title}
               </span>
             ) : null}
           </div>
         </div>
       </div>
-      <div>
-        <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Campaign</p>
-        <p className="line-clamp-2 text-sm font-medium text-foreground">{campaignName}</p>
+      <div className={calendarLayout.campaign}>
+        <p className={`${calendarLayout.cellLabel} mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground`}>Campaign</p>
+        <p className="line-clamp-2 break-words text-sm font-medium text-foreground">{campaignName}</p>
         <div className="mt-2 flex flex-wrap gap-2 text-[0.68rem]">
           {item.campaign_id ? (
             <Link href={`/admin/campaigns/${item.campaign_id}`} className="text-blue-200 hover:text-blue-100">
@@ -4604,25 +4605,25 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
           ) : null}
         </div>
       </div>
-      <div>
-        <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Channel</p>
+      <div className={calendarLayout.channel}>
+        <p className={`${calendarLayout.cellLabel} mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground`}>Channel</p>
         <p className="font-semibold text-foreground">{CALENDAR_CHANNEL_LABELS[item.channel]}</p>
         <p className="mt-1 text-xs text-muted-foreground">{CAMPAIGN_PHASE_LABELS[item.campaign_phase]}</p>
-        <span className={`mt-2 inline-flex rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${timing.tone}`}>
+        <span className={`mt-2 inline-flex max-w-full rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${timing.tone}`}>
           {timing.label}
         </span>
       </div>
-      <div>
-        <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Gate</p>
-        <span className={`inline-flex rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
+      <div className={calendarLayout.gate}>
+        <p className={`${calendarLayout.cellLabel} mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground`}>Gate</p>
+        <span className={`inline-flex max-w-full rounded-full border px-2 py-0.5 text-[0.68rem] font-semibold ${calendarAuthorizationTone(item.authorization_status)}`}>
           {item.authorization_status.replace(/_/g, ' ')}
         </span>
         <p className="mt-1 text-[0.68rem] font-semibold text-foreground">{gateSummary.label}</p>
         <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-muted-foreground">{gateSummary.action}</p>
       </div>
-      <div>
-        <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Actions</p>
-        <div className="flex flex-col gap-2">
+      <div className={calendarLayout.actions}>
+        <p className={`${calendarLayout.cellLabel} mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground`}>Actions</p>
+        <div className="flex flex-wrap items-start gap-2">
           {(automation.state === 'blocked' || automation.state === 'ready for human review') ? (
             <Link href={automation.recoveryPath} className="inline-flex min-h-8 items-center justify-center rounded-md border border-blue-400/35 px-3 py-1.5 text-xs font-semibold text-blue-100 hover:bg-blue-500/10">
               {automation.state === 'blocked' ? 'Recovery' : 'Review packet'}
