@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ContentIntelligencePage from './page'
 
 const protectedRouteSpy = vi.hoisted(() => vi.fn())
+const agentifiedFixture = vi.hoisted(() => ({ enabled: false }))
 
 vi.mock('@/components/ProtectedRoute', () => ({
   default: ({ children }: { children: ReactNode }) => {
@@ -23,6 +24,7 @@ vi.mock('@/lib/auth', () => ({
 describe('ContentIntelligencePage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    agentifiedFixture.enabled = false
     window.history.replaceState({}, '', '/admin/agents/content-intelligence')
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
       callback(0)
@@ -285,6 +287,40 @@ describe('ContentIntelligencePage', () => {
                 agent_work_items: { id: 'work-social-4', title: 'Learning window', status: 'completed' },
                 social_content_queue: { id: 'social-learning', status: 'published' },
               },
+              ...(agentifiedFixture.enabled ? [{
+                id: 'agentified-draft:agentified-workshop-2026-post-thanksgiving:AW-IG-CAR-01:v1',
+                campaign_id: null,
+                agent_work_item_id: null,
+                social_content_id: null,
+                channel: 'instagram',
+                campaign_phase: 'teach',
+                title: 'The six-field receipt',
+                planned_angle: 'Public workshop practice: the six-field receipt',
+                scheduled_for: '2026-12-02T17:00:00.000Z',
+                due_status: 'planned',
+                authorization_status: 'draft',
+                authorization_due_at: '2026-11-26T17:00:00.000Z',
+                autonomy_eligible: false,
+                metadata: {
+                  agentified_draft: true,
+                  agentified_asset_id: 'AW-IG-CAR-01',
+                  approved_source_copy: '## AW-IG-CAR-01 — The six-field receipt\n\nName the job.',
+                  copy_sha256: 'a'.repeat(64),
+                  draft_asset_path: 'agentified/campaign/draft-assets.md#aw-ig-car-01',
+                  source_packet_path: 'agentified/campaign/portfolio-campaign-packet.json',
+                  source_packet_sha256: 'b'.repeat(64),
+                  visual_manifest_sha256: 'c'.repeat(64),
+                  source_paths: ['app/agentified/page.tsx'],
+                  cta_url: 'https://amadutown.com/agentified',
+                  provider_blocked: true,
+                  provider_boundary: 'Provider, upload, schedule, publish, and send actions are locked.',
+                  external_execution_enabled: false,
+                  preview_media: [{ path: 'public/agentified/campaign-review/2026-11-23/aw-ig-car-01-01.png', url: '/agentified/campaign-review/2026-11-23/aw-ig-car-01-01.png', sha256: 'd'.repeat(64), type: 'image' }],
+                },
+                attraction_campaigns: { id: 'agentified-workshop-2026-post-thanksgiving', name: 'Agentified: Public Workshop Practice', slug: 'agentified-workshop-2026-post-thanksgiving' },
+                agent_work_items: null,
+                social_content_queue: null,
+              }] : []),
             ],
           }),
         }
@@ -1220,6 +1256,28 @@ describe('ContentIntelligencePage', () => {
     fireEvent.change(contentSearch, { target: { value: 'missing content title' } })
     expect(screen.queryByText('Tease: Approval gates')).not.toBeInTheDocument()
     expect(screen.getByText('Showing 0-0 of 0 release rows. Search checks content title, work item, planned angle, campaign, template label, and source basis.')).toBeInTheDocument()
+  })
+
+  it('opens Agentified Draft evidence in the existing calendar row without mutation actions', async () => {
+    agentifiedFixture.enabled = true
+    render(<ContentIntelligencePage />)
+
+    await screen.findByRole('heading', { name: 'Release dates and approval gates' })
+    fireEvent.change(screen.getByLabelText('Content title'), { target: { value: 'six-field receipt' } })
+    expect(screen.getByText(/Showing 1-1 of 1 release row/)).toBeInTheDocument()
+
+    const row = screen.getByLabelText('Calendar row The six-field receipt')
+    fireEvent.click(within(row).getByRole('button', { name: 'Details' }))
+    const expanded = await screen.findByLabelText('Focused calendar row The six-field receipt')
+    expect(within(expanded).getByRole('heading', { name: 'Source-bound Draft evidence' })).toBeInTheDocument()
+    expect(within(expanded).getByText(/Name the job/)).toBeInTheDocument()
+    expect(within(expanded).getByAltText('AW-IG-CAR-01 internal visual preview')).toBeInTheDocument()
+    expect(within(expanded).getByText(/Provider, upload, schedule, publish, and send actions are locked/)).toBeInTheDocument()
+    expect(within(expanded).queryByRole('button', { name: 'Authorize Draft Handoff' })).not.toBeInTheDocument()
+    expect(within(expanded).queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument()
+    fireEvent.click(within(expanded).getByRole('button', { name: 'Close details' }))
+    expect(screen.getByLabelText('Calendar row The six-field receipt')).toBeInTheDocument()
+    expect(vi.mocked(fetch).mock.calls.some(([, init]) => init?.method === 'POST' || init?.method === 'PATCH')).toBe(false)
   })
 
   it('stores recorded evidence without paid scraper fields', async () => {

@@ -1447,6 +1447,8 @@ function ContentIntelligenceContent() {
   }, [calendarPage, filteredCalendarItems])
 
   const calendarTotalPages = Math.max(1, Math.ceil(filteredCalendarItems.length / CALENDAR_PAGE_SIZE))
+  const focusedCalendarItem = calendarItems.find((item) => item.id === focusedCalendarItemId)
+  const focusedAgentifiedDraft = recordValue(focusedCalendarItem?.metadata).agentified_draft === true
 
   useEffect(() => {
     if (!focusedCalendarItemId) {
@@ -2199,13 +2201,6 @@ function ContentIntelligenceContent() {
 
         {activeSection === 'calendar' ? (
         <>
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-          <div>
-            <p className="font-semibold text-amber-100">Agentified campaign Drafts</p>
-            <p className="text-xs text-amber-100/75">Review ten source-bound, inactive planning records without creating calendar or provider actions.</p>
-          </div>
-          <Link href="/admin/agents/content-intelligence/agentified-calendar" className="rounded-md border border-amber-400/50 px-3 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-500/10">Review Drafts</Link>
-        </div>
         <section className="agent-ops-card mb-6 rounded-lg border border-blue-500/25 bg-blue-500/10 p-4">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -2550,7 +2545,9 @@ function ContentIntelligenceContent() {
                     {calendarFocusRecovery ? 'Linked calendar row unavailable' : 'Linked calendar row focused'}
                   </p>
                   <p className="mt-1 break-words">
-                    {calendarFocusRecovery ?? `Opened from a Slack approval reminder for ${focusedCalendarItemId}. Review the expanded row below and use the visible authorize or reject action.`}
+                    {calendarFocusRecovery ?? (focusedAgentifiedDraft
+                      ? 'Review the expanded Agentified Draft below. Copy, visual previews, provenance, and blocked actions are in this calendar row.'
+                      : `Opened from a Slack approval reminder for ${focusedCalendarItemId}. Review the expanded row below and use the visible authorize or reject action.`)}
                   </p>
                 </div>
                 <button
@@ -2602,6 +2599,11 @@ function ContentIntelligenceContent() {
                     [id]: value,
                   }))}
                   onReject={rejectCalendarItem}
+                  onFocus={(id) => setFocusedCalendarItemId(id)}
+                  onClearFocus={(id) => {
+                    setFocusedCalendarItemId(null)
+                    window.requestAnimationFrame(() => document.getElementById(`calendar-details-trigger-${id}`)?.focus())
+                  }}
                 />
               )) : (
                 <p className="px-4 py-8 text-center text-sm text-muted-foreground">
@@ -4404,6 +4406,8 @@ type CalendarItemRowProps = {
   onBeginReject: (id: string) => void
   onDecisionNoteChange: (id: string, value: string) => void
   onReject: (item: CalendarItem) => void
+  onFocus: (id: string) => void
+  onClearFocus: (id: string) => void
 }
 
 function CalendarItemQueueRow(props: CalendarItemRowProps) {
@@ -4445,6 +4449,7 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
     return (
       <div
         ref={registerRowRef}
+        id={`calendar-detail-${item.id}`}
         tabIndex={isFocused ? -1 : undefined}
         aria-label={rowLabel}
         className={`bg-background/20 px-3 py-3 outline-none ${
@@ -4546,12 +4551,16 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
               Handoff
             </Link>
           ) : metadata.agentified_draft === true ? (
-            <Link
-              href={`/admin/agents/content-intelligence/agentified-calendar?asset=${encodeURIComponent(String(metadata.agentified_asset_id))}`}
+            <button
+              type="button"
+              id={`calendar-details-trigger-${item.id}`}
+              aria-expanded={false}
+              aria-controls={`calendar-detail-${item.id}`}
+              onClick={() => props.onFocus(item.id)}
               className="inline-flex min-h-8 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-white/30 hover:text-foreground"
             >
               Details
-            </Link>
+            </button>
           ) : null}
           {isPending ? (
             <div className="grid gap-2">
@@ -4612,6 +4621,7 @@ function CalendarItemCard({
   decisionNote,
   editForm,
   isEditing,
+  isFocused,
   campaigns,
   onAuthorize,
   onBeginEdit,
@@ -4621,6 +4631,7 @@ function CalendarItemCard({
   onBeginReject,
   onDecisionNoteChange,
   onReject,
+  onClearFocus,
 }: CalendarItemRowProps) {
   const campaignName = item.attraction_campaigns?.name ?? 'No campaign'
   const metadata = recordValue(item.metadata)
@@ -4653,6 +4664,13 @@ function CalendarItemCard({
     : ''
   return (
     <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
+      {isFocused && metadata.agentified_draft === true ? (
+        <div className="mb-3 flex justify-end">
+          <button type="button" onClick={() => onClearFocus(item.id)} className="rounded-md border border-silicon-slate/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground">
+            Close details
+          </button>
+        </div>
+      ) : null}
       {isEditing && editForm ? (
         <div className="space-y-3">
           <label className="block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -4831,6 +4849,7 @@ function CalendarItemCard({
               ) : null}
             </div>
           ) : null}
+          {metadata.agentified_draft === true ? <AgentifiedCalendarEvidence item={item} metadata={metadata} /> : null}
           <div className="mt-3 flex flex-wrap gap-2 text-[0.68rem] text-muted-foreground">
             <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">{CALENDAR_CHANNEL_LABELS[item.channel]}</span>
             <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5">{CAMPAIGN_PHASE_LABELS[item.campaign_phase]}</span>
@@ -4936,6 +4955,54 @@ function CalendarItemCard({
         </div>
       ) : null}
     </div>
+  )
+}
+
+function AgentifiedCalendarEvidence({ item, metadata }: { item: CalendarItem; metadata: Record<string, unknown> }) {
+  const copy = typeof metadata.approved_source_copy === 'string' ? metadata.approved_source_copy : ''
+  const ctaUrl = typeof metadata.cta_url === 'string' ? metadata.cta_url : ''
+  const sourcePaths = metadataStringArray(metadata.source_paths)
+  const media = (Array.isArray(metadata.preview_media) ? metadata.preview_media : [])
+    .map((value) => recordValue(value))
+    .filter((value) => typeof value.url === 'string' && value.url.startsWith('/agentified/campaign-review/'))
+
+  return (
+    <section aria-label={`Agentified Draft evidence for ${item.title}`} className="mt-3 min-w-0 space-y-3 rounded-md border border-amber-500/30 bg-amber-500/5 p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold">Source-bound Draft evidence</h3>
+        <span className="rounded-full border border-amber-400/40 px-2 py-0.5 text-[0.68rem] font-semibold text-amber-100">Inactive Draft</span>
+      </div>
+      <p className="text-xs leading-5 text-amber-100">{String(metadata.provider_boundary ?? 'External actions are blocked pending review.')}</p>
+      <div className="grid min-w-0 gap-3 lg:grid-cols-2">
+        <div className="min-w-0 space-y-2 text-xs text-muted-foreground">
+          <p><strong>Asset ID:</strong> {String(metadata.agentified_asset_id ?? '')}</p>
+          <p><strong>Campaign:</strong> {item.attraction_campaigns?.name ?? ''}</p>
+          <p><strong>CTA:</strong> {ctaUrl === 'https://amadutown.com/agentified' ? <a href={ctaUrl} className="break-all text-blue-200 underline">{ctaUrl}</a> : 'Source CTA unavailable; stop review.'}</p>
+          <p className="break-all"><strong>Copy source:</strong> {String(metadata.draft_asset_path ?? '')} · SHA-256 {String(metadata.copy_sha256 ?? '')}</p>
+          <p className="break-all"><strong>Packet:</strong> {String(metadata.source_packet_path ?? '')} · SHA-256 {String(metadata.source_packet_sha256 ?? '')}</p>
+          <p className="break-all"><strong>Visual manifest SHA-256:</strong> {String(metadata.visual_manifest_sha256 ?? '')}</p>
+          <p className="break-all"><strong>Source paths:</strong> {sourcePaths.join(', ')}</p>
+          <p className="break-all"><strong>Stable calendar ID:</strong> {item.id}</p>
+        </div>
+        <div className="min-w-0">
+          <h4 className="mb-2 text-xs font-semibold text-foreground">Approved source copy</h4>
+          {copy ? <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md border border-silicon-slate/70 bg-background p-3 font-sans text-xs leading-5">{copy}</pre>
+            : <p className="text-xs text-red-200">Source copy unavailable; stop review.</p>}
+        </div>
+      </div>
+      <div>
+        <h4 className="mb-2 text-xs font-semibold text-foreground">Source-bound visual previews</h4>
+        {media.length ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {media.map((asset) => <div key={String(asset.path)} className="min-w-0 rounded-md border border-silicon-slate/70 p-2">
+            {asset.type === 'video'
+              ? <video controls preload="metadata" className="max-h-64 w-full" src={String(asset.url)} />
+              // eslint-disable-next-line @next/next/no-img-element
+              : <img src={String(asset.url)} alt={`${String(metadata.agentified_asset_id ?? 'Agentified')} internal visual preview`} className="max-h-64 w-full object-contain" />}
+            <p className="mt-1 break-all text-[0.65rem] text-muted-foreground">{String(asset.path)} · SHA-256 {String(asset.sha256)}</p>
+          </div>)}
+        </div> : <p className="text-xs text-muted-foreground">No raster asset is bound to this copy-only Draft.</p>}
+      </div>
+    </section>
   )
 }
 

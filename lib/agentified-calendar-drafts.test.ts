@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('server-only', () => ({}))
 
 import packet from '@/agentified/campaign/portfolio-campaign-packet.json'
-import { agentifiedCalendarDrafts } from './agentified-calendar-drafts'
+import { agentifiedCalendarDrafts, agentifiedCalendarRows } from './agentified-calendar-drafts'
 
 describe('Agentified calendar Draft binding', () => {
   const drafts = agentifiedCalendarDrafts()
@@ -37,6 +37,19 @@ describe('Agentified calendar Draft binding', () => {
       expect(draft.autonomy_eligible).toBe(false)
       expect(draft.external_execution_enabled).toBe(false)
       expect(draft.gate).toMatch(/Provider.*upload.*schedule.*publish.*send/)
+    }
+  })
+
+  it('carries exact source and media evidence into the canonical calendar rows', () => {
+    const rows = agentifiedCalendarRows()
+    expect(rows).toHaveLength(10)
+    for (const [index, row] of rows.entries()) {
+      expect(row.id).toBe(drafts[index].id)
+      expect(row.metadata.approved_source_copy).toBe(drafts[index].copy)
+      expect(row.metadata.copy_sha256).toBe(drafts[index].copy_sha256)
+      expect(row.metadata.preview_media).toEqual(drafts[index].media)
+      expect(row.metadata.external_execution_enabled).toBe(false)
+      expect(row.authorization_status).toBe('draft')
     }
   })
 })
