@@ -1,0 +1,19 @@
+{
+  "commit": "de9012ac8eb295b550648422d77afe35fcb5fc9c",
+  "route": "/admin/agents/content-intelligence?section=calendar&rev=de9012ac8eb295b550648422d77afe35fcb5fc9c",
+  "fixture": "synthetic read-only",
+  "persisted_rows": 5,
+  "draft_rows": 10,
+  "side_effects": {
+    "provider_generation": false,
+    "upload": false,
+    "schedule": false,
+    "publish": false,
+    "send": false
+  },
+  "viewports": [
+    "1280x800",
+    "820x900",
+    "390x844"
+  ]
+}
