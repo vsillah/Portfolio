@@ -93,6 +93,25 @@ describe('/api/admin/social-content/calendar', () => {
     expect(query.range).toHaveBeenCalledWith(0, 499)
   })
 
+  it('returns only claim state and time from linked work metadata', async () => {
+    listQuery([{
+      id: 'calendar-claim', channel: 'linkedin', scheduled_for: '2026-11-30T15:00:00.000Z',
+      agent_work_items: {
+        id: 'work-1', title: 'Draft', status: 'in_progress', priority: 'high',
+        metadata: { private_note: 'do not expose', rolling_review_claims: { linkedin: {
+          status: 'preparing', claimed_at: '2026-11-24T14:58:00.000Z', claim_token: 'private-token',
+        } } },
+      },
+    }])
+    const body = await (await GET(request('http://localhost/api/admin/social-content/calendar') as never)).json()
+    expect(body.items[0].agent_work_items).toEqual({
+      id: 'work-1', title: 'Draft', status: 'in_progress', priority: 'high',
+      preparation_claim: { status: 'preparing', claimed_at: '2026-11-24T14:58:00.000Z' },
+    })
+    expect(JSON.stringify(body)).not.toContain('private-token')
+    expect(JSON.stringify(body)).not.toContain('do not expose')
+  })
+
   it('pages more than 100 persisted releases without gaps or duplicates', async () => {
     const rows = Array.from({ length: 125 }, (_, index) => ({
       id: `release-${String(index).padStart(3, '0')}`,

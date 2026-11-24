@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       .select(`
         *,
         attraction_campaigns (id, name, slug, status, starts_at, ends_at),
-        agent_work_items (id, title, status, priority),
+        agent_work_items (id, title, status, priority, metadata),
         social_content_queue (id, status, post_text, scheduled_for)
       `, { count: 'exact' })
       .order('scheduled_for', { ascending: true })
@@ -103,7 +103,25 @@ export async function GET(request: NextRequest) {
 
     if (typeof count !== 'number') throw new Error('Calendar count unavailable')
 
-    const existing = data ?? []
+    const existing = (data ?? []).map((row: Record<string, any>) => {
+      const work = row.agent_work_items
+      if (!work) return row
+      const claims = parseMetadata(parseMetadata(work.metadata).rolling_review_claims)
+      const claim = parseMetadata(claims[row.channel])
+      return {
+        ...row,
+        agent_work_items: {
+          id: work.id,
+          title: work.title,
+          status: work.status,
+          priority: work.priority,
+          preparation_claim: {
+            status: typeof claim.status === 'string' ? claim.status : null,
+            claimed_at: typeof claim.claimed_at === 'string' ? claim.claimed_at : null,
+          },
+        },
+      }
+    })
     const drafts = includeAgentifiedDrafts ? agentifiedCalendarRows() : []
     const assetIds = new Set(drafts.map((draft) => draft.metadata.agentified_asset_id))
     if (existing.some((row: { metadata?: unknown }) => assetIds.has(parseMetadata(row.metadata).agentified_asset_id as string))) {

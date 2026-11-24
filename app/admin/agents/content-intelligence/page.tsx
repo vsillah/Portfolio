@@ -32,6 +32,7 @@ import Pagination from '@/components/admin/Pagination'
 import { getCurrentSession } from '@/lib/auth'
 import type { AgentWorkItem } from '@/lib/agent-work-items'
 import type { CampaignType } from '@/lib/campaigns'
+import { projectReleaseAutomation, rankReleaseAutomation } from '@/lib/release-calendar-automation'
 import {
   CAMPAIGN_PHASE_LABELS,
   SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
@@ -156,7 +157,7 @@ type CalendarItem = {
   autonomy_eligible: boolean
   metadata?: Record<string, unknown> | null
   attraction_campaigns?: { id: string; name: string; slug: string } | null
-  agent_work_items?: { id: string; title: string; status: string } | null
+  agent_work_items?: { id: string; title: string; status: string; preparation_claim?: { status: string | null; claimed_at: string | null } } | null
   social_content_queue?: { id: string; status: string } | null
 }
 
@@ -1435,6 +1436,9 @@ function ContentIntelligenceContent() {
     return [...options].sort((a, b) => a[1].localeCompare(b[1]))
   }, [calendarItems, campaigns])
 
+  const automationQueue = useMemo(() => rankReleaseAutomation(calendarItems), [calendarItems])
+  const calendarExternalFlagged = automationQueue.some(({ projection }) => projection.blocker?.startsWith('External execution flag'))
+
   const filteredCalendarItems = useMemo(() => {
     const search = normalizeSearch(calendarContentSearch)
     return calendarItems.filter((item) => {
@@ -2365,6 +2369,38 @@ function ContentIntelligenceContent() {
               External publishing locked
             </span>
           </div>
+
+          <section aria-label="Release preparation automation" className="mb-4 rounded-lg border border-blue-400/30 bg-blue-500/5 p-3 sm:p-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <h3 className="text-sm font-semibold">Prepare-only automation</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Ranked by preparation state, calendar priority, JIT evidence, trigger, release time, then campaign phase. This view makes no changes.</p>
+              </div>
+              <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${calendarExternalFlagged ? 'border-red-500/40 bg-red-500/10 text-red-100' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'}`}>
+                {calendarExternalFlagged ? 'External flag requires review' : 'Provider, upload, schedule, publish, and send locked'}
+              </span>
+            </div>
+            {automationQueue.length ? (
+              <ol className="mt-3 grid gap-2 lg:grid-cols-2" aria-label="Next preparation priorities">
+                {automationQueue.slice(0, 6).map(({ row, projection }, index) => (
+                  <li key={row.id} className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/40 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs font-bold text-blue-100">#{index + 1}</span>
+                      <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-[0.68rem] font-semibold capitalize">{projection.state}</span>
+                      <span className="text-[0.68rem] text-muted-foreground">{projection.priorityName} priority</span>
+                    </div>
+                    <p className="mt-2 break-words text-sm font-semibold">Next: {row.title}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Prepare by {projection.trigger ? formatCalendarDate(projection.trigger) : 'unavailable'} · {CAMPAIGN_PHASE_LABELS[row.campaign_phase]} phase</p>
+                    <p className="mt-1 text-xs text-muted-foreground">JIT/source: {projection.freshness} · {projection.receiptLabel}{projection.receipt ? `: ${projection.receipt.slice(0, 16)}` : ''}</p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{projection.reason}</p>
+                    <Link href={projection.recoveryPath} className="mt-2 inline-flex min-h-8 items-center rounded-md border border-blue-400/35 px-2.5 py-1 text-xs font-semibold text-blue-100 hover:bg-blue-500/10">
+                      {projection.state === 'ready for human review' ? 'Open review' : projection.state === 'blocked' ? 'Open recovery' : 'Open calendar row'}
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            ) : <p className="mt-3 text-xs text-muted-foreground">No release rows loaded. Refresh the calendar to inspect preparation.</p>}
+          </section>
 
           <CollapsiblePanel
             title="+ Plan item"
@@ -4487,6 +4523,7 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
   const showExpandedWorkflow = isEditing || rejectingItemId === item.id || isFocused
   const gateSummary = calendarApprovalGateSummary(item)
   const timing = calendarTimingState(item)
+  const automation = projectReleaseAutomation(item)
   const rowLabel = isFocused ? `Focused calendar row ${item.title}` : `Calendar row ${item.title}`
 
   if (showExpandedWorkflow) {
@@ -4531,6 +4568,12 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
           {rationaleSummary ? (
             <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-muted-foreground">{rationaleSummary}</p>
           ) : null}
+          <p className="mt-1 text-[0.68rem] leading-5 text-muted-foreground">
+            <span className="font-semibold capitalize text-foreground">{automation.state}</span>
+            {' · '}Prepare by {automation.trigger ? formatCalendarDate(automation.trigger) : 'unavailable'}
+            {' · '}JIT/source {automation.freshness}
+          </p>
+          {automation.blocker ? <p className="mt-1 text-[0.68rem] leading-5 text-amber-100">{automation.blocker}</p> : null}
           <div className="mt-2 flex flex-wrap gap-1.5">
             {templateLabel ? (
               <span className="rounded-full border border-blue-300/20 px-2 py-0.5 text-[0.62rem] font-semibold text-blue-100/80">
@@ -4580,6 +4623,11 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
       <div>
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Actions</p>
         <div className="flex flex-col gap-2">
+          {(automation.state === 'blocked' || automation.state === 'ready for human review') ? (
+            <Link href={automation.recoveryPath} className="inline-flex min-h-8 items-center justify-center rounded-md border border-blue-400/35 px-3 py-1.5 text-xs font-semibold text-blue-100 hover:bg-blue-500/10">
+              {automation.state === 'blocked' ? 'Recovery' : 'Review packet'}
+            </Link>
+          ) : null}
           {socialContentId ? (
             <Link
               href={socialContentGateHref(socialContentId, gateSummary.deepLinkStep)}
