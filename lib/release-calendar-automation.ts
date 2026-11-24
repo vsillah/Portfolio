@@ -1,4 +1,5 @@
 import { preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
+import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
 
 type RecordValue = Record<string, unknown>
 
@@ -34,10 +35,10 @@ function safePath(value: unknown): string | null {
 const PRIORITY: Record<string, number> = { urgent: 0, high: 1, medium: 2, normal: 2, low: 3 }
 const PHASE: Record<ReleaseAutomationRow['campaign_phase'], number> = { offer: 0, proof: 1, teach: 2, tease: 3 }
 const STATE: Record<ReleaseAutomationState, number> = {
-  blocked: 0,
-  eligible: 1,
-  preparing: 2,
-  'ready for human review': 3,
+  'ready for human review': 0,
+  blocked: 1,
+  eligible: 2,
+  preparing: 3,
   planned: 4,
 }
 
@@ -59,15 +60,27 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
     'external_execution_enabled', 'provider_generation_enabled', 'upload_enabled',
     'schedule_enabled', 'publish_enabled', 'outreach_send_enabled',
   ].some(key => metadata[key] === true)
+  const preparationProjection = row.social_content_id
+    ? projectSocialCalendarPreparation({
+        id: row.id,
+        social_content_id: row.social_content_id,
+        authorization_status: row.authorization_status,
+        due_status: row.due_status,
+        scheduled_for: row.scheduled_for,
+        metadata,
+      }, row.social_content_id)
+    : null
+  const ready = preparationProjection?.state === 'ready'
   const blocker = externalEnabled ? 'External execution flag is enabled. Stop and review the authorization boundary.'
     : string(preparation.blocker)
     ?? (row.authorization_status === 'rejected' || row.authorization_status === 'expired'
       ? `Authorization is ${row.authorization_status}. Revise the calendar gate.`
       : row.due_status === 'cancelled' ? 'Release cancelled.'
+      : row.authorization_status === 'authorized' && preparation.status === 'ready' && !ready
+        ? 'Preparation receipt is incomplete or linked to another draft. Verify the content ID, version, and prepared time.'
       : stale ? `JIT/source evidence is ${freshness}. Refresh approved evidence before review.`
       : triggered && row.authorization_status === 'authorized' && !row.campaign_id
         ? 'Link this row to an active campaign before preparation.' : null)
-  const ready = preparation.status === 'ready' && Boolean(string(preparation.content_version))
   const eligible = triggered && row.authorization_status === 'authorized'
     && Boolean(row.campaign_id) && ['draft', 'approved'].includes(row.social_content_queue?.status ?? '')
   const state: ReleaseAutomationState = blocker ? 'blocked'
@@ -76,8 +89,9 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
     : eligible ? 'eligible' : 'planned'
   const priorityName = string(metadata.review_priority)?.toLowerCase() ?? 'normal'
   const priorityRank = PRIORITY[priorityName] ?? PRIORITY.normal
+  const reviewPath = ready ? safePath(preparation.review_path) : null
   const recoveryPath = safePath(preparation.recovery_action)
-    ?? safePath(preparation.review_path)
+    ?? reviewPath
     ?? (row.social_content_id ? `/admin/social-content/${encodeURIComponent(row.social_content_id)}?step=copy`
       : `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(row.id)}#content-calendar-gate`)
   return {
@@ -88,6 +102,8 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
     freshness,
     blocker,
     recoveryPath,
+    linkLabel: state === 'ready for human review' && reviewPath && recoveryPath === reviewPath ? 'Open review'
+      : state === 'blocked' ? 'Open recovery' : 'Open details',
     receipt: string(preparation.content_version) ?? string(preparation.evidence_version)
       ?? string(claim.claimed_at),
     receiptLabel: string(preparation.content_version) ? 'Content version'

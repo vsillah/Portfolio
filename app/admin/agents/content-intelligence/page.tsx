@@ -2374,7 +2374,7 @@ function ContentIntelligenceContent() {
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h3 className="text-sm font-semibold">Prepare-only automation</h3>
-                <p className="mt-1 text-xs text-muted-foreground">Ranked by preparation state, calendar priority, JIT evidence, trigger, release time, then campaign phase. This view makes no changes.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Review-ready first, then blocked recovery, eligible, preparing, and planned. Within each state: calendar priority, JIT evidence, trigger, release time, then campaign phase. This view makes no changes.</p>
               </div>
               <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${calendarExternalFlagged ? 'border-red-500/40 bg-red-500/10 text-red-100' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'}`}>
                 {calendarExternalFlagged ? 'External flag requires review' : 'Provider, upload, schedule, publish, and send locked'}
@@ -2394,7 +2394,7 @@ function ContentIntelligenceContent() {
                     <p className="mt-1 text-xs text-muted-foreground">JIT/source: {projection.freshness} · {projection.receiptLabel}{projection.receipt ? `: ${projection.receipt.slice(0, 16)}` : ''}</p>
                     <p className="mt-1 text-xs leading-5 text-muted-foreground">{projection.reason}</p>
                     <Link href={projection.recoveryPath} className="mt-2 inline-flex min-h-8 items-center rounded-md border border-blue-400/35 px-2.5 py-1 text-xs font-semibold text-blue-100 hover:bg-blue-500/10">
-                      {projection.state === 'ready for human review' ? 'Open review' : projection.state === 'blocked' ? 'Open recovery' : 'Open calendar row'}
+                      {projection.linkLabel}
                     </Link>
                   </li>
                 ))}

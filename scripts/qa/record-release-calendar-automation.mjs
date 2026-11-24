@@ -36,7 +36,7 @@ const persisted = [
   release('eligible', 'Priority preparation due'),
   release('preparing', 'Claimed packet in progress', { agent_work_items: { id: 'work-preparing', title: 'Internal review', status: 'in_progress', preparation_claim: { status: 'preparing', claimed_at: now } } }),
   release('ready', 'Internal packet ready for review', { metadata: { review_priority: 'high', jit_refresh_status: 'fresh', external_execution_enabled: false, publish_preparation: {
-    status: 'ready', content_version: 'content-v4', review_path: '/admin/social-content/social-ready?step=copy', prepared_at: now,
+    status: 'ready', social_content_id: 'social-ready', content_version: 'content-v4', review_path: '/admin/social-content/social-ready?step=copy', prepared_at: now,
   } } }),
   release('planned', 'Upcoming authorized preparation', { scheduled_for: '2026-12-20T15:00:00.000Z', authorization_status: 'pending' }),
 ]
