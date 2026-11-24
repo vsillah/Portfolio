@@ -1,0 +1,65 @@
+.queue {
+  container-type: inline-size;
+}
+
+.header {
+  display: none;
+}
+
+.row {
+  display: grid;
+  min-width: 0;
+  grid-template-areas:
+    "release gate"
+    "content content"
+    "campaign channel"
+    "actions actions";
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.row > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.release { grid-area: release; }
+.content { grid-area: content; }
+.campaign { grid-area: campaign; }
+.channel { grid-area: channel; }
+.gate { grid-area: gate; }
+.actions { grid-area: actions; }
+
+@container (max-width: 34rem) {
+  .row {
+    grid-template-areas:
+      "release"
+      "content"
+      "campaign"
+      "channel"
+      "gate"
+      "actions";
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container (min-width: 74rem) {
+  .header,
+  .row {
+    display: grid;
+    grid-template-columns: 10rem minmax(14rem, 1fr) 12rem 9rem 9rem 14rem;
+    gap: 0.75rem;
+  }
+
+  .row {
+    grid-template-areas: "release content campaign channel gate actions";
+  }
+
+  .cellLabel {
+    display: none;
+  }
+
+  .actions > div {
+    flex-direction: column;
+  }
+}
