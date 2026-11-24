@@ -249,7 +249,7 @@ describe('evaluateHeyGenLongFormRecipe', () => {
       recipe.execution_boundary = {
         ...recipe.execution_boundary,
         ...opening,
-      } as HeyGenLongFormProductionRecipe['execution_boundary']
+      } as unknown as HeyGenLongFormProductionRecipe['execution_boundary']
       const result = evaluate(recipe)
       expect(result.readyForReview).toBe(false)
       expect(result.readyForProviderGeneration).toBe(false)
