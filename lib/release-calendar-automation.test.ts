@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { projectReleaseAutomation, rankReleaseAutomation, type ReleaseAutomationRow } from './release-calendar-automation'
 
 const now = new Date('2026-11-24T15:00:00.000Z')
+const receipt = {
+  status: 'ready', social_content_id: 'social-1', content_version: 'version-1',
+  prepared_at: now.toISOString(), review_path: '/admin/social-content/social-1',
+  source_lineage: 'source-v1', source_expires_at: '2026-11-24T15:00:00.001Z',
+  source_freshness_status: 'fresh', evidence_version: 'source-v1',
+  scheduled_for: '2026-11-30T15:00:00.000Z', trigger_at: now.toISOString(),
+}
 
 function row(id: string, patch: Partial<ReleaseAutomationRow> = {}): ReleaseAutomationRow {
   return {
@@ -37,7 +44,7 @@ describe('release calendar automation projection', () => {
     expect(preparing.state).toBe('preparing')
     expect(preparing.receipt).toBe('2026-11-24T14:58:00.000Z')
     const ready = projectReleaseAutomation(row('ready', { metadata: {
-      publish_preparation: { status: 'ready', social_content_id: 'social-1', content_version: 'version-1', prepared_at: now.toISOString(), review_path: '/admin/social-content/social-1' },
+      jit_refresh_status: 'fresh', publish_preparation: receipt,
     } }), now)
     expect(ready.state).toBe('ready for human review')
     expect(ready.recoveryPath).toBe('/admin/social-content/social-1')
@@ -54,10 +61,6 @@ describe('release calendar automation projection', () => {
   })
 
   it('never treats ready metadata as review-ready without authorized, matching, complete receipt evidence', () => {
-    const receipt = {
-      status: 'ready', social_content_id: 'social-1', content_version: 'version-1',
-      prepared_at: now.toISOString(), review_path: '/admin/social-content/social-1',
-    }
     for (const status of ['pending', 'rejected', 'expired']) {
       expect(projectReleaseAutomation(row(status, {
         authorization_status: status, metadata: { publish_preparation: receipt },
@@ -70,11 +73,11 @@ describe('release calendar automation projection', () => {
     ]) {
       const projected = projectReleaseAutomation(row('incomplete', { metadata: { publish_preparation: incomplete } }), now)
       expect(projected.state).toBe('blocked')
-      expect(projected.blocker).toContain('Preparation receipt is incomplete')
+      expect(projected.blocker).toContain('Preparation receipt or JIT/source freshness is incomplete')
       expect(projected.recoveryPath).toBe('/admin/social-content/social-1?step=copy')
     }
     expect(projectReleaseAutomation(row('ready-no-review-link', { metadata: {
-      publish_preparation: { ...receipt, review_path: null },
+      jit_refresh_status: 'fresh', publish_preparation: { ...receipt, review_path: null },
     } }), now).linkLabel).toBe('Open details')
     expect(projectReleaseAutomation(row('unlinked', {
       social_content_id: null, metadata: { publish_preparation: receipt },
@@ -88,9 +91,7 @@ describe('release calendar automation projection', () => {
       row('blocked', { metadata: { publish_preparation: { status: 'blocked', blocker: 'Recover source' } } }),
       row('first', { metadata: { review_priority: 'high', jit_refresh_status: 'fresh' } }),
       row('preparing', { agent_work_items: { preparation_claim: { status: 'preparing', claimed_at: '2026-11-24T14:58:00.000Z' } } }),
-      row('ready', { metadata: { review_priority: 'low', publish_preparation: {
-        status: 'ready', social_content_id: 'social-1', content_version: 'version-1', prepared_at: now.toISOString(),
-      } } }),
+      row('ready', { metadata: { review_priority: 'low', jit_refresh_status: 'fresh', publish_preparation: receipt } }),
     ]
     expect(rankReleaseAutomation(rows, now).map(({ row }) => row.id)).toEqual(['ready', 'blocked', 'first', 'low', 'preparing', 'later'])
     expect(rankReleaseAutomation(rows, now).map(({ row }) => row.id)).toEqual(rankReleaseAutomation(rows, now).map(({ row }) => row.id))

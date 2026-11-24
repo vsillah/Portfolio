@@ -1,3 +1,5 @@
+import { preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
+
 type RecordValue = Record<string, unknown>
 
 export type SocialCalendarPreparationProjection = {
@@ -9,6 +11,8 @@ export type SocialCalendarPreparationProjection = {
   scheduled_for: string
   prepared_at: string | null
   content_version: string | null
+  source_expires_at: string | null
+  source_freshness_status: 'fresh' | 'stale' | 'expired' | 'unknown'
   reused_existing_approved_packet: boolean
   campaign_review_metadata: RecordValue
 }
@@ -26,6 +30,7 @@ function text(value: unknown): string {
 export function projectSocialCalendarPreparation(
   row: RecordValue | null | undefined,
   expectedSocialContentId: string,
+  now: Date = new Date(),
 ): SocialCalendarPreparationProjection | null {
   if (!row) return null
 
@@ -41,16 +46,29 @@ export function projectSocialCalendarPreparation(
   const preparationContentId = text(preparation?.social_content_id)
   const contentVersion = text(preparation?.content_version) || null
   const preparedAt = text(preparation?.prepared_at) || null
+  const sourceExpiresAt = text(preparation?.source_expires_at) || null
+  const sourceExpiry = Date.parse(sourceExpiresAt ?? '')
+  const recordedFreshness = text(preparation?.source_freshness_status)
+  const sourceFreshnessStatus = !Number.isFinite(sourceExpiry) ? 'unknown'
+    : sourceExpiry <= now.getTime() ? 'expired'
+    : ['stale', 'blocked', 'failed'].includes(recordedFreshness) ? 'stale'
+    : recordedFreshness === 'fresh' ? 'fresh' : 'unknown'
   const preparationMatches = preparationContentId === socialContentId
     && Boolean(contentVersion)
-    && Boolean(preparedAt)
-  const ready = authorizationStatus === 'authorized'
-    && preparationStatus === 'ready'
-    && preparationMatches
-
+    && Number.isFinite(Date.parse(preparedAt ?? ''))
+    && Date.parse(preparedAt ?? '') <= now.getTime()
+    && text(preparation?.source_lineage) !== ''
+    && text(preparation?.evidence_version) === text(preparation?.source_lineage)
+    && text(preparation?.source_freshness_status) === 'fresh'
+    && text(preparation?.scheduled_for) === scheduledFor
+    && text(preparation?.trigger_at) === preparationDeadline({ scheduled_for: scheduledFor, metadata: row.metadata })
+    && sourceFreshnessStatus === 'fresh'
   const blocked = authorizationStatus === 'rejected'
     || authorizationStatus === 'expired'
     || dueStatus === 'cancelled'
+  const ready = !blocked && authorizationStatus === 'authorized'
+    && preparationStatus === 'ready'
+    && preparationMatches
 
   return {
     calendar_item_id: calendarItemId,
@@ -61,6 +79,8 @@ export function projectSocialCalendarPreparation(
     scheduled_for: scheduledFor,
     prepared_at: preparedAt,
     content_version: contentVersion,
+    source_expires_at: sourceExpiresAt,
+    source_freshness_status: sourceFreshnessStatus,
     reused_existing_approved_packet: ready && preparation?.reused_existing_approved_packet === true,
     campaign_review_metadata: (() => {
       const metadata = record(row.metadata)

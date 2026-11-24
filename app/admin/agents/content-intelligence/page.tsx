@@ -2392,7 +2392,8 @@ function ContentIntelligenceContent() {
                     </div>
                     <p className="mt-2 break-words text-sm font-semibold">Next: {row.title}</p>
                     <p className="mt-1 text-xs text-muted-foreground">Prepare by {projection.trigger ? formatCalendarDate(projection.trigger) : 'unavailable'} · {CAMPAIGN_PHASE_LABELS[row.campaign_phase]} phase</p>
-                    <p className="mt-1 text-xs text-muted-foreground">JIT/source: {projection.freshness} · {projection.receiptLabel}{projection.receipt ? `: ${projection.receipt.slice(0, 16)}` : ''}</p>
+                    <p className="mt-1 break-words text-xs text-muted-foreground">{projection.freshness} · {projection.receiptLabel}{projection.receipt ? `: ${projection.receipt.slice(0, 16)}` : ''}</p>
+                    {projection.sourceExpiresAt ? <p className="mt-1 break-words text-xs text-muted-foreground">Source expires {formatCalendarDate(projection.sourceExpiresAt)}{projection.sourceLineage ? ` · receipt ${projection.sourceLineage.slice(0, 12)}` : ''}</p> : null}
                     <p className="mt-1 text-xs leading-5 text-muted-foreground">{projection.reason}</p>
                     <Link href={projection.recoveryPath} className="mt-2 inline-flex min-h-8 items-center rounded-md border border-blue-400/35 px-2.5 py-1 text-xs font-semibold text-blue-100 hover:bg-blue-500/10">
                       {projection.linkLabel}
@@ -4572,7 +4573,11 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
           <p className="mt-1 break-words text-[0.68rem] leading-5 text-muted-foreground">
             <span className="font-semibold capitalize text-foreground">{automation.state}</span>
             {' · '}Prepare by {automation.trigger ? formatCalendarDate(automation.trigger) : 'unavailable'}
-            {' · '}JIT/source {automation.freshness}
+            {' · '}{automation.freshness}
+          </p>
+          <p className="mt-1 break-words text-[0.68rem] leading-5 text-muted-foreground">
+            {automation.receiptLabel}{automation.receipt ? `: ${automation.receipt.slice(0, 16)}` : ''}
+            {automation.sourceExpiresAt ? ` · Source expires ${formatCalendarDate(automation.sourceExpiresAt)}` : ''}
           </p>
           {automation.blocker ? <p className="mt-1 break-words text-[0.68rem] leading-5 text-amber-100">{automation.blocker}</p> : null}
           <div className="mt-2 flex flex-wrap gap-1.5">

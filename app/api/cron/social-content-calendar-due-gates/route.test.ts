@@ -326,7 +326,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         }),
       }),
     }))
-    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledTimes(1)
+    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
     expect(mocks.from.mock.calls.every(([table]) => table === 'social_content_calendar_items')).toBe(true)
     await expect(response.json()).resolves.toMatchObject({
       ok: true,
@@ -345,7 +345,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         external_schedule: false,
         publish: false,
         external_post: false,
-        internal_work_items_created: 1,
+        internal_work_items_created: 0,
       },
     })
   })
@@ -699,7 +699,18 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       scheduled_for: oldScheduledFor,
       authorization_status: 'authorized',
       metadata: {
-        publish_preparation: { status: 'ready', work_item_id: `work-recorded-${index}`, content_version: `version-${index}` },
+        publish_preparation: {
+          status: 'ready', work_item_id: `work-recorded-${index}`,
+          social_content_id: `social-recorded-${index}`,
+          content_version: `version-${index}`,
+          prepared_at: oldScheduledFor,
+          source_lineage: `source-${index}`,
+          evidence_version: `source-${index}`,
+          source_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          source_freshness_status: 'fresh',
+          trigger_at: new Date(Date.parse(oldScheduledFor) - 6 * 86400000).toISOString(),
+          scheduled_for: oldScheduledFor,
+        },
       },
       social_content_queue: {
         id: `social-recorded-${index}`,

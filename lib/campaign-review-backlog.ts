@@ -27,7 +27,7 @@ import {
 import { nextReviewWindow, reviewCadence, reviewWindows, REVIEW_SIDE_EFFECTS, type ReviewProjection, type ReviewRow, type ReviewWindow } from '@/lib/campaign-review-cadence'
 import { validateYouTubeDescriptionReviewPacket } from '@/lib/youtube-outlier-description-library'
 import { reconcileCampaignPreparationCandidatesSafely } from '@/lib/social-campaign-preparation-producer'
-import { preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
+import { preparationAttempt, preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
 
 type Row = Record<string, any> // Database JSON records are validated before preparing a packet.
 const record = parseMetadata
@@ -576,11 +576,12 @@ function project(s: Snapshot, now: Date): ReviewProjection {
     else if (!isSocialContentIntelligenceChannel(c.channel)) reason = 'This channel needs a manual Social Content review.'
     else if (!c.social_content_id || !draft) reason = 'Recover the linked Social Content draft.'
     else if (!['draft', 'approved', 'scheduled', 'published'].includes(draft.status)) reason = 'Recover the rejected Social Content draft before preparing.'
-    else if (!ids.length || evidence.some(e => !e || e.status !== 'approved' || e.pattern_status !== 'usable_framework' || !text(e.source_url) || !Number.isFinite(e.outlier_score) || !Object.keys(record(e.pattern_packet)).length || (e.expires_at && (!Number.isFinite(Date.parse(e.expires_at)) || Date.parse(e.expires_at) <= now.getTime())))) {
-      const usable = evidence.filter(e => e && e.status === 'approved' && e.pattern_status === 'usable_framework' && text(e.source_url) && Number.isFinite(e.outlier_score) && Object.keys(record(e.pattern_packet)).length && (!e.expires_at || (Number.isFinite(Date.parse(e.expires_at)) && Date.parse(e.expires_at) > now.getTime()))).length
+    else if (!ids.length || evidence.some(e => !e || e.status !== 'approved' || e.pattern_status !== 'usable_framework' || !text(e.source_url) || !Number.isFinite(e.outlier_score) || !Object.keys(record(e.pattern_packet)).length || !Number.isFinite(Date.parse(text(e.expires_at))) || Date.parse(text(e.expires_at)) <= now.getTime())) {
+      const usable = evidence.filter(e => e && e.status === 'approved' && e.pattern_status === 'usable_framework' && text(e.source_url) && Number.isFinite(e.outlier_score) && Object.keys(record(e.pattern_packet)).length && Number.isFinite(Date.parse(text(e.expires_at))) && Date.parse(text(e.expires_at)) > now.getTime()).length
       const stale = evidence.filter(e => e && e.expires_at && (!Number.isFinite(Date.parse(e.expires_at)) || Date.parse(e.expires_at) <= now.getTime())).length
+      const undated = evidence.filter(e => e && !e.expires_at).length
       const unscored = evidence.filter(e => e && !Number.isFinite(e.outlier_score)).length
-      reason = `Current approved, attributable, outlier-scored usable-framework research packets observed: ${usable}; required: ${Math.max(1, ids.length)}. Stale packets observed: ${stale}; required: 0. Unscored packets observed: ${unscored}; required: 0. Refresh or replace the linked research evidence in Social Insights.`
+      reason = `Current approved, attributable, outlier-scored usable-framework research packets observed: ${usable}; required: ${Math.max(1, ids.length)}. Stale packets observed: ${stale}; required: 0. Undated freshness windows observed: ${undated}; required: 0. Unscored packets observed: ${unscored}; required: 0. Refresh or replace the linked research evidence in Social Insights.`
     }
     else if (!Object.keys(insight).length) reason = 'Link approved evidence to complete the insight.'
     else if (['approved', 'published', 'scheduled'].includes(draft.status) || lane.status === 'approved') state = 'reviewed'
@@ -602,8 +603,8 @@ function project(s: Snapshot, now: Date): ReviewProjection {
       if (!practitionerReceiptAttached) {
         reason = 'The prepared packet is missing its passed practitioner-quality receipt. Resolve the linked Social Content checks, then prepare it again.'
         state = 'blocked'
-      } else if (saved.lineage === lineage || (!saved.lineage && existingMatches)) state = 'ready'
-      else { reason = 'Source changed. Revise this packet in the existing review panel.'; state = 'blocked' }
+      } else if (existingMatches && saved.lineage === lineage && text(saved.content_version) && Number.isFinite(Date.parse(text(saved.prepared_at))) && saved.trigger_at === due && saved.source_expires_at === (evidence.length ? new Date(Math.min(...evidence.map(item => Date.parse(text(item?.expires_at))))).toISOString() : null) && Number.isFinite(Date.parse(text(saved.source_expires_at))) && Date.parse(text(saved.source_expires_at)) > now.getTime() && saved.review_path === `/admin/social-content/${encodeURIComponent(c.social_content_id)}?step=copy`) state = 'ready'
+      else { reason = 'The prepared packet lacks a current version, trigger, or exact calendar binding. Recheck the source and revise it in the existing review panel.'; state = 'blocked' }
     }
     if (reason.startsWith('The prepared packet is missing its passed practitioner-quality receipt.') && c.social_content_id) {
       href = `/admin/social-content/${encodeURIComponent(c.social_content_id)}?step=copy`
@@ -631,6 +632,8 @@ function project(s: Snapshot, now: Date): ReviewProjection {
       social_content_id: c.social_content_id,
       evidence_ids: ids,
       lineage,
+      source_expires_at: evidence.length && evidence.every(item => item && Number.isFinite(Date.parse(text(item.expires_at))))
+        ? new Date(Math.min(...evidence.map(item => Date.parse(text(item?.expires_at))))).toISOString() : null,
       prepared_window: text(saved.window) || null,
       content_version: text(saved.content_version) || null,
     })
@@ -640,6 +643,63 @@ function project(s: Snapshot, now: Date): ReviewProjection {
   return { campaign: { id: s.campaign.id, name: s.campaign.name, status: s.campaign.status }, config, anchor_id: anchor?.id || null, batch_remaining: Math.max(0, nextReviewWindow(now, config).limit - rows.filter(r => r.prepared_window === nextReviewWindow(now, config).key).length), rows, ready, eligible: rows.filter(r => r.state === 'eligible').length, blocked: rows.filter(r => r.state === 'blocked').length, gap: Math.max(0, config.target_ready - ready), coverage_days: new Set(rows.filter(r => r.state === 'ready').map(r => new Intl.DateTimeFormat('en-CA', { timeZone: config.timezone }).format(new Date(r.scheduled_for)))).size, horizon_end: end, next_batch: nextReviewWindow(now, config), next_refresh: reviewWindows(now, config).find(w => w.kind === 'refresh' && Date.parse(w.at) >= now.getTime())!, side_effects: REVIEW_SIDE_EFFECTS }
 }
 export async function getCampaignReviewBacklog(id: string, now = new Date()) { return project(await load(id), now) }
+
+async function syncDueCalendarPreparation(
+  snapshot: Snapshot,
+  projection: ReviewProjection,
+  now: Date,
+  preparationBlockers: Array<{ calendar_item_id: string; reason: string; recovery_action: string }> = [],
+) {
+  const receipts: Array<{ calendar_item_id: string; state: 'ready' | 'blocked'; content_version: string | null; evidence_version: string }> = []
+  for (const row of projection.rows) {
+    const preparationBlocker = preparationBlockers.find(item => item.calendar_item_id === row.id)
+    if (row.state !== 'ready' && row.state !== 'blocked' && !preparationBlocker) continue
+    if (Date.parse(row.trigger_at) > now.getTime()) continue
+    const calendar = snapshot.calendar.find(item => item.id === row.id)
+    if (!calendar || calendar.authorization_status !== 'authorized' || !text(calendar.updated_at)) continue
+    const metadata = record(calendar.metadata)
+    const previous = record(metadata.publish_preparation)
+    const work = snapshot.works.find(item => item.id === row.work_item_id)
+    const saved = record(record(work?.metadata).rolling_review)[row.channel]
+    const review = record(saved)
+    const ready = row.state === 'ready' && Boolean(row.social_content_id && row.content_version
+      && review.lineage === row.lineage && review.content_version === row.content_version
+      && Number.isFinite(Date.parse(text(review.prepared_at))) && review.trigger_at === row.trigger_at
+      && review.source_expires_at === row.source_expires_at
+      && Number.isFinite(Date.parse(text(row.source_expires_at))) && Date.parse(text(row.source_expires_at)) > now.getTime())
+    const state = ready ? 'ready' : 'blocked'
+    const blocker = ready ? null : preparationBlocker?.reason || row.reason || 'The existing packet lacks a current versioned receipt. Recheck the source and review the linked Social Content draft.'
+    const recoveryPath = preparationBlocker?.recovery_action || row.href
+    if (ready && previous.status === 'ready' && previous.social_content_id === row.social_content_id
+      && previous.content_version === row.content_version && previous.source_lineage === row.lineage
+      && previous.trigger_at === row.trigger_at && previous.scheduled_for === calendar.scheduled_for
+      && previous.source_expires_at === row.source_expires_at) continue
+    if (!ready && previous.status === 'blocked' && previous.evidence_version === row.lineage
+      && previous.blocker === blocker && previous.recovery_action === recoveryPath) continue
+    const attempt = preparationAttempt({ previous, evidenceVersion: row.lineage, ready })
+    const preparation = ready ? {
+      status: 'ready', prepared_at: review.prepared_at, trigger_at: row.trigger_at,
+      work_item_id: row.work_item_id, social_content_id: row.social_content_id,
+      action: 'review_receipt_backed_social_content_package', review_path: review.review_path,
+      content_version: row.content_version, source_lineage: row.lineage,
+      source_expires_at: row.source_expires_at, source_freshness_status: 'fresh',
+      evidence_version: row.lineage, retry_count: attempt.retryCount,
+      scheduled_for: calendar.scheduled_for, preparation_deadline: row.trigger_at,
+    } : {
+      status: 'blocked', blocked_at: now.toISOString(), trigger_at: row.trigger_at,
+      blocker, recovery_action: recoveryPath, source_lineage: row.lineage,
+      evidence_version: row.lineage, retry_count: attempt.retryCount,
+      rechecks_per_evidence_version: 1, next_recheck_condition: 'evidence_version_change',
+      owner: 'chief-of-staff', scheduled_for: calendar.scheduled_for,
+      preparation_deadline: row.trigger_at,
+    }
+    const updated = checked<Row[]>(await supabaseAdmin.from('social_content_calendar_items')
+      .update({ updated_at: nextVersion(calendar.updated_at), metadata: { ...metadata, publish_preparation: preparation } })
+      .eq('id', row.id).eq('updated_at', calendar.updated_at).select('id'))
+    if (updated?.length) receipts.push({ calendar_item_id: row.id, state, content_version: ready ? row.content_version : null, evidence_version: row.lineage })
+  }
+  return receipts
+}
 
 export async function saveCampaignReviewCadence(id: string, value: unknown) {
   const config = reviewCadence(value), s = await load(id), anchor = s.calendar[0]
@@ -655,6 +715,8 @@ export async function prepareCampaignReviewBatch(id: string, options: {
   dryRun?: boolean
   calendarItemIds?: string[]
   dueOnly?: boolean
+  preserveSocialContent?: boolean
+  syncCalendarPreparation?: boolean
 } = {}) {
   const now = options.now ?? new Date(), s = await load(id), before = project(s, now)
   const windows = reviewWindows(now, before.config)
@@ -668,6 +730,8 @@ export async function prepareCampaignReviewBatch(id: string, options: {
     would_prepare_count: 0,
     window: window || null,
     notification: null,
+    calendar_receipts: options.syncCalendarPreparation && !options.dryRun
+      ? await syncDueCalendarPreparation(s, before, now) : [],
     side_effects: REVIEW_SIDE_EFFECTS,
   }
   const used = before.rows.filter(r => r.prepared_window === window.key).length
@@ -675,6 +739,12 @@ export async function prepareCampaignReviewBatch(id: string, options: {
   const candidates = before.rows.filter(r => (
     r.state === 'eligible'
       && r.prepared_window !== window.key
+      && !(() => {
+        const calendar = s.calendar.find(item => item.id === r.id)
+        const previous = record(record(calendar?.metadata).publish_preparation)
+        return previous.status === 'blocked' && previous.evidence_version === r.lineage
+          && previous.trigger_at === r.trigger_at
+      })()
       && (!selectedIds.size || selectedIds.has(r.id))
       && (!options.dueOnly || Date.parse(r.trigger_at) <= now.getTime())
   ))
@@ -691,7 +761,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
       selectedIds.size ? selectedIds.size : before.gap,
     )))
   let prepared = 0
-  const preparedItems: Array<{ calendar_item_id: string; work_item_id: string; social_content_id: string | null; review_path: string; content_version: string; lineage: string }> = []
+  const preparedItems: Array<{ calendar_item_id: string; work_item_id: string; social_content_id: string | null; review_path: string; content_version: string; lineage: string; source_expires_at: string | null }> = []
   const blockedItems: Array<{ calendar_item_id: string; reason: string; recovery_action: string }> = []
   for (const candidate of candidates) {
     if (options.dryRun) continue
@@ -733,6 +803,16 @@ export async function prepareCampaignReviewBatch(id: string, options: {
       })
       continue
     }
+    if (readiness.socialContentUpdate && (options.scheduled || options.preserveSocialContent)) {
+      blockedItems.push({
+        calendar_item_id: live.id,
+        reason: 'The linked Social Content copy needs a source-backed revision. Review it before automatic packet preparation; scheduled preparation preserves existing copy and assets.',
+        recovery_action: live.social_content_id
+          ? `/admin/social-content/${encodeURIComponent(live.social_content_id)}?step=copy`
+          : live.href,
+      })
+      continue
+    }
     if (readiness.socialContentUpdate) {
       const persisted = checked<Row[]>(await supabaseAdmin
         .from('social_content_queue')
@@ -756,7 +836,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
     }
     if (!isSocialContentIntelligenceChannel(live.channel)) continue
     const channel = live.channel
-    const claimToken = hash({ calendar_item_id: live.id, lineage: live.lineage, claimed_at: now.toISOString() })
+    const claimToken = hash({ calendar_item_id: live.id, lineage: live.lineage, trigger_at: live.trigger_at })
     const claimedMetadata = {
       ...wm,
       rolling_review_claims: {
@@ -800,6 +880,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
           status: 'prepared',
           completed_at: now.toISOString(),
           content_version: contentVersion,
+          source_expires_at: live.source_expires_at,
         },
       },
       rolling_review: {
@@ -807,6 +888,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
         [channel]: {
           lineage: live.lineage,
           content_version: contentVersion,
+          source_expires_at: live.source_expires_at,
           window: window.key,
           prepared_at: now.toISOString(),
           trigger_at: live.trigger_at,
@@ -843,6 +925,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
         review_path: reviewPath,
         content_version: contentVersion,
         lineage: live.lineage,
+        source_expires_at: live.source_expires_at,
       })
     }
   }
@@ -851,7 +934,10 @@ export async function prepareCampaignReviewBatch(id: string, options: {
     triggerSource: options.scheduled ? 'scheduled_campaign_review_preparation' : 'campaign_review_preparation',
     now,
   })
-  const after = options.dryRun ? before : await getCampaignReviewBacklog(id, now)
+  const afterSnapshot = options.dryRun ? s : await load(id)
+  const after = options.dryRun ? before : project(afterSnapshot, now)
+  const calendarReceipts = options.syncCalendarPreparation && !options.dryRun
+    ? await syncDueCalendarPreparation(afterSnapshot, after, now, blockedItems) : []
   return {
     ...after,
     prepared_count: prepared,
@@ -861,6 +947,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
     window,
     notification: reviewNotification(id, window, preparedItems.map(row => row.calendar_item_id)),
     campaign_candidates: campaignCandidates,
+    calendar_receipts: calendarReceipts,
     side_effects: REVIEW_SIDE_EFFECTS,
   }
 }
