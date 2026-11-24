@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 require('./scripts/verify-accelerated-contextual-binding.cjs').verifyAcceleratedContextualBinding()
+const agentifiedCalendarEvidence = [
+  './agentified/campaign/draft-assets.md',
+  './agentified/campaign/portfolio-campaign-packet.json',
+  './public/agentified/campaign-review/2026-11-23/manifest.json',
+  './public/agentified/campaign-review/2026-11-23/*.png',
+  './public/agentified/campaign-review/2026-11-23/aw-*.mp4',
+]
 const nextConfig = {
   async rewrites() {
     return [
@@ -27,6 +34,8 @@ const nextConfig = {
   experimental: {
     // React PDF reads this local asset at runtime; keep it in the route bundle.
     outputFileTracingIncludes: {
+      '/api/admin/social-content/calendar': agentifiedCalendarEvidence,
+      '/admin/agents/content-intelligence/agentified-calendar': agentifiedCalendarEvidence,
       '/api/admin/social-content/accelerated-review-assets/*': ['./private-review-assets/accelerated-campaign/carousel-faster-output/*.png'],
       '/api/proposals': ['./public/amadutown-logo-upscaled.png'],
       '/api/admin/source-protocol/overview': [
