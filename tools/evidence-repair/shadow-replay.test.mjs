@@ -9,11 +9,11 @@ import { compareOutcome, fixtureHash, outcomeHash, replay, replayCase } from './
 
 const digest = (s) => `sha256:${createHash('sha256').update(s).digest('hex')}`
 const exclusions = ['provider', 'render', 'upload', 'platform_draft', 'schedule', 'publish', 'external_send', 'approval_mutation']
-function labeled(playbook = 'freshness_renewal') {
+function labeled(playbook = 'freshness_renewal', scopeOverride = null) {
   const input = syntheticCase(playbook)
   const case_id = input.case_id
   const approval = { identity: 'synthetic-reviewer', type: 'explicit_human_repair_approval', approved_at: '2026-10-17T15:30:00Z' }
-  const human_qa_scope = { decision: 'passed', reviewed_fields: Object.keys(input.change), artifact_version: input.candidate.version }
+  const human_qa_scope = scopeOverride || { decision: 'passed', reviewed_fields: Object.keys(input.change), artifact_version: input.candidate.version }
   const record = JSON.stringify({ receipt_type: 'approved_evidence_repair_outcome', case_id, candidate_version: input.candidate.version, blocker_version: input.blocker.version, playbook, approval, approved_change: input.change, human_qa_scope })
   const source = { path: 'synthetic/explicit-approval.json', sha256: digest(record) }
   const fixture = { case_id, category: 'synthetic', playbook, label_kind: 'approved_outcome', as_of: '2026-10-18T00:00:00Z', candidate_version: input.candidate.version, blocker_version: input.blocker.version, sources: [source], input }
@@ -67,6 +67,31 @@ test('outcome hash, version, authority, and scope fail closed', () => {
     if (expected !== 'outcome_hash') x.outcome.outcome_sha256 = outcomeHash(x.outcome)
     assert.ok(replayCase(x.fixture, [x.outcome], x.read).missing_bindings.includes(expected), expected)
   }
+})
+test('schema and runtime require all eight external-action exclusions', () => {
+  const schema = JSON.parse(readFileSync(new URL('./approved-outcome.schema.json', import.meta.url)))
+  assert.equal(schema.properties.external_action_exclusions.minItems, 8)
+  assert.equal(schema.properties.external_action_exclusions.maxItems, 8)
+  assert.equal(schema.properties.external_action_exclusions.uniqueItems, true)
+  assert.deepEqual([...schema.properties.external_action_exclusions.items.enum].sort(), [...exclusions].sort())
+  const x = labeled()
+  x.outcome.external_action_exclusions = exclusions.slice(0, 7)
+  x.outcome.outcome_sha256 = outcomeHash(x.outcome)
+  assert.ok(replayCase(x.fixture, [x.outcome], x.read).missing_bindings.includes('external_action_exclusions_incomplete'))
+})
+test('passed Human QA needs a reviewed field; internal routing may use an empty bounded scope', () => {
+  const schema = JSON.parse(readFileSync(new URL('./approved-outcome.schema.json', import.meta.url)))
+  const scopeSchema = schema.properties.human_qa_scope
+  assert.equal(scopeSchema.allOf[0].then.properties.reviewed_fields.minItems, 1)
+  assert.equal(scopeSchema.properties.reviewed_fields.maxItems, 16)
+  assert.equal(schema.allOf[0].then.properties.playbook.const, 'typed_blocker_routing')
+  const x = labeled()
+  x.outcome.human_qa_scope.reviewed_fields = []
+  x.outcome.outcome_sha256 = outcomeHash(x.outcome)
+  assert.ok(replayCase(x.fixture, [x.outcome], x.read).missing_bindings.includes('missing_human_qa_scope'))
+
+  const routing = labeled('typed_blocker_routing', { decision: 'not_required_for_internal_routing', reviewed_fields: [], artifact_version: 'v1' })
+  assert.equal(replayCase(routing.fixture, [routing.outcome], routing.read).classification, 'exact_match')
 })
 test('meaning, claim, and unsupported facts cannot become approved outcomes', () => {
   for (const key of ['meaning_id', 'claim_ids', 'invented_fact']) {

@@ -64,9 +64,11 @@ export function validateOutcome(outcome, fixture, proposal, readSource = sourceR
     if (!outcome.sources.some((s) => same(s, approvalSource))) errors.push('approval_provenance_not_bound')
     if (Number.isFinite(Date.parse(fixture.as_of)) && Date.parse(outcome.approval.approved_at) > Date.parse(fixture.as_of)) errors.push('approval_after_replay_cutoff')
   }
-  if (!exactKeys(outcome.human_qa_scope, ['decision', 'reviewed_fields', 'artifact_version']) || !['passed', 'not_required_for_internal_routing'].includes(outcome.human_qa_scope.decision) || !Array.isArray(outcome.human_qa_scope.reviewed_fields) || !nonempty(outcome.human_qa_scope.artifact_version) || (outcome.human_qa_scope.decision === 'not_required_for_internal_routing' && fixture.playbook !== 'typed_blocker_routing')) errors.push('missing_human_qa_scope')
+  const scope = outcome.human_qa_scope
+  const reviewed = scope?.reviewed_fields
+  if (!exactKeys(scope, ['decision', 'reviewed_fields', 'artifact_version']) || !['passed', 'not_required_for_internal_routing'].includes(scope.decision) || !Array.isArray(reviewed) || reviewed.length > 16 || reviewed.some((field) => !nonempty(field)) || new Set(reviewed).size !== reviewed.length || (scope.decision === 'passed' && reviewed.length === 0) || !nonempty(scope.artifact_version) || (scope.decision === 'not_required_for_internal_routing' && fixture.playbook !== 'typed_blocker_routing')) errors.push('missing_human_qa_scope')
   if (!proposal || !same(outcome.rollback, proposal.rollback)) errors.push('rollback_incomplete_or_mismatch')
-  if (!same([...outcome.external_action_exclusions].sort(), [...EXCLUSIONS].sort())) errors.push('external_action_exclusions_incomplete')
+  if (!Array.isArray(outcome.external_action_exclusions) || !same([...outcome.external_action_exclusions].sort(), [...EXCLUSIONS].sort())) errors.push('external_action_exclusions_incomplete')
   if (proposal && (!proposal.rollback?.previous_state_hash || proposal.external_actions_allowed !== false || proposal.mode !== 'shadow_review_only')) errors.push('unsafe_proposal')
   return [...new Set(errors)]
 }
