@@ -1,0 +1,277 @@
+{
+  "version": "phase-5a-evaluation/v1",
+  "mode": "shadow_provider_free",
+  "metrics": {
+    "precision": 1,
+    "unsupported_change_rate": 0,
+    "proposed": 9,
+    "synthetic_cases": 27,
+    "historical_cases": 6,
+    "unresolved_cases": 24,
+    "disagreements": 0
+  },
+  "synthetic": [
+    {
+      "case_id": "freshness_renewal:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "freshness_renewal:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "freshness_renewal:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    },
+    {
+      "case_id": "authoritative_source_replacement:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "authoritative_source_replacement:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "authoritative_source_replacement:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    },
+    {
+      "case_id": "claim_narrowing:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "claim_narrowing:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "claim_narrowing:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    },
+    {
+      "case_id": "duplicate_angle_repair:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "duplicate_angle_repair:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "duplicate_angle_repair:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    },
+    {
+      "case_id": "owned_proof_binding:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "owned_proof_binding:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "owned_proof_binding:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    },
+    {
+      "case_id": "evidence_region_mapping:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "evidence_region_mapping:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "evidence_region_mapping:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    },
+    {
+      "case_id": "channel_adaptation:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "channel_adaptation:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "channel_adaptation:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    },
+    {
+      "case_id": "candidate_substitution:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "candidate_substitution:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "candidate_substitution:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    },
+    {
+      "case_id": "typed_blocker_routing:qualifying",
+      "expected": "proposed",
+      "actual": "proposed",
+      "reason": null,
+      "disagreement": false
+    },
+    {
+      "case_id": "typed_blocker_routing:meaning_change",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "meaning_invariant_failed",
+      "disagreement": false
+    },
+    {
+      "case_id": "typed_blocker_routing:hash_tamper",
+      "expected": "unresolved",
+      "actual": "unresolved",
+      "reason": "invalid_provenance_or_hash",
+      "disagreement": false
+    }
+  ],
+  "historical": [
+    {
+      "case_id": "history:jev-duplicate",
+      "recorded_state": "revision_required",
+      "observed_source": "jit-refresh-receipts.json",
+      "expected": "unresolved",
+      "reason": "A distinct angle was recommended, but no angle review receipt establishes an approved repair.",
+      "playbook": "duplicate_angle_repair",
+      "actual": "unresolved",
+      "engine_reason": "missing_evidence",
+      "disagreement": false
+    },
+    {
+      "case_id": "history:dark-castle-refresh",
+      "recorded_state": "refresh_passed",
+      "observed_source": "jit-refresh-receipts.json",
+      "expected": "unresolved",
+      "reason": "Refresh passed; there is no expired evidence blocker to repair.",
+      "playbook": "freshness_renewal",
+      "actual": "unresolved",
+      "engine_reason": "missing_evidence",
+      "disagreement": false
+    },
+    {
+      "case_id": "history:ai-audit-refresh",
+      "recorded_state": "refresh_passed",
+      "observed_source": "jit-refresh-receipts.json",
+      "expected": "unresolved",
+      "reason": "Refresh passed; there is no expired evidence blocker to repair.",
+      "playbook": "freshness_renewal",
+      "actual": "unresolved",
+      "engine_reason": "missing_evidence",
+      "disagreement": false
+    },
+    {
+      "case_id": "history:youtube-packets",
+      "recorded_state": "ready_for_render_approval",
+      "observed_source": "youtube packet JSON",
+      "expected": "unresolved",
+      "reason": "The packet requests render approval; no evidence repair approval is recorded.",
+      "playbook": "channel_adaptation",
+      "actual": "unresolved",
+      "engine_reason": "missing_evidence",
+      "disagreement": false
+    },
+    {
+      "case_id": "history:description-cohort",
+      "recorded_state": "unscored",
+      "observed_source": "description cohort receipt",
+      "expected": "unresolved",
+      "reason": "One qualified description is below the required three; substitution cannot be inferred.",
+      "playbook": "candidate_substitution",
+      "actual": "unresolved",
+      "engine_reason": "missing_evidence",
+      "disagreement": false
+    },
+    {
+      "case_id": "history:video-only-routes",
+      "recorded_state": "observed_recording",
+      "observed_source": "production, description, and platform-draft MP4s",
+      "expected": "unresolved",
+      "reason": "Visual route states lack a versioned approved repair decision in the retained adjacent files.",
+      "playbook": "typed_blocker_routing",
+      "actual": "unresolved",
+      "engine_reason": "missing_evidence",
+      "disagreement": false
+    }
+  ],
+  "limits": [
+    "Historical recordings are observations, not approvals.",
+    "No approved repair outcomes are established for the retained historical corpus.",
+    "Synthetic precision measures rule consistency only; it is not production accuracy."
+  ]
+}
