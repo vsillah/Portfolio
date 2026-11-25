@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { resolve, relative, isAbsolute } from 'node:path'
 import { proposeRepair } from './engine.mjs'
 import { PLAYBOOKS } from './playbooks.mjs'
+import { fixtureHash, verifySource as verifyBoundSource } from './receipt-primitives.mjs'
 
 const here = fileURLToPath(new URL('.', import.meta.url))
 const repo = resolve(here, '../..')
@@ -26,8 +27,7 @@ const sourceRoot = (path) => {
   throw new Error(`source unavailable: ${path}`)
 }
 export function verifySource(source, readSource = sourceRoot) {
-  if (!exactKeys(source, ['path', 'sha256']) || !HASH.test(source.sha256)) throw new Error('invalid source binding')
-  if (sha(readSource(source.path)) !== source.sha256) throw new Error(`source hash mismatch: ${source.path}`)
+  return verifyBoundSource(source, readSource)
 }
 const fields = (object, keys) => keys.filter((key) => !nonempty(object?.[key]))
 const meaning = (value) => exactKeys(value, ['meaning_id', 'claim_ids']) && nonempty(value.meaning_id) && Array.isArray(value.claim_ids) && value.claim_ids.length && value.claim_ids.every(nonempty) && new Set(value.claim_ids).size === value.claim_ids.length
@@ -81,7 +81,7 @@ export function compareOutcome(proposal, outcome) {
   const protectedField = disagreements.some((key) => key.startsWith('after.') || key === 'change.meaning_id' || key === 'change.claim_ids' || key === 'change.product_id')
   return { classification: protectedField ? 'unsupported_change' : 'bounded_disagreement', disagreements }
 }
-export function fixtureHash(fixture) { const { fixture_sha256, ...body } = fixture; return sha(canonical(body)) }
+export { fixtureHash }
 export function replayCase(fixture, outcomes = [], readSource = sourceRoot) {
   if (!nonempty(fixture.case_id) || !PLAYBOOKS[fixture.playbook] || !['approved_outcome', 'expected_unresolved', 'observation'].includes(fixture.label_kind)) throw new Error(`invalid fixture: ${fixture.case_id}`)
   if (!HASH.test(fixture.fixture_sha256) || fixtureHash(fixture) !== fixture.fixture_sha256) throw new Error(`fixture hash mismatch: ${fixture.case_id}`)

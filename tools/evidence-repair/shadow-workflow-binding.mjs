@@ -1,4 +1,4 @@
-import { captureDecisionReceipt, reconciliationEligibility } from './decision-receipt.mjs'
+import { captureDecisionReceipt, reconciliationEligibility } from './decision-receipt-runtime.mjs'
 
 const isRecord = (value) => value && typeof value === 'object' && !Array.isArray(value)
 const bound = (value) => typeof value === 'string' && value.trim().length > 0
