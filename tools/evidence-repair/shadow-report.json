@@ -1,0 +1,142 @@
+{
+  "version": "phase-5b-shadow-replay/v1",
+  "mode": "shadow_provider_free_read_only",
+  "metrics": {
+    "cases": 9,
+    "labeled_cases": 0,
+    "unlabeled_cases": 9,
+    "labeled_case_precision": null,
+    "unsupported_change_rate": null,
+    "counts": {
+      "exact_match": 0,
+      "bounded_disagreement": 0,
+      "unsupported_change": 0,
+      "expected_unresolved": 2,
+      "insufficient_label": 7
+    },
+    "disagreement_by_field": {},
+    "playbook_coverage": [
+      "candidate_substitution",
+      "channel_adaptation",
+      "duplicate_angle_repair",
+      "freshness_renewal",
+      "owned_proof_binding",
+      "typed_blocker_routing"
+    ],
+    "source_categories": [
+      "adjacent_versioned_receipt",
+      "campaign_batch",
+      "description_review",
+      "platform_draft",
+      "production_blocker",
+      "youtube_packet"
+    ]
+  },
+  "results": [
+    {
+      "case_id": "history:jev-duplicate",
+      "classification": "insufficient_label",
+      "missing_bindings": [
+        "approved_angle_review_receipt",
+        "explicit_human_repair_approval",
+        "candidate_version",
+        "blocker_version",
+        "human_qa_scope",
+        "rollback_receipt"
+      ],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    },
+    {
+      "case_id": "history:dark-castle-refresh",
+      "classification": "expected_unresolved",
+      "missing_bindings": [],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    },
+    {
+      "case_id": "history:ai-audit-refresh",
+      "classification": "expected_unresolved",
+      "missing_bindings": [],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    },
+    {
+      "case_id": "history:youtube-dark-castle",
+      "classification": "insufficient_label",
+      "missing_bindings": [
+        "explicit_human_repair_approval",
+        "repair_before_after_meaning_and_claim_ids",
+        "human_qa_scope",
+        "rollback_receipt"
+      ],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    },
+    {
+      "case_id": "history:youtube-jev",
+      "classification": "insufficient_label",
+      "missing_bindings": [
+        "explicit_human_repair_approval",
+        "repair_before_after_meaning_and_claim_ids",
+        "human_qa_scope",
+        "rollback_receipt"
+      ],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    },
+    {
+      "case_id": "history:production-blocker",
+      "classification": "insufficient_label",
+      "missing_bindings": [
+        "version_bound_blocker",
+        "approved_owner_and_next_gate",
+        "explicit_human_repair_approval",
+        "rollback_receipt"
+      ],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    },
+    {
+      "case_id": "history:description-review",
+      "classification": "insufficient_label",
+      "missing_bindings": [
+        "qualified_replacement_candidate",
+        "explicit_human_repair_approval",
+        "human_qa_scope",
+        "rollback_receipt"
+      ],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    },
+    {
+      "case_id": "history:platform-draft",
+      "classification": "insufficient_label",
+      "missing_bindings": [
+        "version_bound_blocker",
+        "approved_owner_and_next_gate",
+        "explicit_human_repair_approval",
+        "rollback_receipt"
+      ],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    },
+    {
+      "case_id": "history:dark-castle-visual",
+      "classification": "insufficient_label",
+      "missing_bindings": [
+        "production_bound_asset",
+        "explicit_human_repair_approval",
+        "human_qa_scope",
+        "rollback_receipt"
+      ],
+      "disagreements": [],
+      "engine_reason": "missing_evidence"
+    }
+  ],
+  "limits": [
+    "Historical observations and passing review states do not establish repair approval.",
+    "Precision and unsupported-change rate are null until explicit version-bound approved outcomes are verified.",
+    "Source verification is local and read-only; no provider or production state is queried."
+  ]
+}

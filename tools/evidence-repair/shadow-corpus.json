@@ -1,0 +1,222 @@
+{
+  "version": "phase-5b-shadow-corpus/v1",
+  "cases": [
+    {
+      "case_id": "history:jev-duplicate",
+      "category": "campaign_batch",
+      "playbook": "duplicate_angle_repair",
+      "label_kind": "observation",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/next-week-campaign-batch-2026-10-17/jit-refresh-receipts.json",
+          "sha256": "sha256:792e80fa8121a440bdcfa8462f96cfa6e9b3c853f722ca74f26c5dcae95b431b"
+        },
+        {
+          "path": "artifacts/human-qa/next-week-campaign-batch-2026-10-17/campaign-batch-walkthrough.mp4",
+          "sha256": "sha256:0559df2e23a68f4751c94d79633787806caee9d602049a15a2503205daab49cb"
+        }
+      ],
+      "note": "Recommended angle lacks an explicit approved angle repair and Human QA binding.",
+      "fixture_sha256": "sha256:9f2b338e90a51a54e3ba4043187048b301ca50d9b497d18221ed2d44c91bffd5",
+      "missing_bindings": [
+        "approved_angle_review_receipt",
+        "explicit_human_repair_approval",
+        "candidate_version",
+        "blocker_version",
+        "human_qa_scope",
+        "rollback_receipt"
+      ]
+    },
+    {
+      "case_id": "history:dark-castle-refresh",
+      "category": "campaign_batch",
+      "playbook": "freshness_renewal",
+      "label_kind": "expected_unresolved",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/next-week-campaign-batch-2026-10-17/jit-refresh-receipts.json",
+          "sha256": "sha256:792e80fa8121a440bdcfa8462f96cfa6e9b3c853f722ca74f26c5dcae95b431b"
+        }
+      ],
+      "note": "Refresh passed; no expired blocker was recorded.",
+      "fixture_sha256": "sha256:574bc7154f99d53f526c4bbaa559265c61eda9e9b9faf30833f1e3e1da2af62f"
+    },
+    {
+      "case_id": "history:ai-audit-refresh",
+      "category": "campaign_batch",
+      "playbook": "freshness_renewal",
+      "label_kind": "expected_unresolved",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/next-week-campaign-batch-2026-10-17/jit-refresh-receipts.json",
+          "sha256": "sha256:792e80fa8121a440bdcfa8462f96cfa6e9b3c853f722ca74f26c5dcae95b431b"
+        }
+      ],
+      "note": "Refresh passed; no expired blocker was recorded.",
+      "fixture_sha256": "sha256:8cc1713488fcc8762d34c64fdabb57a8b60ba3f5f9e233edc3db28582cca5795"
+    },
+    {
+      "case_id": "history:youtube-dark-castle",
+      "category": "youtube_packet",
+      "playbook": "channel_adaptation",
+      "label_kind": "observation",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/dark_castle_chess.json",
+          "sha256": "sha256:6c90cd290dacc06e00a74495ab760516f3763c62056d5517dc2c3eeb362aa552"
+        },
+        {
+          "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/sources.json",
+          "sha256": "sha256:220aec730d3309005d8656b62b0d5df1773fc924462c52e9e81f4b26da5b9034"
+        },
+        {
+          "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/youtube-packet-review.mp4",
+          "sha256": "sha256:5eb00333928549e832a14b38eb3cb46872f50f0c21a2608e72605d27be0672f9"
+        }
+      ],
+      "note": "Render-ready packet is not an approved evidence repair outcome.",
+      "fixture_sha256": "sha256:c119252204ec4460450eea0225eba8202591bbe8f9ce19f44d9ff426b34855b5",
+      "missing_bindings": [
+        "explicit_human_repair_approval",
+        "repair_before_after_meaning_and_claim_ids",
+        "human_qa_scope",
+        "rollback_receipt"
+      ]
+    },
+    {
+      "case_id": "history:youtube-jev",
+      "category": "youtube_packet",
+      "playbook": "channel_adaptation",
+      "label_kind": "observation",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/jev.json",
+          "sha256": "sha256:5d2887e363d66208ca6e9fcaf61daeb856ddbc3c27afd78e5539e8d26aa8ca0d"
+        },
+        {
+          "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/sources.json",
+          "sha256": "sha256:220aec730d3309005d8656b62b0d5df1773fc924462c52e9e81f4b26da5b9034"
+        }
+      ],
+      "note": "Packet contains no explicit version-bound approved repair outcome.",
+      "fixture_sha256": "sha256:7190234133415298461bdda26ac9e40167532fe96f4725ddd29e29e06ea40497",
+      "missing_bindings": [
+        "explicit_human_repair_approval",
+        "repair_before_after_meaning_and_claim_ids",
+        "human_qa_scope",
+        "rollback_receipt"
+      ]
+    },
+    {
+      "case_id": "history:production-blocker",
+      "category": "production_blocker",
+      "playbook": "typed_blocker_routing",
+      "label_kind": "observation",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/youtube-production-review-2026-10-14/youtube-route-blocker-walkthrough.mp4",
+          "sha256": "sha256:9d27582c4bd8950b52650bc95c0e8c90d9afcc65590fdc19d5e06b7b673c9620"
+        }
+      ],
+      "note": "Recording does not bind blocker version, owner, next gate, and approval.",
+      "fixture_sha256": "sha256:6a8523da579994e7d084924b68639ecc59ce1cbfc7c5564ffae607ce6b2aacfe",
+      "missing_bindings": [
+        "version_bound_blocker",
+        "approved_owner_and_next_gate",
+        "explicit_human_repair_approval",
+        "rollback_receipt"
+      ]
+    },
+    {
+      "case_id": "history:description-review",
+      "category": "description_review",
+      "playbook": "candidate_substitution",
+      "label_kind": "observation",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/dark-castle-youtube-description-2026-10-27/dark-castle-description-review-walkthrough.mp4",
+          "sha256": "sha256:3b63a6f6338267dee888eddac82b95a1aff7cbc0cf4ba7201359db9172f06f1c"
+        },
+        {
+          "path": "artifacts/research/approved-youtube-campaign-descriptions-2026-10-19/receipt.json",
+          "sha256": "sha256:b10588f0ec65f4bcdc6e80755d87376be692bd390d5f24ef4cf9404c2247539d"
+        }
+      ],
+      "note": "Review and cohort receipt do not approve a substitute candidate.",
+      "fixture_sha256": "sha256:ba566d19e57a4e58747270ad4c93f304aee485e975586d13798188bee05bd3fd",
+      "missing_bindings": [
+        "qualified_replacement_candidate",
+        "explicit_human_repair_approval",
+        "human_qa_scope",
+        "rollback_receipt"
+      ]
+    },
+    {
+      "case_id": "history:platform-draft",
+      "category": "platform_draft",
+      "playbook": "typed_blocker_routing",
+      "label_kind": "observation",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/dark-castle-linkedin-platform-draft-2026-10-25/platform-draft-review-walkthrough.mp4",
+          "sha256": "sha256:4fb075e7cdaf22c9e9d8209c619ab07890d746abb0a27db390500885778de0da"
+        }
+      ],
+      "note": "Platform draft recording is not approval for an evidence repair or external action.",
+      "fixture_sha256": "sha256:856a8cf7bcae12128483f2d928cf8303713f77ef3023b81172425dcf3c2c020f",
+      "missing_bindings": [
+        "version_bound_blocker",
+        "approved_owner_and_next_gate",
+        "explicit_human_repair_approval",
+        "rollback_receipt"
+      ]
+    },
+    {
+      "case_id": "history:dark-castle-visual",
+      "category": "adjacent_versioned_receipt",
+      "playbook": "owned_proof_binding",
+      "label_kind": "observation",
+      "as_of": "2026-11-25T00:00:00Z",
+      "candidate_version": "unestablished",
+      "blocker_version": "unestablished",
+      "sources": [
+        {
+          "path": "artifacts/human-qa/dark-castle-youtube-visual-2026-10-23/receipt.json",
+          "sha256": "sha256:eb62127603095ba09163bf153dc8139f9e6da79f0aa4c8f6365b6faa6af16971"
+        }
+      ],
+      "note": "Local Human QA fallback explicitly disclaims a production-bound asset.",
+      "fixture_sha256": "sha256:c56d21a1be421f71f1f7cec330754a54add05f176518574f219f5ddf07e9b9f7",
+      "missing_bindings": [
+        "production_bound_asset",
+        "explicit_human_repair_approval",
+        "human_qa_scope",
+        "rollback_receipt"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "portfolio/evidence-repair/approved-outcome/v1",
+  "title": "Explicit approved evidence repair outcome",
+  "type": "object",
+  "additionalProperties": false,
+  "allOf": [{ "if": { "properties": { "human_qa_scope": { "properties": { "decision": { "const": "not_required_for_internal_routing" } }, "required": ["decision"] } }, "required": ["human_qa_scope"] }, "then": { "properties": { "playbook": { "const": "typed_blocker_routing" } } } }],
+  "required": ["schema_version", "case_id", "candidate_version", "blocker_version", "playbook", "before", "after", "approved_change", "sources", "approval", "human_qa_scope", "rollback", "external_action_exclusions", "outcome_sha256"],
+  "properties": {
+    "schema_version": { "const": "approved-repair-outcome/v1" },
+    "case_id": { "type": "string", "minLength": 1 },
+    "candidate_version": { "type": "string", "minLength": 1 },
+    "blocker_version": { "type": "string", "minLength": 1 },
+    "playbook": { "enum": ["freshness_renewal", "authoritative_source_replacement", "claim_narrowing", "duplicate_angle_repair", "owned_proof_binding", "evidence_region_mapping", "channel_adaptation", "candidate_substitution", "typed_blocker_routing"] },
+    "before": { "$ref": "#/$defs/meaning" },
+    "after": { "$ref": "#/$defs/meaning" },
+    "approved_change": { "type": "object", "minProperties": 1 },
+    "sources": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/source" } },
+    "approval": { "type": "object", "additionalProperties": false, "required": ["identity", "type", "approved_at", "source_path", "sha256"], "properties": { "identity": { "type": "string", "minLength": 1 }, "type": { "const": "explicit_human_repair_approval" }, "approved_at": { "type": "string", "format": "date-time" }, "source_path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/hash" } } },
+    "human_qa_scope": { "type": "object", "additionalProperties": false, "required": ["decision", "reviewed_fields", "artifact_version"], "properties": { "decision": { "enum": ["passed", "not_required_for_internal_routing"] }, "reviewed_fields": { "type": "array", "maxItems": 16, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "pattern": "\\S" } }, "artifact_version": { "type": "string", "minLength": 1 } }, "allOf": [{ "if": { "properties": { "decision": { "const": "passed" } }, "required": ["decision"] }, "then": { "properties": { "reviewed_fields": { "minItems": 1 } } } }, { "if": { "properties": { "decision": { "const": "not_required_for_internal_routing" } }, "required": ["decision"] }, "then": { "properties": { "reviewed_fields": { "minItems": 0, "maxItems": 16 } } } }] },
+    "rollback": { "type": "object", "additionalProperties": false, "required": ["candidate_id", "candidate_version", "meaning_id", "claim_ids", "previous_state_hash"], "properties": { "candidate_id": { "type": "string", "minLength": 1 }, "candidate_version": { "type": "string", "minLength": 1 }, "meaning_id": { "type": "string", "minLength": 1 }, "claim_ids": { "$ref": "#/$defs/claims" }, "previous_state_hash": { "$ref": "#/$defs/hash" } } },
+    "external_action_exclusions": { "type": "array", "minItems": 8, "maxItems": 8, "uniqueItems": true, "items": { "enum": ["provider", "render", "upload", "platform_draft", "schedule", "publish", "external_send", "approval_mutation"] } },
+    "outcome_sha256": { "$ref": "#/$defs/hash" }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "claims": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "meaning": { "type": "object", "additionalProperties": false, "required": ["meaning_id", "claim_ids"], "properties": { "meaning_id": { "type": "string", "minLength": 1 }, "claim_ids": { "$ref": "#/$defs/claims" } } },
+    "source": { "type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/hash" } } }
+  }
+}
