@@ -8,7 +8,7 @@ config({ path: '.env.local', quiet: true })
 const baseUrl = 'http://localhost:3000'
 const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
 const route = `/admin/agents/content-intelligence?section=calendar&rev=${commit}`
-const output = join(process.cwd(), 'docs/qa/release-calendar-phase2')
+const output = join(process.cwd(), process.env.QA_OUTPUT || 'docs/qa/release-calendar-phase2')
 const raw = join(output, '.raw')
 const projectRef = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname.split('.')[0]
 const now = new Date().toISOString()
@@ -42,8 +42,17 @@ const persisted = [
   } } }),
   release('planned', 'Upcoming authorized preparation', { scheduled_for: '2026-12-20T15:00:00.000Z', authorization_status: 'pending' }),
 ]
-persisted.push(...Array.from({ length: 85 }, (_, index) => release(`additional-${index + 1}`, `Additional long-form campaign preparation row ${index + 1}`, {
+persisted.push(...Array.from({ length: 85 }, (_, index) => release(`additional-${index + 1}`, index === 0 ? 'Historical completed release'
+  : index === 1 ? 'Historical cancelled release'
+  : index === 2 ? 'Historical published release'
+  : index === 3 ? 'Historical superseded release'
+  : `Additional long-form campaign preparation row ${index + 1}`, {
   scheduled_for: new Date(Date.UTC(2028, 0, index + 1, 15)).toISOString(),
+  ...(index === 0 ? { due_status: 'completed' }
+    : index === 1 ? { due_status: 'cancelled' }
+    : index === 2 ? { social_content_queue: { id: 'social-additional-3', status: 'published' } }
+    : index === 3 ? { metadata: { superseded_at: '2026-08-05T13:04:19.286Z', superseded_by_agentified_packet: true, external_execution_enabled: false } }
+    : {}),
 })))
 const drafts = Array.from({ length: 10 }, (_, index) => release(`agentified-draft:${index + 1}`, `Agentified workshop draft ${index + 1}`, {
   campaign_id: null, agent_work_item_id: null, social_content_id: null,
@@ -130,6 +139,12 @@ async function capture(browser, label, viewport, recordVideo) {
   await page.getByRole('heading', { name: 'Prepare-only automation' }).waitFor({ state: 'visible', timeout: 20000 })
   await page.getByText(/Showing 1-8 of 100 release rows/).waitFor({ state: 'visible', timeout: 20000 })
   const automation = page.getByRole('region', { name: 'Release preparation automation' })
+  const priorities = page.getByRole('list', { name: 'Next preparation priorities' })
+  for (const title of ['Historical completed release', 'Historical cancelled release', 'Historical published release', 'Historical superseded release']) {
+    if (await priorities.getByText(`Next: ${title}`).count()) {
+      throw new Error(`${label}: ${title} appeared in preparation priorities`)
+    }
+  }
   for (const state of ['blocked', 'eligible', 'preparing', 'ready for human review', 'planned']) {
     if (!(await automation.getByText(state, { exact: true }).count())) throw new Error(`${label}: ${state} state absent`)
   }
@@ -137,6 +152,9 @@ async function capture(browser, label, viewport, recordVideo) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   if (overflow > 2) throw new Error(`${label}: ${overflow}px horizontal overflow`)
   const laneWidth = await assertCalendarRowLayout(page, label, viewport)
+  await automation.evaluate(element => element.scrollIntoView({ block: 'start' }))
+  await page.waitForTimeout(1100)
+  await page.screenshot({ path: join(output, `${label}-priorities.png`) })
   const calendar = page.locator('#content-calendar-gate')
   await calendar.evaluate(element => element.scrollIntoView({ block: 'start' }))
   await page.waitForTimeout(700)
@@ -156,6 +174,13 @@ async function capture(browser, label, viewport, recordVideo) {
   await page.waitForTimeout(700)
   await page.getByLabel('Content title').fill('')
   await page.getByText('Showing 1-8 of 100 release rows.').waitFor({ state: 'visible' })
+  await page.getByLabel('Content title').fill('Historical completed release')
+  await page.getByText('Showing 1-1 of 1 release row.').waitFor({ state: 'visible' })
+  if (!(await page.getByLabel('Calendar row Historical completed release').count())) {
+    throw new Error(`${label}: completed historical row missing from canonical calendar`)
+  }
+  await page.getByLabel('Content title').fill('')
+  await page.getByText('Showing 1-8 of 100 release rows.').waitFor({ state: 'visible' })
   await page.getByLabel('Channel').last().selectOption('youtube')
   await page.getByText('Showing 0-0 of 0 release rows.').waitFor({ state: 'visible' })
   await page.getByLabel('Channel').last().selectOption('')
@@ -168,6 +193,12 @@ async function capture(browser, label, viewport, recordVideo) {
   const focused = await page.evaluate(() => document.activeElement?.textContent?.trim())
   if (focused !== 'Open recovery') throw new Error(`${label}: recovery link did not take keyboard focus`)
   await page.waitForTimeout(700)
+  await page.getByLabel('Content title').fill('Agentified workshop draft 1')
+  const draft = page.getByLabel('Calendar row Agentified workshop draft 1', { exact: true })
+  await draft.getByRole('button', { name: 'Details' }).click()
+  await page.getByLabel('Focused calendar row Agentified workshop draft 1').waitFor({ state: 'visible' })
+  await page.waitForTimeout(650)
+  await page.getByRole('button', { name: 'Close details' }).click()
   if (writes.length) throw new Error(`${label}: unexpected write requests: ${writes.join(', ')}`)
   const video = page.video()
   await context.close()
