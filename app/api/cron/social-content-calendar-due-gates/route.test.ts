@@ -51,6 +51,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     vi.clearAllMocks()
     process.env.CRON_SECRET = 'cron-secret'
     process.env.N8N_INGEST_SECRET = ''
+    vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'false')
     mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 0, dryRun: true })
     mocks.prepareCampaignReviewBatch.mockResolvedValue({
       rows: [],
@@ -150,7 +151,9 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     expect(response.status).toBe(200)
     expect(mocks.prepareCampaignReviewBatch).not.toHaveBeenCalled()
     expect(mocks.from).toHaveBeenCalledTimes(1)
-    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
+      kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-unchanged'], dryRun: true,
+    }))
   })
 
   it('checks a changed blocked evidence version once and records its bounded retry', async () => {
@@ -326,7 +329,9 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         }),
       }),
     }))
-    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
+      kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-instagram-overdue'], dryRun: true,
+    }))
     expect(mocks.from.mock.calls.every(([table]) => table === 'social_content_calendar_items')).toBe(true)
     await expect(response.json()).resolves.toMatchObject({
       ok: true,
@@ -401,7 +406,9 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         }),
       }),
     }))
-    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
+      kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-blocked-quality'], dryRun: true,
+    }))
     await expect(response.json()).resolves.toMatchObject({
       preparation_count: 0,
       preparation_blocked_count: 1,

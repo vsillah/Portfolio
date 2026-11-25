@@ -51,9 +51,12 @@ export function getSlackAgentSource(env: Environment = process.env): SlackAgentS
   return { sourceEnvironment, sourceOrigin, hosted: !local }
 }
 
-export function getSlackAgentDeliveryConfig(env: Environment = process.env) {
+export function getSlackAgentDeliveryConfig(env: Environment = process.env, kind?: 'social_calendar_preparation') {
   const source = getSlackAgentSource(env)
-  if (env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED !== 'true') throw new Error('Slack notification delivery is disabled.')
+  const enabled = kind === 'social_calendar_preparation'
+    ? env.SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED === 'true'
+    : env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED === 'true'
+  if (!enabled) throw new Error('Slack notification delivery is disabled.')
   const prefix = `SLACK_AGENT_OPS_${source.sourceEnvironment.toUpperCase()}`
   const channel = env[`${prefix}_CHANNEL_ID`] || (source.sourceEnvironment === 'production' ? env.SLACK_AGENT_OPS_CHANNEL_ID : undefined)
   const token = env[`${prefix}_BOT_TOKEN`] || (source.sourceEnvironment === 'production' ? env.SLACK_BOT_TOKEN : undefined)

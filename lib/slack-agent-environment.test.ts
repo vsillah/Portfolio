@@ -32,6 +32,17 @@ describe('Slack source isolation', () => {
     expect(config.channel).toBe('CSTAGING')
     expect(config.sourceOrigin).toBe('https://staging.example.test')
   })
+  it('isolates calendar preparation activation without weakening source or channel checks', () => {
+    const dedicated = { ...staging, SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED: 'false',
+      SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED: 'true',
+      SLACK_AGENT_OPS_STAGING_BOT_TOKEN: 'test-token', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'CSTAGING' }
+    expect(getSlackAgentDeliveryConfig(dedicated, 'social_calendar_preparation').channel).toBe('CSTAGING')
+    expect(() => getSlackAgentDeliveryConfig(dedicated)).toThrow('disabled')
+    expect(() => getSlackAgentDeliveryConfig({ ...dedicated, SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED: 'false', SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED: 'true' }, 'social_calendar_preparation')).toThrow('disabled')
+    expect(() => getSlackAgentDeliveryConfig({ ...dedicated, SLACK_AGENT_OPS_STAGING_BOT_TOKEN: undefined }, 'social_calendar_preparation')).toThrow('Source-specific')
+    expect(() => getSlackAgentDeliveryConfig({ ...dedicated, SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'CPROD', SLACK_AGENT_OPS_CHANNEL_ID: 'CPROD' }, 'social_calendar_preparation')).toThrow('production')
+    expect(() => getSlackAgentDeliveryConfig({ ...dedicated, APP_ENV: 'production' }, 'social_calendar_preparation')).toThrow('provenance')
+  })
   it.each(['https://user:pass@example.test', 'https://example.test/path', 'https://example.test?token=secret', 'http://example.test'])('rejects unsafe or non-origin URLs %s', (url) => {
     expect(() => getSlackAgentSource({ ...staging, SLACK_AGENT_OPS_STAGING_BASE_URL: url })).toThrow()
   })

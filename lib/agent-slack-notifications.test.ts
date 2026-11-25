@@ -48,13 +48,14 @@ function queryResult(result: unknown, promiseMethods: Array<'select' | 'in' | 'l
 }
 
 type DeliveryRow = { id: string; status: string; metadata: Record<string, unknown>; outcome: Record<string, unknown>; idempotency_key?: string }
-function statefulDelivery(initial: Partial<DeliveryRow> | null = null, failReceipt = false) {
+function statefulDelivery(initial: Partial<DeliveryRow> | null = null, failReceipt = false, calendar: Record<string, unknown> | null = null) {
   let row: DeliveryRow | null = initial ? { id: 'run-1', status: 'queued', metadata: {}, outcome: {}, ...initial } : null
   mocks.startAgentRun.mockImplementation(async (input) => {
     row ??= { id: 'run-1', status: input.status, metadata: input.metadata, outcome: {}, idempotency_key: input.idempotencyKey }
     return { id: row.id }
   })
-  mocks.from.mockImplementation(() => {
+  mocks.from.mockImplementation((table) => {
+    if (table === 'social_content_calendar_items' && calendar) return queryResult({ data: calendar, error: null }, ['maybeSingle'])
     let patch: Partial<DeliveryRow> | null = null
     const predicates: Array<(row: DeliveryRow) => boolean> = []
     const query = {
@@ -87,7 +88,7 @@ function statefulDelivery(initial: Partial<DeliveryRow> | null = null, failRecei
 describe('Agent Ops Slack notifications', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env = { ...ORIGINAL_ENV, NEXT_PUBLIC_APP_ENV: 'production', APP_ENV: 'production', VERCEL_ENV: 'production', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED: 'true', SLACK_BOT_TOKEN: 'xoxb-test', SLACK_AGENT_OPS_CHANNEL_ID: 'CAGENTOPS' }
+    process.env = { ...ORIGINAL_ENV, NEXT_PUBLIC_APP_ENV: 'production', APP_ENV: 'production', VERCEL_ENV: 'production', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED: 'true', SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED: 'true', SLACK_BOT_TOKEN: 'xoxb-test', SLACK_AGENT_OPS_CHANNEL_ID: 'CAGENTOPS' }
     const deliveryQuery: Record<string, unknown> = { select: vi.fn(() => deliveryQuery), eq: vi.fn(() => deliveryQuery), in: vi.fn(() => deliveryQuery), or: vi.fn(() => deliveryQuery), maybeSingle: vi.fn(async () => ({ data: { id: 'run-1' }, error: null })) }
     mocks.update.mockReturnValue(deliveryQuery)
     mocks.from.mockReturnValue({ ...queryResult({ data: null, error: null }), update: mocks.update })
@@ -1116,6 +1117,154 @@ describe('Agent Ops Slack notifications', () => {
     expect(db.row()?.status).toBe('running')
     expect(await sendAgentSlackNotification({ kind: 'blockers', force: true })).toMatchObject({ sent: false, uncertain: true })
     expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  function preparationRow() {
+    return {
+      id: 'calendar-prepare', title: 'Source-backed workshop lesson', channel: 'linkedin',
+      scheduled_for: '2026-11-30T15:00:00.000Z', due_status: 'planned', authorization_status: 'authorized',
+      social_content_id: 'social-prepare', agent_work_item_id: 'work-prepare',
+      social_content_queue: { id: 'social-prepare', status: 'draft' },
+      metadata: { jit_refresh_status: 'fresh', external_execution_enabled: false,
+        publish_preparation: {
+          status: 'ready', content_version: 'content-v1', social_content_id: 'social-prepare',
+          prepared_at: '2026-11-24T16:00:00.000Z', source_lineage: 'evidence-v1', evidence_version: 'evidence-v1',
+          source_expires_at: '2026-11-26T00:00:00.000Z', source_freshness_status: 'fresh',
+          scheduled_for: '2026-11-30T15:00:00.000Z', trigger_at: '2026-11-24T15:00:00.000Z',
+          review_path: '/admin/social-content/social-prepare?step=copy',
+        },
+      },
+    }
+  }
+
+  it('builds exact ready and blocker links from persisted preparation receipts only', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const ready = preparationRow()
+    mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: ready, error: null }) }) }) })
+    const input = { kind: 'social_calendar_preparation' as const, calendarItemIds: ['calendar-prepare'] }
+    const payload = await buildAgentSlackNotificationPayload(input)
+    expect(payload).toMatchObject({ itemCount: 1, renderedCalendarItemIds: ['calendar-prepare'],
+      dedupeKey: 'social_calendar_preparation:calendar-prepare:ready:content-v1' })
+    expect(payload.text).toContain('Source-backed workshop lesson (LinkedIn)')
+    expect(payload.text).toContain('Release:')
+    expect(JSON.stringify(payload.blocks)).toContain('https://amadutown.com/admin/social-content/social-prepare?step=copy')
+
+    const blocked: Record<string, any> = structuredClone(ready)
+    blocked.metadata.publish_preparation = { ...blocked.metadata.publish_preparation,
+      status: 'blocked', blocker: 'Approved source expired; replace it before review.',
+      evidence_version: 'evidence-v2', recovery_action: '/admin/agents/social-insights/work-prepare?channel=linkedin' }
+    mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: blocked, error: null }) }) }) })
+    const blockerPayload = await buildAgentSlackNotificationPayload(input)
+    expect(blockerPayload).toMatchObject({ itemCount: 1,
+      dedupeKey: 'social_calendar_preparation:calendar-prepare:blocked:evidence-v2' })
+    expect(blockerPayload.text).toContain('Approved source expired')
+    expect(JSON.stringify(blockerPayload.blocks)).toContain('https://amadutown.com/admin/agents/social-insights/work-prepare?channel=linkedin')
+  })
+
+  it('suppresses missing, unauthorized, unbound, stale, and externally unlocked preparation', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const input = { kind: 'social_calendar_preparation' as const, calendarItemIds: ['calendar-prepare'] }
+    for (const change of [
+      (row: ReturnType<typeof preparationRow>) => { row.authorization_status = 'pending' },
+      (row: ReturnType<typeof preparationRow>) => { row.metadata.publish_preparation.content_version = '' },
+      (row: ReturnType<typeof preparationRow>) => { row.metadata.publish_preparation.source_expires_at = '2026-11-25T12:00:00.000Z' },
+      (row: ReturnType<typeof preparationRow>) => { row.metadata.jit_refresh_status = 'stale' },
+      (row: ReturnType<typeof preparationRow>) => { row.metadata.external_execution_enabled = true },
+      (row: ReturnType<typeof preparationRow>) => { row.metadata.publish_preparation.review_path = '/admin/agents/swarm-board' },
+    ]) {
+      const row = preparationRow(); change(row)
+      mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: row, error: null }) }) }) })
+      expect((await buildAgentSlackNotificationPayload(input)).itemCount).toBe(0)
+    }
+  })
+
+  it('dedupes one immutable ready version and gives a changed version a new delivery identity', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const input = { kind: 'social_calendar_preparation' as const, calendarItemIds: ['calendar-prepare'] }
+    const first = statefulDelivery(null, false, preparationRow())
+    expect(await sendAgentSlackNotification(input)).toMatchObject({ sent: true, deliveredCalendarItemIds: ['calendar-prepare'] })
+    const firstKey = first.row()?.idempotency_key
+    expect(await sendAgentSlackNotification(input)).toMatchObject({ sent: false, deduped: true, deliveredCalendarItemIds: ['calendar-prepare'] })
+    expect(await sendAgentSlackNotification({ ...input, goalId: 'another-goal', targetAgentKeys: ['different-agent'] }))
+      .toMatchObject({ sent: false, deduped: true, deliveredCalendarItemIds: ['calendar-prepare'] })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const revised = preparationRow(); revised.metadata.publish_preparation.content_version = 'content-v2'
+    const second = statefulDelivery(null, false, revised)
+    expect(await sendAgentSlackNotification(input)).toMatchObject({ sent: true })
+    expect(second.row()?.idempotency_key).not.toBe(firstKey)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('rejects a changed preparation version between sweep preview and send', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    process.env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED = 'false'
+    const fetchMock = vi.fn(); vi.stubGlobal('fetch', fetchMock)
+    const db = statefulDelivery(null, false, preparationRow())
+    await expect(sendAgentSlackNotification({ kind: 'social_calendar_preparation', calendarItemIds: ['calendar-prepare'],
+      dedupeKey: 'social_calendar_preparation:calendar-prepare:ready:old-version' }))
+      .rejects.toThrow('receipt changed')
+    expect(db.row()).toBeNull()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('releases an unsent claim when the persisted packet changes before delivery', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const fetchMock = vi.fn(); vi.stubGlobal('fetch', fetchMock)
+    const calendar = preparationRow()
+    const db = statefulDelivery(null, false, calendar)
+    const start = mocks.startAgentRun.getMockImplementation()!
+    mocks.startAgentRun.mockImplementation(async (input) => {
+      const run = await start(input)
+      calendar.metadata.publish_preparation.content_version = 'content-v2'
+      return run
+    })
+    const result = await sendAgentSlackNotification({ kind: 'social_calendar_preparation', calendarItemIds: ['calendar-prepare'] })
+    expect(result).toMatchObject({ sent: false, skipped: true, reason: expect.stringContaining('could not be verified') })
+    expect(db.row()?.status).toBe('failed')
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('fences an uncertain calendar notification and does not retry the Slack call', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const fetchMock = vi.fn().mockRejectedValue(new Error('synthetic transport failure'))
+    vi.stubGlobal('fetch', fetchMock)
+    const db = statefulDelivery(null, false, preparationRow())
+    const input = { kind: 'social_calendar_preparation' as const, calendarItemIds: ['calendar-prepare'] }
+    expect(await sendAgentSlackNotification(input)).toMatchObject({ sent: false, uncertain: true })
+    expect(db.row()?.status).toBe('running')
+    expect(await sendAgentSlackNotification(input)).toMatchObject({ sent: false, uncertain: true, skipped: true })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps calendar preparation disabled without any delivery claim or network call', async () => {
+    process.env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED = 'true'
+    process.env.SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED = 'false'
+    const fetchMock = vi.fn(); vi.stubGlobal('fetch', fetchMock)
+    await expect(sendAgentSlackNotification({ kind: 'social_calendar_preparation', calendarItemIds: ['calendar-prepare'] }))
+      .rejects.toThrow('disabled')
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('delivers calendar preparation with its dedicated flag while global Slack stays disabled', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    process.env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED = 'false'
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    statefulDelivery(null, false, preparationRow())
+    expect(await sendAgentSlackNotification({ kind: 'social_calendar_preparation', calendarItemIds: ['calendar-prepare'] }))
+      .toMatchObject({ sent: true, deliveredCalendarItemIds: ['calendar-prepare'] })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps unrelated Slack kinds disabled when only calendar preparation is enabled', async () => {
+    process.env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED = 'false'
+    const fetchMock = vi.fn(); vi.stubGlobal('fetch', fetchMock)
+    await expect(sendAgentSlackNotification({ kind: 'blockers' })).rejects.toThrow('disabled')
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
 })
