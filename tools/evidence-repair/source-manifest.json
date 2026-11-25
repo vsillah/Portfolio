@@ -1,0 +1,17 @@
+{
+  "version": "phase-5a-source-manifest/v1",
+  "base_commit": "42bdb75304d43d1bcc39a60391972c46d0bf1c6f",
+  "raw_evidence_policy": "Read-only retained files. No recordings or receipts copied into this derived package.",
+  "sources": [
+    { "path": "artifacts/human-qa/next-week-campaign-batch-2026-10-17/campaign-batch-walkthrough.mp4", "location": "main Portfolio checkout, not committed at base", "sha256": "0559df2e23a68f4751c94d79633787806caee9d602049a15a2503205daab49cb", "role": "observed recording" },
+    { "path": "artifacts/human-qa/next-week-campaign-batch-2026-10-17/jit-refresh-receipts.json", "location": "main Portfolio checkout, not committed at base", "sha256": "792e80fa8121a440bdcfa8462f96cfa6e9b3c853f722ca74f26c5dcae95b431b", "role": "versioned review receipt" },
+    { "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/youtube-packet-review.mp4", "location": "main Portfolio checkout, not committed at base", "sha256": "5eb00333928549e832a14b38eb3cb46872f50f0c21a2608e72605d27be0672f9", "role": "observed recording" },
+    { "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/dark_castle_chess.json", "location": "main Portfolio checkout, not committed at base", "sha256": "6c90cd290dacc06e00a74495ab760516f3763c62056d5517dc2c3eeb362aa552", "role": "versioned review packet" },
+    { "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/jev.json", "location": "main Portfolio checkout, not committed at base", "sha256": "5d2887e363d66208ca6e9fcaf61daeb856ddbc3c27afd78e5539e8d26aa8ca0d", "role": "versioned review packet" },
+    { "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/sources.json", "location": "main Portfolio checkout, not committed at base", "sha256": "220aec730d3309005d8656b62b0d5df1773fc924462c52e9e81f4b26da5b9034", "role": "source map" },
+    { "path": "artifacts/human-qa/youtube-production-review-2026-10-14/youtube-route-blocker-walkthrough.mp4", "location": "main Portfolio checkout, not committed at base", "sha256": "9d27582c4bd8950b52650bc95c0e8c90d9afcc65590fdc19d5e06b7b673c9620", "role": "observed recording" },
+    { "path": "artifacts/human-qa/dark-castle-youtube-description-2026-10-27/dark-castle-description-review-walkthrough.mp4", "location": "main Portfolio checkout, not committed at base", "sha256": "3b63a6f6338267dee888eddac82b95a1aff7cbc0cf4ba7201359db9172f06f1c", "role": "observed recording" },
+    { "path": "artifacts/human-qa/dark-castle-linkedin-platform-draft-2026-10-25/platform-draft-review-walkthrough.mp4", "location": "main Portfolio checkout, not committed at base", "sha256": "4fb075e7cdaf22c9e9d8209c619ab07890d746abb0a27db390500885778de0da", "role": "observed recording" },
+    { "path": "artifacts/research/approved-youtube-campaign-descriptions-2026-10-19/receipt.json", "location": "committed at base", "sha256": "b10588f0ec65f4bcdc6e80755d87376be692bd390d5f24ef4cf9404c2247539d", "role": "versioned cohort receipt" }
+  ]
+}
