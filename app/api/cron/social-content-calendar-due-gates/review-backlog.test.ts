@@ -18,13 +18,13 @@ it('returns before every Slack configuration/delivery path, including dry runs',
     const result = await GET(new NextRequest(`http://localhost/cron?mode=review_backlog&campaign_id=campaign${dry}`, { headers: { authorization: 'Bearer synthetic' } }))
     expect(result.status).toBe(200)
   }
-  expect(mocks.prepare).toHaveBeenLastCalledWith('campaign', { scheduled: true, dryRun: true, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true })
+  expect(mocks.prepare).toHaveBeenLastCalledWith('campaign', expect.objectContaining({ now: expect.any(Date), scheduled: true, dryRun: true, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true }))
   expect(mocks.send).not.toHaveBeenCalled(); expect(mocks.source).not.toHaveBeenCalled(); expect(mocks.from).not.toHaveBeenCalled()
 })
 it('uses active campaigns for the configured schedule', async () => {
   mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ limit: async () => ({ data: [{ id: 'active' }], error: null }) }) }) })
   const result = await GET(new NextRequest('http://localhost/cron?mode=review_backlog', { headers: { authorization: 'Bearer synthetic' } }))
-  expect(result.status).toBe(200); expect(mocks.prepare).toHaveBeenCalledWith('active', { scheduled: true, dryRun: false, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true }); expect(mocks.send).not.toHaveBeenCalled()
+  expect(result.status).toBe(200); expect(mocks.prepare).toHaveBeenCalledWith('active', expect.objectContaining({ now: expect.any(Date), scheduled: true, dryRun: false, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true })); expect(mocks.send).not.toHaveBeenCalled()
 })
 it('keeps new and replayed receipt-backed packages inside Portfolio', async () => {
   const ready = {
@@ -48,7 +48,7 @@ const dueRow = (id: string, state: 'ready' | 'blocked' | 'eligible' | 'planned')
   id, state, trigger_at: '2026-11-24T00:00:00.000Z',
 })
 const receiptResult = (id: string, state: 'ready' | 'blocked') => ({
-  rows: [dueRow(id, state)], calendar_receipts: [{ calendar_item_id: id, state }],
+  rows: [dueRow(id, state)], calendar_receipts: [{ calendar_item_id: id, state, evidence_version: 'evidence-v1' }],
   prepared_count: state === 'ready' ? 1 : 0, prepared_items: [], blocked_items: [],
 })
 
@@ -83,11 +83,17 @@ it('replays an immutable receipt without another delivery request', async () => 
 it('reports a human-action blocker and a partial delivery without claiming success', async () => {
   vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'true')
   mocks.prepare.mockResolvedValue({ rows: [dueRow('calendar-blocked', 'blocked'), dueRow('calendar-ready', 'ready')],
-    calendar_receipts: [], prepared_count: 0, prepared_items: [], blocked_items: [] })
+    calendar_receipts: [{ calendar_item_id: 'calendar-blocked', state: 'blocked', evidence_version: 'evidence-v1' }],
+    prepared_count: 0, prepared_items: [], blocked_items: [] })
   mocks.send.mockResolvedValueOnce({ results: [{ itemCount: 1, sent: true, deduped: false,
     deliveredCalendarItemIds: ['calendar-blocked'], slackChannel: 'CQA', slackMessageTs: '1.002' }] })
     .mockResolvedValueOnce({ results: [{ itemCount: 1, sent: false, deduped: false, error: 'Slack rejected delivery' }] })
   const response = await GET(cronRequest())
+  const cycleNow = mocks.prepare.mock.calls[0][1].now as Date
+  expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({
+    calendarItemIds: ['calendar-blocked'],
+    calendarBlockerReceipt: { blockedAt: cycleNow.toISOString(), evidenceVersion: 'evidence-v1' },
+  }))
   await expect(response.json()).resolves.toMatchObject({ preparation_notification_result: {
     requested_count: 2, delivered_count: 1, incomplete_count: 1,
     results: [expect.objectContaining({ calendar_item_id: 'calendar-blocked', delivered: true }),
@@ -122,5 +128,33 @@ it('suppresses planned and eligible rows and leaves disabled delivery read-only'
   await expect(disabled.json()).resolves.toMatchObject({ preparation_notification_result: {
     requested_count: 0, delivered_count: 0, incomplete_count: 1,
     results: [expect.objectContaining({ reason: 'Slack notification delivery is disabled.' })],
+  } })
+})
+
+it('does not request Slack for a historical blocked row without a current-cycle receipt', async () => {
+  vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'true')
+  mocks.prepare.mockResolvedValue({ rows: [dueRow('calendar-october', 'blocked')],
+    calendar_receipts: [], prepared_count: 0, prepared_items: [], blocked_items: [] })
+  const response = await GET(cronRequest())
+  expect(mocks.send).not.toHaveBeenCalled()
+  await expect(response.json()).resolves.toMatchObject({ preparation_notification_result: {
+    candidate_count: 0, requested_count: 0, delivered_count: 0,
+  } })
+})
+
+it('uses a newly persisted blocker receipt even when the backlog projection was eligible', async () => {
+  vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'true')
+  mocks.prepare.mockResolvedValue({ rows: [dueRow('calendar-new-blocker', 'eligible')],
+    calendar_receipts: [{ calendar_item_id: 'calendar-new-blocker', state: 'blocked', evidence_version: 'evidence-v3' }],
+    prepared_count: 0, prepared_items: [], blocked_items: [] })
+  mocks.send.mockResolvedValue({ results: [{ itemCount: 1, sent: true, deduped: false,
+    deliveredCalendarItemIds: ['calendar-new-blocker'], slackChannel: 'CQA', slackMessageTs: '1.004' }] })
+  const response = await GET(cronRequest())
+  expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({
+    calendarItemIds: ['calendar-new-blocker'],
+    calendarBlockerReceipt: { blockedAt: expect.any(String), evidenceVersion: 'evidence-v3' },
+  }))
+  await expect(response.json()).resolves.toMatchObject({ preparation_notification_result: {
+    candidate_count: 1, delivered_count: 1, incomplete_count: 0,
   } })
 })

@@ -151,9 +151,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     expect(response.status).toBe(200)
     expect(mocks.prepareCampaignReviewBatch).not.toHaveBeenCalled()
     expect(mocks.from).toHaveBeenCalledTimes(1)
-    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
-      kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-unchanged'], dryRun: true,
-    }))
+    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
   })
 
   it('checks a changed blocked evidence version once and records its bounded retry', async () => {
@@ -356,6 +354,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
   })
 
   it('persists concrete preparation checks and a Social Content recovery route', async () => {
+    vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'true')
     const scheduledFor = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
     const items = [{
       id: 'calendar-blocked-quality',
@@ -407,7 +406,8 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       }),
     }))
     expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({
-      kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-blocked-quality'], dryRun: true,
+      kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-blocked-quality'], dryRun: false,
+      calendarBlockerReceipt: { blockedAt: expect.any(String), evidenceVersion: 'missing:calendar-blocked-quality' },
     }))
     await expect(response.json()).resolves.toMatchObject({
       preparation_count: 0,

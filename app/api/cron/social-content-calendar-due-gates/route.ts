@@ -83,23 +83,36 @@ function isDryRun(request: NextRequest, body: Record<string, unknown>) {
     || body.dry_run === true
 }
 
-function notificationIds(rows: Array<{ id: string; state: string; trigger_at: string }>, now: Date) {
-  return [...new Set(rows.filter(row => ['ready', 'blocked'].includes(row.state)
-    && Date.parse(row.trigger_at) <= now.getTime()).map(row => row.id))]
+type BlockerReceipt = { blockedAt: string; evidenceVersion: string }
+
+function notificationIds(rows: Array<{ id: string; state: string; trigger_at: string }>, now: Date, blockerReceipts: Map<string, BlockerReceipt>) {
+  // A newly persisted preparation blocker can supersede an eligible backlog
+  // projection, so the write receipt is authoritative for blocked notices.
+  return [...new Set([...blockerReceipts.keys(), ...rows.filter(row => row.state === 'ready'
+    && Date.parse(row.trigger_at) <= now.getTime()).map(row => row.id)])]
 }
 
-async function notifyCalendarPreparation(ids: string[], input: { dryRun: boolean; triggerSource: string }) {
+function currentBlockerReceipts(receipts: Array<{ calendar_item_id: string; state: string; evidence_version: string }>, now: Date) {
+  return new Map(receipts.filter(receipt => receipt.state === 'blocked' && receipt.evidence_version)
+    .map(receipt => [receipt.calendar_item_id, { blockedAt: now.toISOString(), evidenceVersion: receipt.evidence_version }] as const))
+}
+
+async function notifyCalendarPreparation(ids: string[], input: { dryRun: boolean; triggerSource: string; blockerReceipts: Map<string, BlockerReceipt> }) {
   const unique = [...new Set(ids)]
-  // The 15-minute backlog and hourly due gate rotate bounded candidate slices.
-  // Persistent agent-run receipt identities make repeated visits harmless.
+  // Fresh blockers have only this cycle's receipt, so serve them before
+  // rotating retryable ready packets through the bounded notification batch.
+  const blocked = unique.filter(id => input.blockerReceipts.has(id))
+  const ready = unique.filter(id => !input.blockerReceipts.has(id))
   const slot = Math.floor(Date.now() / (15 * 60_000))
-  const offset = unique.length ? (slot * CALENDAR_NOTIFICATION_BATCH_SIZE) % unique.length : 0
-  const selected = [...unique.slice(offset), ...unique.slice(0, offset)].slice(0, CALENDAR_NOTIFICATION_BATCH_SIZE)
+  const offset = ready.length ? (slot * CALENDAR_NOTIFICATION_BATCH_SIZE) % ready.length : 0
+  const selected = [...blocked.slice(0, CALENDAR_NOTIFICATION_BATCH_SIZE),
+    ...[...ready.slice(offset), ...ready.slice(0, offset)].slice(0, Math.max(0, CALENDAR_NOTIFICATION_BATCH_SIZE - blocked.length))]
   const results: Array<{ calendar_item_id: string; requested: boolean; delivered: boolean; incomplete: boolean; deduped: boolean; receipt_key?: string; run_id?: string; reason?: string }> = []
   for (const calendarItemId of selected) {
     const options = {
       mode: 'immediate' as const, kinds: ['social_calendar_preparation' as const],
       goalId: 'social-content-calendar', calendarItemIds: [calendarItemId],
+      calendarBlockerReceipt: input.blockerReceipts.get(calendarItemId),
       actorLabel: 'Calendar preparation receipt', triggerSource: input.triggerSource,
     }
     const enabled = process.env.SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED === 'true'
@@ -348,11 +361,13 @@ async function runDueGateSweep(request: NextRequest) {
     if (new URL(request.url).searchParams.get('mode') === 'review_backlog' || body.mode === 'review_backlog') {
       const campaignId = new URL(request.url).searchParams.get('campaign_id') || body.campaign_id
       const dryRun = isDryRun(request, body)
-      const options = { scheduled: true, dryRun, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true }
+      const cycleNow = new Date()
+      const options = { now: cycleNow, scheduled: true, dryRun, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true }
       if (typeof campaignId === 'string' && campaignId) {
         const result = await prepareCampaignReviewBatch(campaignId, options)
-        const preparationNotificationResult = await notifyCalendarPreparation(notificationIds(result.rows ?? [], new Date()), {
-          dryRun, triggerSource: 'campaign_review_backlog',
+        const blockerReceipts = currentBlockerReceipts(result.calendar_receipts ?? [], cycleNow)
+        const preparationNotificationResult = await notifyCalendarPreparation(notificationIds(result.rows ?? [], cycleNow, blockerReceipts), {
+          dryRun, triggerSource: 'campaign_review_backlog', blockerReceipts,
         })
         return NextResponse.json({ ...result, slack_notification_result: null, preparation_notification_result: preparationNotificationResult })
       }
@@ -361,8 +376,9 @@ async function runDueGateSweep(request: NextRequest) {
       if ((campaigns?.length ?? 0) > 50) return NextResponse.json({ error: 'Review scan exceeds 50 active campaigns; run campaign-scoped sweeps.' }, { status: 409 })
       const results = []
       for (const campaign of campaigns ?? []) results.push(await prepareCampaignReviewBatch(campaign.id, options))
-      const preparationNotificationResult = await notifyCalendarPreparation(notificationIds(results.flatMap(result => result.rows ?? []), new Date()), {
-        dryRun, triggerSource: 'campaign_review_backlog',
+      const blockerReceipts = currentBlockerReceipts(results.flatMap(result => result.calendar_receipts ?? []), cycleNow)
+      const preparationNotificationResult = await notifyCalendarPreparation(notificationIds(results.flatMap(result => result.rows ?? []), cycleNow, blockerReceipts), {
+        dryRun, triggerSource: 'campaign_review_backlog', blockerReceipts,
       })
       return NextResponse.json({ results, slack_notification_result: null, preparation_notification_result: preparationNotificationResult })
     }
@@ -464,6 +480,7 @@ async function runDueGateSweep(request: NextRequest) {
     const pinged: Array<{ calendar_item_id: string; work_item_id: string; window: '24h' | '2h' }> = []
     const prepared: Array<{ calendar_item_id: string; social_content_id: string | null; work_item_id: string; review_path: string; content_version: string; source_expires_at: string | null }> = []
     const preparationBlocked: Array<{ calendar_item_id: string; blocker: string; recovery_action: string }> = []
+    const blockerReceipts = new Map<string, BlockerReceipt>()
     const recalibrated: Array<{
       anchor_calendar_item_id: string
       work_item_id: string
@@ -573,6 +590,7 @@ async function runDueGateSweep(request: NextRequest) {
           .eq('id', item.id)
         assertSupabaseWriteSucceeded(updateResult, `Record publish preparation blocker for ${item.id}`)
         preparationBlocked.push({ calendar_item_id: item.id, blocker, recovery_action: recoveryAction })
+        blockerReceipts.set(item.id, { blockedAt: now.toISOString(), evidenceVersion })
         continue
       }
 
@@ -631,6 +649,7 @@ async function runDueGateSweep(request: NextRequest) {
           .eq('id', item.id)
         assertSupabaseWriteSucceeded(updateResult, `Record publish preparation blocker for ${item.id}`)
         preparationBlocked.push({ calendar_item_id: item.id, blocker, recovery_action: recoveryAction })
+        blockerReceipts.set(item.id, { blockedAt: now.toISOString(), evidenceVersion })
         continue
       }
 
@@ -726,8 +745,10 @@ async function runDueGateSweep(request: NextRequest) {
       })
     }
 
-    const preparationNotificationResult = await notifyCalendarPreparation(preparationCandidates.map(item => item.id), {
-      dryRun: false, triggerSource: `${triggerSource}_preparation`,
+    const preparationNotificationResult = await notifyCalendarPreparation(preparationCandidates
+      .filter(item => parseMetadata(parseMetadata(item.metadata).publish_preparation).status !== 'blocked'
+        || blockerReceipts.has(item.id)).map(item => item.id), {
+      dryRun: false, triggerSource: `${triggerSource}_preparation`, blockerReceipts,
     })
 
     // Slack selects eligible rows from the calendar table. Persisting due_gate_pings

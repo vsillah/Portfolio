@@ -1152,13 +1152,72 @@ describe('Agent Ops Slack notifications', () => {
     const blocked: Record<string, any> = structuredClone(ready)
     blocked.metadata.publish_preparation = { ...blocked.metadata.publish_preparation,
       status: 'blocked', blocker: 'Approved source expired; replace it before review.',
-      evidence_version: 'evidence-v2', recovery_action: '/admin/agents/social-insights/work-prepare?channel=linkedin' }
+      blocked_at: '2026-11-25T11:59:00.000Z', evidence_version: 'evidence-v2',
+      recovery_action: '/admin/agents/social-insights/work-prepare?channel=linkedin' }
     mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: blocked, error: null }) }) }) })
-    const blockerPayload = await buildAgentSlackNotificationPayload(input)
+    const blockerPayload = await buildAgentSlackNotificationPayload({ ...input,
+      calendarBlockerReceipt: { blockedAt: '2026-11-25T11:59:00.000Z', evidenceVersion: 'evidence-v2' } })
     expect(blockerPayload).toMatchObject({ itemCount: 1,
       dedupeKey: 'social_calendar_preparation:calendar-prepare:blocked:evidence-v2' })
     expect(blockerPayload.text).toContain('Approved source expired')
     expect(JSON.stringify(blockerPayload.blocks)).toContain('https://amadutown.com/admin/agents/social-insights/work-prepare?channel=linkedin')
+  })
+
+  it('rejects historical and version-drifted blockers before any delivery claim or network call', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const blocked: Record<string, any> = preparationRow()
+    blocked.metadata.publish_preparation = { ...blocked.metadata.publish_preparation,
+      status: 'blocked', blocker: 'Source evidence expired.', blocked_at: '2026-10-15T12:00:00.000Z',
+      evidence_version: 'evidence-october', recovery_action: '/admin/social-content/social-prepare?step=copy' }
+    const fetchMock = vi.fn(); vi.stubGlobal('fetch', fetchMock)
+    const db = statefulDelivery(null, false, blocked)
+    const input = { kind: 'social_calendar_preparation' as const, calendarItemIds: ['calendar-prepare'] }
+    const currentCycle = { blockedAt: '2026-11-25T12:00:00.000Z', evidenceVersion: 'evidence-october' }
+    expect((await buildAgentSlackNotificationPayload({ ...input, calendarBlockerReceipt: currentCycle })).itemCount).toBe(0)
+    await expect(sendAgentSlackNotification({ ...input, calendarBlockerReceipt: currentCycle })).rejects.toThrow('No current')
+    expect((await buildAgentSlackNotificationPayload({ ...input, calendarBlockerReceipt: {
+      blockedAt: '2026-10-15T12:00:00.000Z', evidenceVersion: 'current-cycle-version',
+    } })).itemCount).toBe(0)
+    expect(db.row()).toBeNull()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('delivers a fresh cycle-bound blocker while leaving stale source evidence blocked', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const blocked: Record<string, any> = preparationRow()
+    blocked.metadata.jit_refresh_status = 'stale'
+    blocked.metadata.publish_preparation = { ...blocked.metadata.publish_preparation,
+      status: 'blocked', blocker: 'Approved source expired; replace it before review.',
+      blocked_at: '2026-11-25T12:00:00.000Z', evidence_version: 'evidence-v2',
+      recovery_action: '/admin/social-content/social-prepare?step=copy' }
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    statefulDelivery(null, false, blocked)
+    const result = await sendAgentSlackNotification({ kind: 'social_calendar_preparation', calendarItemIds: ['calendar-prepare'],
+      calendarBlockerReceipt: { blockedAt: '2026-11-25T12:00:00.000Z', evidenceVersion: 'evidence-v2' } })
+    expect(result).toMatchObject({ sent: true, deliveredCalendarItemIds: ['calendar-prepare'] })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects a current-cycle blocker if its evidence version changes after the claim', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const blocked: Record<string, any> = preparationRow()
+    blocked.metadata.publish_preparation = { ...blocked.metadata.publish_preparation,
+      status: 'blocked', blocker: 'Check approved source.', blocked_at: '2026-11-25T12:00:00.000Z',
+      evidence_version: 'evidence-v2', recovery_action: '/admin/social-content/social-prepare?step=copy' }
+    const fetchMock = vi.fn(); vi.stubGlobal('fetch', fetchMock)
+    const db = statefulDelivery(null, false, blocked)
+    const start = mocks.startAgentRun.getMockImplementation()!
+    mocks.startAgentRun.mockImplementation(async (input) => {
+      const run = await start(input)
+      blocked.metadata.publish_preparation.evidence_version = 'evidence-v3'
+      return run
+    })
+    const result = await sendAgentSlackNotification({ kind: 'social_calendar_preparation', calendarItemIds: ['calendar-prepare'],
+      calendarBlockerReceipt: { blockedAt: '2026-11-25T12:00:00.000Z', evidenceVersion: 'evidence-v2' } })
+    expect(result).toMatchObject({ sent: false, skipped: true, reason: expect.stringContaining('could not be verified') })
+    expect(db.row()?.status).toBe('failed')
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('suppresses missing, unauthorized, unbound, stale, and externally unlocked preparation', async () => {
