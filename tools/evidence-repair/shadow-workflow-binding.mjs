@@ -18,7 +18,9 @@ const report = (status, reason, receipt = null) => ({
 /**
  * Read-only projection of the existing Social Content decision route's packet
  * and response. The additional Human QA decision is case-specific authority;
- * a generic stage approval cannot stand in for it. No route calls this adapter.
+ * a generic stage approval cannot stand in for it. The decision route invokes
+ * this adapter only after a synthetic local or staging-preview decision; its
+ * production path never invokes the adapter.
  */
 export function evaluateShadowWorkflowBinding(input, existing = [], readSource) {
   if (!isRecord(input) || !['synthetic_local', 'staging_shadow'].includes(input.mode) || input.data_class !== 'synthetic') return report('blocked', 'shadow_mode_required')
