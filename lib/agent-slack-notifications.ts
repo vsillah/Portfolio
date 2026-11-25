@@ -1237,7 +1237,8 @@ export async function buildAgentSlackNotificationPayload(input: AgentSlackNotifi
 
 export async function sendAgentSlackNotification(input: AgentSlackNotificationInput): Promise<AgentSlackNotificationResult> {
   // Configuration is checked before any delivery claim or database mutation.
-  const config = getSlackAgentDeliveryConfig()
+  const config = getSlackAgentDeliveryConfig(process.env,
+    input.kind === 'social_calendar_preparation' ? 'social_calendar_preparation' : undefined)
   if (!supabaseAdmin) throw new Error('Database not available')
   const payload = await buildAgentSlackNotificationPayload(input)
   if (payload.visibilityError) throw new Error(payload.visibilityError)

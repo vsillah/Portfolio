@@ -51,6 +51,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     vi.clearAllMocks()
     process.env.CRON_SECRET = 'cron-secret'
     process.env.N8N_INGEST_SECRET = ''
+    vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'false')
     mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 0, dryRun: true })
     mocks.prepareCampaignReviewBatch.mockResolvedValue({
       rows: [],

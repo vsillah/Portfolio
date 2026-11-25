@@ -7,7 +7,7 @@ vi.mock('@/lib/slack-agent-environment', () => ({ getSlackAgentSource: mocks.sou
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: mocks.from } }))
 vi.mock('@/lib/agent-work-items', () => ({ createAgentWorkItem: vi.fn(() => { throw new Error('Unexpected work creation') }) }))
 import { GET } from './route'
-beforeEach(() => { vi.clearAllMocks(); process.env.CRON_SECRET = 'synthetic'; vi.stubEnv('SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED', 'false'); mocks.prepare.mockResolvedValue({ prepared_count: 0 }) })
+beforeEach(() => { vi.clearAllMocks(); process.env.CRON_SECRET = 'synthetic'; vi.stubEnv('SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED', 'false'); vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'false'); mocks.prepare.mockResolvedValue({ prepared_count: 0 }) })
 afterEach(() => vi.unstubAllEnvs())
 it('rejects unauthenticated scheduled preparation', async () => {
   const result = await GET(new NextRequest('http://localhost/cron?mode=review_backlog&campaign_id=campaign'))
@@ -53,7 +53,7 @@ const receiptResult = (id: string, state: 'ready' | 'blocked') => ({
 })
 
 it('requests a receipt-backed review notification and reports exact delivery', async () => {
-  vi.stubEnv('SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED', 'true')
+  vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'true')
   mocks.prepare.mockResolvedValue(receiptResult('calendar-ready', 'ready'))
   mocks.send.mockResolvedValue({ results: [{ itemCount: 1, sent: true, deduped: false,
     deliveredCalendarItemIds: ['calendar-ready'], slackChannel: 'CQA', slackMessageTs: '1.001', runId: 'run-ready' }] })
@@ -69,7 +69,7 @@ it('requests a receipt-backed review notification and reports exact delivery', a
 })
 
 it('replays an immutable receipt without another delivery request', async () => {
-  vi.stubEnv('SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED', 'true')
+  vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'true')
   mocks.prepare.mockResolvedValue(receiptResult('calendar-ready', 'ready'))
   mocks.send.mockResolvedValue({ results: [{ itemCount: 1, sent: false, deduped: true,
     deliveredCalendarItemIds: ['calendar-ready'], slackChannel: 'CQA', slackMessageTs: '1.001', runId: 'run-ready' }] })
@@ -81,7 +81,7 @@ it('replays an immutable receipt without another delivery request', async () => 
 })
 
 it('reports a human-action blocker and a partial delivery without claiming success', async () => {
-  vi.stubEnv('SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED', 'true')
+  vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'true')
   mocks.prepare.mockResolvedValue({ rows: [dueRow('calendar-blocked', 'blocked'), dueRow('calendar-ready', 'ready')],
     calendar_receipts: [], prepared_count: 0, prepared_items: [], blocked_items: [] })
   mocks.send.mockResolvedValueOnce({ results: [{ itemCount: 1, sent: true, deduped: false,
@@ -96,7 +96,7 @@ it('reports a human-action blocker and a partial delivery without claiming succe
 })
 
 it('does not claim delivery when Slack lacks the exact persisted message receipt', async () => {
-  vi.stubEnv('SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED', 'true')
+  vi.stubEnv('SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED', 'true')
   mocks.prepare.mockResolvedValue(receiptResult('calendar-ready', 'ready'))
   mocks.send.mockResolvedValue({ results: [{ itemCount: 1, sent: true, deduped: false,
     deliveredCalendarItemIds: ['another-calendar'], slackChannel: 'CQA', slackMessageTs: '1.003' }] })
@@ -114,6 +114,7 @@ it('suppresses planned and eligible rows and leaves disabled delivery read-only'
   const noOp = await GET(cronRequest())
   await expect(noOp.json()).resolves.toMatchObject({ preparation_notification_result: { candidate_count: 0, requested_count: 0 } })
   expect(mocks.send).not.toHaveBeenCalled()
+  vi.stubEnv('SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED', 'true')
   mocks.prepare.mockResolvedValue(receiptResult('calendar-blocked', 'blocked'))
   mocks.send.mockResolvedValue({ results: [{ itemCount: 1, sent: false, skipped: true, deduped: false, dryRun: true }] })
   const disabled = await GET(cronRequest())

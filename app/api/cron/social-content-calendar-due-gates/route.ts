@@ -102,7 +102,7 @@ async function notifyCalendarPreparation(ids: string[], input: { dryRun: boolean
       goalId: 'social-content-calendar', calendarItemIds: [calendarItemId],
       actorLabel: 'Calendar preparation receipt', triggerSource: input.triggerSource,
     }
-    const enabled = process.env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED === 'true'
+    const enabled = process.env.SOCIAL_CALENDAR_PREPARATION_NOTIFICATIONS_ENABLED === 'true'
     let result: Awaited<ReturnType<typeof runAgentSlackNotificationSweep>>['results'][number] | undefined
     try {
       const sweep = await runAgentSlackNotificationSweep({ ...options, dryRun: input.dryRun || !enabled })
