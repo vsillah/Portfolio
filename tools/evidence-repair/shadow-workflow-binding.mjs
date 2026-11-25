@@ -8,6 +8,7 @@ const report = (status, reason, receipt = null) => ({
   status,
   reason,
   receipt_sha256: receipt?.receipt_sha256 ?? null,
+  receipt_candidate: receipt ? structuredClone(receipt) : null,
   reconciliation: receipt ? 'eligible_for_review' : 'ineligible',
   label_promoted: false,
   workflow_mutated: false,
@@ -23,7 +24,7 @@ export function evaluateShadowWorkflowBinding(input, existing = [], readSource) 
   if (!isRecord(input) || !['synthetic_local', 'staging_shadow'].includes(input.mode) || input.data_class !== 'synthetic') return report('blocked', 'shadow_mode_required')
   const { fixture, workflow, human_qa: humanQa, binding } = input
   if (!isRecord(fixture) || !isRecord(workflow) || !isRecord(humanQa) || !isRecord(binding) || typeof readSource !== 'function' || !Array.isArray(existing)) return report('blocked', 'incomplete_shadow_input')
-  if (!fixture.input?.candidate?.id?.startsWith('synthetic:') || !Array.isArray(fixture.sources) || !fixture.sources.length || !fixture.sources.every((source) => syntheticPath(source.path)) || !Array.isArray(binding.sources) || !binding.sources.every((source) => syntheticPath(source.path)) || !syntheticPath(binding.artifact?.content_path) || !syntheticPath(binding.artifact?.artifact_path) || !syntheticPath(binding.authority?.source?.path)) return report('blocked', 'synthetic_sources_required')
+  if (fixture.synthetic !== true || !fixture.case_id?.startsWith('synthetic:') || fixture.input?.case_id !== fixture.case_id || !bound(fixture.input?.candidate?.id) || !Array.isArray(fixture.sources) || !fixture.sources.length || !fixture.sources.every((source) => syntheticPath(source.path)) || !Array.isArray(binding.sources) || !binding.sources.every((source) => syntheticPath(source.path)) || !syntheticPath(binding.artifact?.content_path) || !syntheticPath(binding.artifact?.artifact_path) || !syntheticPath(binding.authority?.source?.path)) return report('blocked', 'synthetic_sources_required')
 
   const { packet, result } = workflow
   if (packet?.version !== 'social-content-decision-review/v1' || !bound(packet.approval_id) || !bound(packet.work_item_id) || packet.content_id !== fixture.input.candidate.id || packet.content_updated_at !== fixture.candidate_version || packet.content_updated_at !== binding.artifact.version || !bound(packet.current_gate)) return report('blocked', 'workflow_packet_mismatch')

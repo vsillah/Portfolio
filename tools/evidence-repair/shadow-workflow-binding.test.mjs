@@ -10,8 +10,9 @@ import { evaluateShadowWorkflowBinding as evaluate } from './shadow-workflow-bin
 const sha = (bytes) => `sha256:${createHash('sha256').update(bytes).digest('hex')}`
 function sample() {
   const input = syntheticCase('freshness_renewal')
+  input.case_id = `synthetic:${input.case_id}`
   const source = { path: 'artifacts/synthetic/source.json', sha256: sha('source bytes') }
-  const fixture = { case_id: input.case_id, playbook: input.playbook, label_kind: 'approved_outcome', as_of: '2026-10-18T00:00:00Z', candidate_version: input.candidate.version, blocker_version: input.blocker.version, sources: [source], input }
+  const fixture = { synthetic: true, case_id: input.case_id, playbook: input.playbook, label_kind: 'approved_outcome', as_of: '2026-10-18T00:00:00Z', candidate_version: input.candidate.version, blocker_version: input.blocker.version, sources: [source], input }
   fixture.fixture_sha256 = fixtureHash(fixture)
   const artifact = { version: input.candidate.version, content_path: 'artifacts/synthetic/content.txt', content_sha256: sha('content'), artifact_path: 'artifacts/synthetic/artifact.bin', artifact_sha256: sha('artifact'), pr_number: 1320, commit_sha: 'a'.repeat(40) }
   const decision = { kind: 'approved_repair', before: { meaning_id: input.candidate.meaning_id, claim_ids: input.candidate.claim_ids }, after: { meaning_id: input.change.meaning_id, claim_ids: input.change.claim_ids }, approved_change: input.change, rollback: proposeRepair(input).proposal.rollback }
@@ -37,7 +38,8 @@ test('explicit case-specific approval captures an internal candidate and exact r
   const prior = captureDecisionReceipt({ fixture: x.value.fixture, ...x.value.binding }, [], x.read).receipt
   assert.deepEqual(evaluate(x.value, [prior], x.read), { ...first, status: 'exact_replay', reason: 'all_bindings_match' })
   assert.equal(JSON.stringify(first).includes('source bytes'), false)
-  assert.equal(JSON.stringify(first).includes('approved_change'), false)
+  assert.equal(first.receipt_candidate.receipt_sha256, first.receipt_sha256)
+  assert.equal(first.receipt_candidate.mode, 'review_only')
 })
 
 test('general or missing approval, cross-case reuse, and stale workflow version fail closed', () => {
@@ -76,7 +78,7 @@ test('changed bytes, conflicting replay, unclear rights, changed meaning, and pr
   const meaning = sample(); meaning.value.binding.decision.after.meaning_id = 'unsupported'
   assert.equal(evaluate(meaning.value, [], meaning.read).status, 'ineligible')
   const production = sample(); production.value.mode = 'production'
-  assert.deepEqual(evaluate(production.value, [], production.read), { schema_version: 'evidence-repair-shadow-workflow-review/v1', status: 'blocked', reason: 'shadow_mode_required', receipt_sha256: null, reconciliation: 'ineligible', label_promoted: false, workflow_mutated: false, external_actions_enabled: false })
+  assert.deepEqual(evaluate(production.value, [], production.read), { schema_version: 'evidence-repair-shadow-workflow-review/v1', status: 'blocked', reason: 'shadow_mode_required', receipt_sha256: null, receipt_candidate: null, reconciliation: 'ineligible', label_promoted: false, workflow_mutated: false, external_actions_enabled: false })
 })
 
 test('staging shadow accepts only synthetic inputs and never invokes workflow or external actions', () => {
