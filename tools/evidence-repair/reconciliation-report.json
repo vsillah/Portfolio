@@ -1,0 +1,287 @@
+{
+  "version": "phase-5c-reconciliation/v1",
+  "mode": "review_only",
+  "source_inventory": [
+    {
+      "path": "artifacts/human-qa/dark-castle-linkedin-platform-draft-2026-10-25/platform-draft-review-walkthrough.mp4",
+      "sha256": "sha256:4fb075e7cdaf22c9e9d8209c619ab07890d746abb0a27db390500885778de0da",
+      "cases": [
+        "history:platform-draft"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/dark-castle-youtube-description-2026-10-27/dark-castle-description-review-walkthrough.mp4",
+      "sha256": "sha256:3b63a6f6338267dee888eddac82b95a1aff7cbc0cf4ba7201359db9172f06f1c",
+      "cases": [
+        "history:description-review"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/dark-castle-youtube-visual-2026-10-23/receipt.json",
+      "sha256": "sha256:eb62127603095ba09163bf153dc8139f9e6da79f0aa4c8f6365b6faa6af16971",
+      "cases": [
+        "history:dark-castle-visual"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/next-week-campaign-batch-2026-10-17/campaign-batch-walkthrough.mp4",
+      "sha256": "sha256:0559df2e23a68f4751c94d79633787806caee9d602049a15a2503205daab49cb",
+      "cases": [
+        "history:jev-duplicate"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/next-week-campaign-batch-2026-10-17/jit-refresh-receipts.json",
+      "sha256": "sha256:792e80fa8121a440bdcfa8462f96cfa6e9b3c853f722ca74f26c5dcae95b431b",
+      "cases": [
+        "history:ai-audit-refresh",
+        "history:dark-castle-refresh",
+        "history:jev-duplicate"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/dark_castle_chess.json",
+      "sha256": "sha256:6c90cd290dacc06e00a74495ab760516f3763c62056d5517dc2c3eeb362aa552",
+      "cases": [
+        "history:youtube-dark-castle"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/jev.json",
+      "sha256": "sha256:5d2887e363d66208ca6e9fcaf61daeb856ddbc3c27afd78e5539e8d26aa8ca0d",
+      "cases": [
+        "history:youtube-jev"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/sources.json",
+      "sha256": "sha256:220aec730d3309005d8656b62b0d5df1773fc924462c52e9e81f4b26da5b9034",
+      "cases": [
+        "history:youtube-dark-castle",
+        "history:youtube-jev"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/youtube-packet-review-2026-10-14/youtube-packet-review.mp4",
+      "sha256": "sha256:5eb00333928549e832a14b38eb3cb46872f50f0c21a2608e72605d27be0672f9",
+      "cases": [
+        "history:youtube-dark-castle"
+      ]
+    },
+    {
+      "path": "artifacts/human-qa/youtube-production-review-2026-10-14/youtube-route-blocker-walkthrough.mp4",
+      "sha256": "sha256:9d27582c4bd8950b52650bc95c0e8c90d9afcc65590fdc19d5e06b7b673c9620",
+      "cases": [
+        "history:production-blocker"
+      ]
+    },
+    {
+      "path": "artifacts/research/approved-youtube-campaign-descriptions-2026-10-19/receipt.json",
+      "sha256": "sha256:b10588f0ec65f4bcdc6e80755d87376be692bd390d5f24ef4cf9404c2247539d",
+      "cases": [
+        "history:description-review"
+      ]
+    }
+  ],
+  "results": [
+    {
+      "case_id": "history:jev-duplicate",
+      "playbook": "duplicate_angle_repair",
+      "status": "unresolved",
+      "missing_bindings": [
+        "after_claim_ids",
+        "after_meaning_id",
+        "all_eight_external_action_exclusions",
+        "approval_identity_type_timestamp",
+        "approval_source_hash_and_provenance",
+        "approved_angle_review_receipt",
+        "approved_change_and_reviewed_fields",
+        "before_claim_ids",
+        "before_meaning_id",
+        "blocker_version",
+        "candidate_version",
+        "explicit_human_repair_approval",
+        "human_qa_decision_scope",
+        "phase_5a_matching_rollback"
+      ],
+      "conflicts": [],
+      "source_paths": [
+        "artifacts/human-qa/next-week-campaign-batch-2026-10-17/campaign-batch-walkthrough.mp4",
+        "artifacts/human-qa/next-week-campaign-batch-2026-10-17/jit-refresh-receipts.json"
+      ]
+    },
+    {
+      "case_id": "history:youtube-dark-castle",
+      "playbook": "channel_adaptation",
+      "status": "unresolved",
+      "missing_bindings": [
+        "after_claim_ids",
+        "after_meaning_id",
+        "all_eight_external_action_exclusions",
+        "approval_identity_type_timestamp",
+        "approval_source_hash_and_provenance",
+        "approved_change_and_reviewed_fields",
+        "before_claim_ids",
+        "before_meaning_id",
+        "blocker_version",
+        "candidate_version",
+        "explicit_human_repair_approval",
+        "human_qa_decision_scope",
+        "phase_5a_matching_rollback"
+      ],
+      "conflicts": [],
+      "source_paths": [
+        "artifacts/human-qa/youtube-packet-review-2026-10-14/dark_castle_chess.json",
+        "artifacts/human-qa/youtube-packet-review-2026-10-14/sources.json",
+        "artifacts/human-qa/youtube-packet-review-2026-10-14/youtube-packet-review.mp4"
+      ]
+    },
+    {
+      "case_id": "history:youtube-jev",
+      "playbook": "channel_adaptation",
+      "status": "unresolved",
+      "missing_bindings": [
+        "after_claim_ids",
+        "after_meaning_id",
+        "all_eight_external_action_exclusions",
+        "approval_identity_type_timestamp",
+        "approval_source_hash_and_provenance",
+        "approved_change_and_reviewed_fields",
+        "before_claim_ids",
+        "before_meaning_id",
+        "blocker_version",
+        "candidate_version",
+        "explicit_human_repair_approval",
+        "human_qa_decision_scope",
+        "phase_5a_matching_rollback"
+      ],
+      "conflicts": [],
+      "source_paths": [
+        "artifacts/human-qa/youtube-packet-review-2026-10-14/jev.json",
+        "artifacts/human-qa/youtube-packet-review-2026-10-14/sources.json"
+      ]
+    },
+    {
+      "case_id": "history:production-blocker",
+      "playbook": "typed_blocker_routing",
+      "status": "unresolved",
+      "missing_bindings": [
+        "after_claim_ids",
+        "after_meaning_id",
+        "all_eight_external_action_exclusions",
+        "approval_identity_type_timestamp",
+        "approval_source_hash_and_provenance",
+        "approved_change_and_reviewed_fields",
+        "approved_owner_and_next_gate",
+        "before_claim_ids",
+        "before_meaning_id",
+        "blocker_version",
+        "candidate_version",
+        "explicit_human_repair_approval",
+        "human_qa_decision_scope",
+        "phase_5a_matching_rollback",
+        "version_bound_blocker"
+      ],
+      "conflicts": [],
+      "source_paths": [
+        "artifacts/human-qa/youtube-production-review-2026-10-14/youtube-route-blocker-walkthrough.mp4"
+      ]
+    },
+    {
+      "case_id": "history:description-review",
+      "playbook": "candidate_substitution",
+      "status": "unresolved",
+      "missing_bindings": [
+        "after_claim_ids",
+        "after_meaning_id",
+        "all_eight_external_action_exclusions",
+        "approval_identity_type_timestamp",
+        "approval_source_hash_and_provenance",
+        "approved_change_and_reviewed_fields",
+        "before_claim_ids",
+        "before_meaning_id",
+        "blocker_version",
+        "candidate_version",
+        "explicit_human_repair_approval",
+        "human_qa_decision_scope",
+        "phase_5a_matching_rollback",
+        "qualified_replacement_candidate"
+      ],
+      "conflicts": [],
+      "source_paths": [
+        "artifacts/human-qa/dark-castle-youtube-description-2026-10-27/dark-castle-description-review-walkthrough.mp4",
+        "artifacts/research/approved-youtube-campaign-descriptions-2026-10-19/receipt.json"
+      ]
+    },
+    {
+      "case_id": "history:platform-draft",
+      "playbook": "typed_blocker_routing",
+      "status": "unresolved",
+      "missing_bindings": [
+        "after_claim_ids",
+        "after_meaning_id",
+        "all_eight_external_action_exclusions",
+        "approval_identity_type_timestamp",
+        "approval_source_hash_and_provenance",
+        "approved_change_and_reviewed_fields",
+        "approved_owner_and_next_gate",
+        "before_claim_ids",
+        "before_meaning_id",
+        "blocker_version",
+        "candidate_version",
+        "explicit_human_repair_approval",
+        "human_qa_decision_scope",
+        "phase_5a_matching_rollback",
+        "version_bound_blocker"
+      ],
+      "conflicts": [],
+      "source_paths": [
+        "artifacts/human-qa/dark-castle-linkedin-platform-draft-2026-10-25/platform-draft-review-walkthrough.mp4"
+      ]
+    },
+    {
+      "case_id": "history:dark-castle-visual",
+      "playbook": "owned_proof_binding",
+      "status": "unresolved",
+      "missing_bindings": [
+        "after_claim_ids",
+        "after_meaning_id",
+        "all_eight_external_action_exclusions",
+        "approval_identity_type_timestamp",
+        "approval_source_hash_and_provenance",
+        "approved_change_and_reviewed_fields",
+        "before_claim_ids",
+        "before_meaning_id",
+        "blocker_version",
+        "candidate_version",
+        "explicit_human_repair_approval",
+        "human_qa_decision_scope",
+        "phase_5a_matching_rollback",
+        "production_bound_asset"
+      ],
+      "conflicts": [],
+      "source_paths": [
+        "artifacts/human-qa/dark-castle-youtube-visual-2026-10-23/receipt.json"
+      ]
+    }
+  ],
+  "counts": {
+    "proposed_label": 0,
+    "unresolved": 7,
+    "conflicts": 0
+  },
+  "exclusions": [
+    "provider",
+    "render",
+    "upload",
+    "platform_draft",
+    "schedule",
+    "publish",
+    "external_send",
+    "approval_mutation"
+  ],
+  "limits": [
+    "A proposed label is not an approved outcome or shadow replay input.",
+    "Read-only retained evidence and synthetic tests only; no live state changes."
+  ]
+}

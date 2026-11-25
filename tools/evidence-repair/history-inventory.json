@@ -1,0 +1,48 @@
+{
+  "version": "phase-5c-task-history-inventory/v1",
+  "privacy": "References only; no private task text is copied into this package.",
+  "task_references": [
+    {
+      "thread_id": "01a21361-6010-7fa1-b3f2-84f01c8b1b52",
+      "scope": "Phase 5A playbook and retained evidence construction",
+      "message_id": "msg_0674a67322a9cf6d016b07043b4be487d2b1837e6a6c49724f",
+      "authority_class": "development_handoff_not_repair_approval"
+    },
+    {
+      "thread_id": "01a2137f-bb90-7810-bfe1-85765120b9a6",
+      "scope": "Phase 5B shadow replay and label contract",
+      "message_id": "msg_01f57ae4c219bdac016b0718211b9887d2b1db8287fc44772a",
+      "authority_class": "development_handoff_not_repair_approval"
+    },
+    {
+      "thread_id": "01a1c704-3bcc-7d63-a927-c409241c061b",
+      "scope": "Portfolio integration and Phase 5C task assignment",
+      "authority_class": "implementation_authorization_not_case_specific_repair_approval"
+    },
+    {
+      "thread_id": "01a14f66-6f36-7b91-8f53-0c82d2f9ee65",
+      "scope": "next-week campaign asset review history",
+      "message_id": "msg_0a035c17a953330b016ad50d0027f081a3b54eb1621e96b13e",
+      "authority_class": "asset_handoff_not_case_specific_repair_approval"
+    },
+    {
+      "thread_id": "01a15a29-2058-7cb1-aa97-2e7d245e8716",
+      "scope": "YouTube description evidence history",
+      "message_id": "msg_01efbf8cc4767b22016ad79af71fb88192904b9f26dc096ddc",
+      "authority_class": "evidence_handoff_not_case_specific_repair_approval"
+    },
+    {
+      "thread_id": "01a15ad7-7b79-7421-b64e-90b58acf2e5d",
+      "scope": "pre-event evidence readiness history",
+      "message_id": "msg_0cfca1088c3d6a03016ad7c6349aac819eaf5552af64f74cb6",
+      "authority_class": "implementation_handoff_not_case_specific_repair_approval"
+    },
+    {
+      "thread_id": "01a19831-2121-7d90-bce2-837b44d53c3e",
+      "scope": "Dark Castle YouTube decision receipt history",
+      "message_id": "msg_0a62358c86a548f5016ae77bdf0b10819daac2ec8b1d8267e8",
+      "authority_class": "pending_review_packets_not_case_specific_repair_approval"
+    }
+  ],
+  "search_boundary": "Retained corpus source paths; Phase 5A and 5B task histories; associated campaign, description, and Dark Castle review task histories; and the Portfolio integration task. No task text was used as an outcome label."
+}
