@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   recordAgentEvent: vi.fn(),
   endAgentRun: vi.fn(),
   update: vi.fn(),
+  getCampaignReviewBacklog: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -28,6 +29,7 @@ vi.mock('@/lib/agent-run', () => ({
   recordAgentEvent: mocks.recordAgentEvent,
   endAgentRun: mocks.endAgentRun,
 }))
+vi.mock('@/lib/campaign-review-backlog', () => ({ getCampaignReviewBacklog: mocks.getCampaignReviewBacklog }))
 
 import { buildAgentSlackNotificationPayload, sendAgentSlackNotification } from '@/lib/agent-slack-notifications'
 
@@ -95,6 +97,7 @@ describe('Agent Ops Slack notifications', () => {
     mocks.startAgentRun.mockResolvedValue({ id: 'run-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.endAgentRun.mockResolvedValue(undefined)
+    mocks.getCampaignReviewBacklog.mockResolvedValue({ rows: [{ id: 'calendar-prepare', state: 'ready', lineage: 'evidence-v1', content_version: 'content-v1', source_expires_at: '2026-11-26T00:00:00.000Z' }] })
     mocks.buildAgentMissionControlSnapshot.mockResolvedValue({
       high_signal_ai_insights: [],
     })
@@ -1122,6 +1125,7 @@ describe('Agent Ops Slack notifications', () => {
   function preparationRow() {
     return {
       id: 'calendar-prepare', title: 'Source-backed workshop lesson', channel: 'linkedin',
+      campaign_id: 'campaign-prepare',
       scheduled_for: '2026-11-30T15:00:00.000Z', due_status: 'planned', authorization_status: 'authorized',
       social_content_id: 'social-prepare', agent_work_item_id: 'work-prepare',
       social_content_queue: { id: 'social-prepare', status: 'draft' },
@@ -1236,6 +1240,17 @@ describe('Agent Ops Slack notifications', () => {
       expect((await buildAgentSlackNotificationPayload(input)).itemCount).toBe(0)
     }
   })
+  it('rejects changed live source lineage before a ready notification claim', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const fetchMock = vi.fn(); vi.stubGlobal('fetch', fetchMock)
+    const delivery = statefulDelivery(null, false, preparationRow())
+    mocks.getCampaignReviewBacklog.mockResolvedValue({ rows: [{ id: 'calendar-prepare', state: 'blocked', lineage: 'evidence-v2' }] })
+    const input = { kind: 'social_calendar_preparation' as const, calendarItemIds: ['calendar-prepare'] }
+    expect((await buildAgentSlackNotificationPayload(input)).itemCount).toBe(0)
+    await expect(sendAgentSlackNotification(input)).rejects.toThrow('No current')
+    expect(delivery.row()).toBeNull()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
 
   it('dedupes one immutable ready version and gives a changed version a new delivery identity', async () => {
     vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
@@ -1250,6 +1265,7 @@ describe('Agent Ops Slack notifications', () => {
       .toMatchObject({ sent: false, deduped: true, deliveredCalendarItemIds: ['calendar-prepare'] })
     expect(fetchMock).toHaveBeenCalledTimes(1)
     const revised = preparationRow(); revised.metadata.publish_preparation.content_version = 'content-v2'
+    mocks.getCampaignReviewBacklog.mockResolvedValue({ rows: [{ id: 'calendar-prepare', state: 'ready', lineage: 'evidence-v1', content_version: 'content-v2', source_expires_at: '2026-11-26T00:00:00.000Z' }] })
     const second = statefulDelivery(null, false, revised)
     expect(await sendAgentSlackNotification(input)).toMatchObject({ sent: true })
     expect(second.row()?.idempotency_key).not.toBe(firstKey)

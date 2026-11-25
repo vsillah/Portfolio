@@ -34,6 +34,7 @@ import {
 } from '@/lib/social-content-calendar'
 import { preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
 import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
+import { getCampaignReviewBacklog } from '@/lib/campaign-review-backlog'
 
 export type AgentSlackNotificationKind =
   | 'pending_approvals'
@@ -406,7 +407,7 @@ async function buildSocialCalendarPreparationPayload(input: AgentSlackNotificati
   if (ids.length !== 1) throw new Error('A calendar preparation notification requires exactly one calendar item.')
   if (!supabaseAdmin) throw new Error('Database not available')
   const { data, error } = await supabaseAdmin.from('social_content_calendar_items')
-    .select('id, title, channel, scheduled_for, due_status, authorization_status, social_content_id, agent_work_item_id, metadata, social_content_queue(id, status)')
+    .select('id, campaign_id, title, channel, scheduled_for, due_status, authorization_status, social_content_id, agent_work_item_id, metadata, social_content_queue(id, status)')
     .eq('id', ids[0]).maybeSingle()
   if (error) throw new Error(`Failed to read calendar preparation receipt: ${error.message}`)
   const row = data as SocialContentCalendarItem | null
@@ -427,8 +428,17 @@ async function buildSocialCalendarPreparationPayload(input: AgentSlackNotificati
     ? projectSocialCalendarPreparation(row as unknown as Record<string, unknown>, socialContentId) : null
   const readyPath = `/admin/social-content/${encodeURIComponent(socialContentId ?? '')}?step=copy`
   const jit = preparationText(metadata.jit_refresh_status).toLowerCase()
-  const ready = projection?.state === 'ready' && preparation.review_path === readyPath
+  let ready = projection?.state === 'ready' && preparation.review_path === readyPath
     && Boolean(jit) && !['stale', 'expired', 'blocked', 'failed'].includes(jit)
+  if (ready) {
+    const campaignId = preparationText((row as SocialContentCalendarItem & { campaign_id?: string }).campaign_id)
+    const current = campaignId ? await getCampaignReviewBacklog(campaignId).catch(() => null) : null
+    const live = current?.rows.find(item => item.id === row.id)
+    ready = Boolean(live && live.state === 'ready'
+      && live.lineage === preparation.source_lineage
+      && live.content_version === preparation.content_version
+      && live.source_expires_at === preparation.source_expires_at)
+  }
   const blockerReceipt = input.calendarBlockerReceipt
   const blockedAt = preparationText(preparation.blocked_at)
   const blocked = preparation.status === 'blocked'

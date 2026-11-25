@@ -32,6 +32,28 @@ import { preparationAttempt, preparationDeadline } from '@/lib/social-calendar-p
 type Row = Record<string, any> // Database JSON records are validated before preparing a packet.
 const record = parseMetadata
 const text = (v: unknown) => typeof v === 'string' ? v : ''
+// Packet rows have no expires_at column. Only an explicit, version-bound
+// receipt or an existing source-specific expiry can establish freshness.
+function sourceFreshness(row: Row | undefined) {
+  if (!row) return { expiresAt: null, status: 'missing' as const }
+  const metadata = record(row.actor_metadata)
+  const receipt = record(metadata.source_freshness_receipt)
+  const sources = metadata.source_freshness_receipt != null
+    ? [receipt.status === 'passed' && receipt.evidence_version === row.updated_at ? receipt.expires_at : null]
+    : [metadata.official_signal, metadata.topic_momentum_receipt]
+        .filter(value => value != null)
+        .map(value => record(value).expires_at)
+  if (!sources.length || sources.some(value => !value)) return { expiresAt: null, status: 'missing' as const }
+  const timestamps = sources.map(value => {
+    const candidate = text(value)
+    return /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(candidate)
+      ? Date.parse(candidate) : NaN
+  })
+  if (timestamps.some(value => !Number.isFinite(value)) || new Set(timestamps).size !== 1) {
+    return { expiresAt: null, status: 'malformed' as const }
+  }
+  return { expiresAt: new Date(timestamps[0]).toISOString(), status: 'dated' as const }
+}
 const nextVersion = (value: unknown) => new Date(Math.max(Date.now(), (Date.parse(text(value)) || 0) + 1)).toISOString()
 const hash = (v: unknown): string => createHash('sha256').update(JSON.stringify(v, (_k, x) => x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => a.localeCompare(b))) : x)).digest('hex')
 const CLAIM_LEASE_MS = 5 * 60 * 1000
@@ -541,6 +563,9 @@ function project(s: Snapshot, now: Date): ReviewProjection {
     const w = s.works.find(w => w.id === wid), wm = record(w?.metadata), insight = record(wm.insight)
     const ids = (Array.isArray(wm.research_packet_ids) ? wm.research_packet_ids.filter(id => typeof id === 'string') as string[] : []).sort()
     const evidence = ids.map(id => s.evidence.find(e => e.id === id))
+    const freshness = evidence.map(sourceFreshness)
+    const sourceExpiresAt = freshness.length && freshness.every(item => item.expiresAt)
+      ? new Date(Math.min(...freshness.map(item => Date.parse(item.expiresAt!)))).toISOString() : null
     const lanes = record(wm.channel_lanes), lane = record(lanes[c.channel]), packet = record(lane.draft_packet)
     const draft = s.drafts.find(d => d.id === c.social_content_id)
     const lineage = hash({
@@ -576,10 +601,10 @@ function project(s: Snapshot, now: Date): ReviewProjection {
     else if (!isSocialContentIntelligenceChannel(c.channel)) reason = 'This channel needs a manual Social Content review.'
     else if (!c.social_content_id || !draft) reason = 'Recover the linked Social Content draft.'
     else if (!['draft', 'approved', 'scheduled', 'published'].includes(draft.status)) reason = 'Recover the rejected Social Content draft before preparing.'
-    else if (!ids.length || evidence.some(e => !e || e.status !== 'approved' || e.pattern_status !== 'usable_framework' || !text(e.source_url) || !Number.isFinite(e.outlier_score) || !Object.keys(record(e.pattern_packet)).length || !Number.isFinite(Date.parse(text(e.expires_at))) || Date.parse(text(e.expires_at)) <= now.getTime())) {
-      const usable = evidence.filter(e => e && e.status === 'approved' && e.pattern_status === 'usable_framework' && text(e.source_url) && Number.isFinite(e.outlier_score) && Object.keys(record(e.pattern_packet)).length && Number.isFinite(Date.parse(text(e.expires_at))) && Date.parse(text(e.expires_at)) > now.getTime()).length
-      const stale = evidence.filter(e => e && e.expires_at && (!Number.isFinite(Date.parse(e.expires_at)) || Date.parse(e.expires_at) <= now.getTime())).length
-      const undated = evidence.filter(e => e && !e.expires_at).length
+    else if (!ids.length || evidence.some((e, index) => !e || e.status !== 'approved' || e.pattern_status !== 'usable_framework' || !text(e.source_url) || !Number.isFinite(e.outlier_score) || !Object.keys(record(e.pattern_packet)).length || !freshness[index].expiresAt || Date.parse(freshness[index].expiresAt) <= now.getTime())) {
+      const usable = evidence.filter((e, index) => e && e.status === 'approved' && e.pattern_status === 'usable_framework' && text(e.source_url) && Number.isFinite(e.outlier_score) && Object.keys(record(e.pattern_packet)).length && freshness[index].expiresAt && Date.parse(freshness[index].expiresAt) > now.getTime()).length
+      const stale = freshness.filter(item => item.expiresAt && Date.parse(item.expiresAt) <= now.getTime()).length
+      const undated = freshness.filter(item => item.status === 'missing' || item.status === 'malformed').length
       const unscored = evidence.filter(e => e && !Number.isFinite(e.outlier_score)).length
       reason = `Current approved, attributable, outlier-scored usable-framework research packets observed: ${usable}; required: ${Math.max(1, ids.length)}. Stale packets observed: ${stale}; required: 0. Undated freshness windows observed: ${undated}; required: 0. Unscored packets observed: ${unscored}; required: 0. Refresh or replace the linked research evidence in Social Insights.`
     }
@@ -603,7 +628,7 @@ function project(s: Snapshot, now: Date): ReviewProjection {
       if (!practitionerReceiptAttached) {
         reason = 'The prepared packet is missing its passed practitioner-quality receipt. Resolve the linked Social Content checks, then prepare it again.'
         state = 'blocked'
-      } else if (existingMatches && saved.lineage === lineage && text(saved.content_version) && Number.isFinite(Date.parse(text(saved.prepared_at))) && saved.trigger_at === due && saved.source_expires_at === (evidence.length ? new Date(Math.min(...evidence.map(item => Date.parse(text(item?.expires_at))))).toISOString() : null) && Number.isFinite(Date.parse(text(saved.source_expires_at))) && Date.parse(text(saved.source_expires_at)) > now.getTime() && saved.review_path === `/admin/social-content/${encodeURIComponent(c.social_content_id)}?step=copy`) state = 'ready'
+      } else if (existingMatches && saved.lineage === lineage && text(saved.content_version) && Number.isFinite(Date.parse(text(saved.prepared_at))) && saved.trigger_at === due && saved.source_expires_at === sourceExpiresAt && Number.isFinite(Date.parse(text(saved.source_expires_at))) && Date.parse(text(saved.source_expires_at)) > now.getTime() && saved.review_path === `/admin/social-content/${encodeURIComponent(c.social_content_id)}?step=copy`) state = 'ready'
       else { reason = 'The prepared packet lacks a current version, trigger, or exact calendar binding. Recheck the source and revise it in the existing review panel.'; state = 'blocked' }
     }
     if (reason.startsWith('The prepared packet is missing its passed practitioner-quality receipt.') && c.social_content_id) {
@@ -632,8 +657,7 @@ function project(s: Snapshot, now: Date): ReviewProjection {
       social_content_id: c.social_content_id,
       evidence_ids: ids,
       lineage,
-      source_expires_at: evidence.length && evidence.every(item => item && Number.isFinite(Date.parse(text(item.expires_at))))
-        ? new Date(Math.min(...evidence.map(item => Date.parse(text(item?.expires_at))))).toISOString() : null,
+      source_expires_at: sourceExpiresAt,
       prepared_window: text(saved.window) || null,
       content_version: text(saved.content_version) || null,
     })

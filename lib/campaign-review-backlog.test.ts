@@ -41,7 +41,7 @@ function approvedPractitionerPattern() {
 }
 function seed(count = 12) {
   db.writes = []; db.fail = false; db.race = false
-  db.tables = { attraction_campaigns: [{ id: 'campaign', name: 'Synthetic campaign', status: 'active' }], social_content_calendar_items: [], agent_work_items: [], social_content_queue: [], social_content_research_packets: [{ id: 'evidence', title: 'Approved synthetic practitioner source', updated_at: '2026-10-04T12:00:00Z', expires_at: '2026-10-31T00:00:00Z', status: 'approved', pattern_status: 'usable_framework', outlier_score: 80, source_url: 'https://example.test/research', privacy_notes: 'Synthetic anonymized operator evidence approved for public-use testing.', pattern_packet: approvedPractitionerPattern() }] }
+  db.tables = { attraction_campaigns: [{ id: 'campaign', name: 'Synthetic campaign', status: 'active' }], social_content_calendar_items: [], agent_work_items: [], social_content_queue: [], social_content_research_packets: [{ id: 'evidence', title: 'Approved synthetic practitioner source', updated_at: '2026-10-04T12:00:00Z', actor_metadata: { source_freshness_receipt: { status: 'passed', evidence_version: '2026-10-04T12:00:00Z', expires_at: '2026-10-31T00:00:00Z' } }, status: 'approved', pattern_status: 'usable_framework', outlier_score: 80, source_url: 'https://example.test/research', privacy_notes: 'Synthetic anonymized operator evidence approved for public-use testing.', pattern_packet: approvedPractitionerPattern() }] }
   for (let i = 0; i < count; i++) {
     const c = { id: `calendar-${i}`, campaign_id: 'campaign', title: `Review ${i}`, channel: 'linkedin', campaign_phase: 'teach', social_content_id: `draft-${i}`, authorization_status: 'authorized', due_status: 'planned', scheduled_for: '2026-10-10T12:00:00Z', updated_at: 'v1', metadata: { platform_draft_handoff: { work_item_id: `work-${i}` } } }
     db.tables.social_content_calendar_items.push(c)
@@ -111,10 +111,38 @@ describe('campaign rolling review persistence', () => {
   })
   it('requires a future declared source expiry at the exact freshness boundary', async () => {
     seed(1)
-    db.tables.social_content_research_packets[0].expires_at = now.toISOString()
+    db.tables.social_content_research_packets[0].actor_metadata.source_freshness_receipt.expires_at = now.toISOString()
     expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'blocked' })
-    db.tables.social_content_research_packets[0].expires_at = new Date(now.getTime() + 1).toISOString()
+    db.tables.social_content_research_packets[0].actor_metadata.source_freshness_receipt.expires_at = new Date(now.getTime() + 1).toISOString()
     expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'eligible' })
+  })
+  it('uses the production packet schema and rejects an unbound, malformed, or changed receipt', async () => {
+    seed(1)
+    const source = db.tables.social_content_research_packets[0]
+    expect(source).not.toHaveProperty('expires_at')
+    source.expires_at = '2099-01-01T00:00:00Z' // A mock-only column must not authorize preparation.
+    source.actor_metadata.source_freshness_receipt.evidence_version = 'older-version'
+    expect((await prepareCampaignReviewBatch('campaign', { now })).prepared_count).toBe(0)
+    source.actor_metadata.source_freshness_receipt.evidence_version = source.updated_at
+    source.actor_metadata.source_freshness_receipt.expires_at = 'tomorrow'
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'blocked' })
+    source.actor_metadata.source_freshness_receipt.expires_at = '2026-10-31T00:00:00Z'
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'eligible' })
+    source.updated_at = '2026-10-04T13:00:00Z'
+    expect((await prepareCampaignReviewBatch('campaign', { now })).prepared_count).toBe(0)
+  })
+  it('uses only matching source-specific metadata expiry and rejects ambiguous dates', async () => {
+    seed(1)
+    const source = db.tables.social_content_research_packets[0]
+    delete source.actor_metadata.source_freshness_receipt
+    source.actor_metadata.official_signal = { expires_at: '2026-10-31T00:00:00Z' }
+    source.actor_metadata.topic_momentum_receipt = { expires_at: '2026-10-31T00:00:00.000Z' }
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'eligible' })
+    source.actor_metadata.topic_momentum_receipt.expires_at = '2026-11-01T00:00:00Z'
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'blocked' })
+    delete source.actor_metadata.topic_momentum_receipt
+    delete source.actor_metadata.official_signal
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0]).toMatchObject({ state: 'blocked' })
   })
   it('preserves canonical copy, records one blocked recovery, then replays one versioned ready receipt', async () => {
     seed(1)
@@ -216,11 +244,11 @@ describe('campaign rolling review persistence', () => {
     expect(db.writes).toEqual([])
   })
   it('blocks expired, missing, or unusable evidence and unauthorized lineage', async () => {
-    db.tables.social_content_research_packets[0].expires_at = '2026-10-01T00:00:00Z'
+    db.tables.social_content_research_packets[0].actor_metadata.source_freshness_receipt.expires_at = '2026-10-01T00:00:00Z'
     expect((await getCampaignReviewBacklog('campaign', now)).blocked).toBe(12)
-    delete db.tables.social_content_research_packets[0].expires_at
+    delete db.tables.social_content_research_packets[0].actor_metadata.source_freshness_receipt.expires_at
     expect((await getCampaignReviewBacklog('campaign', now)).rows[0].reason).toContain('Undated freshness windows observed: 1; required: 0')
-    db.tables.social_content_research_packets[0].expires_at = '2026-10-31T00:00:00Z'
+    db.tables.social_content_research_packets[0].actor_metadata.source_freshness_receipt.expires_at = '2026-10-31T00:00:00Z'
     db.tables.social_content_calendar_items[0].authorization_status = 'pending'
     db.tables.agent_work_items[1].metadata.campaign_id = 'other'
     db.tables.agent_work_items[2].metadata.research_packet_ids = ['missing']

@@ -1,0 +1,9 @@
+# Release Calendar source freshness
+
+`social_content_research_packets` has no top-level `expires_at` column in either Portfolio database. The Release Calendar reads expiry from the packet's `actor_metadata` JSON and binds the complete packet row into its existing lineage hash. This is a code-only contract; no migration or backfill is required.
+
+The canonical explicit receipt is `actor_metadata.source_freshness_receipt` with `status: "passed"`, `evidence_version` equal to the packet's current `updated_at`, and an independently evidenced `expires_at` timestamp with a timezone. A receipt for an older packet version cannot authorize preparation. Only the source owner may add a receipt after verifying the source's real freshness window; the code does not derive expiry from retrieval, review, or modification times.
+
+For existing public-signal packets without that explicit receipt, `actor_metadata.official_signal.expires_at` and `actor_metadata.topic_momentum_receipt.expires_at` are authoritative source-specific windows. If both are present, they must represent the same instant. An explicit receipt takes precedence when present; a missing, malformed, stale, version-mismatched, or conflicting expiry blocks preparation. Practitioner packets without a declared source window remain blocked until their source owner records one from evidence. A top-level mock or legacy `expires_at` is ignored.
+
+The earliest expiry across all linked packets is copied to the prepared review receipt. The packet row, including its metadata and expiry, participates in the lineage hash. The due gate and Slack candidate checks must re-read the current lineage and reject a stale or changed preparation before a notification claim. No source refresh, external action, or notification is performed by this contract change.
