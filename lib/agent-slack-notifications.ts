@@ -49,6 +49,11 @@ export type AgentSlackNotificationKind =
   | 'standup_blockers'
   | 'selected_agent_question'
 
+export type CalendarPreparationBlockerReceipt = {
+  blockedAt: string
+  evidenceVersion: string
+}
+
 export type AgentSlackNotificationInput = {
   kind: AgentSlackNotificationKind
   message?: string
@@ -60,6 +65,7 @@ export type AgentSlackNotificationInput = {
   actorLabel?: string | null
   triggerSource?: string | null
   calendarItemIds?: string[]
+  calendarBlockerReceipt?: CalendarPreparationBlockerReceipt
 }
 
 export type AgentSlackNotificationResult = {
@@ -423,8 +429,14 @@ async function buildSocialCalendarPreparationPayload(input: AgentSlackNotificati
   const jit = preparationText(metadata.jit_refresh_status).toLowerCase()
   const ready = projection?.state === 'ready' && preparation.review_path === readyPath
     && Boolean(jit) && !['stale', 'expired', 'blocked', 'failed'].includes(jit)
+  const blockerReceipt = input.calendarBlockerReceipt
+  const blockedAt = preparationText(preparation.blocked_at)
   const blocked = preparation.status === 'blocked'
     && Boolean(preparationText(preparation.blocker) && preparationText(preparation.evidence_version))
+    && Boolean(blockerReceipt && blockedAt && Number.isFinite(Date.parse(blockedAt))
+      && Date.parse(blockedAt) <= Date.now()
+      && blockedAt === blockerReceipt.blockedAt
+      && preparation.evidence_version === blockerReceipt.evidenceVersion)
   if (!ready && !blocked) return empty
   const version = ready ? preparationText(preparation.content_version) : preparationText(preparation.evidence_version)
   const state = ready ? 'ready' : 'blocked'
@@ -1242,6 +1254,9 @@ export async function sendAgentSlackNotification(input: AgentSlackNotificationIn
   if (!supabaseAdmin) throw new Error('Database not available')
   const payload = await buildAgentSlackNotificationPayload(input)
   if (payload.visibilityError) throw new Error(payload.visibilityError)
+  if (input.kind === 'social_calendar_preparation' && payload.itemCount !== 1) {
+    throw new Error('No current calendar preparation receipt needs notification.')
+  }
   if (input.kind === 'social_calendar_preparation' && input.dedupeKey
     && (!('dedupeKey' in payload) || payload.dedupeKey !== input.dedupeKey)) {
     throw new Error('Calendar preparation receipt changed before Slack delivery; recheck the current version.')

@@ -4,6 +4,7 @@ import {
   sendAgentSlackNotification,
   type AgentSlackNotificationKind,
   type AgentSlackNotificationResult,
+  type CalendarPreparationBlockerReceipt,
 } from '@/lib/agent-slack-notifications'
 
 export type ProactiveSlackNotificationKind = Extract<
@@ -39,6 +40,7 @@ export type AgentSlackNotificationSweepInput = {
   force?: boolean
   actorLabel?: string | null
   calendarItemIds?: string[]
+  calendarBlockerReceipt?: CalendarPreparationBlockerReceipt
   triggerSource?: string | null
 }
 
@@ -208,6 +210,7 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
         kind: rule.kind,
         goalId: input.goalId ?? null,
         calendarItemIds: input.calendarItemIds,
+        calendarBlockerReceipt: input.calendarBlockerReceipt,
       })
 
       if (payload.visibilityError) throw new Error(payload.visibilityError)
@@ -254,6 +257,7 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
         kind: rule.kind,
         goalId: input.goalId ?? null,
         calendarItemIds: input.calendarItemIds,
+        calendarBlockerReceipt: input.calendarBlockerReceipt,
         force: input.force,
         actorLabel: input.actorLabel ?? 'Agent Ops notification sweep',
         triggerSource: input.triggerSource ?? 'cron_agent_ops_slack_notifications',

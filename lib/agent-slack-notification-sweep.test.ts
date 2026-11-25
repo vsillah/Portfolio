@@ -302,13 +302,16 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     mocks.sendAgentSlackNotification.mockResolvedValue({ ok: true, runId: 'run-preparation', sent: true,
       skipped: false, deduped: false, itemCount: 1, text: 'One versioned calendar packet is ready',
       deliveredCalendarItemIds: ['calendar-1'], slackChannel: 'CQA', slackMessageTs: '1.001' })
-    const result = await runAgentSlackNotificationSweep({ mode: 'immediate', kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-1'] })
+    const calendarBlockerReceipt = { blockedAt: '2026-11-25T12:00:00.000Z', evidenceVersion: 'evidence-v1' }
+    const result = await runAgentSlackNotificationSweep({ mode: 'immediate', kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-1'], calendarBlockerReceipt })
     expect(result).toMatchObject({ totalRules: 1, sentCount: 1, results: [expect.objectContaining({
       receiptKey: 'social_calendar_preparation:calendar-1:ready:content-v1',
       deliveredCalendarItemIds: ['calendar-1'],
     })] })
+    expect(mocks.buildAgentSlackNotificationPayload).toHaveBeenCalledWith(expect.objectContaining({ calendarBlockerReceipt }))
     expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
       kind: 'social_calendar_preparation', calendarItemIds: ['calendar-1'],
+      calendarBlockerReceipt,
       dedupeKey: 'social_calendar_preparation:calendar-1:ready:content-v1',
     }))
   })
