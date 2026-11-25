@@ -1438,7 +1438,7 @@ function ContentIntelligenceContent() {
   }, [calendarItems, campaigns])
 
   const automationQueue = useMemo(() => rankReleaseAutomation(calendarItems), [calendarItems])
-  const calendarExternalFlagged = automationQueue.some(({ projection }) => projection.blocker?.startsWith('External execution flag'))
+  const calendarExternalFlagged = calendarItems.some(item => projectReleaseAutomation(item).blocker?.startsWith('External execution flag'))
 
   const filteredCalendarItems = useMemo(() => {
     const search = normalizeSearch(calendarContentSearch)
@@ -2401,7 +2401,7 @@ function ContentIntelligenceContent() {
                   </li>
                 ))}
               </ol>
-            ) : <p className="mt-3 text-xs text-muted-foreground">No release rows loaded. Refresh the calendar to inspect preparation.</p>}
+            ) : <p className="mt-3 text-xs text-muted-foreground">No preparation priorities. Historical release rows remain in the calendar below.</p>}
           </section>
 
           <CollapsiblePanel

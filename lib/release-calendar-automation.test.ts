@@ -103,4 +103,27 @@ describe('release calendar automation projection', () => {
     expect(rankReleaseAutomation(freshnessRows, now).map(({ row }) => row.id)).toEqual(['stale', 'unknown', 'fresh'])
     expect(projectReleaseAutomation(freshnessRows[1], now).freshness).toContain('unknown')
   })
+
+  it('excludes finished, published, and explicitly superseded rows from preparation priorities only', () => {
+    const rows = [
+      row('valid-ready', { metadata: { jit_refresh_status: 'fresh', publish_preparation: receipt } }),
+      row('completed', { due_status: 'completed' }),
+      row('cancelled', { due_status: 'cancelled' }),
+      row('published', { social_content_queue: { status: 'published' }, metadata: {} }),
+      row('published-legacy', { social_content_queue: null, metadata: { social_content_lifecycle: { social_content_status: 'published' } } }),
+      row('superseded-at', { metadata: { superseded_at: '2026-08-05T13:04:19.286Z' } }),
+      row('superseded-packet', { metadata: { superseded_by_agentified_packet: true } }),
+      row('valid-blocked', { metadata: { publish_preparation: { status: 'blocked', blocker: 'Recover source' } } }),
+      row('valid-eligible'),
+      row('valid-preparing', { agent_work_items: { preparation_claim: { status: 'preparing', claimed_at: '2026-11-24T14:58:00.000Z' } } }),
+      row('valid-planned', { scheduled_for: '2026-12-10T15:00:00.000Z' }),
+    ]
+    const before = JSON.stringify(rows)
+
+    expect(rankReleaseAutomation(rows, now).map(({ row }) => row.id)).toEqual([
+      'valid-ready', 'valid-blocked', 'valid-eligible', 'valid-preparing', 'valid-planned',
+    ])
+    expect(rows).toHaveLength(11)
+    expect(JSON.stringify(rows)).toBe(before)
+  })
 })

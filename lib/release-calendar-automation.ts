@@ -131,7 +131,17 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
 }
 
 export function rankReleaseAutomation<T extends ReleaseAutomationRow>(rows: T[], now: Date = new Date()) {
-  return rows.map(row => ({ row, projection: projectReleaseAutomation(row, now) }))
+  return rows.filter(row => {
+    const metadata = record(row.metadata)
+    const lifecycle = record(metadata.social_content_lifecycle)
+    const lifecyclePublished = string(lifecycle.social_content_status)?.toLowerCase() === 'published'
+      || string(record(lifecycle.published).status)?.toLowerCase() === 'published'
+    return !['completed', 'cancelled'].includes(row.due_status.toLowerCase())
+      && row.social_content_queue?.status?.toLowerCase() !== 'published'
+      && !lifecyclePublished
+      && metadata.superseded_by_agentified_packet !== true
+      && !string(metadata.superseded_at)
+  }).map(row => ({ row, projection: projectReleaseAutomation(row, now) }))
     .sort((a, b) => a.projection.stateRank - b.projection.stateRank
       || a.projection.priorityRank - b.projection.priorityRank
       || a.projection.jitRank - b.projection.jitRank
