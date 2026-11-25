@@ -353,6 +353,9 @@ describe('ContentIntelligencePage', () => {
                   campaign_id: index < 36 ? 'campaign-1' : null,
                   attraction_campaigns: index < 36 ? persisted[0].attraction_campaigns : null,
                   scheduled_for: new Date(Date.UTC(2026, 0, 1 + index)).toISOString(),
+                  due_status: index === 0 ? 'completed' : index === 1 ? 'cancelled' : 'planned',
+                  social_content_queue: index === 2 ? { id: 'social-1', status: 'published' } : persisted[0].social_content_queue,
+                  metadata: index === 3 ? { superseded_at: '2026-08-05T13:04:19.286Z', superseded_by_agentified_packet: true } : persisted[0].metadata,
                 } as typeof persisted[number])
               }
               for (let index = 0; index < 6; index += 1) {
@@ -1319,6 +1322,10 @@ describe('ContentIntelligencePage', () => {
     render(<ContentIntelligencePage />)
 
     await screen.findByText(/Showing 1-8 of 100 release rows/)
+    const priorities = screen.getByRole('list', { name: 'Next preparation priorities' })
+    for (const title of ['Published LinkedIn learning window', 'Synthetic release 1', 'Synthetic release 2', 'Synthetic release 3', 'Synthetic release 4']) {
+      expect(within(priorities).queryByText(`Next: ${title}`)).not.toBeInTheDocument()
+    }
     expect(vi.mocked(fetch).mock.calls.filter(([input]) => String(input).startsWith('/api/admin/social-content/calendar?'))
       .map(([input]) => new URL(String(input), 'http://localhost').searchParams.get('offset')))
       .toEqual(['0', '40', '80'])
@@ -1327,6 +1334,10 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText(/Showing 1-1 of 1 release row/)).toBeInTheDocument()
     const lateRow = screen.getByLabelText('Calendar row Synthetic release 85')
     expect(within(lateRow).getByRole('link', { name: 'Details' })).toHaveAttribute('href', '/admin/social-content/social-1?step=copy#social-copy-gate')
+
+    fireEvent.change(screen.getByLabelText('Content title'), { target: { value: 'Published LinkedIn learning window' } })
+    expect(screen.getByText(/Showing 1-1 of 1 release row/)).toBeInTheDocument()
+    expect(screen.getByLabelText('Calendar row Published LinkedIn learning window')).toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText('Content title'), { target: { value: '' } })
     fireEvent.change(screen.getByLabelText('Campaign'), { target: { value: 'campaign-1' } })

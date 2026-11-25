@@ -1,0 +1,24 @@
+{
+  "commit": "a22b63d72c2bee2292e260fcad464539a43f1635",
+  "route": "/admin/agents/content-intelligence?section=calendar&rev=a22b63d72c2bee2292e260fcad464539a43f1635",
+  "fixture": "synthetic read-only",
+  "persisted_rows": 90,
+  "draft_rows": 10,
+  "side_effects": {
+    "provider_generation": false,
+    "upload": false,
+    "schedule": false,
+    "publish": false,
+    "send": false
+  },
+  "lane_widths": {
+    "desktop": 924,
+    "mid": 744,
+    "mobile": 322
+  },
+  "viewports": [
+    "1280x800",
+    "820x900",
+    "390x844"
+  ]
+}
