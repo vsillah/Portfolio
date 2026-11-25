@@ -24,6 +24,31 @@ function statusForRpcError(message: string) {
   return 500
 }
 
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
+}
+
+function shadowEnvironment(mode: unknown): boolean {
+  if (process.env.VERCEL_ENV === 'production' || process.env.APP_ENV === 'production') return false
+  if (mode === 'synthetic_local') return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+  return mode === 'staging_shadow' && process.env.VERCEL_ENV === 'preview' && process.env.APP_ENV === 'staging'
+}
+
+function syntheticBytes(value: unknown): (path: string) => Buffer {
+  if (!Array.isArray(value) || value.length < 1 || value.length > 32) throw new Error('invalid synthetic byte set')
+  const bytes = new Map<string, Buffer>()
+  for (const entry of value) {
+    const row = record(entry)
+    if (typeof row?.path !== 'string' || !row.path.startsWith('artifacts/synthetic/') || row.path.split('/').includes('..') || typeof row.base64 !== 'string' || row.base64.length > 1_400_000 || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(row.base64) || bytes.has(row.path)) throw new Error('invalid synthetic source')
+    bytes.set(row.path, Buffer.from(row.base64, 'base64'))
+  }
+  return (path) => {
+    const source = bytes.get(path)
+    if (!source) throw new Error('synthetic source unavailable')
+    return source
+  }
+}
+
 /**
  * POST /api/admin/social-content/:id/decision
  *
@@ -126,6 +151,52 @@ export async function POST(
     return NextResponse.json({ error: 'Decision recorded but content refresh failed', receipt }, { status: 500 })
   }
 
+  // The existing decision has already succeeded. This optional read-only
+  // projection is available solely for explicit synthetic local/staging QA.
+  // It never alters the canonical decision response in production.
+  let shadowReview: Record<string, unknown> | null = null
+  const shadow = record(body.evidence_repair_shadow)
+  const humanQa = record(shadow?.human_qa)
+  const fixture = record(shadow?.fixture)
+  const shadowInput = record(fixture?.input)
+  const candidate = record(shadowInput?.candidate)
+  const binding = record(shadow?.binding)
+  const artifact = record(binding?.artifact)
+  const authority = record(binding?.authority)
+  const approvalSource = record(authority?.source)
+  const qaFixture = record(record(item.rag_context)?.qa_fixture)
+  const decisionReceipt = record(receipt)
+  if (
+    shadow && shadowEnvironment(shadow.mode)
+    && qaFixture?.kind === 'evidence_repair_shadow' && qaFixture.synthetic === true
+    && shadow.data_class === 'synthetic' && fixture?.synthetic === true
+    && typeof fixture.case_id === 'string' && fixture.case_id.startsWith('synthetic:')
+    && candidate?.id === params.id && fixture.candidate_version === packet.content_updated_at
+    && artifact?.version === packet.content_updated_at
+    && body.decision === 'approve' && decisionReceipt?.external_execution === false
+    && humanQa?.decision === 'passed' && humanQa.reviewer_id === auth.user.id
+    && humanQa.case_id === fixture.case_id && humanQa.candidate_version === fixture.candidate_version
+    && humanQa.blocker_version === fixture.blocker_version
+    && humanQa.work_item_id === packet.work_item_id && humanQa.stage_receipt_id === decisionReceipt.id
+    && humanQa.reviewer_id === authority?.reviewer_id && humanQa.approved_at === authority?.approved_at
+    && humanQa.approval_source_path === approvalSource?.path && humanQa.approval_source_sha256 === approvalSource?.sha256
+  ) {
+    try {
+      const { evaluateShadowWorkflowBinding } = await import('@/tools/evidence-repair/shadow-workflow-binding.mjs')
+      const readSource = syntheticBytes(shadow.source_bytes)
+      shadowReview = evaluateShadowWorkflowBinding({
+        mode: shadow.mode,
+        data_class: shadow.data_class,
+        fixture: shadow.fixture,
+        human_qa: shadow.human_qa,
+        binding: shadow.binding,
+        workflow: { packet, result: { ok: true, decision: body.decision, receipt, item: updatedItem, external_execution: false } },
+      }, [], readSource)
+    } catch {
+      shadowReview = { schema_version: 'evidence-repair-shadow-workflow-review/v1', status: 'blocked', reason: 'synthetic_shadow_input_invalid', receipt_sha256: null, receipt_candidate: null, reconciliation: 'ineligible', label_promoted: false, workflow_mutated: false, external_actions_enabled: false }
+    }
+  }
+
   return NextResponse.json({
     ok: true,
     decision: body.decision,
@@ -134,5 +205,6 @@ export async function POST(
     next_internal_gate: body.decision === 'approve' ? packet.next_gate : 'copy_revision',
     external_execution: false,
     canonical_command: commandName,
+    ...(shadowReview ? { evidence_repair_shadow_review: shadowReview } : {}),
   })
 }
