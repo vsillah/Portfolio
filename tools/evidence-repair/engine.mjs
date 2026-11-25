@@ -14,7 +14,18 @@ export function proposeRepair(input) {
   if (!finiteTime(now) || !nonempty(blocker?.type) || blocker.type !== playbook || !nonempty(blocker?.version)) return blocked(id, 'untyped_or_unversioned_blocker')
   if (!nonempty(candidate?.id) || !nonempty(candidate?.meaning_id) || !Array.isArray(candidate?.claim_ids) || !candidate.claim_ids.length || !nonempty(candidate?.version)) return blocked(id, 'incomplete_candidate')
   if (!Array.isArray(evidence) || !evidence.length) return blocked(id, 'missing_evidence')
-  const required = PLAYBOOKS[playbook].required_receipts
+  const contract = PLAYBOOKS[playbook]
+  const required = contract.required_receipts
+  const accepted = new Set(contract.accepted_receipt_kinds)
+  const seenIds = new Set()
+  const seenKinds = new Set()
+  for (const item of evidence) {
+    if (!accepted.has(item?.kind)) return blocked(id, 'unexpected_receipt_kind')
+    if (seenIds.has(item.id)) return blocked(id, 'duplicate_receipt_id')
+    if (contract.receipt_multiplicity === 'one_per_kind' && seenKinds.has(item.kind)) return blocked(id, 'duplicate_receipt_kind')
+    seenIds.add(item.id)
+    seenKinds.add(item.kind)
+  }
   for (const kind of required) if (!evidence.some((item) => item.kind === kind)) return blocked(id, `missing_${kind}_receipt`)
   for (const item of evidence) {
     if (!nonempty(item.id) || !nonempty(item.kind) || !nonempty(item.source_path) || !nonempty(item.version) || !nonempty(item.content) || !validHash(item.sha256) || `sha256:${digest(item.content)}` !== item.sha256) return blocked(id, 'invalid_provenance_or_hash')

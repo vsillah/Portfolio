@@ -16,7 +16,9 @@ for (const id of PLAYBOOK_IDS) {
     assert.equal(result.proposal.rollback.candidate_version, before.version)
     assert.match(result.proposal.rollback.previous_state_hash, /^sha256:[a-f0-9]{64}$/)
     assert.deepEqual(input.candidate, before)
-    assert.ok(PLAYBOOKS[id].allowed_evidence.length)
+    assert.deepEqual(PLAYBOOKS[id].accepted_receipt_kinds, Object.keys(PLAYBOOKS[id].allowed_evidence))
+    assert.deepEqual(PLAYBOOKS[id].required_receipts, PLAYBOOKS[id].accepted_receipt_kinds)
+    assert.equal(PLAYBOOKS[id].receipt_multiplicity, 'one_per_kind')
     assert.ok(PLAYBOOKS[id].required_receipts.length)
     assert.ok(PLAYBOOKS[id].human_qa)
   })
@@ -45,6 +47,31 @@ test('hashed receipt binds clearance and proposed facts', () => {
   forged.change.primary_source = false
   assert.equal(proposeRepair(forged).reason, 'unattested_change')
 })
+
+for (const id of ['freshness_renewal', 'owned_proof_binding', 'candidate_substitution']) {
+  test(`${id}: unexpected receipt kind cannot attest a change`, () => {
+    const input = syntheticCase(id)
+    const extra = structuredClone(input.evidence[0])
+    extra.id = `${id}:unexpected`
+    extra.kind = 'outside_contract'
+    input.evidence.push(extra)
+    assert.equal(proposeRepair(input).reason, 'unexpected_receipt_kind')
+  })
+  test(`${id}: duplicate receipt ID fails closed`, () => {
+    const input = syntheticCase(id)
+    const extra = structuredClone(input.evidence[0])
+    extra.kind = input.evidence[1].kind
+    input.evidence.push(extra)
+    assert.equal(proposeRepair(input).reason, 'duplicate_receipt_id')
+  })
+  test(`${id}: duplicate receipt kind with distinct ID fails closed`, () => {
+    const input = syntheticCase(id)
+    const extra = structuredClone(input.evidence[0])
+    extra.id = `${id}:second-${extra.kind}`
+    input.evidence.push(extra)
+    assert.equal(proposeRepair(input).reason, 'duplicate_receipt_kind')
+  })
+}
 
 test('specific semantic gates reject unqualified changes', () => {
   for (const id of PLAYBOOK_IDS) {
