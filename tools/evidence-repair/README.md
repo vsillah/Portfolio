@@ -31,3 +31,9 @@ The retained corpus has no such chain. All seven insufficient-label cases remain
 ## Phase 5D decision receipt capture
 
 `decision-receipt.mjs` and `decision-receipt.schema.json` define a review-only, case-specific receipt builder, verifier, exclusive-create local archive, and reconciliation eligibility check. See `decision-receipt-contract.md` for the bound fields, approval-source requirement, limitations, validation, and rollback. This package does not insert historical labels, connect to live Human QA, or enable external actions.
+
+## Phase 5E synthetic shadow workflow binding
+
+`shadow-workflow-binding.mjs` accepts a read-only projection of the existing Social Content decision packet and `/api/admin/social-content/[id]/decision` result, plus a separate explicit, case-specific Human QA decision and the Phase 5D bindings. A generic stage approval is insufficient. The adapter verifies the packet's content identity and version, the route receipt and next item binding, the Human QA case and approval-source digest, and synthetic-only mode and paths. It then calls the unchanged Phase 5D constructor and verifier. No live route invokes this adapter; operators can evaluate synthetic local or staging shadow fixtures without changing approval state or workflow records.
+
+The deterministic return value reports `captured`, `exact_replay`, `blocked`, or `ineligible` with a reason code and receipt digest. It omits source text and always reports `label_promoted: false`, `workflow_mutated: false`, and `external_actions_enabled: false`. It does not write an archive or outcome label. Conflicting replay and changed bytes fail closed. Staging use requires synthetic data and a caller-provided read-only byte resolver; it does not grant production access or external execution. Run `node --test tools/evidence-repair/*.test.mjs` for focused regression coverage.
