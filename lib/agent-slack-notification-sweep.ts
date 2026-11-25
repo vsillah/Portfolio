@@ -14,6 +14,7 @@ export type ProactiveSlackNotificationKind = Extract<
   | 'review_ready'
   | 'goal_decisions'
   | 'social_calendar_approval_due'
+  | 'social_calendar_preparation'
   | 'social_publish_gate_due'
   | 'social_comment_attention_due'
 >
@@ -56,6 +57,7 @@ export type AgentSlackNotificationSweepRuleResult = {
   slackChannel?: string | null
   slackMessageTs?: string | null
   runId?: string
+  receiptKey?: string
   text: string
   reason?: string
   error?: string
@@ -117,6 +119,15 @@ export const PROACTIVE_SLACK_NOTIFICATION_RULES: ProactiveSlackNotificationRule[
     dedupeWindowHours: 6,
   },
   {
+    kind: 'social_calendar_preparation',
+    label: 'Content calendar preparation',
+    description: 'Receipt-backed Human QA packets and actionable preparation blockers on the canonical calendar.',
+    triggerModes: ['immediate'],
+    priority: 'high',
+    minimumItemCount: 1,
+    dedupeWindowHours: 0,
+  },
+  {
     kind: 'social_publish_gate_due',
     label: 'Scheduled content publish gates',
     description: 'Near-due Social Content rows whose final publishing gate, assets, privacy, or provider readiness would block the scheduled publish.',
@@ -140,7 +151,9 @@ function selectedRules(kinds?: ProactiveSlackNotificationKind[], mode: Proactive
   const modeFilteredRules = mode === 'all'
     ? PROACTIVE_SLACK_NOTIFICATION_RULES
     : PROACTIVE_SLACK_NOTIFICATION_RULES.filter((rule) => rule.triggerModes.includes(mode))
-  if (!kinds?.length) return modeFilteredRules
+  // Calendar preparation requires an explicit item ID. Never include it in a
+  // generic immediate/all sweep with no receipt binding.
+  if (!kinds?.length) return modeFilteredRules.filter(rule => rule.kind !== 'social_calendar_preparation')
   const allowed = new Set(kinds)
   return modeFilteredRules.filter((rule) => allowed.has(rule.kind))
 }
@@ -161,6 +174,7 @@ function sweepResultFromNotification(
   rule: ProactiveSlackNotificationRule,
   notification: AgentSlackNotificationResult,
   mode: ProactiveSlackNotificationMode,
+  receiptKey: string,
 ): AgentSlackNotificationSweepRuleResult {
   return {
     kind: rule.kind,
@@ -174,6 +188,7 @@ function sweepResultFromNotification(
     priority: rule.priority,
     triggerModes: rule.triggerModes,
     runId: notification.runId,
+    receiptKey,
     text: notification.text,
     reason: notification.reason,
     error: notification.ok ? undefined : notification.reason || 'Slack notification was not delivered.',
@@ -229,6 +244,7 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
           priority: rule.priority,
           triggerModes: rule.triggerModes,
           text: payload.text,
+          receiptKey: dedupeKey,
           reason: 'Dry run only.',
         })
         continue
@@ -244,7 +260,7 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
         dedupeKey,
         dedupeWindowHours: rule.dedupeWindowHours,
       })
-      results.push(sweepResultFromNotification(rule, notification, mode))
+      results.push(sweepResultFromNotification(rule, notification, mode, dedupeKey))
     } catch (error) {
       results.push({
         kind: rule.kind,

@@ -292,6 +292,27 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     }))
   })
 
+  it('dispatches calendar preparation only when explicitly bound to one receipt', async () => {
+    mocks.buildAgentSlackNotificationPayload.mockResolvedValue({
+      text: 'One versioned calendar packet is ready',
+      blocks: [{ type: 'section', text: { type: 'mrkdwn', text: 'Open review' } }],
+      itemCount: 1,
+      dedupeKey: 'social_calendar_preparation:calendar-1:ready:content-v1',
+    })
+    mocks.sendAgentSlackNotification.mockResolvedValue({ ok: true, runId: 'run-preparation', sent: true,
+      skipped: false, deduped: false, itemCount: 1, text: 'One versioned calendar packet is ready',
+      deliveredCalendarItemIds: ['calendar-1'], slackChannel: 'CQA', slackMessageTs: '1.001' })
+    const result = await runAgentSlackNotificationSweep({ mode: 'immediate', kinds: ['social_calendar_preparation'], calendarItemIds: ['calendar-1'] })
+    expect(result).toMatchObject({ totalRules: 1, sentCount: 1, results: [expect.objectContaining({
+      receiptKey: 'social_calendar_preparation:calendar-1:ready:content-v1',
+      deliveredCalendarItemIds: ['calendar-1'],
+    })] })
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({
+      kind: 'social_calendar_preparation', calendarItemIds: ['calendar-1'],
+      dedupeKey: 'social_calendar_preparation:calendar-1:ready:content-v1',
+    }))
+  })
+
   it('sends social comment attention packets with one-hour dedupe metadata', async () => {
     mocks.buildAgentSlackNotificationPayload.mockResolvedValue({
       text: '1 Social Content comment needs attention',

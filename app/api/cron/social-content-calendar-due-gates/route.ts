@@ -40,6 +40,7 @@ const CALENDAR_LOOKBACK_HOURS = 30 * 24
 const CALENDAR_SCAN_PAGE_SIZE = 50
 const CALENDAR_MAX_SCAN_ROWS = 250
 const CALENDAR_MAX_CANDIDATES = 50
+const CALENDAR_NOTIFICATION_BATCH_SIZE = 20
 
 type AuthorizationCandidate = {
   item: SocialContentCalendarItem
@@ -80,6 +81,61 @@ function isDryRun(request: NextRequest, body: Record<string, unknown>) {
   return searchParams.get('dry_run') === '1'
     || searchParams.get('dry_run') === 'true'
     || body.dry_run === true
+}
+
+function notificationIds(rows: Array<{ id: string; state: string; trigger_at: string }>, now: Date) {
+  return [...new Set(rows.filter(row => ['ready', 'blocked'].includes(row.state)
+    && Date.parse(row.trigger_at) <= now.getTime()).map(row => row.id))]
+}
+
+async function notifyCalendarPreparation(ids: string[], input: { dryRun: boolean; triggerSource: string }) {
+  const unique = [...new Set(ids)]
+  // The 15-minute backlog and hourly due gate rotate bounded candidate slices.
+  // Persistent agent-run receipt identities make repeated visits harmless.
+  const slot = Math.floor(Date.now() / (15 * 60_000))
+  const offset = unique.length ? (slot * CALENDAR_NOTIFICATION_BATCH_SIZE) % unique.length : 0
+  const selected = [...unique.slice(offset), ...unique.slice(0, offset)].slice(0, CALENDAR_NOTIFICATION_BATCH_SIZE)
+  const results: Array<{ calendar_item_id: string; requested: boolean; delivered: boolean; incomplete: boolean; deduped: boolean; receipt_key?: string; run_id?: string; reason?: string }> = []
+  for (const calendarItemId of selected) {
+    const options = {
+      mode: 'immediate' as const, kinds: ['social_calendar_preparation' as const],
+      goalId: 'social-content-calendar', calendarItemIds: [calendarItemId],
+      actorLabel: 'Calendar preparation receipt', triggerSource: input.triggerSource,
+    }
+    const enabled = process.env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED === 'true'
+    let result: Awaited<ReturnType<typeof runAgentSlackNotificationSweep>>['results'][number] | undefined
+    try {
+      const sweep = await runAgentSlackNotificationSweep({ ...options, dryRun: input.dryRun || !enabled })
+      result = sweep.results?.[0]
+    } catch (error) {
+      results.push({ calendar_item_id: calendarItemId, requested: enabled && !input.dryRun,
+        delivered: false, incomplete: !input.dryRun, deduped: false,
+        reason: error instanceof Error ? error.message : 'Calendar preparation notification failed.' })
+      continue
+    }
+    if (!result || (result.skipped && result.itemCount === 0)) continue
+    const delivered = enabled && !input.dryRun
+      && (result.sent || result.deduped)
+      && Boolean(result.deliveredCalendarItemIds?.includes(calendarItemId) && result.slackChannel && result.slackMessageTs)
+    const requested = !input.dryRun && enabled && !result.deduped
+      && (result.itemCount > 0 || Boolean(result.error))
+    results.push({
+      calendar_item_id: calendarItemId, requested, delivered, incomplete: !input.dryRun && !delivered,
+      deduped: result.deduped, receipt_key: result.receiptKey, run_id: result.runId,
+      reason: !enabled ? 'Slack notification delivery is disabled.'
+        : result.error ?? result.reason ?? (!delivered && (result.sent || result.deduped)
+          ? 'Slack delivery receipt lacks the exact calendar item, channel, or message ID.' : undefined),
+    })
+  }
+  return {
+    dry_run: input.dryRun,
+    candidate_count: unique.length,
+    deferred_count: Math.max(0, unique.length - selected.length),
+    requested_count: results.filter(result => result.requested).length,
+    delivered_count: results.filter(result => result.delivered).length,
+    incomplete_count: results.filter(result => result.incomplete).length,
+    results,
+  }
 }
 
 function pingAlreadySent(item: SocialContentCalendarItem, window: '24h' | '2h') {
@@ -295,14 +351,20 @@ async function runDueGateSweep(request: NextRequest) {
       const options = { scheduled: true, dryRun, dueOnly: true, preserveSocialContent: true, syncCalendarPreparation: true }
       if (typeof campaignId === 'string' && campaignId) {
         const result = await prepareCampaignReviewBatch(campaignId, options)
-        return NextResponse.json({ ...result, slack_notification_result: null })
+        const preparationNotificationResult = await notifyCalendarPreparation(notificationIds(result.rows ?? [], new Date()), {
+          dryRun, triggerSource: 'campaign_review_backlog',
+        })
+        return NextResponse.json({ ...result, slack_notification_result: null, preparation_notification_result: preparationNotificationResult })
       }
       const { data: campaigns, error: campaignError } = await supabaseAdmin.from('attraction_campaigns').select('id').eq('status', 'active').limit(51)
       if (campaignError) throw campaignError
       if ((campaigns?.length ?? 0) > 50) return NextResponse.json({ error: 'Review scan exceeds 50 active campaigns; run campaign-scoped sweeps.' }, { status: 409 })
       const results = []
       for (const campaign of campaigns ?? []) results.push(await prepareCampaignReviewBatch(campaign.id, options))
-      return NextResponse.json({ results, slack_notification_result: null })
+      const preparationNotificationResult = await notifyCalendarPreparation(notificationIds(results.flatMap(result => result.rows ?? []), new Date()), {
+        dryRun, triggerSource: 'campaign_review_backlog',
+      })
+      return NextResponse.json({ results, slack_notification_result: null, preparation_notification_result: preparationNotificationResult })
     }
     getSlackAgentSource()
     const dryRun = isDryRun(request, body)
@@ -664,6 +726,10 @@ async function runDueGateSweep(request: NextRequest) {
       })
     }
 
+    const preparationNotificationResult = await notifyCalendarPreparation(preparationCandidates.map(item => item.id), {
+      dryRun: false, triggerSource: `${triggerSource}_preparation`,
+    })
+
     // Slack selects eligible rows from the calendar table. Persisting due_gate_pings
     // before this sweep makes the same row look already notified and suppresses
     // the alert that the work item was created for.
@@ -729,7 +795,8 @@ async function runDueGateSweep(request: NextRequest) {
       scan_limited: scannedCount >= CALENDAR_MAX_SCAN_ROWS,
       pinged_count: pinged.filter((row) => deliveredIds.has(row.calendar_item_id)).length,
       work_item_count: pinged.length,
-      notification_incomplete: pinged.some((row) => !deliveredIds.has(row.calendar_item_id)),
+      notification_incomplete: pinged.some((row) => !deliveredIds.has(row.calendar_item_id))
+        || preparationNotificationResult.incomplete_count > 0,
       preparation_count: prepared.length,
       preparation_blocked_count: preparationBlocked.length,
       recalibrated_count: recalibrated.length,
@@ -738,11 +805,13 @@ async function runDueGateSweep(request: NextRequest) {
       preparation_blocked: preparationBlocked,
       recalibrated,
       slack_notification_result: slackResult,
+      preparation_notification_result: preparationNotificationResult,
       side_effects: {
         ...CALENDAR_SIDE_EFFECTS,
         internal_work_items_created: pinged.length + recalibrated.length,
         internal_calendar_recalibration: recalibrated.reduce((sum, item) => sum + item.affected_count, 0),
-        slack_notification_requested: pinged.length + recalibrated.length > 0,
+        slack_notification_requested: pinged.length + recalibrated.length > 0
+          || preparationNotificationResult.requested_count > 0,
       },
     })
   } catch (error) {

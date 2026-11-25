@@ -32,6 +32,8 @@ import {
   dueGateWindow,
   type SocialContentCalendarItem,
 } from '@/lib/social-content-calendar'
+import { preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
+import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
 
 export type AgentSlackNotificationKind =
   | 'pending_approvals'
@@ -41,6 +43,7 @@ export type AgentSlackNotificationKind =
   | 'goal_decisions'
   | 'high_signal_insights'
   | 'social_calendar_approval_due'
+  | 'social_calendar_preparation'
   | 'social_publish_gate_due'
   | 'social_comment_attention_due'
   | 'standup_blockers'
@@ -190,8 +193,11 @@ function normalizeTargetAgentKeys(keys?: string[]) {
 }
 
 function notificationIdempotencyKey(input: AgentSlackNotificationInput, payload: Awaited<ReturnType<typeof buildAgentSlackNotificationPayload>>) {
-  const targetKey = normalizeTargetAgentKeys(input.targetAgentKeys).join(',') || 'all'
-  const goalKey = input.goalId || 'no-goal'
+  // Calendar receipts have one global delivery identity per source environment;
+  // caller labels, goals, and agent filters cannot create a second notice.
+  const calendarReceipt = input.kind === 'social_calendar_preparation'
+  const targetKey = calendarReceipt ? 'calendar' : normalizeTargetAgentKeys(input.targetAgentKeys).join(',') || 'all'
+  const goalKey = calendarReceipt ? 'social-content-calendar' : input.goalId || 'no-goal'
   // Use canonical object/action/link identity, never prose, reminder windows,
   // deployment hostnames, or relative time. Batch membership is still explicit.
   const identities = payload.blocks.flatMap((block) => {
@@ -212,7 +218,12 @@ function notificationIdempotencyKey(input: AgentSlackNotificationInput, payload:
       return element.action_id
     })
   }).sort()
-  const contentKey = createHash('sha256').update(JSON.stringify(identities)).digest('hex')
+  // Preparation is one receipt per calendar item and immutable version. A URL
+  // alone cannot distinguish a revised packet at the same canonical route.
+  const receiptIdentity = input.kind === 'social_calendar_preparation'
+    && 'dedupeKey' in payload && typeof payload.dedupeKey === 'string'
+    ? payload.dedupeKey : null
+  const contentKey = createHash('sha256').update(receiptIdentity ?? JSON.stringify(identities)).digest('hex')
   return `slack-mobile-notification:${getSlackAgentSource().sourceEnvironment}:${input.kind}:${goalKey}:${targetKey}:${contentKey}`
 }
 
@@ -364,6 +375,75 @@ function socialCalendarApprovalDedupeKey(items: SocialCalendarApprovalAttentionI
     .sort()
     .join('|')
   return `social_calendar_approval_due:${createHash('sha256').update(parts).digest('hex').slice(0, 16)}`
+}
+
+function preparationMetadata(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
+}
+
+function preparationText(value: unknown) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function preparationRecoveryPath(value: unknown, row: SocialContentCalendarItem) {
+  const path = preparationText(value)
+  const socialContentId = row.social_content_queue?.id ?? row.social_content_id
+  const calendarPath = `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(row.id)}#content-calendar-gate`
+  if (path === `/admin/social-content/${encodeURIComponent(socialContentId ?? '')}?step=copy`) return path
+  if (row.agent_work_item_id && path.startsWith(`/admin/agents/social-insights/${encodeURIComponent(row.agent_work_item_id)}?`)) return path
+  if (path === calendarPath) return path
+  return calendarPath
+}
+
+async function buildSocialCalendarPreparationPayload(input: AgentSlackNotificationInput) {
+  const ids = [...new Set(input.calendarItemIds ?? [])]
+  if (ids.length !== 1) throw new Error('A calendar preparation notification requires exactly one calendar item.')
+  if (!supabaseAdmin) throw new Error('Database not available')
+  const { data, error } = await supabaseAdmin.from('social_content_calendar_items')
+    .select('id, title, channel, scheduled_for, due_status, authorization_status, social_content_id, agent_work_item_id, metadata, social_content_queue(id, status)')
+    .eq('id', ids[0]).maybeSingle()
+  if (error) throw new Error(`Failed to read calendar preparation receipt: ${error.message}`)
+  const row = data as SocialContentCalendarItem | null
+  const empty = {
+    text: 'No receipt-backed calendar preparation needs notification.',
+    blocks: [{ type: 'section', text: mrkdwn('No current preparation receipt needs notification.') }] as SlackBlock[],
+    itemCount: 0, renderedCalendarItemIds: [] as string[],
+  }
+  if (!row || row.authorization_status !== 'authorized' || ['completed', 'cancelled'].includes(row.due_status)) return empty
+  const metadata = preparationMetadata(row.metadata)
+  const preparation = preparationMetadata(metadata.publish_preparation)
+  if (['external_execution_enabled', 'provider_generation_enabled', 'upload_enabled', 'schedule_enabled', 'publish_enabled', 'outreach_send_enabled'].some(key => metadata[key] === true)) return empty
+  if (preparation.scheduled_for !== row.scheduled_for || preparation.trigger_at !== preparationDeadline(row)
+    || !Number.isFinite(Date.parse(preparationText(preparation.trigger_at)))
+    || Date.parse(preparationText(preparation.trigger_at)) > Date.now()) return empty
+  const socialContentId = row.social_content_queue?.id ?? row.social_content_id
+  const projection = socialContentId
+    ? projectSocialCalendarPreparation(row as unknown as Record<string, unknown>, socialContentId) : null
+  const readyPath = `/admin/social-content/${encodeURIComponent(socialContentId ?? '')}?step=copy`
+  const jit = preparationText(metadata.jit_refresh_status).toLowerCase()
+  const ready = projection?.state === 'ready' && preparation.review_path === readyPath
+    && Boolean(jit) && !['stale', 'expired', 'blocked', 'failed'].includes(jit)
+  const blocked = preparation.status === 'blocked'
+    && Boolean(preparationText(preparation.blocker) && preparationText(preparation.evidence_version))
+  if (!ready && !blocked) return empty
+  const version = ready ? preparationText(preparation.content_version) : preparationText(preparation.evidence_version)
+  const state = ready ? 'ready' : 'blocked'
+  const path = ready ? readyPath : preparationRecoveryPath(preparation.recovery_action, row)
+  const summary = ready ? 'A versioned internal packet is ready for Human QA.' : preparationText(preparation.blocker)
+  const nextAction = ready ? 'Review the prepared packet in Portfolio.' : 'Open the recovery record in Portfolio and resolve the blocker.'
+  const title = preparationText(row.title) || row.id
+  const channel = CALENDAR_CHANNEL_LABELS[row.channel] ?? row.channel
+  const text = `${title} (${channel}) ${state === 'ready' ? 'is ready for Human QA' : 'needs preparation recovery'}. Release: ${formatScheduledFor(row.scheduled_for)}. ${summary} Next: ${nextAction}`
+  return {
+    text,
+    blocks: [
+      { type: 'section', text: mrkdwn(`*${truncateSlack(title, 120)}*\nChannel: ${channel} · Release: ${formatScheduledFor(row.scheduled_for)}\n${summary}\nNext: ${nextAction}`) },
+      { type: 'actions', elements: [slackButton({ label: ready ? 'Open review' : 'Open recovery', actionId: 'open_social_calendar_preparation', url: agentUrl(path) })] },
+    ] as SlackBlock[],
+    itemCount: 1,
+    renderedCalendarItemIds: [row.id],
+    dedupeKey: `social_calendar_preparation:${row.id}:${state}:${version}`,
+  }
 }
 
 function calendarPingAlreadySent(row: SocialContentCalendarItem, window: '24h' | '2h') {
@@ -1138,6 +1218,7 @@ async function buildNotificationPayload(input: AgentSlackNotificationInput) {
   if (input.kind === 'stale_runs') return buildStaleRunsPayload()
   if (input.kind === 'high_signal_insights') return buildHighSignalInsightsPayload()
   if (input.kind === 'social_calendar_approval_due') return buildSocialCalendarApprovalDuePayload(input)
+  if (input.kind === 'social_calendar_preparation') return buildSocialCalendarPreparationPayload(input)
   if (input.kind === 'social_publish_gate_due') return buildSocialPublishGateDuePayload()
   if (input.kind === 'social_comment_attention_due') return buildSocialCommentAttentionPayload()
   return buildWorkItemPayload(input)
@@ -1160,6 +1241,10 @@ export async function sendAgentSlackNotification(input: AgentSlackNotificationIn
   if (!supabaseAdmin) throw new Error('Database not available')
   const payload = await buildAgentSlackNotificationPayload(input)
   if (payload.visibilityError) throw new Error(payload.visibilityError)
+  if (input.kind === 'social_calendar_preparation' && input.dedupeKey
+    && (!('dedupeKey' in payload) || payload.dedupeKey !== input.dedupeKey)) {
+    throw new Error('Calendar preparation receipt changed before Slack delivery; recheck the current version.')
+  }
   const idempotencyKey = notificationIdempotencyKey(input, payload)
   const existing = await existingNotificationRun(idempotencyKey)
   const delivered = existing?.outcome?.sent === true && Boolean(existing.outcome.slack_channel && existing.outcome.slack_message_ts)
@@ -1200,6 +1285,26 @@ export async function sendAgentSlackNotification(input: AgentSlackNotificationIn
     .select('id').maybeSingle()
   if (claimError) throw new Error(`Failed to claim Slack notification: ${claimError.message}`)
   if (!claim?.id) return { ok: false, runId: run.id, sent: false, skipped: true, deduped: false, uncertain: true, reason: 'Another caller owns this delivery; reconcile before retrying.', itemCount: payload.itemCount, text: payload.text, deliveredCalendarItemIds: [] }
+
+  if (input.kind === 'social_calendar_preparation') {
+    // Re-read the persisted packet after claiming and immediately before the
+    // outbound call. A changed binding cannot reuse the claimed version.
+    let current: Awaited<ReturnType<typeof buildAgentSlackNotificationPayload>> | null = null
+    try { current = await buildAgentSlackNotificationPayload(input) } catch { /* Release this unsent claim below. */ }
+    if (!current || current.itemCount !== 1 || !('dedupeKey' in current) || !('dedupeKey' in payload)
+      || current.dedupeKey !== payload.dedupeKey
+      || current.text !== payload.text || JSON.stringify(current.blocks) !== JSON.stringify(payload.blocks)) {
+      const reason = 'Calendar preparation receipt changed or could not be verified before Slack delivery; recheck the current version.'
+      const { data: released, error: releaseError } = await supabaseAdmin.from('agent_runs')
+        .update({ status: 'failed', outcome: { sent: false, uncertain: false, reason },
+          current_step: reason, completed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .eq('id', run.id).eq('status', 'running').eq('metadata->>delivery_claim_token', metadata.delivery_claim_token)
+        .select('id').maybeSingle()
+      if (releaseError || !released?.id) throw new Error('Slack pre-delivery claim release failed; reconcile before retrying.')
+      return { ok: false, runId: run.id, sent: false, skipped: true, deduped: false,
+        reason, itemCount: payload.itemCount, text: payload.text, deliveredCalendarItemIds: [] }
+    }
+  }
 
   const delivery = await postToSlack(payload.text, payload.blocks, config)
   const deliveredCalendarItemIds = delivery.sent ? payload.renderedCalendarItemIds : []
