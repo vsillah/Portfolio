@@ -1,0 +1,13 @@
+{
+  "producerRepository": "github.com/vsillah/rotla-immersive",
+  "producerCommit": "2c0ce0c9e3a4301ae35198da88fc3a0d675c6819",
+  "producerModule": "src/commons/economy-model.ts",
+  "producerExport": "serializeEconomy",
+  "envelopeSchema": "commons.economy-map.envelope",
+  "envelopeSchemaVersion": 1,
+  "routeSource": "src/commons/CommonsApp.tsx",
+  "generator": "scripts/commons-economy/generate-envelope.mjs",
+  "generatedFile": "components/insights/commons-economy/generated/commons-economy-envelope.generated.ts",
+  "generationCommand": "node scripts/commons-economy/generate-envelope.mjs --commons <path-to-rotla-immersive-checkout>",
+  "checkCommand": "node scripts/commons-economy/generate-envelope.mjs --commons <path-to-rotla-immersive-checkout> --check"
+}

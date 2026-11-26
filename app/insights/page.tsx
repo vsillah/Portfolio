@@ -33,6 +33,12 @@ const insights = [
     description: 'Walk through a community technology stack drawn as a city block and nine end-to-end builds.',
     href: '/insights/owning-the-block',
   },
+  {
+    title: 'Commons Economy Map',
+    category: 'Roxbury Commons',
+    description: 'Explore a fictional, proposed neighborhood economy layer by layer, and follow each walkthrough from start to finish.',
+    href: '/insights/commons-economy-map',
+  },
 ] as const
 
 export default function InsightsPage() {

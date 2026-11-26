@@ -1,0 +1,65 @@
+/* Research-index skin for the Commons Economy Map. Presentation only: inks, rules, focus, forced colors, motion and print. */
+
+.root {
+  --econ-goods: #8a6d17;
+  --econ-funding: #1f6f78;
+  --econ-decisions: #6b3fa0;
+  --econ-walk: #b4361e;
+}
+:global(.dark) .root {
+  --econ-goods: #d4af37;
+  --econ-funding: #5cc6cf;
+  --econ-decisions: #b99cf0;
+  --econ-walk: #ff8a6b;
+}
+
+/* Each flow keeps its own rule, so the three inks stay distinct without color. */
+.goods { color: var(--econ-goods); stroke: var(--econ-goods); }
+.funding { color: var(--econ-funding); stroke: var(--econ-funding); stroke-dasharray: 9 6; }
+.decisions { color: var(--econ-decisions); stroke: var(--econ-decisions); stroke-dasharray: 2 5; }
+
+.lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.line { fill: none; stroke-width: 2; opacity: .85; }
+.line.support { opacity: .55; }
+.line.future { opacity: .45; }
+.line.walk { stroke-width: 4; opacity: 1; }
+.arrow { fill: none; stroke-width: 1.6; stroke-dasharray: none; }
+
+.swatch { display: inline-block; width: 1.6rem; height: .6rem; flex: none; vertical-align: middle; }
+.swatch line { stroke-width: 3; }
+
+.node { transition: border-color .2s ease, box-shadow .2s ease; }
+.nodeOpen { box-shadow: 0 0 0 2px #a88a2d; border-color: #a88a2d; }
+.nodeWalk { box-shadow: 0 0 0 3px var(--econ-walk); border-color: var(--econ-walk); }
+.nodeOpen.nodeWalk { box-shadow: 0 0 0 2px #a88a2d, 0 0 0 5px var(--econ-walk); }
+
+.stamp { display: inline-flex; align-items: center; max-width: 100%; border: 1px solid currentColor; border-radius: 999px; padding: .1rem .55rem; font-size: .72rem; line-height: 1.35; overflow-wrap: anywhere; }
+.stampTbd { border-style: dashed; }
+
+/* Reduced motion is scoped to the map root and its descendants only: it also stills the
+   inherited site-wide link/button transitions on the map's chips, links and nodes. */
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .root *,
+  .root *::before,
+  .root *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .goods, .funding, .decisions { color: CanvasText; stroke: CanvasText; }
+  .nodeOpen { outline: 3px solid Highlight; outline-offset: 2px; }
+  .nodeWalk { outline: 3px dashed Highlight; outline-offset: 4px; }
+  .line.walk { stroke: Highlight; }
+  .stamp { forced-color-adjust: auto; border-color: CanvasText; }
+}
+
+@media print {
+  .root { --econ-goods: #000; --econ-funding: #000; --econ-decisions: #000; --econ-walk: #000; }
+  .noPrint { display: none !important; }
+  .panel { position: static !important; break-inside: avoid; }
+  .avoidBreak { break-inside: avoid; }
+}

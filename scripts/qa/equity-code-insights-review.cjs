@@ -12,7 +12,7 @@ async function pause(page) { await page.waitForTimeout(700) }
 async function visitIndex(page) {
   await page.goto(`${base}/insights`, { waitUntil: 'domcontentloaded' })
   await page.getByRole('heading', { name: 'Explore the systems' }).waitFor()
-  for (const path of ['revenue-plumbing-map', 'compounding-graph', 'home-front-ledger', 'owning-the-block']) {
+  for (const path of ['revenue-plumbing-map', 'compounding-graph', 'home-front-ledger', 'owning-the-block', 'commons-economy-map']) {
     assert.equal(await page.locator(`a[href="/insights/${path}"]`).count(), 1)
   }
   await pause(page)

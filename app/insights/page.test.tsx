@@ -10,7 +10,7 @@ vi.mock('next/link', () => ({
 }))
 
 describe('Insights index', () => {
-  it('links the existing map and all three source dashboards', () => {
+  it('links the existing map, all three source dashboards, and the Commons Economy Map', () => {
     render(<InsightsPage />)
 
     expect(screen.getByRole('heading', { level: 1, name: 'Explore the systems' })).toBeInTheDocument()
@@ -19,6 +19,7 @@ describe('Insights index', () => {
       '/insights/compounding-graph',
       '/insights/home-front-ledger',
       '/insights/owning-the-block',
+      '/insights/commons-economy-map',
     ]) {
       expect(document.querySelector(`a[href="${path}"]`)).toBeInTheDocument()
     }
