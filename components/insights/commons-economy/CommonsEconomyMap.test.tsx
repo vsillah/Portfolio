@@ -538,6 +538,50 @@ describe('Commons Economy Map keyboard focus', () => {
     .join(' ')
   const outline = (declarations: string) => declarations.match(/outline:\s*([^;]+)/)?.[1].trim()
 
+  describe('opening a node on a narrow sheet', () => {
+    const scrollIntoView = Element.prototype.scrollIntoView
+    beforeEach(() => { Element.prototype.scrollIntoView = vi.fn() })
+    afterEach(() => { Element.prototype.scrollIntoView = scrollIntoView; vi.restoreAllMocks() })
+
+    it.each([['Space', ' '], ['Enter', '{Enter}']])('moves focus to the opened detail immediately with %s under reduced motion', async (_, key) => {
+      vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: query.includes('prefers-reduced-motion'), media: query }) as MediaQueryList)
+      const frame = vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 1)
+      const user = userEvent.setup()
+      render(<CommonsEconomyMap envelope={envelope} />)
+      await screen.findByRole('heading', { level: 2, name: 'Synthetic local A' })
+      const closed = document.querySelector<HTMLButtonElement>('[aria-labelledby="econ-map-caption"] button[aria-pressed="false"]')!
+      const detail = document.getElementById('econ-detail-title')!
+      let announced = ''
+      detail.addEventListener('focus', () => { announced = detail.textContent ?? '' }, { once: true })
+      closed.focus()
+      await user.keyboard(key)
+      expect(closed).toHaveAttribute('aria-pressed', 'true')
+      expect(document.activeElement).toBe(detail)
+      expect(announced).toBe(detail.textContent)
+      expect(frame).not.toHaveBeenCalled()
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({ behavior: 'auto', block: 'start' })
+      expect(screen.getByRole('region', { name: /Synthetic walk, step 1 of 2/ })).toBeInTheDocument()
+    })
+
+    it('keeps mouse activation on the existing smooth-scroll path', async () => {
+      vi.spyOn(window, 'matchMedia').mockImplementation(query => ({ matches: false, media: query }) as MediaQueryList)
+      let frame: FrameRequestCallback | undefined
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => { frame = callback; return 1 })
+      const user = userEvent.setup()
+      render(<CommonsEconomyMap envelope={envelope} />)
+      await screen.findByRole('heading', { level: 2, name: 'Synthetic local A' })
+      const closed = document.querySelector<HTMLButtonElement>('[aria-labelledby="econ-map-caption"] button[aria-pressed="false"]')!
+      await user.click(closed)
+      expect(closed).toHaveAttribute('aria-pressed', 'true')
+      expect(frame).toBeDefined()
+      expect(document.activeElement).toBe(closed)
+      frame!(0)
+      expect(document.activeElement).toBe(document.getElementById('econ-detail-title'))
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+      expect(screen.getByRole('region', { name: /Synthetic walk, step 1 of 2/ })).toBeInTheDocument()
+    })
+  })
+
   it('rules a focused entry in ink, a mark the open ring never uses', () => {
     const focused = outline(declared(flat, '.entry:focus-visible'))
     const open = outline(declared(flat, '.nodeOpen'))

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
+import { flushSync } from 'react-dom'
 import Link from 'next/link'
 import { adaptEconomyEnvelope, type AdapterResult, type AltitudeId, type Boundary, type Edge, type EconomyModel, type EconomyNode, type FlowId, type JoinRef, type LabelPair, type LayerId, type View, type WalkId } from './adapter'
 import { arrange, captionsAt, flowOf, historicalLineOf, initialView, joinOf, layersOfKind, nodeById, openNode, touching, visibleEdges, visibleNodes, withLayer } from './derive'
@@ -255,14 +256,15 @@ function Dashboard({ model, resolve, photos, stepMarks }: { model: EconomyModel;
     setView(current => withLayer(current, flow))
   }
   const choose = (id: string) => {
-    setSelected(id)
     if (typeof window !== 'undefined' && !window.matchMedia('(min-width: 1024px)').matches) {
       const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      requestAnimationFrame(() => {
+      const focusDetail = () => {
         panelHeading.current?.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' })
         panelHeading.current?.focus({ preventScroll: true })
-      })
-    }
+      }
+      if (calm) { flushSync(() => setSelected(id)); focusDetail() }
+      else { setSelected(id); requestAnimationFrame(focusDetail) }
+    } else setSelected(id)
   }
   const stepRegion = useRef<HTMLDivElement>(null)
   const previousStep = useRef<HTMLButtonElement>(null)
