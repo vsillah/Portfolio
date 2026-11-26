@@ -43,6 +43,7 @@ export type CalibrationPolicy = {
   minimum_negative: number
   minimum_binary_comparisons: number
   maximum_unresolved_rate: number
+  maximum_unscored_rate: number
   evaluated_at: string
 }
 export type CalibrationTrace = {
@@ -69,6 +70,7 @@ export type CalibrationGroup = {
   resolved: number
   unresolved: number
   unresolved_rate: number
+  predicted_unscored_rate: number
   exact_agreement: number
   disagreements: number
   predicted: Record<'pass' | 'below_threshold' | 'unscored', number>
@@ -109,7 +111,7 @@ const sha = (value: unknown) => createHash('sha256').update(stable(value)).diges
 const text = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
 const timestamp = (value: unknown) => typeof value === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(value) && Number.isFinite(Date.parse(value)) ? Date.parse(value) : null
 const count = () => ({ pass: 0, below_threshold: 0, unscored: 0 })
-const validPolicy = (p: CalibrationPolicy) => text(p.policy_id) && text(p.policy_version) && text(p.approval_receipt_id) && timestamp(p.evaluated_at) !== null && [p.minimum_cases, p.minimum_resolved, p.minimum_positive, p.minimum_negative, p.minimum_binary_comparisons].every((n) => Number.isSafeInteger(n) && n > 0) && Number.isFinite(p.maximum_unresolved_rate) && p.maximum_unresolved_rate >= 0 && p.maximum_unresolved_rate <= 1
+const validPolicy = (p: CalibrationPolicy) => text(p.policy_id) && text(p.policy_version) && text(p.approval_receipt_id) && timestamp(p.evaluated_at) !== null && [p.minimum_cases, p.minimum_resolved, p.minimum_positive, p.minimum_negative, p.minimum_binary_comparisons].every((n) => Number.isSafeInteger(n) && n > 0) && [p.maximum_unresolved_rate, p.maximum_unscored_rate].every((n) => Number.isFinite(n) && n >= 0 && n <= 1)
 const digest = (value: unknown) => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
 export function outcomeReceiptSha256(receipt: ApprovedOutcomeReceipt): string {
   const { receipt_sha256: _hash, ...bound } = receipt
@@ -191,8 +193,10 @@ export function calibrateHistoricalShadow(input: { cases: ShadowCase[]; outcomes
     if (tp + tn + fp + fn < policy.minimum_binary_comparisons) blockers.push('Insufficient valid binary comparisons.')
     if (tp + fp === 0 || tp + fn === 0) blockers.push('Precision or recall denominator is unavailable.')
     if (rows.length && unresolved / rows.length > policy.maximum_unresolved_rate) blockers.push('Unresolved rate exceeds approved limit.')
+    if (rows.length && predicted.unscored / rows.length > policy.maximum_unscored_rate) blockers.push('Predicted Unscored rate exceeds approved limit.')
     const confidence_eligible = blockers.length === 0
     groups.push({ platform, format, sample_size: rows.length, resolved: resolved.length, unresolved, unresolved_rate: rows.length ? unresolved / rows.length : 0,
+      predicted_unscored_rate: rows.length ? predicted.unscored / rows.length : 0,
       exact_agreement: resolved.filter((row) => row.agreement === 'exact').length, disagreements: resolved.filter((row) => row.agreement === 'disagreement').length,
       predicted, approved, true_positive: tp, true_negative: tn, false_positive: fp, false_negative: fn,
       precision: tp + fp ? tp / (tp + fp) : null, recall: tp + fn ? tp / (tp + fn) : null,

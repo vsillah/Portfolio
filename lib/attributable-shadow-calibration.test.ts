@@ -46,7 +46,7 @@ function baseline(channel: AcquisitionChannel): Baseline {
 function replay(channel: AcquisitionChannel) {
   return { candidate: fixture(channel, 'candidate'), comparables: Array.from({ length: 5 }, (_, index) => fixture(channel, `peer${index}`)), baselines: [baseline(channel)], evaluated_at: '2026-11-26T12:00:00Z' }
 }
-const policy: CalibrationPolicy = { policy_id: 'synthetic-review', policy_version: 'v1', approval_receipt_id: 'review-policy-v1', minimum_cases: 2, minimum_resolved: 2, minimum_positive: 1, minimum_negative: 1, minimum_binary_comparisons: 2, maximum_unresolved_rate: 0.25, evaluated_at: '2026-11-26T12:00:00Z' }
+const policy: CalibrationPolicy = { policy_id: 'synthetic-review', policy_version: 'v1', approval_receipt_id: 'review-policy-v1', minimum_cases: 2, minimum_resolved: 2, minimum_positive: 1, minimum_negative: 1, minimum_binary_comparisons: 2, maximum_unresolved_rate: 0.25, maximum_unscored_rate: 0.25, evaluated_at: '2026-11-26T12:00:00Z' }
 function shadowCase(channel: AcquisitionChannel, id: string, high = false): ShadowCase {
   const input = replay(channel)
   input.candidate = fixture(channel, `candidate-${id}`)
@@ -168,6 +168,45 @@ describe('Phase 5I shadow calibration', () => {
     const result = calibrateHistoricalShadow({ cases: [item], outcomes: [outcome(item, 'below_threshold'), orphan], policy })
     expect(result.orphan_outcome_receipts).toEqual([orphan])
     expect(result.groups[0].sample_size).toBe(1)
+  })
+
+  it.each([
+    ['zero', 0, 0, true],
+    ['below limit', 1, 0.2, true],
+    ['exact limit', 1, 0.25, true],
+    ['above limit despite adequate binary comparisons', 1, 1 / 3, false],
+  ] as const)('enforces the separate predicted Unscored rate: %s', (_, unscoredCount, expectedRate, reportable) => {
+    const cases = [shadowCase('youtube', 'rate-low'), shadowCase('youtube', 'rate-high', true)]
+    // Add scored cases to put one Unscored result below or exactly on the policy limit.
+    if (unscoredCount && expectedRate <= 0.25) {
+      cases.push(shadowCase('youtube', 'rate-extra-low'))
+      if (expectedRate < 0.25) cases.push(shadowCase('youtube', 'rate-extra-high', true))
+    }
+    if (unscoredCount) {
+      const unscored = shadowCase('youtube', 'rate-unscored')
+      unscored.comparables.pop()
+      unscored.fixture_manifest.entries.pop()
+      cases.push(unscored)
+    }
+    const outcomes = cases.map((item) => outcome(item, item.case_id === 'rate-unscored' ? 'unscored' : item.case_id.includes('high') ? 'pass' : 'below_threshold'))
+    const result = calibrateHistoricalShadow({ cases, outcomes, policy })
+    const group = result.groups[0]
+    expect(group.predicted_unscored_rate).toBe(expectedRate)
+    expect(group.unresolved_rate).toBe(0)
+    expect(group.true_positive + group.true_negative + group.false_positive + group.false_negative).toBeGreaterThanOrEqual(2)
+    expect(group.reportable).toBe(reportable)
+    expect(group.confidence_eligible).toBe(reportable)
+    expect(group.blockers.includes('Predicted Unscored rate exceeds approved limit.')).toBe(!reportable)
+  })
+
+  it.each([-0.01, 1.01, Number.NaN, Number.POSITIVE_INFINITY])('rejects invalid predicted Unscored policy limit %s', (maximum_unscored_rate) => {
+    const low = shadowCase('x', 'invalid-policy-low')
+    const high = shadowCase('x', 'invalid-policy-high', true)
+    const result = calibrateHistoricalShadow({ cases: [low, high], outcomes: [outcome(low, 'below_threshold'), outcome(high, 'pass')], policy: { ...policy, maximum_unscored_rate } })
+    expect(result.groups[0].predicted_unscored_rate).toBe(0)
+    expect(result.groups[0].reportable).toBe(false)
+    expect(result.groups[0].confidence_eligible).toBe(false)
+    expect(result.groups[0].blockers).toContain('Versioned calibration policy or threshold inputs are invalid.')
   })
 
   it('fails closed on insufficient samples and invalid versioned policy', () => {
