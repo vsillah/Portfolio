@@ -79,29 +79,50 @@ BEGIN
   EXCEPTION WHEN OTHERS THEN v_failed := true; END;
   IF NOT v_failed THEN RAISE EXCEPTION 'receipt mutation unexpectedly succeeded'; END IF;
 
+  -- Negative probes use separate version-bound packets, leaving decision packets untouched.
+  v_new_packet := gen_random_uuid(); v_new_version := clock_timestamp();
+  v_freshness := jsonb_set(v_freshness,'{evidence_version}',to_jsonb(v_new_version));
+  INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,platform,pattern_packet,actor_metadata)
+    VALUES (v_new_packet,'review_ready',v_new_version,'https://example.test/replacement','other',v_pattern,
+      jsonb_build_object('evidence_repair_candidate',v_candidate,'source_freshness_receipt',v_freshness));
+  v_failed := false;
+  BEGIN
+    PERFORM public.record_evidence_repair_human_qa_decision(v_new_packet,v_new_version,v_candidate,v_freshness,v_pattern,v_claim_hash,v_content_version + interval '1 second',
+      'approve','Stale Social Content version',v_reviewer,'portfolio','synthetic-stale-content-version');
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM <> 'evidence repair original, calendar, or approved copy changed' THEN RAISE; END IF;
+    v_failed := true;
+  END;
+  IF NOT v_failed THEN RAISE EXCEPTION 'stale content version unexpectedly succeeded'; END IF;
+  IF EXISTS (SELECT 1 FROM public.evidence_repair_human_qa_receipts WHERE packet_id=v_new_packet) THEN
+    RAISE EXCEPTION 'stale content created a receipt';
+  END IF;
+
+  v_new_packet := gen_random_uuid(); v_new_version := clock_timestamp();
+  v_freshness := jsonb_set(v_freshness,'{evidence_version}',to_jsonb(v_new_version));
+  INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,platform,pattern_packet,actor_metadata)
+    VALUES (v_new_packet,'review_ready',v_new_version,'https://example.test/replacement','other',
+      jsonb_set(v_pattern,'{source_use_boundary}','"changed"'::jsonb),
+      jsonb_build_object('evidence_repair_candidate',v_candidate,'source_freshness_receipt',v_freshness));
+  v_failed := false;
+  BEGIN
+    PERFORM public.record_evidence_repair_human_qa_decision(v_new_packet,v_new_version,v_candidate,v_freshness,v_pattern,v_claim_hash,v_content_version,
+      'approve','Changed claim boundary',v_reviewer,'portfolio','synthetic-changed-claim-boundary');
+  EXCEPTION WHEN OTHERS THEN
+    IF SQLERRM <> 'evidence repair packet version or evidence changed' THEN RAISE; END IF;
+    v_failed := true;
+  END;
+  IF NOT v_failed THEN RAISE EXCEPTION 'changed claim boundary unexpectedly succeeded'; END IF;
+  IF EXISTS (SELECT 1 FROM public.evidence_repair_human_qa_receipts WHERE packet_id=v_new_packet) THEN
+    RAISE EXCEPTION 'changed claim boundary created a receipt';
+  END IF;
+
   FOREACH v_decision IN ARRAY ARRAY['reject','revise'] LOOP
     v_new_packet := gen_random_uuid(); v_new_version := clock_timestamp();
     v_freshness := jsonb_set(v_freshness,'{evidence_version}',to_jsonb(v_new_version));
     INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,platform,pattern_packet,actor_metadata)
       VALUES (v_new_packet,'review_ready',v_new_version,'https://example.test/replacement','other',v_pattern,
         jsonb_build_object('evidence_repair_candidate',v_candidate,'source_freshness_receipt',v_freshness));
-    IF v_decision = 'reject' THEN
-      v_failed := false;
-      BEGIN
-        PERFORM public.record_evidence_repair_human_qa_decision(v_new_packet,v_new_version,v_candidate,v_freshness,v_pattern,v_claim_hash,v_content_version + interval '1 second',
-          'approve','Stale Social Content version',v_reviewer,'portfolio','synthetic-stale-content-version');
-      EXCEPTION WHEN OTHERS THEN v_failed := true; END;
-      IF NOT v_failed THEN RAISE EXCEPTION 'stale content version unexpectedly succeeded'; END IF;
-      UPDATE public.social_content_research_packets SET pattern_packet = jsonb_set(v_pattern,'{source_use_boundary}','"changed"'::jsonb)
-        WHERE id = v_new_packet;
-      v_failed := false;
-      BEGIN
-        PERFORM public.record_evidence_repair_human_qa_decision(v_new_packet,v_new_version,v_candidate,v_freshness,v_pattern,v_claim_hash,v_content_version,
-          'approve','Changed claim boundary',v_reviewer,'portfolio','synthetic-changed-claim-boundary');
-      EXCEPTION WHEN OTHERS THEN v_failed := true; END;
-      IF NOT v_failed THEN RAISE EXCEPTION 'changed claim boundary unexpectedly succeeded'; END IF;
-      UPDATE public.social_content_research_packets SET pattern_packet = v_pattern WHERE id = v_new_packet;
-    END IF;
     v_receipt := public.record_evidence_repair_human_qa_decision(v_new_packet,v_new_version,v_candidate,v_freshness,v_pattern,v_claim_hash,v_content_version,
       v_decision,'Synthetic actionable reason',v_reviewer,'portfolio','synthetic-'||v_decision||'-key');
     v_expected_status := CASE v_decision WHEN 'reject' THEN 'human_qa_rejected' ELSE 'revision_requested' END;
