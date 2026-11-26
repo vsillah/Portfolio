@@ -36,6 +36,7 @@ function request(url: string, method = 'GET') {
 
 function mockDueGateQuery(items: unknown[]) {
   const query: Record<string, unknown> = {
+    not: vi.fn(() => query),
     in: vi.fn(() => query),
     gte: vi.fn(() => query),
     lte: vi.fn(() => query),
@@ -191,6 +192,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         },
       ],
       error: null,
+      not: vi.fn(() => selectQuery),
       in: vi.fn(() => selectQuery),
       gte: vi.fn(() => selectQuery),
       lte: vi.fn(() => selectQuery),
@@ -278,6 +280,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     }
     const selectQuery: Record<string, unknown> = {
       data: [authorizedDraft, { ...authorizedDraft }],
+      not: vi.fn(() => selectQuery),
       in: vi.fn(() => selectQuery),
       gte: vi.fn(() => selectQuery),
       lte: vi.fn(() => selectQuery),
@@ -373,6 +376,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       },
     }]
     const selectQuery: Record<string, unknown> = {
+      not: vi.fn(() => selectQuery),
       in: vi.fn(() => selectQuery),
       gte: vi.fn(() => selectQuery),
       lte: vi.fn(() => selectQuery),
@@ -437,6 +441,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     }
     const selectQuery: Record<string, unknown> = {
       data: [missedItem],
+      not: vi.fn(() => selectQuery),
       in: vi.fn(() => selectQuery),
       gte: vi.fn(() => selectQuery),
       lte: vi.fn(() => selectQuery),
@@ -744,6 +749,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     }
     const firstPage = mockDueGateQuery(recordedRows)
     const secondPage: Record<string, unknown> = {
+      not: vi.fn(() => secondPage),
       in: vi.fn(() => secondPage),
       gte: vi.fn(() => secondPage),
       lte: vi.fn(() => secondPage),

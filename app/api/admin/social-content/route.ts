@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { extractMeetingTitle } from '@/lib/social-content'
 import type { ContentStatus, SocialPlatform } from '@/lib/social-content'
+import { excludeEvidenceRepairCanaries } from '@/lib/evidence-repair-canary'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,9 +26,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20', 10)
     const offset = (page - 1) * limit
 
-    let query = supabaseAdmin
+    let query = excludeEvidenceRepairCanaries(supabaseAdmin
       .from('social_content_queue')
-      .select('*', { count: 'exact' })
+      .select('*', { count: 'exact' }), 'queue')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -73,9 +74,9 @@ export async function GET(request: NextRequest) {
     }))
 
     // Compute stats across all items (unfiltered)
-    const { data: allItems } = await supabaseAdmin
+    const { data: allItems } = await excludeEvidenceRepairCanaries(supabaseAdmin
       .from('social_content_queue')
-      .select('status')
+      .select('status'), 'queue')
 
     const stats = { draft: 0, approved: 0, scheduled: 0, published: 0, rejected: 0, total: 0 }
     for (const item of allItems || []) {

@@ -1,5 +1,6 @@
 import { preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
 import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
+import { isEvidenceRepairCanaryId } from '@/lib/evidence-repair-canary'
 
 type RecordValue = Record<string, unknown>
 
@@ -133,6 +134,7 @@ export function projectReleaseAutomation(row: ReleaseAutomationRow, now: Date = 
 export function rankReleaseAutomation<T extends ReleaseAutomationRow>(rows: T[], now: Date = new Date()) {
   return rows.filter(row => {
     const metadata = record(row.metadata)
+    if (isEvidenceRepairCanaryId(row.id, 'calendar')) return false
     const lifecycle = record(metadata.social_content_lifecycle)
     const lifecyclePublished = string(lifecycle.social_content_status)?.toLowerCase() === 'published'
       || string(record(lifecycle.published).status)?.toLowerCase() === 'published'

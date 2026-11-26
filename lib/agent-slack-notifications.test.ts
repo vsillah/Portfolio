@@ -32,6 +32,7 @@ vi.mock('@/lib/agent-run', () => ({
 vi.mock('@/lib/campaign-review-backlog', () => ({ getCampaignReviewBacklog: mocks.getCampaignReviewBacklog }))
 
 import { buildAgentSlackNotificationPayload, sendAgentSlackNotification } from '@/lib/agent-slack-notifications'
+import { EVIDENCE_REPAIR_CANARY } from '@/lib/evidence-repair-canary'
 
 const ORIGINAL_ENV = process.env
 
@@ -39,6 +40,7 @@ function queryResult(result: unknown, promiseMethods: Array<'select' | 'in' | 'l
   const query: Record<string, unknown> = {
     select: vi.fn(() => (promiseMethods.includes('select') ? Promise.resolve(result) : query)),
     eq: vi.fn(() => query),
+    not: vi.fn(() => query),
     gte: vi.fn(() => query),
     lte: vi.fn(() => query),
     in: vi.fn(() => (promiseMethods.includes('in') ? Promise.resolve(result) : query)),
@@ -1140,6 +1142,15 @@ describe('Agent Ops Slack notifications', () => {
       },
     }
   }
+
+  it('does not notify a retained synthetic calendar canary even with a ready receipt', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))
+    const row = { ...preparationRow(), id: EVIDENCE_REPAIR_CANARY.calendarIds[1] }
+    mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: row, error: null }) }) }) })
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_calendar_preparation', calendarItemIds: [row.id] })
+    expect(payload.itemCount).toBe(0)
+    expect(payload.renderedCalendarItemIds).toEqual([])
+  })
 
   it('builds exact ready and blocker links from persisted preparation receipts only', async () => {
     vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-25T12:00:00.000Z'))

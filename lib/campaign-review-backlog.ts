@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import type { AgentSlackNotificationInput } from '@/lib/agent-slack-notifications'
 import { supabaseAdmin } from '@/lib/supabase'
+import { isEvidenceRepairCanaryId } from '@/lib/evidence-repair-canary'
 import { parseMetadata } from '@/lib/social-content-calendar'
 import {
   listSocialContentCalibrationReferences,
@@ -516,7 +517,8 @@ async function byIds(table: string, ids: string[]): Promise<Row[]> {
 }
 async function load(campaignId: string) {
   const campaign: Row = checked(await supabaseAdmin.from('attraction_campaigns').select('*').eq('id', campaignId).single())
-  const calendar: Row[] = checked(await supabaseAdmin.from('social_content_calendar_items').select('*').eq('campaign_id', campaignId).order('created_at').order('id').limit(501)) || []
+  const calendar: Row[] = (checked<Row[]>(await supabaseAdmin.from('social_content_calendar_items').select('*').eq('campaign_id', campaignId).order('created_at').order('id').limit(503)) || [])
+    .filter(row => !isEvidenceRepairCanaryId(text(row.id), 'calendar'))
   if (calendar.length > 500) throw new Error('Campaign exceeds the 500-item review scan. Narrow the calendar before preparing.')
   const workIds = calendar.map(c => text(record(record(c.metadata).platform_draft_handoff).work_item_id)).filter(Boolean)
   const works = await byIds('agent_work_items', workIds)

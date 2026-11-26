@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { projectReleaseAutomation, rankReleaseAutomation, type ReleaseAutomationRow } from './release-calendar-automation'
+import { EVIDENCE_REPAIR_CANARY } from './evidence-repair-canary'
 
 const now = new Date('2026-11-24T15:00:00.000Z')
 const receipt = {
@@ -27,6 +28,11 @@ function row(id: string, patch: Partial<ReleaseAutomationRow> = {}): ReleaseAuto
 }
 
 describe('release calendar automation projection', () => {
+  it('keeps historical and live priorities while removing both exact synthetic canaries', () => {
+    const rows = [row('historical'), row(EVIDENCE_REPAIR_CANARY.calendarIds[0]),
+      row('live'), row(EVIDENCE_REPAIR_CANARY.calendarIds[1])]
+    expect(rankReleaseAutomation(rows, now).map(item => item.row.id)).toEqual(['historical', 'live'])
+  })
   it('uses the existing preparation deadline and only marks an authorized linked draft eligible', () => {
     const eligible = projectReleaseAutomation(row('eligible'), now)
     expect(eligible.trigger).toBe('2026-11-24T15:00:00.000Z')

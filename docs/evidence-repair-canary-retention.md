@@ -1,0 +1,15 @@
+# Synthetic evidence-repair canary retention
+
+The two production canary lineages are retained for audit. The successful decision receipt `0685efcb-7af0-4fea-bf0f-60b97b1f7c3c` remains immutable. Its `RESTRICT` references require the successful candidate packet, original packet, calendar item, and Social Content queue row to remain. The failed lineage and both Slack messages remain as historical evidence as well.
+
+`lib/evidence-repair-canary.ts` is the exact, repository-owned classification registry. It lists two queue IDs, two calendar IDs, and four packet IDs. Canonical readers use its shared predicate before pagination or counts; read-only ranking also checks it. The registry deliberately does not update receipt-bound source rows, change their `updated_at` versions, change RLS/grants, or alter the receipt trigger. A future canary must receive an explicit reviewed registry entry before production creation; there is no title-string or blanket synthetic filter.
+
+The canonical Release Calendar excludes both retained calendar rows. Its expected reconciliation is 90 persisted rows plus ten immutable Agentified draft projections, totaling 100. The Social Content list and stats exclude the two queue rows; preparation, digest, campaign review, and calendar Slack selection exclude the respective calendar or packet rows. This is a projection rule only. Direct audit reads by exact ID remain available through the existing authorized surfaces.
+
+Read-only production verification on 2026-11-26 found 92 persisted calendar rows, 90 after exact-ID exclusion, both queue rows, all four packets, and one immutable receipt. The receipt links to the specified successful queue/calendar/packet lineage. Checked calendar and receipt external-action flags were false. This is a pre-deployment database baseline; the rendered production route must still be checked after integration.
+
+## Mutable agent-run cleanup gate
+
+No run ID was provided for deletion. Before any cleanup, inventory exact candidate `agent_runs` IDs and their child steps, events, artifacts, approvals, actions, and all other foreign-key dependents with read-only queries. Export a privacy-safe receipt of the inventory. Require each run to be terminal, carry `metadata.synthetic_evidence` with `kind=evidence_repair_canary`, `version=1`, and exact queue/calendar IDs from the registry, and have no protected dependent. Pass the exact reviewed run IDs and dependency result to `planEvidenceRepairCanaryRunCleanup`. Any mixed, missing, running, unmarked, receipt-linked, or dependent run makes the whole batch ineligible. The planner performs no deletion. A later separately reviewed cleanup must bind its deletion to exactly the nominated run IDs in one transaction, recheck the same predicates and dependencies immediately before deletion, and abort on any mismatch. Keep the receipt, four packets, two calendar rows, two queue rows, and both Slack messages untouched.
+
+No production or staging cleanup is part of this change. External generation, upload, schedule, publish, post, outreach, and provider actions remain locked.

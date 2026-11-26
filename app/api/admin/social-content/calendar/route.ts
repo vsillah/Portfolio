@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { agentifiedCalendarRows } from '@/lib/agentified-calendar-drafts'
+import { excludeEvidenceRepairCanaries } from '@/lib/evidence-repair-canary'
 import {
   CALENDAR_SIDE_EFFECTS,
   defaultAuthorizationDueAt,
@@ -58,14 +59,14 @@ export async function GET(request: NextRequest) {
     const from = isoOrNull(searchParams.get('from'))
     const to = isoOrNull(searchParams.get('to'))
 
-    let query = supabaseAdmin
+    let query = excludeEvidenceRepairCanaries(supabaseAdmin
       .from('social_content_calendar_items')
       .select(`
         *,
         attraction_campaigns (id, name, slug, status, starts_at, ends_at),
         agent_work_items (id, title, status, priority, metadata),
         social_content_queue (id, status, post_text, scheduled_for)
-      `, { count: 'exact' })
+      `, { count: 'exact' }), 'calendar')
       .order('scheduled_for', { ascending: true })
       .order('id', { ascending: true })
       .range(offset, offset + limit - 1)
