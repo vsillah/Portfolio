@@ -129,16 +129,25 @@ export function verifyCalibrationApprovalStore(input: {
     blockers.push('Decision time is stale, future-dated, or changed.')
   }
   const exclusions = expected.exclusions
+  const provenance = object(expected.provenance)
   if (expected.privacy_cleared !== true || expected.rights_cleared !== true
     || !Array.isArray(exclusions) || exclusions.length === 0
     || exclusions.some(item => typeof item !== 'string' || !item.trim())
     || new Set(exclusions).size !== exclusions.length
-    || !safePath(expected.source_path) || !same(object(expected.provenance)?.source_path, expected.source_path)
+    || !safePath(expected.source_path) || provenance?.source_path !== expected.source_path
+    || provenance?.source_kind !== 'synthetic'
+    || provenance?.source_version !== expected.source_version
+    || provenance?.source_sha256 !== expected.source_sha256
+    || provenance?.source_expires_at !== source.expires_at
     || !object(expected.rollback_metadata) || !Object.keys(object(expected.rollback_metadata)!).length) {
     blockers.push('Privacy, rights, exclusion, provenance, or rollback binding is incomplete.')
   }
   if (!safePath(source.source_path) || source.source_path !== expected.source_path
     || source.source_version !== expected.source_version || rawResponseSha256(source.raw_response) !== expected.source_sha256
+    || source.kind !== provenance?.source_kind || source.source_path !== provenance?.source_path
+    || source.source_version !== provenance?.source_version
+    || rawResponseSha256(source.raw_response) !== provenance?.source_sha256
+    || source.expires_at !== provenance?.source_expires_at
     || source.privacy_cleared !== true || source.rights_cleared !== true
     || validTime(source.expires_at) === null || now === null || validTime(source.expires_at)! <= now
     || !same(source.rollback_metadata, expected.rollback_metadata)

@@ -24,7 +24,9 @@ function setup() {
     decided_at: '2026-11-26T11:00:00.000Z', valid_until: '2026-11-30T00:00:00.000Z',
     privacy_cleared: true, rights_cleared: true,
     exclusions: ['live data', 'external execution'], source_path: source.source_path,
-    provenance: { source_path: source.source_path, kind: 'synthetic' },
+    provenance: { source_kind: source.kind, source_path: source.source_path,
+      source_version: source.source_version, source_sha256: rawResponseSha256(source.raw_response),
+      source_expires_at: source.expires_at },
     rollback_metadata: source.rollback_metadata,
   }
   for (const [index, dimension] of dimensions.entries()) {
@@ -87,6 +89,11 @@ describe('Phase 5K owning-store read verification', () => {
     ['hash drift', (v: ReturnType<typeof setup>) => { v.rows[0].cohort_sha256 = 'f'.repeat(64) }],
     ['source drift', (v: ReturnType<typeof setup>) => { v.source.raw_response = { views: 201 } }],
     ['source expired', (v: ReturnType<typeof setup>) => { v.source.expires_at = '2026-11-25T00:00:00Z' }],
+    ['caller-extended source expiry', (v: ReturnType<typeof setup>) => { v.source.expires_at = '2026-12-01T00:00:00Z' }],
+    ['provenance expiry drift', (v: ReturnType<typeof setup>) => { (v.expected_payload.provenance as Record<string, unknown>).source_expires_at = '2026-12-01T00:00:00Z' }],
+    ['provenance kind drift', (v: ReturnType<typeof setup>) => { (v.expected_payload.provenance as Record<string, unknown>).source_kind = 'approved_historical' }],
+    ['provenance version drift', (v: ReturnType<typeof setup>) => { (v.expected_payload.provenance as Record<string, unknown>).source_version = 'source-v2' }],
+    ['provenance SHA drift', (v: ReturnType<typeof setup>) => { (v.expected_payload.provenance as Record<string, unknown>).source_sha256 = 'f'.repeat(64) }],
     ['historical approval absent', (v: ReturnType<typeof setup>) => { v.source.kind = 'approved_historical' }],
     ['historical claim with an unverified receipt', (v: ReturnType<typeof setup>) => { v.source.kind = 'approved_historical'; v.source.approval_receipt_id = id(5) }],
     ['privacy', (v: ReturnType<typeof setup>) => { v.source.privacy_cleared = false }],
