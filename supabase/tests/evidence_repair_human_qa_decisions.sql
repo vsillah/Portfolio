@@ -26,8 +26,8 @@ DECLARE
 BEGIN
   INSERT INTO public.user_profiles(id,role) VALUES (v_reviewer,'admin');
   INSERT INTO public.social_content_queue(id,post_text,updated_at) VALUES (v_social,'Synthetic approved copy',v_content_version);
-  INSERT INTO public.social_content_calendar_items(id,social_content_id,authorization_status,metadata)
-    VALUES (v_calendar,v_social,'authorized','{"external_execution_enabled":false}');
+  INSERT INTO public.social_content_calendar_items(id,social_content_id,title,scheduled_for,authorization_status,metadata)
+    VALUES (v_calendar,v_social,'Synthetic evidence repair review',v_version + interval '7 days','authorized','{"external_execution_enabled":false}');
   INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url)
     VALUES (v_original,'approved',v_original_version,'https://example.test/original');
   v_candidate := jsonb_build_object(
