@@ -6,6 +6,16 @@ const HASH = /^[a-f0-9]{64}$/
 const record = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
 const str = (value: unknown) => typeof value === 'string' ? value : ''
 const hash = (value: string) => createHash('sha256').update(value).digest('hex')
+// PostgreSQL timestamptz retains microseconds; Date.toISOString() retains only
+// milliseconds. Keep the remaining digits when binding a database row to a review.
+function exactTimestamp(value: unknown): string {
+  const raw = str(value)
+  const match = raw.match(/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.(\d{1,6}))?(?:Z|[+-]\d{2}(?::?\d{2})?)$/)
+  if (!match || !Number.isFinite(Date.parse(raw))) return ''
+  const iso = new Date(raw).toISOString()
+  const remaining = (match[1] ?? '').padEnd(6, '0').slice(3).replace(/0+$/, '')
+  return `${iso.slice(0, -1)}${remaining}Z`
+}
 
 export type RepairDecision = 'approve' | 'reject' | 'revise'
 export type RepairBinding = {
@@ -46,11 +56,11 @@ export async function getEvidenceRepairReview(packetId: string, now = new Date()
   const expiresAt = str(freshness.expires_at)
   if (![originalPacketId, calendarItemId, socialContentId].every(value => UUID.test(value))
     || !HASH.test(sourceSha256) || !HASH.test(approvedCopySha256)
-    || !Number.isFinite(Date.parse(expiresAt))
-    || !Number.isFinite(Date.parse(str(freshness.observed_at)))
-    || !Number.isFinite(Date.parse(str(candidate.original_packet_version)))
-    || !Number.isFinite(Date.parse(str(packet.updated_at)))
-    || !Number.isFinite(Date.parse(str(freshness.evidence_version)))) {
+    || !exactTimestamp(expiresAt)
+    || !exactTimestamp(freshness.observed_at)
+    || !exactTimestamp(candidate.original_packet_version)
+    || !exactTimestamp(packet.updated_at)
+    || !exactTimestamp(freshness.evidence_version)) {
     throw new RepairDecisionError('Repair packet lacks exact versioned evidence.')
   }
   try {
@@ -66,7 +76,7 @@ export async function getEvidenceRepairReview(packetId: string, now = new Date()
     || freshness.source_url !== packet.source_url
     || Date.parse(expiresAt) <= now.getTime()
     || Date.parse(str(freshness.observed_at)) > now.getTime()
-    || Date.parse(str(freshness.evidence_version)) !== Date.parse(packet.updated_at)) {
+    || exactTimestamp(freshness.evidence_version) !== exactTimestamp(packet.updated_at)) {
     throw new RepairDecisionError('Repair packet is stale, decided, or outside review-only scope.')
   }
   const [originalResult, calendarResult, socialResult] = await Promise.all([
@@ -79,12 +89,12 @@ export async function getEvidenceRepairReview(packetId: string, now = new Date()
   }
   const calendar = calendarResult.data
   const flags = record(calendar?.metadata)
-  if (!originalResult.data || Date.parse(originalResult.data.updated_at) !== Date.parse(str(candidate.original_packet_version))
+  if (!originalResult.data || exactTimestamp(originalResult.data.updated_at) !== exactTimestamp(candidate.original_packet_version)
     || originalResult.data.status !== 'approved' || originalResult.data.source_url !== candidate.original_source_url
     || !calendar || calendar.social_content_id !== socialContentId || calendar.authorization_status !== 'authorized'
     || ['external_execution_enabled', 'provider_generation_enabled', 'upload_enabled', 'schedule_enabled',
       'publish_enabled', 'outreach_send_enabled'].some(key => flags[key] !== undefined && flags[key] !== false)
-    || !socialResult.data || !Number.isFinite(Date.parse(socialResult.data.updated_at))
+    || !socialResult.data || !exactTimestamp(socialResult.data.updated_at)
     || hash(socialResult.data.post_text ?? '') !== approvedCopySha256) {
     throw new RepairDecisionError('Original packet, calendar authorization, approved copy, or external lock changed.')
   }
@@ -98,11 +108,11 @@ export async function getEvidenceRepairReview(packetId: string, now = new Date()
     removed_source_derived_assertions: pattern.removed_source_derived_assertions ?? [] }))
   const binding = repairBinding({
     caseId: `calendar:${calendarItemId}:repair-packet:${packetId}`, packetId,
-    packetVersion: new Date(packet.updated_at).toISOString(), originalPacketId,
-    originalPacketVersion: new Date(str(candidate.original_packet_version)).toISOString(),
-    calendarItemId, socialContentId, sourceSha256, sourceExpiresAt: new Date(expiresAt).toISOString(),
-    approvedCopySha256, evidenceVersion: new Date(str(freshness.evidence_version)).toISOString(),
-    contentVersion: new Date(socialResult.data.updated_at).toISOString(), claimBoundarySha256,
+    packetVersion: exactTimestamp(packet.updated_at), originalPacketId,
+    originalPacketVersion: exactTimestamp(candidate.original_packet_version),
+    calendarItemId, socialContentId, sourceSha256, sourceExpiresAt: exactTimestamp(expiresAt),
+    approvedCopySha256, evidenceVersion: exactTimestamp(freshness.evidence_version),
+    contentVersion: exactTimestamp(socialResult.data.updated_at), claimBoundarySha256,
   })
   return {
     binding, title: str(packet.title), sourceUrl: str(packet.source_url),
@@ -121,14 +131,15 @@ export async function decideEvidenceRepairHumanQa(input: {
   if (!UUID.test(input.packetId) || !UUID.test(input.reviewerId)
     || !['approve', 'reject', 'revise'].includes(input.decision)
     || !input.reason.trim() || input.reason.trim().length > 2000
-    || !HASH.test(input.bindingHash) || !Number.isFinite(Date.parse(input.packetVersion))) {
+    || !HASH.test(input.bindingHash) || !exactTimestamp(input.packetVersion)) {
     throw new RepairDecisionError('Invalid review decision or exact binding.', 400)
   }
   if (!supabaseAdmin) throw new RepairDecisionError('Review database unavailable.', 503)
-  const idempotencyKey = `evidence-repair-human-qa:${input.packetId}:${new Date(input.packetVersion).toISOString()}:${input.decision}:${input.reviewerId}`
+  const packetVersion = exactTimestamp(input.packetVersion)
+  const idempotencyKey = `evidence-repair-human-qa:${input.packetId}:${packetVersion}:${input.decision}:${input.reviewerId}`
   const { data: prior, error: priorError } = await supabaseAdmin
     .from('evidence_repair_human_qa_receipts').select('*')
-    .eq('packet_id', input.packetId).eq('packet_version', new Date(input.packetVersion).toISOString()).maybeSingle()
+    .eq('packet_id', input.packetId).eq('packet_version', packetVersion).maybeSingle()
   if (priorError) throw new RepairDecisionError('Decision receipt read failed.', 503)
   if (prior) {
     if (prior.idempotency_key === idempotencyKey && prior.reason === input.reason.trim()
@@ -136,19 +147,19 @@ export async function decideEvidenceRepairHumanQa(input: {
       && JSON.stringify(prior.slack_identity ?? null) === JSON.stringify(input.slackIdentity ?? null)
       && prior.candidate_snapshot && prior.freshness_snapshot
       && repairBinding({ caseId: prior.case_id, packetId: prior.packet_id,
-        packetVersion: new Date(prior.packet_version).toISOString(), originalPacketId: prior.original_packet_id,
-        originalPacketVersion: new Date(prior.original_packet_version).toISOString(),
+        packetVersion: exactTimestamp(prior.packet_version), originalPacketId: prior.original_packet_id,
+        originalPacketVersion: exactTimestamp(prior.original_packet_version),
         calendarItemId: prior.calendar_item_id, socialContentId: prior.social_content_id,
-        sourceSha256: prior.source_sha256, sourceExpiresAt: new Date(prior.source_expires_at).toISOString(),
+        sourceSha256: prior.source_sha256, sourceExpiresAt: exactTimestamp(prior.source_expires_at),
         approvedCopySha256: prior.approved_copy_sha256,
-        evidenceVersion: new Date(str(record(prior.freshness_snapshot).evidence_version)).toISOString(),
-        contentVersion: new Date(prior.content_version).toISOString(), claimBoundarySha256: prior.claim_boundary_sha256,
+        evidenceVersion: exactTimestamp(record(prior.freshness_snapshot).evidence_version),
+        contentVersion: exactTimestamp(prior.content_version), claimBoundarySha256: prior.claim_boundary_sha256,
       }).bindingHash === input.bindingHash) return { ...prior, replayed: true }
     throw new RepairDecisionError('This packet version already has a different Human QA decision.')
   }
   const review = await getEvidenceRepairReview(input.packetId)
   if (review.binding.bindingHash !== input.bindingHash
-    || Date.parse(review.binding.packetVersion) !== Date.parse(input.packetVersion)) {
+    || review.binding.packetVersion !== packetVersion) {
     throw new RepairDecisionError('Review evidence changed. Open the current Portfolio record.')
   }
   const { data, error } = await supabaseAdmin.rpc('record_evidence_repair_human_qa_decision', {
