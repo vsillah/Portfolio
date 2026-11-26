@@ -1,0 +1,23 @@
+# Phase 5H: read-only historical cohort construction
+
+`lib/attributable-historical-cohort.ts` accepts only caller-supplied, retained parsed responses, their checked-in fixture manifest, explicit baselines, and an evaluation timestamp. It calls the merged Phase 5G acquisition adapter and Phase 5F performance evaluator. It does not open a file, read an environment variable, fetch a URL, persist a receipt, notify anyone, or enable an external action. It does not link production packets or alter calendar, campaign, authorization, Human QA, or historical records.
+
+## Supported fixture manifest
+
+A caller must supply a manifest ID and version; the current policy ID, version, and evidence version; and one approved metric definition with its metric name, denominator name, version, and approval receipt ID. Every candidate and comparable needs an entry bound to its historical record ID, raw-response SHA-256, evidence and collector versions, source-policy version, exact policy approval receipt ID, repository-relative source path, fixture kind, and fixture approval receipt ID. The supported kinds are `synthetic` and `approved_checked_in_historical`. A path is provenance, not permission to read that path. The constructor accepts no live source, URL-fetching route, credential, provider client, or production query.
+
+Phase 5H verifies the manifest bindings against each supplied fixture. For approved historical fixtures, the owner must verify the approval receipts and rights/privacy clearance against the owning approval store before supplying them; a string in a checked-in manifest is not itself proof of authority. A change to retained response content changes its SHA-256 and fails the exact manifest and policy binding. Never regenerate a manifest hash merely to accept source drift without reviewing and reapproving the changed source.
+
+Each trace row retains canonical platform, format, object ID and URL when normalization succeeds; historical and provenance record IDs; raw-response SHA-256; evidence and collector versions; decision window; audience band; baseline receipt; policy approval receipt; rights and privacy status; fixture approval; and complete rollback metadata. Invalid records remain present with an `Unscored` reason. The manifest sorts comparables by record ID and response hash and hashes the complete deterministic result. The constructor never updates the input or an existing receipt.
+
+## Eligibility
+
+A candidate and at least five **distinct** comparable objects must pass exact platform and format, the same approved metric and denominator definition, the same cohort and audience-size band, decision-grade full seven-day observation window, current exact-version source policy with explicit unexpired expiry and matching approval binding, cleared rights and privacy, and each observation's own attributable same-account baseline. The Phase 5F baseline must have its required five bound contributions and valid input and receipt digests. Canonical object, historical record, and retained response identities are deduplicated. No cross-channel or cross-format equivalence, inferred denominator, audience, account, expiry, rights, or missing baseline is accepted.
+
+An excluded record is `Unscored` and remains in the trace. A cohort with fewer than five qualifying comparables is `Unscored`. A scored cohort still has only `internal_human_qa_preparation_only` or `none` as its Phase 5F handoff, with `external_actions_enabled: false` at both layers. It has no authority to prepare or change production packets, generate media, contact providers, upload, schedule, publish, post, or notify.
+
+## Validation and future gate
+
+The checked-in test file supplies production-shaped synthetic YouTube and X responses, including YouTube Shorts. It covers a passing five-record cohort, deterministic replay and ordering, changed fixture content, exact trace and count, stale and changed policy, immature and directional windows, missing metric denominator or baseline, wrong audience band, cross-channel and cross-format records, unsupported format, duplicate identities, and uncleared rights or privacy. The test blocks `fetch` and environment reads while constructing; module review confirms the exported constructor has no persistence or notification dependency.
+
+Before any live or production historical source is linked, authorize a separate source-integration lane. That lane must verify provider metric definitions, source identity and terms, credential scope, rights/privacy and approval-store authority, immutable response retention, source-policy expiry, rollback, and exact live response schemas. Phase 5H supplies no live collection or production-data path.
