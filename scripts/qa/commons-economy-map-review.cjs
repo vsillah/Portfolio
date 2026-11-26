@@ -60,14 +60,91 @@ async function a11y(page, label) {
 async function interact(page, label) {
   const walks = page.locator('[role="group"][aria-label="Walkthroughs"] button')
   assert.equal(await walks.count(), payload.walkthroughs.length, `${label}: walkthrough buttons`)
+  // Phase 7: the sheet opens on the first walkthrough at its first step, and nothing plays until Play is pressed.
+  const lead = payload.walkthroughs[0]
+  assert.equal(await walks.nth(0).getAttribute('aria-pressed'), 'true', `${label}: first walkthrough is not selected on load`)
+  assert.equal(await page.getByRole('region', { name: new RegExp(`^${lead.label}, step 1 of ${lead.steps.length}$`) }).count(), 1, `${label}: lead walkthrough is not open at step 1`)
+  assert.equal(await page.getByRole('button', { name: 'Play', exact: true }).count(), 1, `${label}: Play control missing`)
+  assert.equal(await page.getByRole('button', { name: 'Pause', exact: true }).count(), 0, `${label}: playing without being asked`)
+  for (const name of ['Restart', 'Previous step', 'Next step']) assert.equal(await page.getByRole('button', { name, exact: true }).count(), 1, `${label}: ${name} control missing`)
+  // Phase 7 visual-first: the path is marked on the plate on load, the path's stops are on the first screen, and the long account is folded but never out of the document.
+  const figure = page.locator('[aria-labelledby="econ-map-caption"]')
+  assert.equal(await figure.getByText(`On the walk · step 1`, { exact: true }).count(), 1, `${label}: first stop is not marked on the plate`)
+  assert.equal(await figure.locator('[role="group"], [role="region"]').count(), 0, `${label}: controls are inside the plate figure`)
+  const fold = await page.evaluate(() => {
+    const rail = document.querySelector('[role="region"][aria-label*=", step 1 of "] ol').getBoundingClientRect()
+    const plate = document.querySelector('[aria-labelledby="econ-map-caption"]').getBoundingClientRect()
+    return { height: innerHeight, scrollY, railBottom: rail.bottom, plateTop: plate.top }
+  })
+  assert.equal(fold.scrollY, 0, `${label}: page scrolled on load`)
+  assert.ok(fold.railBottom <= fold.height, `${label}: the route of the path is below the fold (${Math.round(fold.railBottom)} > ${fold.height})`)
+  assert.ok(fold.plateTop < fold.height, `${label}: the plate starts below the fold (${Math.round(fold.plateTop)} >= ${fold.height})`)
+  const more = page.getByRole('button', { name: 'More detail', exact: true })
+  assert.equal(await more.getAttribute('aria-expanded'), 'false', `${label}: detail is not folded on load`)
+  const full = page.locator('#econ-step-full')
+  for (const duty of lead.steps[0].responsibilities) assert.ok((await full.getByText(duty.who, { exact: false }).count()) >= 1, `${label}: folded account lost "${duty.key}"`)
+  assert.equal(await full.evaluate(el => Boolean(el.closest('[hidden], [aria-hidden="true"], [inert]')) || getComputedStyle(el).display === 'none' || getComputedStyle(el).visibility === 'hidden'), false, `${label}: folded account is hidden from assistive technology`)
+  await more.click()
+  assert.equal(await page.getByRole('button', { name: 'Less detail', exact: true }).getAttribute('aria-expanded'), 'true', `${label}: More detail did not open`)
+  assert.ok(await full.evaluate(el => el.getBoundingClientRect().height > 40), `${label}: opened account is not shown`)
+  await page.getByRole('button', { name: 'Less detail', exact: true }).click()
+  // Phase 7 photo story: one staged frame for the current step in the console, the selected path as a captioned strip below the fold, every picture with real alt text and loaded from this origin.
+  const panel = page.getByRole('region', { name: new RegExp(`^${lead.label}, step 1 of ${lead.steps.length}$`) }).locator('img')
+  assert.equal(await panel.count(), 1, `${label}: console photo panel missing`)
+  assert.ok((await panel.getAttribute('src')).endsWith(`/insights/commons-economy-map/${lead.steps[0].id}.webp`), `${label}: console photo is not the first step's frame`)
+  assert.equal(await figure.locator('img').count(), 0, `${label}: a photograph is inside the plate figure`)
+  const photos = await page.evaluate(async () => {
+    const strip = document.querySelector('[aria-labelledby="econ-photos-title"]')
+    const mapRoot = document.querySelector('[aria-labelledby="econ-map-caption"]')?.closest('article')
+    if (!mapRoot) throw new Error('Commons Economy Map root is missing')
+    const imgs = [...mapRoot.querySelectorAll('img')]
+    imgs.forEach(img => { img.loading = 'eager' })
+    await Promise.all(imgs.map(img => img.complete && img.naturalWidth ? null : new Promise(done => { img.addEventListener('load', done, { once: true }); img.addEventListener('error', done, { once: true }) })))
+    const con = document.querySelector('[role="region"][aria-label*=", step 1 of "] img').getBoundingClientRect(), plate = document.querySelector('[aria-labelledby="econ-map-caption"]').getBoundingClientRect()
+    return { stripTop: strip.getBoundingClientRect().top + scrollY, height: innerHeight, stripCount: strip.querySelectorAll('li img').length, current: strip.querySelectorAll('li[aria-current="step"]').length,
+      broken: imgs.filter(img => !img.naturalWidth).length, thinAlt: imgs.filter(img => (img.getAttribute('alt') || '').trim().length < 40 || !/^Illustrative /.test(img.alt)).length,
+      staged: [...strip.querySelectorAll('figcaption')].filter(el => !/A staged picture: /.test(el.textContent)).length, plateWidth: plate.width, panelWidth: con.width }
+  })
+  assert.equal(photos.stripCount, lead.steps.length, `${label}: photo strip does not cover the path`)
+  assert.equal(photos.current, 1, `${label}: photo strip does not mark the current step`)
+  assert.ok(photos.stripTop > photos.height, `${label}: photo strip is above the fold`)
+  assert.equal(photos.broken, 0, `${label}: a photograph failed to load`)
+  assert.equal(photos.thinAlt, 0, `${label}: a photograph lacks meaningful alt text`)
+  assert.equal(photos.staged, 0, `${label}: a photo caption does not say it is staged`)
+  assert.ok(photos.panelWidth * 2 < photos.plateWidth, `${label}: the photo panel is not subordinate to the plate (${Math.round(photos.panelWidth)} of ${Math.round(photos.plateWidth)})`)
   for (let w = 0; w < payload.walkthroughs.length; w++) {
     const walk = payload.walkthroughs[w]
     await walks.nth(w).click()
     const first = page.getByRole('region', { name: new RegExp(`step 1 of ${walk.steps.length}`) })
     await first.waitFor()
+    // Wayfinding: every step has one mark on the rail and the same mark on its node, beside a number and a name, and every rail numeral's ink sits in the middle of its box.
+    const way = await page.evaluate(ids => {
+      const rail = [...document.querySelectorAll('[role="region"][aria-label*=", step "] ol > li')], plate = document.querySelector('[aria-labelledby="econ-map-caption"]')
+      const ink = li => { const box = li.querySelector('span[aria-hidden="true"]'), digit = box.firstElementChild, range = document.createRange(); range.selectNodeContents(digit)
+        const r = range.getBoundingClientRect(), b = box.getBoundingClientRect(), cs = getComputedStyle(digit), c = document.createElement('canvas').getContext('2d')
+        c.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic'; const m = c.measureText(digit.textContent), base = r.top + m.fontBoundingBoxAscent
+        return { n: digit.textContent, dx: (r.left - m.actualBoundingBoxLeft + r.left + m.actualBoundingBoxRight) / 2 - (b.left + b.right) / 2, dy: (base - m.actualBoundingBoxAscent + base + m.actualBoundingBoxDescent) / 2 - (b.top + b.bottom) / 2, square: Math.abs(b.width - b.height) }
+      }
+      return { count: rail.length, steps: ids.map((id, i) => { const onRail = rail[i] ? [...rail[i].querySelectorAll('[data-step-mark]')] : [], onPlate = [...plate.querySelectorAll(`[data-step-mark="${id}"]`)]
+        return { id, rail: onRail.map(el => el.getAttribute('data-step-mark')), plate: onPlate.length, same: onRail.length === 1 && onPlate.length === 1 && onRail[0].innerHTML === onPlate[0].innerHTML, hidden: [...onRail, ...onPlate].every(el => el.getAttribute('aria-hidden') === 'true' && !el.textContent), numbered: rail[i] ? /^\d/.test(rail[i].textContent) && rail[i].textContent.length > 8 : false, tagged: onPlate.every(el => /step \d/i.test(el.parentElement.textContent)), ink: rail[i] ? ink(rail[i]) : null } }),
+        distinct: new Set([...plate.querySelectorAll('[data-step-mark]')].map(el => el.innerHTML)).size, plateTotal: plate.querySelectorAll('[data-step-mark]').length, stray: document.querySelectorAll('main [data-step-mark]').length }
+    }, walk.steps.map(step => step.id))
+    assert.equal(way.count, walk.steps.length, `${label}: ${walk.id} rail length`)
+    assert.equal(way.plateTotal, walk.steps.length, `${label}: ${walk.id} plate carries ${way.plateTotal} marks`)
+    assert.equal(way.distinct, walk.steps.length, `${label}: ${walk.id} marks are not all different`)
+    assert.equal(way.stray, walk.steps.length * 2, `${label}: ${walk.id} a mark is printed somewhere else`)
+    for (const step of way.steps) {
+      assert.deepEqual(step.rail, [step.id], `${label}: rail stop of ${step.id} carries ${step.rail}`)
+      assert.equal(step.plate, 1, `${label}: ${step.id} is marked ${step.plate} times on the plate`)
+      assert.ok(step.same, `${label}: ${step.id} rail and plate marks differ`)
+      assert.ok(step.hidden, `${label}: ${step.id} mark is exposed to assistive technology`)
+      assert.ok(step.numbered && step.tagged, `${label}: ${step.id} mark stands without its number and name`)
+      assert.ok(Math.abs(step.ink.dx) <= 0.75 && Math.abs(step.ink.dy) <= 0.75 && step.ink.square < 0.5, `${label}: rail numeral ${step.ink.n} of ${walk.id} is off centre by ${step.ink.dx.toFixed(2)}, ${step.ink.dy.toFixed(2)}`)
+    }
     await page.getByRole('button', { name: 'Next step' }).focus()
     await page.keyboard.press('ArrowRight')
     await page.getByRole('region', { name: new RegExp(`step 2 of ${walk.steps.length}`) }).waitFor()
+    assert.ok((await page.getByRole('region', { name: new RegExp(`step 2 of ${walk.steps.length}`) }).locator('img').getAttribute('src')).endsWith(`/${walk.steps[1].id}.webp`), `${label}: photo did not follow ${walk.id} to step 2`)
     await page.keyboard.press('End')
     await page.getByRole('region', { name: new RegExp(`step ${walk.steps.length} of ${walk.steps.length}`) }).waitFor()
     assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('role')), 'region', `${label}: focus left the walkthrough at the last step`)
@@ -82,9 +159,14 @@ async function interact(page, label) {
     assert.notEqual(await flows.nth(i).getAttribute('aria-pressed'), before, `${label}: flow ${i} toggle`)
     await flows.nth(i).click()
   }
-  const labels = page.locator('[role="group"][aria-labelledby="econ-labels"] button')
-  assert.equal(await labels.count(), payload.labelModes.length)
-  await labels.nth(0).click(); await labels.nth(1).click()
+  // Phase 7: one Roxbury Commons model. No version or term comparison is offered as a control; the source stays credited under Sources and method.
+  assert.equal(await page.locator('[aria-labelledby="econ-labels"], #econ-labels').count(), 0, `${label}: term comparison control still printed`)
+  for (const mode of payload.labelModes) assert.equal(await page.getByRole('button', { name: mode.label, exact: true }).count(), 0, `${label}: label mode ${mode.id} still offered`)
+  for (const id of ['proposed', 'roxbury']) {
+    const layer = payload.layers.find(item => item.id === id)
+    for (const name of new Set([layer.label.book, layer.label.commons])) assert.equal(await page.getByRole('button', { name, exact: true }).count(), 0, `${label}: model layer ${id} still offered as a choice`)
+    assert.equal(await page.locator('details', { hasText: 'Sources and method' }).getByText(layer.line, { exact: false }).count(), 1, `${label}: ${id} provenance missing from Sources and method`)
+  }
   const altitudes = page.locator('[role="group"][aria-labelledby="econ-altitude"] button')
   assert.equal(await altitudes.count(), payload.altitudes.length)
   await altitudes.last().click(); await altitudes.first().click()
