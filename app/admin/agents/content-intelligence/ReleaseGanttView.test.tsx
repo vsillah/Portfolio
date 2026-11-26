@@ -55,4 +55,11 @@ describe('ReleaseGanttView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }))
     expect(onClearFilters).toHaveBeenCalledOnce()
   })
+
+  it('gives a single-item campaign a visible minimum span', () => {
+    const { container } = render(<ReleaseGanttView items={[row('solo', '2026-11-29T15:00:00Z')]} month="2026-11" onMonthChange={vi.fn()} onOpen={vi.fn()} onClearFilters={vi.fn()} />)
+    const span = container.querySelector('[class*="ganttSpan"]') as HTMLElement
+    expect(span).toBeInTheDocument()
+    expect(span.style.width).toBe('2%')
+  })
 })

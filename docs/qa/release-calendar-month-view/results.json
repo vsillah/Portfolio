@@ -1,0 +1,29 @@
+{
+  "commit": "fd30fa9ad444799cfa87c75109289862467cb9b0",
+  "route": "/admin/agents/content-intelligence?section=calendar&view=list&month=2026-11&rev=fd30fa9ad444799cfa87c75109289862467cb9b0",
+  "fixture": "synthetic read-only",
+  "persisted_rows": 90,
+  "draft_rows": 10,
+  "viewports": [
+    "1280x800",
+    "820x900",
+    "390x844"
+  ],
+  "themes": [
+    "dark",
+    "light",
+    "system"
+  ],
+  "videos": [
+    "/Users/vambahsillah/.codex/worktrees/a525/Portfolio/docs/qa/release-calendar-month-view/desktop-1280x800.mp4",
+    "/Users/vambahsillah/.codex/worktrees/a525/Portfolio/docs/qa/release-calendar-month-view/mid-820x900.mp4",
+    "/Users/vambahsillah/.codex/worktrees/a525/Portfolio/docs/qa/release-calendar-month-view/mobile-390x844.mp4"
+  ],
+  "side_effects": {
+    "provider_generation": false,
+    "upload": false,
+    "schedule": false,
+    "publish": false,
+    "send": false
+  }
+}

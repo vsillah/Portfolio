@@ -144,7 +144,7 @@ async function capture(browser, label, viewport, colorScheme, recordVideo) {
     }, viewport.width < 640 ? 'ganttDesktop' : 'ganttMobile')
     if (ganttHidden !== 'none') throw new Error(`${label}: inactive Gantt layout was ${ganttHidden}`)
     const ganttMilestones = await page.getByRole('button', { name: /Open details:/ }).count()
-    if (ganttMilestones !== 4) throw new Error(`${label}: Gantt exposed ${ganttMilestones} milestones; expected 4`)
+    if (ganttMilestones !== 5) throw new Error(`${label}: Gantt exposed ${ganttMilestones} milestones; expected 5`)
     const ganttOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
     if (ganttOverflow > 2) throw new Error(`${label}: Gantt has ${ganttOverflow}px horizontal overflow`)
     await page.waitForTimeout(1000)
