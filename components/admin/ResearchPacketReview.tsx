@@ -20,15 +20,33 @@ export type ReviewableResearchPacket = {
   actor_metadata: Record<string, unknown>
 }
 
-export function ResearchPacketReview({ packet, onReview, onSaveEvidence }: {
+export type EvidenceRepairReview = {
+  binding: { caseId?: string; packetVersion: string; bindingHash: string; sourceSha256: string; sourceExpiresAt: string; approvedCopySha256: string; originalPacketId: string; originalPacketVersion: string; contentVersion?: string; claimBoundarySha256?: string }
+  title: string
+  source_url: string
+  source_use_boundary: string
+  supported_claims: string[]
+  removed_claims: string[]
+  approval_scope: string
+  slack_review_enabled: boolean
+  terminal_receipt?: { id: string; decision: 'approve' | 'reject' | 'revise'; reason: string;
+    reviewer_id: string; surface: 'portfolio' | 'slack'; created_at: string; external_execution_enabled: false }
+}
+
+export function ResearchPacketReview({ packet, onReview, onSaveEvidence, onLoadRepairReview, onRepairDecision, onRequestSlackReview }: {
   packet: ReviewableResearchPacket
   onReview: (decision: 'approved' | 'rejected', note: string, signalReview?: OfficialSignalReviewPayload) => Promise<void>
   onSaveEvidence?: (evidence: PractitionerEvidenceAuthoring) => Promise<void>
+  onLoadRepairReview?: () => Promise<EvidenceRepairReview>
+  onRepairDecision?: (decision: 'approve' | 'reject' | 'revise', reason: string, review: EvidenceRepairReview) => Promise<void>
+  onRequestSlackReview?: (review: EvidenceRepairReview) => Promise<string>
 }) {
   const [open, setOpen] = useState(false)
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [repairReview, setRepairReview] = useState<EvidenceRepairReview | null>(null)
+  const [repairSlackStatus, setRepairSlackStatus] = useState('')
   const savedEvidence = normalizePractitionerEvidence(packet.actor_metadata?.practitioner_evidence)
   const [evidence, setEvidence] = useState<PractitionerEvidenceAuthoring>(savedEvidence)
   useEffect(() => {
@@ -66,6 +84,88 @@ export function ResearchPacketReview({ packet, onReview, onSaveEvidence }: {
     catch (err) { setError(err instanceof Error ? err.message : 'Review failed. Try again.') }
     finally { setBusy(false) }
   }
+  async function openRepair() {
+    if (open) { setOpen(false); return }
+    setOpen(true)
+    if (!onLoadRepairReview) return
+    setBusy(true); setError('')
+    try { setRepairReview(await onLoadRepairReview()) }
+    catch (err) { setError(err instanceof Error ? err.message : 'Review unavailable. Refresh the packet.') }
+    finally { setBusy(false) }
+  }
+  async function decideRepair(decision: 'approve' | 'reject' | 'revise') {
+    if (!repairReview || !onRepairDecision) return
+    setBusy(true); setError('')
+    let recorded = false
+    try {
+      await onRepairDecision(decision, note.trim(), repairReview)
+      recorded = true
+      setNote('')
+      if (onLoadRepairReview) setRepairReview(await onLoadRepairReview())
+      else setRepairReview(null)
+    }
+    catch (err) { setError(recorded ? 'Decision recorded. Refresh this packet to load its receipt.'
+      : err instanceof Error ? err.message : 'Decision not confirmed. Refresh before retrying.') }
+    finally { setBusy(false) }
+  }
+  async function requestRepairSlack() {
+    if (!onRequestSlackReview || !repairReview) return
+    setBusy(true); setError('')
+    try { setRepairSlackStatus(await onRequestSlackReview(repairReview)) }
+    catch (err) { setError(err instanceof Error ? err.message : 'Slack request was not confirmed.') }
+    finally { setBusy(false) }
+  }
+  const repair = packet.actor_metadata?.evidence_repair_candidate as { candidate_status?: string } | undefined
+  const repairStatusLabel = ({ human_qa_pending: 'Pending Human QA', human_qa_approved: 'Evidence approved',
+    human_qa_rejected: 'Candidate rejected', revision_requested: 'Revision requested' } as Record<string, string>)[repair?.candidate_status ?? ''] ?? 'Unknown'
+  if (repair) return <div className="mt-2 min-w-0 max-w-full text-xs">
+    <div className="flex flex-wrap items-center gap-2">
+      <span>Evidence repair · {repairStatusLabel}</span>
+      <button type="button" className="agent-ops-button-secondary" aria-expanded={open} onClick={() => void openRepair()}>{open ? 'Close Human QA' : repair.candidate_status === 'human_qa_pending' ? 'Review evidence repair' : 'View Human QA receipt'}</button>
+    </div>
+    {open && <div className="mt-2 space-y-3 rounded-lg border border-border p-3">
+      <p>Review this replacement source only. The original packet, approved copy, calendar linkage, and external execution stay unchanged.</p>
+      {busy && <p role="status">Loading or saving review…</p>}
+      {repairReview?.terminal_receipt && <div role="status" className="space-y-1 rounded border border-border p-2">
+        <p className="font-semibold">Human QA decision: {repairReview.terminal_receipt.decision === 'revise' ? 'Revision requested' : repairReview.terminal_receipt.decision === 'approve' ? 'Evidence approved' : 'Candidate rejected'}</p>
+        <p>Reason: {repairReview.terminal_receipt.reason}</p>
+        <p>Recorded {new Date(repairReview.terminal_receipt.created_at).toLocaleString()} in {repairReview.terminal_receipt.surface === 'slack' ? 'Slack' : 'Portfolio'} · receipt <span className="font-mono break-all">{repairReview.terminal_receipt.id}</span></p>
+        <p>Candidate only. No source linkage, preparation rerun, or external execution.</p>
+      </div>}
+      {repairReview && !repairReview.terminal_receipt && <>
+        <p className="font-semibold">{repairReview.title}</p>
+        <a href={repairReview.source_url} target="_blank" rel="noreferrer" className="block break-all underline">Inspect source</a>
+        <p>Source use: {repairReview.source_use_boundary || 'Unrecorded'}</p>
+        <p>Expires: {new Date(repairReview.binding.sourceExpiresAt).toLocaleString()}</p>
+        <details className="rounded border border-border p-2"><summary className="cursor-pointer font-semibold">Exact binding and lineage</summary>
+          <div className="mt-2 space-y-1">
+            {repairReview.binding.caseId && <p>Case: <span className="font-mono break-all">{repairReview.binding.caseId}</span></p>}
+            <p>Candidate version: <span className="font-mono break-all">{repairReview.binding.packetVersion}</span></p>
+            <p>Original packet: <span className="font-mono break-all">{repairReview.binding.originalPacketId}</span></p>
+            <p>Original version: <span className="font-mono break-all">{repairReview.binding.originalPacketVersion}</span></p>
+            {repairReview.binding.contentVersion && <p>Social Content version: <span className="font-mono break-all">{repairReview.binding.contentVersion}</span></p>}
+            <p>Source hash: <span className="font-mono break-all">{repairReview.binding.sourceSha256}</span></p>
+            {repairReview.binding.claimBoundarySha256 && <p>Claim boundary hash: <span className="font-mono break-all">{repairReview.binding.claimBoundarySha256}</span></p>}
+            <p>Approved copy hash: <span className="font-mono break-all">{repairReview.binding.approvedCopySha256}</span></p>
+          </div>
+        </details>
+        <div><p className="font-semibold">Supported claims</p><ul className="list-disc pl-4">{repairReview.supported_claims.map((claim, index) => <li key={index}>{claim}</li>)}</ul></div>
+        <div><p className="font-semibold">Removed claims</p><ul className="list-disc pl-4">{repairReview.removed_claims.map((claim, index) => <li key={index}>{claim}</li>)}</ul></div>
+        <p>{repairReview.approval_scope}</p>
+        <label className="block">Decision reason<textarea className="mt-1 block w-full rounded border border-border bg-background p-2" rows={2} maxLength={2000} value={note} onChange={event => setNote(event.target.value)} disabled={busy} /></label>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="agent-ops-button-primary disabled:opacity-50" disabled={busy || !note.trim()} onClick={() => void decideRepair('approve')}>Approve evidence only</button>
+          <button type="button" className="agent-ops-button-secondary disabled:opacity-50" disabled={busy || !note.trim()} onClick={() => void decideRepair('revise')}>Request revision</button>
+          <button type="button" className="rounded border border-red-400/60 px-3 py-2 text-red-300 disabled:opacity-50" disabled={busy || !note.trim()} onClick={() => void decideRepair('reject')}>Reject candidate</button>
+        </div>
+        {repairReview.slack_review_enabled && onRequestSlackReview
+          ? <button type="button" className="agent-ops-button-secondary disabled:opacity-50" disabled={busy} onClick={() => void requestRepairSlack()}>Request this exact review in Slack</button>
+          : <p className="text-muted-foreground">Slack review delivery is disabled. Decide here in Portfolio.</p>}
+        {repairSlackStatus && <p role="status">{repairSlackStatus}</p>}
+      </>}
+      {error && <p role="alert" className="text-red-300">{error}</p>}
+    </div>}
+  </div>
   const observation = packet.actor_metadata?.public_signal_observation as Record<string, unknown> | undefined
   if (packet.actor_metadata?.official_signal) return <OfficialSignalResearchReview packet={packet} onReview={onReview} />
   if (observation) return <div className="mt-2 text-xs">

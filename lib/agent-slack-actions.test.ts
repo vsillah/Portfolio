@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   routeAgentInboxItem: vi.fn(),
   authorizeCalendarDraftHandoff: vi.fn(),
   rejectCalendarDraftHandoff: vi.fn(),
+  getRepairReview: vi.fn(), decideRepair: vi.fn(), verifyRepairRequest: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -43,6 +44,17 @@ vi.mock('@/lib/agent-inbox-routing', () => ({
 vi.mock('@/lib/social-content-calendar-handoff', () => ({
   authorizeCalendarDraftHandoff: mocks.authorizeCalendarDraftHandoff,
   rejectCalendarDraftHandoff: mocks.rejectCalendarDraftHandoff,
+}))
+
+vi.mock('@/lib/evidence-repair-human-qa', () => ({
+  getEvidenceRepairReview: mocks.getRepairReview,
+  decideEvidenceRepairHumanQa: mocks.decideRepair,
+  evidenceRepairReviewPath: (id: string) => `/admin/agents/content-intelligence?section=research&packet=${id}`,
+}))
+vi.mock('@/lib/evidence-repair-slack', () => ({
+  evidenceRepairSlackEnabled: () => process.env.EVIDENCE_REPAIR_SLACK_REVIEW_ENABLED === 'true',
+  mappedRepairReviewer: (id: string) => id === 'U123' ? '10000000-0000-4000-8000-000000000005' : null,
+  verifyEvidenceRepairSlackRequest: mocks.verifyRepairRequest,
 }))
 
 import { handleSlackAgentAction, prepareSlackAgentAction } from '@/lib/agent-slack-actions'
@@ -86,6 +98,56 @@ function payload(value: Record<string, unknown>, userId = 'U123') {
 }
 
 describe('Agent Ops Slack actions', () => {
+  it('delegates an exact, allowlisted evidence repair decision to the canonical service', async () => {
+    process.env.EVIDENCE_REPAIR_SLACK_REVIEW_ENABLED = 'true'
+    process.env.SLACK_AGENT_OPS_TEAM_ID = 'T123'
+    const packetId = '10000000-0000-4000-8000-000000000001'
+    const originalPacketId = '10000000-0000-4000-8000-000000000002'
+    const calendarItemId = '10000000-0000-4000-8000-000000000003'
+    const socialContentId = '10000000-0000-4000-8000-000000000004'
+    const requestId = '10000000-0000-4000-8000-000000000006'
+    const binding = { caseId: `calendar:${calendarItemId}:repair-packet:${packetId}`,
+      packetId, originalPacketId, calendarItemId, socialContentId,
+      packetVersion: '2026-11-25T12:00:00.000Z', originalPacketVersion: '2026-11-24T12:00:00.000Z',
+      sourceSha256: 'a'.repeat(64), sourceExpiresAt: '2027-01-01T00:00:00.000Z',
+      approvedCopySha256: 'b'.repeat(64), bindingHash: 'c'.repeat(64),
+      claimBoundarySha256: 'd'.repeat(64), contentVersion: '2026-11-25T11:00:00.000Z' }
+    const value = { action: 'evidence_repair.approve', schemaVersion: 'evidence-repair-human-qa/v1',
+      sourceEnvironment: 'local', sourceOrigin: 'https://amadutown.test',
+      repairRequestId: requestId, repairCaseId: binding.caseId,
+      repairPacketId: packetId, repairOriginalPacketId: originalPacketId,
+      repairPacketVersion: binding.packetVersion, repairOriginalPacketVersion: binding.originalPacketVersion,
+      repairBindingHash: binding.bindingHash, repairSourceSha256: binding.sourceSha256,
+      repairSourceExpiresAt: binding.sourceExpiresAt, repairCopySha256: binding.approvedCopySha256,
+      repairClaimBoundarySha256: binding.claimBoundarySha256, repairContentVersion: binding.contentVersion,
+      repairExpiresAt: '2027-01-01T00:00:00.000Z', calendarItemId, contentId: socialContentId,
+      note: 'Exact source and bounded claims approved for evidence review only.' }
+    mocks.verifyRepairRequest.mockResolvedValue(true)
+    mocks.getRepairReview.mockResolvedValue({ binding })
+    mocks.decideRepair.mockResolvedValue({ id: 'receipt-1', decision: 'approve', replayed: false })
+    const action = payload(value) as ReturnType<typeof payload> & { team?: { id: string }; channel?: { id: string } }
+    action.team = { id: 'T123' }; action.channel = { id: 'C123' }
+    action.actions[0] = { ...action.actions[0], action_id: 'evidence_repair_approve' } as typeof action.actions[0]
+    const result = await handleSlackAgentAction(action)
+    expect(result.text).toContain('receipt-1')
+    expect(result.text).toContain(`packet=${packetId}`)
+    expect(mocks.decideRepair).toHaveBeenCalledWith(expect.objectContaining({
+      packetId, decision: 'approve', surface: 'slack', bindingHash: binding.bindingHash,
+      slackIdentity: { team_id: 'T123', channel_id: 'C123', message_ts: '1716400000.000', user_id: 'U123' },
+    }))
+    expect(mocks.from).not.toHaveBeenCalled()
+    mocks.decideRepair.mockClear()
+    mocks.verifyRepairRequest.mockResolvedValue(false)
+    const drift = await handleSlackAgentAction(action)
+    expect(drift.text).toContain('changed or expired')
+    expect(mocks.decideRepair).not.toHaveBeenCalled()
+    const expired = payload({ ...value, repairExpiresAt: '2020-01-01T00:00:00Z' }) as typeof action
+    expired.team = { id: 'T123' }; expired.channel = { id: 'C123' }
+    expired.actions[0] = { ...expired.actions[0], action_id: 'evidence_repair_approve' } as typeof expired.actions[0]
+    expect((await handleSlackAgentAction(expired)).text).toContain('disabled, expired')
+    expect(mocks.verifyRepairRequest).toHaveBeenCalledTimes(2)
+    expect(mocks.decideRepair).not.toHaveBeenCalled()
+  })
   beforeEach(() => {
     vi.resetAllMocks()
     process.env = {

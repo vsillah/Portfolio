@@ -69,6 +69,19 @@ export type SlackAgentActionValue = {
   messageVersionKey?: string
   sendQueueIdempotencyKey?: string
   note?: string
+  repairRequestId?: string
+  repairCaseId?: string
+  repairPacketId?: string
+  repairPacketVersion?: string
+  repairOriginalPacketId?: string
+  repairOriginalPacketVersion?: string
+  repairBindingHash?: string
+  repairSourceSha256?: string
+  repairSourceExpiresAt?: string
+  repairCopySha256?: string
+  repairClaimBoundarySha256?: string
+  repairContentVersion?: string
+  repairExpiresAt?: string
 }
 
 export function mrkdwn(text: string): SlackTextObject {
@@ -94,7 +107,7 @@ export function decodeSlackAgentActionValue(value: string | undefined): SlackAge
     const legacyLocal = !source.hosted && parsed.sourceEnvironment === undefined && parsed.sourceOrigin === undefined
     if (!legacyLocal && (parsed.sourceEnvironment !== source.sourceEnvironment || parsed.sourceOrigin !== source.sourceOrigin)) return null
     const result: SlackAgentActionValue = { action: parsed.action, sourceEnvironment: source.sourceEnvironment, sourceOrigin: source.sourceOrigin }
-    const fields = ['releaseVersion', 'dispatchIntentId', 'manifestHash', 'canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const
+    const fields = ['releaseVersion', 'dispatchIntentId', 'manifestHash', 'canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note', 'repairRequestId', 'repairCaseId', 'repairPacketId', 'repairPacketVersion', 'repairOriginalPacketId', 'repairOriginalPacketVersion', 'repairBindingHash', 'repairSourceSha256', 'repairSourceExpiresAt', 'repairCopySha256', 'repairClaimBoundarySha256', 'repairContentVersion', 'repairExpiresAt'] as const
     for (const field of fields) {
       if (parsed[field] !== undefined) {
         if (typeof parsed[field] !== 'string') return null
