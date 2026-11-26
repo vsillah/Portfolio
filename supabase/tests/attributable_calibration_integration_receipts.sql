@@ -12,17 +12,29 @@ DECLARE
   v_failed boolean;
   v_other uuid;
   v_key text;
+  v_role text;
+  v_privilege text;
+  v_dimension text;
+  v_dimensions text[] := ARRAY['report','policy','case','artifact','evidence','content',
+    'channel','format','cohort','performance','source','repair'];
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_class WHERE oid = 'public.attributable_calibration_integration_receipts'::regclass AND relrowsecurity)
-    OR has_table_privilege('anon', 'public.attributable_calibration_integration_receipts', 'SELECT')
-    OR has_table_privilege('authenticated', 'public.attributable_calibration_integration_receipts', 'INSERT')
     OR has_table_privilege('service_role', 'public.attributable_calibration_integration_receipts', 'INSERT')
+    OR has_table_privilege('service_role', 'public.attributable_calibration_integration_receipts', 'UPDATE')
+    OR has_table_privilege('service_role', 'public.attributable_calibration_integration_receipts', 'DELETE')
     OR NOT has_table_privilege('service_role', 'public.attributable_calibration_integration_receipts', 'SELECT')
     OR has_function_privilege('anon', 'public.record_attributable_calibration_integration_receipt(uuid,jsonb)', 'EXECUTE')
     OR has_function_privilege('authenticated', 'public.record_attributable_calibration_integration_receipt(uuid,jsonb)', 'EXECUTE')
     OR NOT has_function_privilege('service_role', 'public.record_attributable_calibration_integration_receipt(uuid,jsonb)', 'EXECUTE') THEN
     RAISE EXCEPTION 'RLS or role grants are wrong';
   END IF;
+  FOREACH v_role IN ARRAY ARRAY['anon','authenticated'] LOOP
+    FOREACH v_privilege IN ARRAY ARRAY['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER'] LOOP
+      IF has_table_privilege(v_role, 'public.attributable_calibration_integration_receipts', v_privilege) THEN
+        RAISE EXCEPTION '% has forbidden % table grant', v_role, v_privilege;
+      END IF;
+    END LOOP;
+  END LOOP;
   IF NOT EXISTS (
     SELECT 1 FROM pg_proc WHERE oid = 'public.record_attributable_calibration_integration_receipt(uuid,jsonb)'::regprocedure
       AND prosecdef AND 'search_path=""' = ANY(proconfig)
@@ -31,24 +43,31 @@ BEGIN
   INSERT INTO auth.users(id) VALUES (v_user);
   INSERT INTO public.agent_runs(id, runtime, kind, title) VALUES (v_run, 'manual', 'synthetic_test', 'Synthetic calibration authority');
   v_receipt := jsonb_build_object(
-    'decision_receipt_id', gen_random_uuid(), 'authority_id', v_approval,
+    'decision_receipt_id', gen_random_uuid(), 'authority_identity', v_user,
     'authority_version', 'v1', 'decision', 'allow_synthetic_review_candidate',
-    'report_sha256', repeat('a',64), 'policy_id', 'synthetic-policy',
-    'policy_version', 'v1', 'policy_approval_receipt_id', gen_random_uuid(),
-    'case_id', 'synthetic-case', 'artifact_version', 'v1',
-    'evidence_version', 'v1', 'content_version', 'v1',
-    'platform', 'youtube', 'channel', 'youtube', 'format', 'short',
-    'cohort_receipt_sha256', repeat('b',64),
-    'performance_receipt_sha256', repeat('c',64),
-    'source_sha256', repeat('d',64), 'repair_binding_hash', repeat('e',64),
+    'report_version', 'v1', 'report_sha256', repeat('a',64),
+    'policy_id', 'synthetic-policy', 'policy_version', 'v1',
+    'policy_sha256', repeat('b',64), 'policy_approval_receipt_id', gen_random_uuid(),
+    'case_id', 'synthetic-case', 'case_version', 'v1', 'case_sha256', repeat('c',64),
+    'artifact_version', 'v1', 'artifact_sha256', repeat('d',64),
+    'evidence_version', 'v1', 'evidence_sha256', repeat('e',64),
+    'content_version', 'v1', 'content_sha256', repeat('f',64),
+    'platform', 'youtube', 'channel', 'youtube',
+    'channel_version', 'v1', 'channel_sha256', repeat('1',64),
+    'format', 'short', 'format_version', 'v1', 'format_sha256', repeat('2',64),
+    'cohort_version', 'v1', 'cohort_sha256', repeat('3',64),
+    'performance_version', 'v1', 'performance_sha256', repeat('4',64),
+    'source_version', 'v1', 'source_sha256', repeat('5',64),
+    'repair_version', 'v1', 'repair_sha256', repeat('6',64),
     'decided_at', clock_timestamp() - interval '1 minute',
     'valid_until', clock_timestamp() + interval '1 hour',
     'privacy_cleared', true, 'rights_cleared', true,
     'exclusions', jsonb_build_array('live data', 'external execution'),
     'source_path', 'synthetic/source.json',
     'provenance', jsonb_build_object('source_path','synthetic/source.json', 'kind','synthetic'),
-    'rollback', 'Revoke this recording function; retain existing audit rows.',
-    'receipt_sha256', repeat('f',64));
+    'rollback_metadata', jsonb_build_object('action','revoke_recording_function',
+      'preserve_receipts',true),
+    'receipt_sha256', repeat('7',64));
   INSERT INTO public.agent_approvals(id, run_id, approval_type, status,
     decided_by_user_id, decided_at, metadata)
   VALUES (v_approval, v_run, 'attributable_calibration_integration', 'approved',
@@ -57,20 +76,34 @@ BEGIN
 
   v_result := public.record_attributable_calibration_integration_receipt(v_approval, v_receipt);
   IF v_result->>'replayed' <> 'false' OR v_result->>'agent_approval_id' <> v_approval::text
+    OR v_result->>'authority_identity' <> v_user::text
+    OR v_result->>'policy_sha256' <> repeat('b',64)
+    OR v_result->>'repair_sha256' <> repeat('6',64)
+    OR v_result->'rollback_metadata' IS DISTINCT FROM v_receipt->'rollback_metadata'
     OR v_result->>'decision' <> 'allow_synthetic_review_candidate'
     OR (SELECT count(*) FROM public.attributable_calibration_integration_receipts WHERE agent_approval_id=v_approval) <> 1 THEN
     RAISE EXCEPTION 'valid insert failed';
   END IF;
+  FOREACH v_dimension IN ARRAY v_dimensions LOOP
+    IF v_result->>(v_dimension || '_version') IS DISTINCT FROM v_receipt->>(v_dimension || '_version')
+      OR v_result->>(v_dimension || '_sha256') IS DISTINCT FROM v_receipt->>(v_dimension || '_sha256') THEN
+      RAISE EXCEPTION 'stored % version/hash pair differs from approved payload', v_dimension;
+    END IF;
+  END LOOP;
   v_replay := public.record_attributable_calibration_integration_receipt(v_approval, v_receipt);
   IF v_replay->>'replayed' <> 'true' OR v_replay->>'id' <> v_result->>'id' THEN
     RAISE EXCEPTION 'exact replay failed';
   END IF;
 
   v_bad := jsonb_set(v_receipt, '{case_id}', '"changed"'::jsonb);
+  UPDATE public.agent_approvals SET metadata=jsonb_build_object('calibration_integration_authority',v_bad)
+    WHERE id=v_approval;
   v_failed := false;
   BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
   EXCEPTION WHEN OTHERS THEN v_failed := true; END;
   IF NOT v_failed THEN RAISE EXCEPTION 'conflicting replay succeeded'; END IF;
+  UPDATE public.agent_approvals SET metadata=jsonb_build_object('calibration_integration_authority',v_receipt)
+    WHERE id=v_approval;
   v_failed := false;
   BEGIN UPDATE public.attributable_calibration_integration_receipts SET case_id='changed' WHERE id=(v_result->>'id')::uuid;
   EXCEPTION WHEN OTHERS THEN v_failed := true; END;
@@ -93,17 +126,67 @@ BEGIN
   IF NOT v_failed THEN RAISE EXCEPTION 'unapproved parent succeeded'; END IF;
   UPDATE public.agent_approvals SET status='approved' WHERE id=v_approval;
 
-  FOR v_key IN SELECT unnest(ARRAY['decision','valid_until','report_sha256','policy_id',
-    'case_id','artifact_version','evidence_version','content_version','channel','format',
-    'cohort_receipt_sha256','performance_receipt_sha256','source_sha256',
-    'repair_binding_hash','authority_version','privacy_cleared','rights_cleared',
-    'exclusions','provenance','rollback']) LOOP
+  FOR v_key IN SELECT unnest(ARRAY['decision','valid_until','policy_id',
+    'case_id','channel','format','authority_identity','authority_version',
+    'privacy_cleared','rights_cleared','exclusions','provenance','rollback_metadata']) LOOP
     v_bad := v_receipt - v_key;
     v_failed := false;
     BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
     EXCEPTION WHEN OTHERS THEN v_failed := true; END;
     IF NOT v_failed THEN RAISE EXCEPTION 'missing % succeeded', v_key; END IF;
   END LOOP;
+  FOREACH v_dimension IN ARRAY v_dimensions LOOP
+    FOREACH v_key IN ARRAY ARRAY[v_dimension || '_version', v_dimension || '_sha256'] LOOP
+      v_bad := v_receipt - v_key;
+      v_failed := false;
+      BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
+      EXCEPTION WHEN OTHERS THEN v_failed := true; END;
+      IF NOT v_failed THEN RAISE EXCEPTION 'missing % succeeded', v_key; END IF;
+    END LOOP;
+    v_bad := jsonb_set(v_receipt, ARRAY[v_dimension || '_sha256'], '"not-a-sha256"'::jsonb);
+    v_failed := false;
+    BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
+    EXCEPTION WHEN OTHERS THEN
+      IF SQLERRM NOT LIKE 'invalid calibration authority version/hash pair:%' THEN RAISE; END IF;
+      v_failed := true;
+    END;
+    IF NOT v_failed THEN RAISE EXCEPTION 'malformed % hash succeeded', v_dimension; END IF;
+    v_bad := jsonb_set(v_receipt, ARRAY[v_dimension || '_version'], '""'::jsonb);
+    v_failed := false;
+    BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
+    EXCEPTION WHEN OTHERS THEN v_failed := true; END;
+    IF NOT v_failed THEN RAISE EXCEPTION 'blank % version succeeded', v_dimension; END IF;
+  END LOOP;
+  v_other := gen_random_uuid();
+  INSERT INTO auth.users(id) VALUES (v_other);
+  v_bad := jsonb_set(v_receipt,'{authority_identity}',to_jsonb(v_other));
+  UPDATE public.agent_approvals SET metadata=jsonb_build_object('calibration_integration_authority',v_bad)
+    WHERE id=v_approval;
+  v_failed := false;
+  BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
+  EXCEPTION WHEN OTHERS THEN v_failed := true; END;
+  IF NOT v_failed THEN RAISE EXCEPTION 'authority identity mismatch succeeded'; END IF;
+  v_bad := jsonb_set(v_receipt,'{provenance}','{}'::jsonb);
+  UPDATE public.agent_approvals SET metadata=jsonb_build_object('calibration_integration_authority',v_bad)
+    WHERE id=v_approval;
+  v_failed := false;
+  BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
+  EXCEPTION WHEN OTHERS THEN v_failed := true; END;
+  IF NOT v_failed THEN RAISE EXCEPTION 'empty provenance succeeded'; END IF;
+  v_bad := jsonb_set(v_receipt,'{rollback_metadata}','{}'::jsonb);
+  UPDATE public.agent_approvals SET metadata=jsonb_build_object('calibration_integration_authority',v_bad)
+    WHERE id=v_approval;
+  v_failed := false;
+  BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
+  EXCEPTION WHEN OTHERS THEN v_failed := true; END;
+  IF NOT v_failed THEN RAISE EXCEPTION 'empty rollback metadata succeeded'; END IF;
+  v_bad := jsonb_set(v_receipt,'{rollback_metadata}','"free form"'::jsonb);
+  UPDATE public.agent_approvals SET metadata=jsonb_build_object('calibration_integration_authority',v_bad)
+    WHERE id=v_approval;
+  v_failed := false;
+  BEGIN PERFORM public.record_attributable_calibration_integration_receipt(v_approval,v_bad);
+  EXCEPTION WHEN OTHERS THEN v_failed := true; END;
+  IF NOT v_failed THEN RAISE EXCEPTION 'free-form rollback succeeded'; END IF;
   v_bad := jsonb_set(v_receipt,'{decision}','"approve"'::jsonb);
   UPDATE public.agent_approvals SET metadata=jsonb_build_object('calibration_integration_authority',v_bad) WHERE id=v_approval;
   v_failed := false;
@@ -119,8 +202,7 @@ BEGIN
 
   -- A different approved parent cannot claim the already-bound report/case.
   v_other := gen_random_uuid();
-  v_bad := jsonb_set(v_receipt,'{authority_id}',to_jsonb(v_other));
-  v_bad := jsonb_set(v_bad,'{decision_receipt_id}',to_jsonb(gen_random_uuid()));
+  v_bad := jsonb_set(v_receipt,'{decision_receipt_id}',to_jsonb(gen_random_uuid()));
   INSERT INTO public.agent_approvals(id, run_id, approval_type, status,
     decided_by_user_id, decided_at, metadata)
   VALUES (v_other, v_run, 'attributable_calibration_integration', 'approved',
