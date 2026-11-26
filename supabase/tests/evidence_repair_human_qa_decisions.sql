@@ -28,8 +28,8 @@ BEGIN
   INSERT INTO public.social_content_queue(id,post_text,updated_at) VALUES (v_social,'Synthetic approved copy',v_content_version);
   INSERT INTO public.social_content_calendar_items(id,social_content_id,title,scheduled_for,authorization_status,metadata)
     VALUES (v_calendar,v_social,'Synthetic evidence repair review',v_version + interval '7 days','authorized','{"external_execution_enabled":false}');
-  INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url)
-    VALUES (v_original,'approved',v_original_version,'https://example.test/original');
+  INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,platform)
+    VALUES (v_original,'approved',v_original_version,'https://example.test/original','other');
   v_candidate := jsonb_build_object(
     'calendar_item_id',v_calendar,'social_content_id',v_social,
     'original_packet_id',v_original,'original_packet_version',v_original_version,
@@ -43,8 +43,8 @@ BEGIN
     'provenance_status','verified_primary_source',
     'privacy_clearance',jsonb_build_object('status','cleared'),
     'rights_clearance',jsonb_build_object('status','cleared_for_bounded_claim_support'));
-  INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,pattern_packet,actor_metadata)
-    VALUES (v_packet,'review_ready',v_version,'https://example.test/replacement',v_pattern,
+  INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,platform,pattern_packet,actor_metadata)
+    VALUES (v_packet,'review_ready',v_version,'https://example.test/replacement','other',v_pattern,
       jsonb_build_object('evidence_repair_candidate',v_candidate,'source_freshness_receipt',v_freshness));
 
   v_receipt := public.record_evidence_repair_human_qa_decision(v_packet,v_version,v_candidate,v_freshness,v_pattern,v_claim_hash,v_content_version,
@@ -82,8 +82,8 @@ BEGIN
   FOREACH v_decision IN ARRAY ARRAY['reject','revise'] LOOP
     v_new_packet := gen_random_uuid(); v_new_version := clock_timestamp();
     v_freshness := jsonb_set(v_freshness,'{evidence_version}',to_jsonb(v_new_version));
-    INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,pattern_packet,actor_metadata)
-      VALUES (v_new_packet,'review_ready',v_new_version,'https://example.test/replacement',v_pattern,
+    INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,platform,pattern_packet,actor_metadata)
+      VALUES (v_new_packet,'review_ready',v_new_version,'https://example.test/replacement','other',v_pattern,
         jsonb_build_object('evidence_repair_candidate',v_candidate,'source_freshness_receipt',v_freshness));
     IF v_decision = 'reject' THEN
       v_failed := false;
@@ -114,8 +114,8 @@ BEGIN
 
   v_new_packet := gen_random_uuid(); v_new_version := clock_timestamp();
   v_freshness := jsonb_set(v_freshness,'{evidence_version}',to_jsonb(v_new_version)) - 'observed_at';
-  INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,pattern_packet,actor_metadata)
-    VALUES (v_new_packet,'review_ready',v_new_version,'https://example.test/replacement',v_pattern,
+  INSERT INTO public.social_content_research_packets(id,status,updated_at,source_url,platform,pattern_packet,actor_metadata)
+    VALUES (v_new_packet,'review_ready',v_new_version,'https://example.test/replacement','other',v_pattern,
       jsonb_build_object('evidence_repair_candidate',v_candidate,'source_freshness_receipt',v_freshness));
   v_failed := false;
   BEGIN
