@@ -73,10 +73,74 @@ describe('evidence repair canonical decision service', () => {
     expect(db.from.mock.calls.map(([table]) => table)).not.toContain('social_content_approvals')
   })
 
+  it('preserves PostgreSQL microseconds through a Slack decision and exact replay', async () => {
+    const rows = fixture()
+    rows.packet.updated_at = '2026-11-25T12:00:00.778694+00:00'
+    rows.packet.actor_metadata.source_freshness_receipt.evidence_version = rows.packet.updated_at
+    rows.original.updated_at = '2026-11-24T12:00:00.123456+00:00'
+    rows.packet.actor_metadata.evidence_repair_candidate.original_packet_version = rows.original.updated_at
+    rows.social.updated_at = '2026-11-25T11:00:00.987654+00:00'
+    wire(rows)
+    const review = await getEvidenceRepairReview(ids.packet, new Date('2026-11-25T13:00:00Z'))
+    expect(review.binding.packetVersion).toBe('2026-11-25T12:00:00.778694Z')
+    expect(review.binding.contentVersion).toBe('2026-11-25T11:00:00.987654Z')
+    const slackIdentity = { team_id: 'T1', channel_id: 'C1', message_ts: '1.1', user_id: 'U1' }
+    const input = { packetId: ids.packet, packetVersion: review.binding.packetVersion,
+      bindingHash: review.binding.bindingHash, decision: 'approve' as const, reason: 'Bounded claim verified',
+      reviewerId: ids.reviewer, surface: 'slack' as const, slackIdentity }
+    db.rpc.mockImplementation(async (_name, args) => {
+      expect(args.p_packet_version).toBe(review.binding.packetVersion)
+      expect(args.p_content_version).toBe(review.binding.contentVersion)
+      expect(args.p_candidate).toEqual(rows.packet.actor_metadata.evidence_repair_candidate)
+      expect(args.p_freshness).toEqual(rows.packet.actor_metadata.source_freshness_receipt)
+      expect(args.p_pattern).toEqual(rows.packet.pattern_packet)
+      expect(args.p_slack_identity).toEqual(slackIdentity)
+      return { data: { id: 'receipt-1', decision: 'approve', external_execution_enabled: false }, error: null }
+    })
+    const first = await decideEvidenceRepairHumanQa(input)
+    expect(first.external_execution_enabled).toBe(false)
+    expect(db.rpc).toHaveBeenCalledOnce()
+    rows.receipt = { id: 'receipt-1', case_id: review.binding.caseId, packet_id: ids.packet,
+      packet_version: rows.packet.updated_at, original_packet_id: ids.original,
+      original_packet_version: rows.original.updated_at, calendar_item_id: ids.calendar,
+      social_content_id: ids.social, source_sha256: review.binding.sourceSha256,
+      source_expires_at: rows.packet.actor_metadata.source_freshness_receipt.expires_at,
+      approved_copy_sha256: review.binding.approvedCopySha256, claim_boundary_sha256: review.binding.claimBoundarySha256,
+      content_version: rows.social.updated_at, freshness_snapshot: rows.packet.actor_metadata.source_freshness_receipt,
+      candidate_snapshot: rows.packet.actor_metadata.evidence_repair_candidate,
+      idempotency_key: `evidence-repair-human-qa:${ids.packet}:${review.binding.packetVersion}:approve:${ids.reviewer}`,
+      reason: input.reason, reviewer_id: ids.reviewer, surface: 'slack', slack_identity: slackIdentity,
+      external_execution_enabled: false }
+    expect(await decideEvidenceRepairHumanQa(input)).toMatchObject({ id: 'receipt-1', replayed: true,
+      external_execution_enabled: false })
+    expect(db.rpc).toHaveBeenCalledOnce()
+    await expect(decideEvidenceRepairHumanQa({ ...input, reason: 'Changed decision' }))
+      .rejects.toThrow(/already has a different Human QA decision/i)
+    expect(db.rpc).toHaveBeenCalledOnce()
+  })
+
+  it('rejects a changed microsecond timestamp and stale packet binding before persistence', async () => {
+    const rows = fixture(); wire(rows)
+    rows.packet.updated_at = '2026-11-25T12:00:00.778694+00:00'
+    rows.packet.actor_metadata.source_freshness_receipt.evidence_version = rows.packet.updated_at
+    const review = await getEvidenceRepairReview(ids.packet, new Date('2026-11-25T13:00:00Z'))
+    const input = { packetId: ids.packet, packetVersion: review.binding.packetVersion,
+      bindingHash: review.binding.bindingHash, decision: 'approve' as const, reason: 'Bounded claim verified',
+      reviewerId: ids.reviewer, surface: 'portfolio' as const }
+    await expect(decideEvidenceRepairHumanQa({ ...input, packetVersion: '2026-11-25T12:00:00.778695Z' }))
+      .rejects.toThrow(/evidence changed/i)
+    rows.packet.updated_at = '2026-11-25T12:00:00.778695+00:00'
+    rows.packet.actor_metadata.source_freshness_receipt.evidence_version = rows.packet.updated_at
+    await expect(decideEvidenceRepairHumanQa(input)).rejects.toThrow(/evidence changed/i)
+    expect(db.rpc).not.toHaveBeenCalled()
+  })
+
   it.each([
     ['expired source', (r: ReturnType<typeof fixture>) => { r.packet.actor_metadata.source_freshness_receipt.expires_at = '2020-01-01T00:00:00Z' }],
     ['missing observation', (r: ReturnType<typeof fixture>) => { r.packet.actor_metadata.source_freshness_receipt.observed_at = '' }],
     ['original drift', (r: ReturnType<typeof fixture>) => { r.original.updated_at = '2026-11-25T12:00:00Z' }],
+    ['original microsecond drift', (r: ReturnType<typeof fixture>) => { r.original.updated_at = '2026-11-24T12:00:00.000001Z' }],
+    ['evidence microsecond drift', (r: ReturnType<typeof fixture>) => { r.packet.actor_metadata.source_freshness_receipt.evidence_version = '2026-11-25T12:00:00.000001Z' }],
     ['original source drift', (r: ReturnType<typeof fixture>) => { r.original.source_url = 'https://example.test/changed' }],
     ['copy drift', (r: ReturnType<typeof fixture>) => { r.social.post_text = 'Changed copy' }],
     ['missing claim boundary', (r: ReturnType<typeof fixture>) => { r.packet.pattern_packet.supported_claims = [] }],
@@ -95,10 +159,11 @@ describe('evidence repair canonical decision service', () => {
       reviewerId: ids.reviewer, surface: 'portfolio' })).rejects.toThrow(/evidence changed/i)
     expect(db.rpc).not.toHaveBeenCalled()
   })
-  it.each(['content version', 'claim boundary'])('rejects %s drift after a reviewer opens the packet', async changed => {
+  it.each(['content version', 'content microsecond', 'claim boundary'])('rejects %s drift after a reviewer opens the packet', async changed => {
     const rows = fixture(); wire(rows)
     const initial = await getEvidenceRepairReview(ids.packet, new Date('2026-11-25T13:00:00Z'))
     if (changed === 'content version') rows.social.updated_at = '2026-11-25T12:30:00.000Z'
+    else if (changed === 'content microsecond') rows.social.updated_at = '2026-11-25T11:00:00.000001Z'
     else rows.packet.pattern_packet.source_use_boundary = 'Changed claim boundary'
     await expect(decideEvidenceRepairHumanQa({ packetId: ids.packet, packetVersion: version,
       bindingHash: initial.binding.bindingHash, decision: 'approve', reason: 'Earlier source reviewed',
