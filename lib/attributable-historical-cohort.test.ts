@@ -109,6 +109,35 @@ describe('Phase 5H historical cohort construction', () => {
     expect(result.decisions.find((item) => item.reason?.includes('Duplicate historical record identity.'))?.reason).toContain('Duplicate historical record identity.')
   })
 
+  it.each(['identical', 'different rollback'] as const)('replays tied comparable keys independently of input order: %s', (variant) => {
+    const input = packet()
+    const tied = structuredClone(input.comparables[0])
+    if (variant === 'different rollback') tied.rollback.procedure = 'Discard only this derived duplicate.'
+    input.comparables.push(tied)
+    const forward = constructHistoricalCohort(input)
+    const reversed = constructHistoricalCohort({ ...input, comparables: [...input.comparables].reverse() })
+    expect(forward).toEqual(reversed)
+    expect(forward.status).toBe('Scored')
+    expect(forward.qualifying_comparable_count).toBe(5)
+    expect(forward.decisions.filter((item) => item.record_id === 'record-peer0').map((item) => item.status)).toEqual(['Included', 'Unscored'])
+    expect(forward.decisions.find((item) => item.record_id === 'record-peer0' && item.status === 'Unscored')?.reason).toContain('Duplicate retained response identity.')
+  })
+
+  it.each(['identical', 'conflicting'] as const)('fails closed on duplicate manifest record IDs: %s', (variant) => {
+    const input = packet()
+    const duplicate = structuredClone(input.fixture_manifest.entries[1])
+    if (variant === 'conflicting') duplicate.raw_response_sha256 = rawResponseSha256({ changed: true })
+    input.fixture_manifest.entries.push(duplicate)
+    const forward = constructHistoricalCohort(input)
+    const reversed = constructHistoricalCohort({ ...input, fixture_manifest: { ...input.fixture_manifest, entries: [...input.fixture_manifest.entries].reverse() } })
+    expect(forward).toEqual(reversed)
+    expect(forward.status).toBe('Unscored')
+    expect(forward.performance_receipt).toBeNull()
+    expect(forward.qualifying_comparable_count).toBe(0)
+    expect(forward.blockers.some((item) => item.includes(`Duplicate fixture-manifest record ID record-peer0${variant === 'conflicting' ? ' has conflicting bindings' : ''}.`))).toBe(true)
+    expect(forward.decisions.find((item) => item.record_id === 'record-peer0')).toMatchObject({ status: 'Unscored', fixture_approval: null, fixture_approval_entries: [expect.any(Object), expect.any(Object)] })
+  })
+
   it('detects changed fixture bytes and absent approval without revising historical receipts', () => {
     const input = packet(); const previous = constructHistoricalCohort(input)
     ;(input.comparables[4].raw_response as { analytics: { views: number } }).analytics.views = 999

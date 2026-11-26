@@ -41,6 +41,7 @@ export type CohortDecision = {
   rights_privacy: AcquisitionFixture['rights']
   rollback: AcquisitionFixture['rollback']
   fixture_approval: HistoricalFixtureApproval | null
+  fixture_approval_entries: HistoricalFixtureApproval[]
 }
 export type HistoricalCohortManifest = {
   contract_version: typeof ATTRIBUTABLE_PERFORMANCE_VERSION
@@ -69,7 +70,11 @@ function stable(value: unknown): string {
 }
 const sha = (value: unknown) => createHash('sha256').update(stable(value)).digest('hex')
 const band = (size: number): string | null => !Number.isFinite(size) || size < 0 ? null : size < 10_000 ? 'micro' : size < 100_000 ? 'emerging' : size < 1_000_000 ? 'established' : 'large'
-const order = (a: AcquisitionFixture, b: AcquisitionFixture) => a.provenance.record_id < b.provenance.record_id ? -1 : a.provenance.record_id > b.provenance.record_id ? 1 : rawResponseSha256(a.raw_response) < rawResponseSha256(b.raw_response) ? -1 : 1
+const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0
+const order = (a: AcquisitionFixture, b: AcquisitionFixture) =>
+  compare(a.provenance.record_id, b.provenance.record_id) ||
+  compare(rawResponseSha256(a.raw_response), rawResponseSha256(b.raw_response)) ||
+  compare(stable(a), stable(b))
 
 export function constructHistoricalCohort(input: {
   candidate: AcquisitionFixture
@@ -81,7 +86,12 @@ export function constructHistoricalCohort(input: {
   const { candidate, fixture_manifest: manifest } = input
   const sorted = [...input.comparables].sort(order)
   const fixtures = [candidate, ...sorted]
-  const approvals = new Map(manifest.entries.map((entry) => [entry.record_id, entry]))
+  const approvals = new Map<string, HistoricalFixtureApproval[]>()
+  for (const entry of manifest.entries) approvals.set(entry.record_id, [...(approvals.get(entry.record_id) ?? []), entry])
+  const duplicateManifestReasons = [...approvals.entries()]
+    .filter(([, entries]) => entries.length > 1)
+    .sort(([a], [b]) => compare(a, b))
+    .map(([id, entries]) => `Duplicate fixture-manifest record ID ${id}${new Set(entries.map(stable)).size > 1 ? ' has conflicting bindings' : ''}.`)
   const seenObjects = new Set<string>()
   const seenResponses = new Set<string>()
   const seenRecords = new Set<string>()
@@ -92,18 +102,20 @@ export function constructHistoricalCohort(input: {
     const role = index === 0 ? 'candidate' : 'comparable'
     const recordId = fixture.provenance.record_id
     const digest = rawResponseSha256(fixture.raw_response)
-    const approval = approvals.get(recordId) ?? null
+    const approvalEntries = [...(approvals.get(recordId) ?? [])].sort((a, b) => compare(stable(a), stable(b)))
+    const approval = approvalEntries.length === 1 ? approvalEntries[0] : null
     const acquired = acquireAttributableObservation(fixture)
     const observation = acquired.observation
     const reasons = [...acquired.blockers]
+    reasons.push(...duplicateManifestReasons)
     if (index > 0 && observation && candidateObservation) {
       if (observation.platform !== candidateObservation.platform) reasons.push('Cross-channel equivalence is unsupported.')
       if (observation.format !== candidateObservation.format) reasons.push('Cross-format equivalence is unsupported.')
       if (band(observation.audience.subscribers_or_followers) !== band(candidateObservation.audience.subscribers_or_followers)) reasons.push('Audience band does not match.')
       if (observation.cohort_id !== candidateObservation.cohort_id) reasons.push('Cohort identity does not match.')
     }
-    if (!approval || !approval.approval_receipt_id || !approval.source_path || approval.source_path.startsWith('/') || approval.source_path.split('/').includes('..') || !['synthetic', 'approved_checked_in_historical'].includes(approval.kind)) reasons.push('Checked-in fixture approval is missing.')
-    else if (approval.record_id !== recordId || approval.raw_response_sha256 !== digest || approval.evidence_version !== fixture.evidence_version || approval.collector_version !== fixture.collector_version || approval.source_policy_version !== fixture.source_policy_version || approval.policy_approval_receipt_id !== fixture.policy.approval.receipt_id) reasons.push('Checked-in fixture differs from its exact approved manifest entry.')
+    if (approvalEntries.length === 0 || (approval && (!approval.approval_receipt_id || !approval.source_path || approval.source_path.startsWith('/') || approval.source_path.split('/').includes('..') || !['synthetic', 'approved_checked_in_historical'].includes(approval.kind)))) reasons.push('Checked-in fixture approval is missing.')
+    else if (approval && (approval.record_id !== recordId || approval.raw_response_sha256 !== digest || approval.evidence_version !== fixture.evidence_version || approval.collector_version !== fixture.collector_version || approval.source_policy_version !== fixture.source_policy_version || approval.policy_approval_receipt_id !== fixture.policy.approval.receipt_id)) reasons.push('Checked-in fixture differs from its exact approved manifest entry.')
     if (!manifest.manifest_id || !manifest.manifest_version || !manifest.policy_id || !manifest.policy_version || !manifest.evidence_version) reasons.push('Fixture manifest identity or current policy binding is missing.')
     if (!manifest.metric_definition?.metric_name || !manifest.metric_definition.denominator_name || !manifest.metric_definition.definition_version || !manifest.metric_definition.approval_receipt_id || observation?.metric.name !== manifest.metric_definition.metric_name || observation?.metric.denominator_name !== manifest.metric_definition.denominator_name) reasons.push('Approved metric or denominator definition is missing or differs.')
     if (fixture.policy.policy_id !== manifest.policy_id || fixture.policy.policy_version !== manifest.policy_version || fixture.evidence_version !== manifest.evidence_version || fixture.source_policy_version !== manifest.policy_version) reasons.push('Source policy is not the current exact approved version.')
@@ -124,6 +136,7 @@ export function constructHistoricalCohort(input: {
       baseline_receipt: { baseline_id: fixture.baseline_id, baseline_version: fixture.baseline_version, receipt_sha256: baseline?.receipt_sha256 ?? null },
       policy_approval_receipt: { receipt_id: fixture.policy.approval.receipt_id, policy_sha256: fixture.policy.approval.policy_sha256 },
       provenance: fixture.provenance, rights_privacy: fixture.rights, rollback: fixture.rollback, fixture_approval: approval,
+      fixture_approval_entries: approvalEntries,
     }
   })
   const candidateValid = valid[0]?.provenance.record_id === candidate.provenance.record_id && decisions[0].reason === null
