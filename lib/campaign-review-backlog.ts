@@ -675,9 +675,11 @@ async function syncDueCalendarPreparation(
   projection: ReviewProjection,
   now: Date,
   preparationBlockers: Array<{ calendar_item_id: string; reason: string; recovery_action: string }> = [],
+  selectedCalendarItemIds: ReadonlySet<string> = new Set(),
 ) {
   const receipts: Array<{ calendar_item_id: string; state: 'ready' | 'blocked'; content_version: string | null; evidence_version: string }> = []
   for (const row of projection.rows) {
+    if (selectedCalendarItemIds.size && !selectedCalendarItemIds.has(row.id)) continue
     const preparationBlocker = preparationBlockers.find(item => item.calendar_item_id === row.id)
     if (row.state !== 'ready' && row.state !== 'blocked' && !preparationBlocker) continue
     if (Date.parse(row.trigger_at) > now.getTime()) continue
@@ -745,6 +747,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
   syncCalendarPreparation?: boolean
 } = {}) {
   const now = options.now ?? new Date(), s = await load(id), before = project(s, now)
+  const selectedIds = new Set(options.calendarItemIds ?? [])
   const windows = reviewWindows(now, before.config)
   // Scheduled execution only runs today's elapsed review/refresh window. Manual preparation uses the next review window.
   const window: ReviewWindow | undefined = options.scheduled ? windows.find(w => Date.parse(w.at) <= now.getTime()) : before.next_batch
@@ -757,11 +760,10 @@ export async function prepareCampaignReviewBatch(id: string, options: {
     window: window || null,
     notification: null,
     calendar_receipts: options.syncCalendarPreparation && !options.dryRun
-      ? await syncDueCalendarPreparation(s, before, now) : [],
+      ? await syncDueCalendarPreparation(s, before, now, [], selectedIds) : [],
     side_effects: REVIEW_SIDE_EFFECTS,
   }
   const used = before.rows.filter(r => r.prepared_window === window.key).length
-  const selectedIds = new Set(options.calendarItemIds ?? [])
   const candidates = before.rows.filter(r => (
     r.state === 'eligible'
       && r.prepared_window !== window.key
@@ -963,7 +965,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
   const afterSnapshot = options.dryRun ? s : await load(id)
   const after = options.dryRun ? before : project(afterSnapshot, now)
   const calendarReceipts = options.syncCalendarPreparation && !options.dryRun
-    ? await syncDueCalendarPreparation(afterSnapshot, after, now, blockedItems) : []
+    ? await syncDueCalendarPreparation(afterSnapshot, after, now, blockedItems, selectedIds) : []
   return {
     ...after,
     prepared_count: prepared,
