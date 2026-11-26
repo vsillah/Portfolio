@@ -34,6 +34,8 @@ import type { AgentWorkItem } from '@/lib/agent-work-items'
 import type { CampaignType } from '@/lib/campaigns'
 import { projectReleaseAutomation, rankReleaseAutomation } from '@/lib/release-calendar-automation'
 import calendarLayout from './release-calendar-layout.module.css'
+import { ReleaseMonthView, currentMonth, releaseDay, shiftMonth, validMonth } from './ReleaseMonthView'
+import { ReleaseGanttView } from './ReleaseGanttView'
 import {
   CAMPAIGN_PHASE_LABELS,
   SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
@@ -925,9 +927,13 @@ function platformIcon(platform: string) {
 }
 
 function formatCalendarDate(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split('-').map(Number)
+    return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(Date.UTC(year, month - 1, day, 12)))
+  }
   const date = new Date(value)
   return Number.isFinite(date.getTime())
-    ? date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+    ? date.toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
     : 'Unscheduled'
 }
 
@@ -1226,7 +1232,16 @@ function ContentIntelligenceContent() {
   const [calendarChannelFilter, setCalendarChannelFilter] = useState('')
   const [calendarPhaseFilter, setCalendarPhaseFilter] = useState('')
   const [calendarAuthorizationFilter, setCalendarAuthorizationFilter] = useState('')
+  const [calendarPreparationFilter, setCalendarPreparationFilter] = useState('')
   const [calendarPage, setCalendarPage] = useState(1)
+  const [calendarView, setCalendarView] = useState<'list' | 'calendar' | 'gantt'>(() => {
+    const view = currentUrlSearchParams().get('view')
+    return view === 'calendar' || view === 'gantt' ? view : 'list'
+  })
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const month = currentUrlSearchParams().get('month')
+    return validMonth(month) ? month : currentMonth()
+  })
   const [calendarActionItemId, setCalendarActionItemId] = useState<string | null>(null)
   const [rejectingCalendarItemId, setRejectingCalendarItemId] = useState<string | null>(null)
   const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({})
@@ -1273,6 +1288,26 @@ function ContentIntelligenceContent() {
       setResearchSearch(requestedPacketId)
     }
   }, [])
+  useEffect(() => {
+    const restore = () => {
+      const params = currentUrlSearchParams()
+      const month = params.get('month')
+      const view = params.get('view')
+      setCalendarView(view === 'calendar' || view === 'gantt' ? view : 'list')
+      setVisibleMonth(validMonth(month) ? month : currentMonth())
+    }
+    window.addEventListener('popstate', restore)
+    return () => window.removeEventListener('popstate', restore)
+  }, [])
+  const setCalendarRoute = (view: 'list' | 'calendar' | 'gantt', month: string) => {
+    setCalendarView(view)
+    setVisibleMonth(month)
+    const url = new URL(window.location.href)
+    url.searchParams.set('section', 'calendar')
+    url.searchParams.set('view', view)
+    url.searchParams.set('month', month)
+    window.history.pushState({}, '', `${url.pathname}${url.search}${url.hash}`)
+  }
   const autoResearchTakeaways = useMemo(
     () => buildAutoResearchTakeaways(autoResearchBacklog?.items ?? []),
     [autoResearchBacklog],
@@ -1511,11 +1546,12 @@ function ContentIntelligenceContent() {
   const filteredCalendarItems = useMemo(() => {
     const search = normalizeSearch(calendarContentSearch)
     return calendarItems.filter((item) => {
-      if (focusedCalendarItemId && item.id === focusedCalendarItemId) return true
+      if (calendarView === 'list' && focusedCalendarItemId && item.id === focusedCalendarItemId) return true
       if (calendarCampaignFilter && (item.campaign_id ?? item.attraction_campaigns?.id) !== calendarCampaignFilter) return false
       if (calendarChannelFilter && item.channel !== calendarChannelFilter) return false
       if (calendarPhaseFilter && item.campaign_phase !== calendarPhaseFilter) return false
       if (calendarAuthorizationFilter && item.authorization_status !== calendarAuthorizationFilter) return false
+      if (calendarPreparationFilter && projectReleaseAutomation(item).state !== calendarPreparationFilter) return false
       if (search) {
         const metadata = recordValue(item.metadata)
         const rationale = recordValue(metadata.milestone_rationale)
@@ -1544,6 +1580,8 @@ function ContentIntelligenceContent() {
     })
   }, [
     calendarAuthorizationFilter,
+    calendarPreparationFilter,
+    calendarView,
     calendarCampaignFilter,
     calendarContentSearch,
     calendarChannelFilter,
@@ -1581,13 +1619,14 @@ function ContentIntelligenceContent() {
 
     setCalendarFocusRecovery(null)
     setActiveSection('calendar')
+    if (calendarView === 'calendar') return
     const page = Math.floor(focusedIndex / CALENDAR_PAGE_SIZE) + 1
     setCalendarPage((current) => current === page ? current : page)
-  }, [calendarItems, filteredCalendarItems, focusedCalendarItemId])
+  }, [calendarItems, calendarView, filteredCalendarItems, focusedCalendarItemId])
 
   useEffect(() => {
     if (!focusedCalendarItemId || activeSection !== 'calendar') return
-    if (!pagedCalendarItems.some((item) => item.id === focusedCalendarItemId)) return
+    if (calendarView === 'list' && !pagedCalendarItems.some((item) => item.id === focusedCalendarItemId)) return
 
     const element = calendarItemRefs.current[focusedCalendarItemId]
     if (!element) return
@@ -1596,12 +1635,13 @@ function ContentIntelligenceContent() {
       element.scrollIntoView({ block: 'center', behavior: 'smooth' })
       element.focus({ preventScroll: true })
     })
-  }, [activeSection, focusedCalendarItemId, pagedCalendarItems])
+  }, [activeSection, calendarView, focusedCalendarItemId, pagedCalendarItems])
 
   useEffect(() => {
     setCalendarPage(1)
   }, [
     calendarAuthorizationFilter,
+    calendarPreparationFilter,
     calendarCampaignFilter,
     calendarContentSearch,
     calendarChannelFilter,
@@ -2599,7 +2639,7 @@ function ContentIntelligenceContent() {
           </form>
           </CollapsiblePanel>
 
-          <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
             <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground md:col-span-2 xl:col-span-1">
               Content title
               <div className={CONTENT_INTELLIGENCE_SEARCH_SHELL_CLASS}>
@@ -2668,8 +2708,29 @@ function ContentIntelligenceContent() {
                 <option value="not_required">Not required</option>
               </select>
             </label>
+            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Preparation state
+              <select value={calendarPreparationFilter} onChange={(event) => setCalendarPreparationFilter(event.target.value)} className={CONTENT_INTELLIGENCE_FIELD_CLASS}>
+                <option value="">All preparation states</option>
+                <option value="planned">Planned</option>
+                <option value="eligible">Eligible</option>
+                <option value="preparing">Preparing</option>
+                <option value="ready for human review">Ready for human review</option>
+                <option value="blocked">Blocked</option>
+              </select>
+            </label>
           </div>
 
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div role="group" aria-label="Release Calendar view" className="inline-flex rounded-lg border border-border p-1">
+              <button type="button" aria-pressed={calendarView === 'list'} onClick={() => setCalendarRoute('list', visibleMonth)} className={`min-h-10 rounded-md px-4 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400 ${calendarView === 'list' ? 'bg-blue-500/20 text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>List</button>
+              <button type="button" aria-pressed={calendarView === 'calendar'} onClick={() => setCalendarRoute('calendar', visibleMonth)} className={`min-h-10 rounded-md px-4 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400 ${calendarView === 'calendar' ? 'bg-blue-500/20 text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>Calendar</button>
+              <button type="button" aria-pressed={calendarView === 'gantt'} onClick={() => setCalendarRoute('gantt', visibleMonth)} className={`min-h-10 rounded-md px-4 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400 ${calendarView === 'gantt' ? 'bg-blue-500/20 text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>Gantt</button>
+            </div>
+            <p className="text-xs text-muted-foreground">{filteredCalendarItems.length} filtered release {filteredCalendarItems.length === 1 ? 'row' : 'rows'}</p>
+          </div>
+
+          {calendarView === 'list' ? <>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-muted-foreground">
               Showing {pagedCalendarItems.length ? ((calendarPage - 1) * CALENDAR_PAGE_SIZE) + 1 : 0}-{Math.min(calendarPage * CALENDAR_PAGE_SIZE, filteredCalendarItems.length)} of {filteredCalendarItems.length} release {filteredCalendarItems.length === 1 ? 'row' : 'rows'}. Search checks content title, work item, planned angle, campaign, template label, and source basis.
@@ -2772,6 +2833,65 @@ function ContentIntelligenceContent() {
               onPageChange={changeCalendarPage}
             />
           </div>
+          </> : <>
+            {calendarView === 'calendar' ? <ReleaseMonthView
+              items={filteredCalendarItems}
+              month={visibleMonth}
+              onMonthChange={(month) => setCalendarRoute('calendar', month)}
+              onOpen={(id) => setFocusedCalendarItemId(id)}
+              onClearFilters={() => {
+                setCalendarContentSearch('')
+                setCalendarCampaignFilter('')
+                setCalendarChannelFilter('')
+                setCalendarPhaseFilter('')
+                setCalendarAuthorizationFilter('')
+                setCalendarPreparationFilter('')
+              }}
+            /> : <ReleaseGanttView
+              items={filteredCalendarItems}
+              month={visibleMonth}
+              onMonthChange={(month) => setCalendarRoute('gantt', month)}
+              onOpen={(id) => setFocusedCalendarItemId(id)}
+              onClearFilters={() => {
+                setCalendarContentSearch('')
+                setCalendarCampaignFilter('')
+                setCalendarChannelFilter('')
+                setCalendarPhaseFilter('')
+                setCalendarAuthorizationFilter('')
+                setCalendarPreparationFilter('')
+              }}
+            />}
+            {focusedCalendarItem && filteredCalendarItems.some(item => item.id === focusedCalendarItem.id) && (
+              calendarView === 'calendar'
+                ? releaseDay(focusedCalendarItem.scheduled_for)?.startsWith(`${visibleMonth}-`)
+                : releaseDay(focusedCalendarItem.scheduled_for)! >= `${shiftMonth(visibleMonth, -1)}-01` && releaseDay(focusedCalendarItem.scheduled_for)! < `${shiftMonth(visibleMonth, 2)}-01`
+            ) ? <div id="content-calendar-gate" className="mt-4 rounded-lg border border-blue-400/40 bg-background/20 p-3">
+              <h3 className="mb-2 text-sm font-semibold">Release details</h3>
+              <CalendarItemQueueRow
+                key={focusedCalendarItem.id}
+                item={focusedCalendarItem}
+                actionItemId={calendarActionItemId}
+                rejectingItemId={rejectingCalendarItemId}
+                decisionNote={calendarDecisionNotes[focusedCalendarItem.id] ?? ''}
+                editForm={calendarEditForms[focusedCalendarItem.id] ?? null}
+                isEditing={editingCalendarItemId === focusedCalendarItem.id}
+                isFocused
+                campaigns={campaigns}
+                registerRowRef={(element) => { calendarItemRefs.current[focusedCalendarItem.id] = element }}
+                onAuthorize={authorizeCalendarItem}
+                onBeginEdit={beginEditCalendarItem}
+                onCancelEdit={cancelEditCalendarItem}
+                onEditFormChange={updateCalendarEditForm}
+                onSaveEdit={saveCalendarItemEdits}
+                onBeginReject={(id) => setRejectingCalendarItemId(id)}
+                onDecisionNoteChange={(id, value) => setCalendarDecisionNotes((current) => ({ ...current, [id]: value }))}
+                onReject={rejectCalendarItem}
+                onFocus={(id) => setFocusedCalendarItemId(id)}
+                onClearFocus={() => setFocusedCalendarItemId(null)}
+              />
+              <button type="button" onClick={() => setFocusedCalendarItemId(null)} className="mt-3 min-h-10 rounded-md border border-border px-3 text-xs font-semibold">Close details</button>
+            </div> : null}
+          </>}
 
         </section>
         </>
