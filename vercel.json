@@ -51,7 +51,8 @@
   ],
   "git": {
     "deploymentEnabled": {
-      "claude/commons-economy-research-index": false
+      "claude/commons-economy-research-index": false,
+      "main": false
     }
   }
 }
