@@ -203,6 +203,24 @@ describe('Slack feedback', () => {
     expect(patched[0].elements).toEqual([button('approval.ask_shaka'),link])
     expect(patched[1].type).toBe('context'); expect(patched[2]).toEqual(blocks[1])
   })
+  it('reconciles all exact evidence repair decisions while retaining the Portfolio deep link', async () => {
+    const r = await row()
+    const target = { action: 'evidence_repair.approve', schemaVersion: 'evidence-repair-human-qa/v1',
+      repairRequestId: 'request-1', repairBindingHash: 'a'.repeat(64), repairPacketId: 'packet-1',
+      sourceEnvironment: 'staging' as const, sourceOrigin: 'https://staging.example.com' }
+    r.metadata.envelope.value = target
+    r.metadata.envelope.actionId = 'evidence_repair_approve'
+    const button = (decision: string, bindingHash = target.repairBindingHash) => ({ type: 'button',
+      action_id: `evidence_repair_${decision}`, value: JSON.stringify({ ...target,
+        repairBindingHash: bindingHash, action: `evidence_repair.${decision}` }) })
+    const link = { type: 'button', action_id: 'evidence_repair_open', url: 'https://staging.example.com/admin/agents/content-intelligence?section=research&packet=packet-1' }
+    const blocks = [{ type: 'actions', elements: [button('approve'), button('reject'), button('revise'), link] },
+      { type: 'actions', elements: [button('approve', 'b'.repeat(64))] }]
+    const patched = patchActionBlocks(blocks, r)
+    expect(patched[0].elements).toEqual([link])
+    expect(patched[1].type).toBe('context')
+    expect(patched[2]).toEqual(blocks[1])
+  })
   it.each([undefined,'blocked','failed'] as const)('keeps controls for unconfirmed or unsuccessful status %s', async status => {
     const r = await row(); r.outcome.canonical!.actionStatus = status
     expect(patchActionBlocks([{ type: 'actions', elements: [clicked] }],r)[0].elements).toEqual([clicked])

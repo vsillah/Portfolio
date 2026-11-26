@@ -121,7 +121,7 @@ function envelopeFor(payload: SlackInteractivePayload, value: ReceiptActionValue
   const source = getSlackAgentSource()
   if (value.sourceEnvironment !== source.sourceEnvironment || value.sourceOrigin !== source.sourceOrigin) throw new Error('Receipt source mismatch')
   const minimal: ReceiptActionValue = { action: value.action, sourceEnvironment: value.sourceEnvironment, sourceOrigin: value.sourceOrigin }
-  for (const key of ['manifestHash', 'releaseVersion', 'dispatchIntentId', 'canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const) {
+  for (const key of ['manifestHash', 'releaseVersion', 'dispatchIntentId', 'canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note', 'repairRequestId', 'repairCaseId', 'repairPacketId', 'repairPacketVersion', 'repairOriginalPacketId', 'repairOriginalPacketVersion', 'repairBindingHash', 'repairSourceSha256', 'repairSourceExpiresAt', 'repairCopySha256', 'repairClaimBoundarySha256', 'repairContentVersion', 'repairExpiresAt'] as const) {
     const item = value[key]
     if (item !== undefined) {
       if (typeof item !== 'string' || item.length > (key === 'note' ? 3000 : key === 'expectedReplyText' ? 1500 : 500) || /xox[baprs]-|hooks\.slack\.com\/|-----BEGIN .*PRIVATE KEY-----/i.test(item)) throw new Error('Unsafe receipt field')
@@ -271,6 +271,12 @@ export function patchActionBlocks(blocks: Block[], row: Receipt): Block[] {
     }
     if (target.action.startsWith('warm_gmail_send.')) {
       return ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'].includes(String(action)) && candidate.contactId === target.contactId && candidate.outreachQueueId === target.outreachQueueId
+    }
+    if (target.action.startsWith('evidence_repair.')) {
+      return ['evidence_repair.approve', 'evidence_repair.reject', 'evidence_repair.revise'].includes(String(action))
+        && candidate.repairRequestId === target.repairRequestId
+        && candidate.repairBindingHash === target.repairBindingHash
+        && candidate.repairPacketId === target.repairPacketId
     }
     return false
   }

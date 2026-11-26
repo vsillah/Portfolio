@@ -48,7 +48,7 @@ import type {
   AutoResearchContentOpportunity,
 } from '@/lib/cross-channel-autoresearch-backlog'
 
-import { ResearchPacketReview, type ReviewableResearchPacket } from '@/components/admin/ResearchPacketReview'
+import { ResearchPacketReview, type EvidenceRepairReview, type ReviewableResearchPacket } from '@/components/admin/ResearchPacketReview'
 import ChannelExperimentReview from '@/components/admin/ChannelExperimentReview'
 import YouTubeDescriptionLibrary from '@/components/admin/YouTubeDescriptionLibrary'
 import {
@@ -401,6 +401,71 @@ function channelExperimentFixturePacket(searchParams: URLSearchParams): ChannelE
 
 function youtubeDescriptionLibraryFixtureEnabled(searchParams: URLSearchParams) {
   return process.env.NODE_ENV !== 'production' && searchParams.get('qa_fixture') === 'youtube_description_library_v1'
+}
+
+function evidenceRepairHumanQaFixtureEnabled(searchParams: URLSearchParams) {
+  return process.env.NODE_ENV !== 'production' && searchParams.get('qa_fixture') === 'evidence_repair_human_qa_v1'
+}
+
+function EvidenceRepairHumanQaFixture({ revision }: { revision: string }) {
+  const [decision, setDecision] = useState<'approve' | 'reject' | 'revise' | null>(null)
+  const [reason, setReason] = useState('')
+  const [resetKey, setResetKey] = useState(0)
+  const outcomeRef = useRef<{ decision: 'approve' | 'reject' | 'revise'; reason: string } | null>(null)
+  const packetId = '10000000-0000-4000-8000-000000000001'
+  const packetVersion = '2026-11-25T12:00:00.000Z'
+  const packet = {
+    id: packetId, title: 'Synthetic replacement source for a bounded claim',
+    status: 'review_ready', updated_at: packetVersion, pattern_status: 'needs_brand_translation',
+    source_url: 'https://example.test/replacement',
+    pattern_packet: { source_use_boundary: 'Use only to support the bounded operational claim.' },
+    actor_metadata: { evidence_repair_candidate: { candidate_status: decision === 'approve' ? 'human_qa_approved'
+      : decision === 'reject' ? 'human_qa_rejected' : decision === 'revise' ? 'revision_requested' : 'human_qa_pending' } },
+  }
+  const review: EvidenceRepairReview = {
+    binding: { caseId: `calendar:10000000-0000-4000-8000-000000000003:repair-packet:${packetId}`,
+      packetVersion, bindingHash: 'c'.repeat(64), sourceSha256: 'a'.repeat(64),
+      sourceExpiresAt: '2027-11-25T12:00:00.000Z', approvedCopySha256: 'b'.repeat(64),
+      claimBoundarySha256: 'd'.repeat(64), contentVersion: '2026-11-25T11:00:00.000Z',
+      originalPacketId: '10000000-0000-4000-8000-000000000002', originalPacketVersion: '2026-11-24T12:00:00.000Z' },
+    title: packet.title, source_url: packet.source_url,
+    source_use_boundary: 'Use only to support the bounded operational claim.',
+    supported_claims: ['The handoff included an explicit evidence check.'],
+    removed_claims: ['Unverified outcome claim removed from the replacement source.'],
+    approval_scope: 'Approval marks this candidate evidence reviewed only. It does not link the source, change approved copy, rerun preparation, or enable external action.',
+    slack_review_enabled: false,
+    ...(decision ? { terminal_receipt: { id: 'synthetic-local-receipt', decision, reason,
+      reviewer_id: 'synthetic-local-reviewer', surface: 'portfolio' as const,
+      created_at: '2026-11-25T12:05:00.000Z', external_execution_enabled: false as const } } : {}),
+  }
+  return <main id="admin-main" className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl space-y-5">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
+        <div><p className="text-xs font-semibold uppercase tracking-widest text-cyan-700 dark:text-cyan-200">Privacy-safe local QA fixture</p>
+          <h1 className="mt-2 text-2xl font-semibold">Research · Evidence repair Human QA</h1>
+          <p className="mt-2 text-sm text-muted-foreground">The existing Research review component with synthetic versioned evidence. Decisions stay in this browser only.</p></div>
+        <span className="rounded border border-border px-2 py-1 font-mono text-xs">{revision}</span>
+      </div>
+      <div className="rounded-lg border border-border bg-card p-4">
+        <p className="text-sm font-semibold">{packet.title}</p>
+        <p className="mt-1 text-xs text-muted-foreground">Calendar evidence repair · original preserved · external execution locked</p>
+        <ResearchPacketReview key={resetKey} packet={packet} onReview={async () => undefined}
+          onLoadRepairReview={async () => outcomeRef.current
+            ? { ...review, terminal_receipt: { id: 'synthetic-local-receipt',
+              decision: outcomeRef.current.decision, reason: outcomeRef.current.reason,
+              reviewer_id: 'synthetic-local-reviewer', surface: 'portfolio' as const,
+              created_at: '2026-11-25T12:05:00.000Z', external_execution_enabled: false as const } }
+            : review}
+          onRepairDecision={async (nextDecision, nextReason) => {
+            outcomeRef.current = { decision: nextDecision, reason: nextReason }
+            setDecision(nextDecision); setReason(nextReason)
+          }} />
+      </div>
+      {decision && <button type="button" className="agent-ops-button-secondary" onClick={() => {
+        outcomeRef.current = null; setDecision(null); setReason(''); setResetKey(value => value + 1)
+      }}>Reset synthetic fixture</button>}
+    </div>
+  </main>
 }
 
 const YOUTUBE_DESCRIPTION_LIBRARY_FIXTURE = [
@@ -1029,6 +1094,7 @@ export default function ContentIntelligencePage({ searchParams }: ContentIntelli
   const routeSearchParams = useMemo(() => pageSearchParams(searchParams), [searchParams])
   const [channelExperimentQa, setChannelExperimentQa] = useState<ChannelExperimentPacketId | null>(() => channelExperimentFixturePacket(routeSearchParams))
   const descriptionLibraryQa = youtubeDescriptionLibraryFixtureEnabled(routeSearchParams)
+  const evidenceRepairQa = evidenceRepairHumanQaFixtureEnabled(routeSearchParams)
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return
@@ -1041,6 +1107,8 @@ export default function ContentIntelligencePage({ searchParams }: ContentIntelli
     window.addEventListener('popstate', syncFixtureFromLocation)
     return () => window.removeEventListener('popstate', syncFixtureFromLocation)
   }, [searchParams])
+
+  if (evidenceRepairQa) return <EvidenceRepairHumanQaFixture revision={routeSearchParams.get('rev') ?? 'working-tree'} />
 
   if (descriptionLibraryQa) {
     const revision = routeSearchParams.get('rev') ?? 'working-tree'
@@ -3401,7 +3469,35 @@ function ContentIntelligenceContent() {
                         </tr>
                         <tr className="block w-full sm:table-row">
                           <td colSpan={5} className="block w-full px-3 pb-3 sm:table-cell">
-                            <ResearchPacketReview packet={packet} onReview={async (decision, note, signalReview) => {
+                            <ResearchPacketReview packet={packet} onRequestSlackReview={async review => {
+                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/repair-slack-request`, {
+                                method: 'POST', body: JSON.stringify({ packet_version: review.binding.packetVersion,
+                                  binding_hash: review.binding.bindingHash }),
+                              })
+                              const body = await response.json()
+                              if (!response.ok) throw new Error(body.error || 'Slack delivery is unconfirmed; inspect the request receipt before retrying.')
+                              return body.status === 'sent' ? 'Exact review card delivered to the configured Slack channel.'
+                                : body.status === 'already_requested' ? 'A request for this exact packet version is already recorded. No duplicate card was sent.'
+                                  : `Slack review status: ${body.status}. Inspect the receipt before retrying.`
+                            }} onLoadRepairReview={async () => {
+                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/repair-decision`)
+                              const body = await response.json()
+                              if (!response.ok) throw new Error(body.error || 'Evidence repair review unavailable.')
+                              return body as EvidenceRepairReview
+                            }} onRepairDecision={async (decision, reason, review) => {
+                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/repair-decision`, {
+                                method: 'POST', body: JSON.stringify({ decision, reason,
+                                  packet_version: review.binding.packetVersion, binding_hash: review.binding.bindingHash }),
+                              })
+                              const body = await response.json()
+                              if (!response.ok) throw new Error(body.error || 'Evidence repair decision was not confirmed.')
+                              const status = decision === 'approve' ? 'human_qa_approved' : decision === 'reject' ? 'human_qa_rejected' : 'revision_requested'
+                              setPackets(current => current.map(item => item.id === packet.id ? {
+                                ...item, actor_metadata: { ...item.actor_metadata,
+                                  evidence_repair_candidate: { ...(item.actor_metadata?.evidence_repair_candidate as Record<string, unknown> ?? {}), candidate_status: status },
+                                },
+                              } : item))
+                            }} onReview={async (decision, note, signalReview) => {
                               const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
                                 method: 'POST',
                                 body: JSON.stringify({ decision, note, updated_at: packet.updated_at,

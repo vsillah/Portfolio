@@ -20,6 +20,8 @@ import {
   rejectCalendarDraftHandoff,
 } from '@/lib/social-content-calendar-handoff'
 import { decideWarmGmailSendAuthorizationFromSlack } from '@/lib/warm-outreach-slack-send-approval'
+import { decideEvidenceRepairHumanQa, evidenceRepairReviewPath, getEvidenceRepairReview } from '@/lib/evidence-repair-human-qa'
+import { evidenceRepairSlackEnabled, mappedRepairReviewer, verifyEvidenceRepairSlackRequest } from '@/lib/evidence-repair-slack'
 import { allowedSlackUserIds, isLocalSlackDevelopment, requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 
 export type SlackInteractivePayload = {
@@ -92,6 +94,7 @@ function idempotencyKey(payload: SlackInteractivePayload, value: SlackAgentActio
     : null
   const target =
     warmSendTarget ??
+    value.repairRequestId ??
     value.approvalId ??
     value.workItemId ??
     value.runId ??
@@ -389,7 +392,7 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
   if (!isLocalSlackDevelopment() && !(payload.channel?.id || payload.container?.channel_id)) {
     return reject('Slack action rejected: missing source channel identity.')
   }
-  const stringFields = ['approvalId', 'workItemId', 'runId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const
+  const stringFields = ['approvalId', 'workItemId', 'runId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note', 'repairRequestId', 'repairCaseId', 'repairPacketId', 'repairPacketVersion', 'repairOriginalPacketId', 'repairOriginalPacketVersion', 'repairBindingHash', 'repairSourceSha256', 'repairSourceExpiresAt', 'repairCopySha256', 'repairClaimBoundarySha256', 'repairContentVersion', 'repairExpiresAt'] as const
   if (stringFields.some((field) => value[field] !== undefined && (typeof value[field] !== 'string' || !(value[field] as string).trim()))) {
     return reject('Slack action rejected: invalid action fields.')
   }
@@ -431,6 +434,23 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
         return reject('Missing warm Gmail send authorization scope. Open Portfolio and review this recipient there.')
       }
       break
+    case 'evidence_repair.approve': case 'evidence_repair.reject': case 'evidence_repair.revise': {
+      const repairSource = getSlackAgentSource()
+      if (!evidenceRepairSlackEnabled() || value.schemaVersion !== 'evidence-repair-human-qa/v1'
+        || value.sourceEnvironment !== repairSource.sourceEnvironment || value.sourceOrigin !== repairSource.sourceOrigin
+        || payload.actions?.[0]?.action_id !== value.action.replace('.', '_')
+        || ![value.repairRequestId, value.repairPacketId, value.repairOriginalPacketId, value.calendarItemId, value.contentId]
+          .every(id => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))
+        || ![value.repairBindingHash, value.repairSourceSha256, value.repairCopySha256, value.repairClaimBoundarySha256]
+          .every(digest => typeof digest === 'string' && /^[a-f0-9]{64}$/.test(digest))
+        || ![value.repairPacketVersion, value.repairOriginalPacketVersion, value.repairSourceExpiresAt, value.repairContentVersion, value.repairExpiresAt]
+          .every(date => typeof date === 'string' && Number.isFinite(Date.parse(date)))
+        || Date.parse(value.repairExpiresAt || '') <= Date.now()
+        || !value.repairCaseId || !value.note || !mappedRepairReviewer(authorization.userId)) {
+        return reject('Evidence repair review is disabled, expired, or missing exact reviewer and source bindings. Open Portfolio.')
+      }
+      break
+    }
     case 'insight.ask_shaka': case 'insight.draft_autoresearch':
       if (!value.contentId || !value.note) return reject('Missing insight packet.')
       break
@@ -452,6 +472,45 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
 }
 
 async function executeSlackAgentAction({ authorization, value, key }: Extract<ReturnType<typeof prepareSlackAgentAction>, { ok: true }>, payload: SlackInteractivePayload): Promise<SlackAgentActionResult> {
+
+  if (value.action.startsWith('evidence_repair.')) {
+    const reviewerId = mappedRepairReviewer(authorization.userId)
+    const teamId = payload.team?.id ?? ''
+    const channelId = payload.channel?.id || payload.container?.channel_id || ''
+    const messageTs = payload.container?.message_ts || payload.message?.ts || ''
+    const validRequest = await verifyEvidenceRepairSlackRequest({
+      requestId: value.repairRequestId!, bindingHash: value.repairBindingHash!,
+      packetId: value.repairPacketId!, packetVersion: value.repairPacketVersion!,
+      teamId, channelId, messageTs, userId: authorization.userId, expiresAt: value.repairExpiresAt!,
+    })
+    const path = `${baseUrl()}${evidenceRepairReviewPath(value.repairPacketId!)}`
+    if (!validRequest || !reviewerId) return actionResult(`Evidence repair request changed or expired. Open the current Portfolio review: ${path}`, 'blocked')
+    const review = await getEvidenceRepairReview(value.repairPacketId!)
+    const bound = review.binding
+    if (bound.bindingHash !== value.repairBindingHash || bound.caseId !== value.repairCaseId
+      || bound.originalPacketId !== value.repairOriginalPacketId
+      || bound.originalPacketVersion !== value.repairOriginalPacketVersion
+      || bound.sourceSha256 !== value.repairSourceSha256
+      || bound.sourceExpiresAt !== value.repairSourceExpiresAt
+      || bound.approvedCopySha256 !== value.repairCopySha256
+      || bound.claimBoundarySha256 !== value.repairClaimBoundarySha256
+      || bound.contentVersion !== value.repairContentVersion
+      || bound.calendarItemId !== value.calendarItemId || bound.socialContentId !== value.contentId) {
+      return actionResult(`Evidence repair source or version changed. Open the current Portfolio review: ${path}`, 'blocked')
+    }
+    try {
+      const receipt = await decideEvidenceRepairHumanQa({
+        packetId: bound.packetId, packetVersion: bound.packetVersion,
+        bindingHash: bound.bindingHash,
+        decision: value.action.split('.')[1] as 'approve' | 'reject' | 'revise',
+        reason: value.note!, reviewerId, surface: 'slack',
+        slackIdentity: { team_id: teamId, channel_id: channelId, message_ts: messageTs, user_id: authorization.userId },
+      })
+      return actionResult(`Evidence repair ${receipt.decision} ${receipt.replayed ? 'already recorded' : 'recorded'} in Portfolio. Receipt ${receipt.id}. Review: ${path}. No source was linked and no external action started.`, receipt.replayed ? 'already_recorded' : 'completed')
+    } catch {
+      return actionResult(`Evidence repair decision could not be confirmed. Inspect the current Portfolio review and receipt before any retry: ${path}`, 'failed')
+    }
+  }
 
   if (value.action.startsWith('campaign_release.')) {
     const result = await decideCampaignSlackRelease({ releaseId: value.runId!, hash: value.manifestHash!,

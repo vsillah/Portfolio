@@ -28,6 +28,34 @@ const frameworkOnlyEvidence = {
   revision_note: 'Bound approved public trend evidence.',
 }
 describe('ResearchPacketReview', () => {
+  it('reviews an exact repair candidate and reconciles the terminal receipt without ordinary packet approval', async () => {
+    const repairPacket = { ...packet, actor_metadata: { evidence_repair_candidate: { candidate_status: 'human_qa_pending' } } }
+    const pending = { binding: { packetVersion: '2026-11-25T12:00:00Z', bindingHash: 'a'.repeat(64),
+      sourceSha256: 'b'.repeat(64), sourceExpiresAt: '2027-01-01T00:00:00Z',
+      approvedCopySha256: 'c'.repeat(64), originalPacketId: 'original', originalPacketVersion: '2026-11-24T12:00:00Z' },
+      title: 'Replacement evidence', source_url: 'https://example.test/source', source_use_boundary: 'Bounded claim support',
+      supported_claims: ['Claim one'], removed_claims: ['Unsupported claim'], approval_scope: 'Evidence only; no linking or execution.',
+      slack_review_enabled: false }
+    const terminal = { ...pending, terminal_receipt: { id: 'receipt-1', decision: 'approve' as const,
+      reason: 'Source and bounded claim verified', reviewer_id: 'reviewer-1', surface: 'portfolio' as const,
+      created_at: '2026-11-25T12:05:00Z', external_execution_enabled: false as const } }
+    const load = vi.fn().mockResolvedValueOnce(pending).mockResolvedValueOnce(terminal)
+    const decide = vi.fn().mockResolvedValue(undefined)
+    const ordinary = vi.fn()
+    render(<ResearchPacketReview packet={repairPacket} onReview={ordinary}
+      onLoadRepairReview={load} onRepairDecision={decide} />)
+    fireEvent.click(screen.getByText('Review evidence repair'))
+    expect(await screen.findByText('Replacement evidence')).toBeTruthy()
+    expect((screen.getByText('Approve evidence only') as HTMLButtonElement).disabled).toBe(true)
+    expect(screen.getByText(/Slack review delivery is disabled/)).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Decision reason'), { target: { value: 'Source and bounded claim verified' } })
+    fireEvent.click(screen.getByText('Approve evidence only'))
+    await waitFor(() => expect(decide).toHaveBeenCalledWith('approve', 'Source and bounded claim verified', pending))
+    expect(await screen.findByText(/Human QA decision: Evidence approved/)).toBeTruthy()
+    expect(screen.getByText(/receipt-1/)).toBeTruthy()
+    expect(screen.queryByText('Approve evidence only')).toBeNull()
+    expect(ordinary).not.toHaveBeenCalled()
+  })
   it('requires a note, shows evidence, and submits approval', async () => {
     const onReview = vi.fn().mockResolvedValue(undefined)
     render(<ResearchPacketReview packet={{ ...packet, actor_metadata: { practitioner_evidence: frameworkOnlyEvidence } }} onReview={onReview} />)
