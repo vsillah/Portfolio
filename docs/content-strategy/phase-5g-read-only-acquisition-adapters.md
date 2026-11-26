@@ -1,0 +1,19 @@
+# Phase 5G read-only acquisition adapters
+
+`lib/attributable-performance-acquisition.ts` maps six retained response shapes into the Phase 5F evidence contract: LinkedIn, YouTube long form or Live, YouTube Shorts, X, Facebook, and Instagram. `youtube_shorts` is an acquisition route that produces `platform: youtube, format: shorts`; it is never equated with long form. Every other format remains an exact platform-specific key. The adapters are pure functions. They make no network calls, read no environment variables, expose no credential or collector configuration, and do not persist observations or receipts.
+
+The checked-in synthetic fixtures in `lib/attributable-performance-acquisition.test.ts` show the supported response fields:
+
+| Route | Identity and time | Performance metric |
+| --- | --- | --- |
+| LinkedIn | `urn`, `authorUrn`, `publishedAt`, `permalink`, `mediaType` | `analytics.engagements / analytics.impressions` |
+| YouTube and Shorts | `id`, `snippet.channelId`, `snippet.publishedAt`, `canonicalUrl`, `videoFormat` | `analytics.views / analytics.impressions` |
+| X | `id`, `author_id`, `author_handle`, `created_at`, `url`, `post_format` | `public_metrics.engagement_count / public_metrics.impression_count` |
+| Facebook | `id`, `from_id`, `created_time`, `permalink_url`, `post_format` | `insights.engagements / insights.impressions` |
+| Instagram | `id`, `owner_id`, `timestamp`, `permalink`, `media_format` | `insights.engagements / insights.impressions` |
+
+The caller supplies a retained response and explicit historical bindings: declared account and URL, observation window and grade, audience size and observation time, baseline and cohort identities, evidence and collector versions, provenance, rights/privacy status, source class, a version-bound approved policy, and rollback metadata. The adapter derives the canonical platform object, native metric pair, and stable SHA-256 from the full retained parsed response. It requires the response author to match the declared account and the response URL to match the exact supported canonical route. It neither repairs an alternate URL nor infers an expiry or missing metric. The Phase 5F contract then validates the hash-policy binding and all other eligibility fields. Policy approval authority still requires verification by its owning approval store; a synthetic test receipt is not production authority.
+
+Unknown response fields are retained in the response digest but are not treated as performance metrics. The adapters do not accept estimated impressions, reach as a substitute for impressions, watch time as views, reactions as total engagement, cross-channel rate equivalence, creator-account inference, URL shorteners, tracking query parameters, or inferred publishing or expiry dates. Unsupported or incomplete data stays **Unscored**. A scored receipt still needs at least five distinct same-channel, same-format, same-audience-band comparables with each observation's own attributable same-account baseline. Historical response and rollback IDs remain available when current policy evidence goes stale. Shadow replay does not write to any packet, calendar, database, or production record, and its receipt keeps `external_actions_enabled: false`.
+
+Connecting a live collector is a separate future gate: first review the provider's current metric definitions, account and object identity rules, terms and rights, credential scope, privacy handling, immutable raw-response storage, source-policy approval and expiry authority, and rollback procedure. Then validate those exact live response schemas and permissions in a separately authorized lane. This phase supplies no connector, credential path, provider request, or external execution switch.
