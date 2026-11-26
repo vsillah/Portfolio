@@ -23,6 +23,7 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { GET } from './route'
+import { EVIDENCE_REPAIR_CANARY } from '@/lib/evidence-repair-canary'
 
 function request(url = 'http://localhost/api/admin/social-content/intelligence/daily-digest') {
   return new Request(url, {
@@ -95,9 +96,10 @@ function mockPacketQuery(packetRows = packets) {
   const orderSecond = vi.fn(() => ({ limit }))
   const orderFirst = vi.fn(() => ({ order: orderSecond }))
   const gte = vi.fn(() => ({ order: orderFirst }))
-  const select = vi.fn(() => ({ gte }))
+  const not = vi.fn(() => ({ gte }))
+  const select = vi.fn(() => ({ not }))
   mocks.from.mockReturnValue({ select })
-  return { select, gte, orderFirst, orderSecond, limit }
+  return { select, not, gte, orderFirst, orderSecond, limit }
 }
 
 describe('/api/admin/social-content/intelligence/daily-digest', () => {
@@ -127,6 +129,7 @@ describe('/api/admin/social-content/intelligence/daily-digest', () => {
 
     expect(response.status).toBe(200)
     expect(mocks.from).toHaveBeenCalledWith('social_content_research_packets')
+    expect(query.not).toHaveBeenCalledWith('id', 'in', `(${EVIDENCE_REPAIR_CANARY.packetIds.join(',')})`)
     expect(query.gte).toHaveBeenCalledWith('retrieved_at', expect.any(String))
     expect(mocks.listAgentWorkItems).toHaveBeenCalledWith({
       sourceType: 'social_topic_trigger',

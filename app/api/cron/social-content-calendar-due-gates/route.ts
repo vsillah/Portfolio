@@ -18,6 +18,7 @@ import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { runAgentSlackNotificationSweep } from '@/lib/agent-slack-notification-sweep'
 import { supabaseAdmin } from '@/lib/supabase'
+import { excludeEvidenceRepairCanaries, isEvidenceRepairCanaryId } from '@/lib/evidence-repair-canary'
 import {
   CALENDAR_CHANNEL_LABELS,
   CALENDAR_SIDE_EFFECTS,
@@ -211,7 +212,7 @@ async function collectDueGateCandidates(input: {
   let scannedCount = 0
 
   for (let offset = 0; offset < CALENDAR_MAX_SCAN_ROWS; offset += CALENDAR_SCAN_PAGE_SIZE) {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await excludeEvidenceRepairCanaries(supabaseAdmin
       .from('social_content_calendar_items')
       .select(`
         *,
@@ -221,7 +222,7 @@ async function collectDueGateCandidates(input: {
           id, status, platform, target_platforms, post_text, scheduled_for, rag_context,
           social_content_publishes (id, platform, status)
         )
-      `)
+      `), 'calendar')
       .in('authorization_status', ['pending', 'authorized'])
       .gte('scheduled_for', input.windowStart.toISOString())
       .lte('scheduled_for', input.windowEnd.toISOString())
@@ -301,7 +302,7 @@ async function loadRecalibrationRows(item: SocialContentCalendarItem): Promise<C
     .order('scheduled_for', { ascending: true })
 
   if (error) throw error
-  return (data ?? []) as CalendarRecalibrationRow[]
+  return ((data ?? []) as CalendarRecalibrationRow[]).filter(row => !isEvidenceRepairCanaryId(row.id, 'calendar'))
 }
 
 async function createRecalibrationWorkItem(input: {

@@ -18,6 +18,7 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { GET, POST } from './route'
+import { EVIDENCE_REPAIR_CANARY } from '@/lib/evidence-repair-canary'
 
 function request(url: string, body?: Record<string, unknown>) {
   return new Request(url, {
@@ -34,6 +35,7 @@ function listQuery(data: unknown[] = []) {
     count: data.length,
     order: vi.fn(() => query),
     range: vi.fn(() => query),
+    not: vi.fn(() => query),
     eq: vi.fn(() => query),
     gte: vi.fn(() => query),
     lte: vi.fn(() => query),
@@ -93,6 +95,41 @@ describe('/api/admin/social-content/calendar', () => {
     expect(query.range).toHaveBeenCalledWith(0, 499)
   })
 
+  it('keeps 90 canonical persisted releases plus ten immutable Agentified drafts after canary exclusion', async () => {
+    const persisted = Array.from({ length: 90 }, (_, index) => ({
+      id: `historical-or-live-${index}`,
+      scheduled_for: new Date(Date.UTC(2026, 0, index + 1)).toISOString(),
+      metadata: {},
+    }))
+    const retained = EVIDENCE_REPAIR_CANARY.calendarIds.map((id, index) => ({
+      id, scheduled_for: new Date(Date.UTC(2026, 4, index + 1)).toISOString(), metadata: {},
+    }))
+    let rows = [...persisted, ...retained]
+    let start = 0
+    let end = 99
+    const query: Record<string, unknown> = {
+      not: vi.fn((_column: string, _operator: string, value: string) => {
+        const excluded = new Set(value.slice(1, -1).split(','))
+        rows = rows.filter(row => !excluded.has(row.id))
+        return query
+      }),
+      order: vi.fn(() => query),
+      range: vi.fn((from: number, to: number) => { start = from; end = to; return query }),
+      then: (resolve: (value: unknown) => void) => resolve({ data: rows.slice(start, end + 1), count: rows.length, error: null }),
+    }
+    mocks.from.mockReturnValue({ select: vi.fn(() => query) })
+
+    const response = await GET(request('http://localhost/api/admin/social-content/calendar?limit=100&include_agentified_drafts=1') as never)
+    const body = await response.json()
+    expect(response.status).toBe(200)
+    expect(body.page.total).toBe(90)
+    expect(query.not).toHaveBeenCalledWith('id', 'in', `(${EVIDENCE_REPAIR_CANARY.calendarIds.join(',')})`)
+    expect(body.items).toHaveLength(100)
+    expect(body.items.filter((item: { id: string }) => item.id.startsWith('historical-or-live-'))).toHaveLength(90)
+    expect(body.items.every((item: { id: string }) => !EVIDENCE_REPAIR_CANARY.calendarIds.includes(item.id as typeof EVIDENCE_REPAIR_CANARY.calendarIds[number]))).toBe(true)
+    expect(body.side_effects).toEqual(expect.objectContaining({ publish: false, external_post: false }))
+  })
+
   it('returns only claim state and time from linked work metadata', async () => {
     listQuery([{
       id: 'calendar-claim', channel: 'linkedin', scheduled_for: '2026-11-30T15:00:00.000Z',
@@ -123,6 +160,7 @@ describe('/api/admin/social-content/calendar', () => {
     const query: Record<string, unknown> = {
       order: vi.fn(() => query),
       range: vi.fn((from: number, to: number) => { start = from; end = to; return query }),
+      not: vi.fn(() => query),
       then: (resolve: (value: unknown) => void) => resolve({ data: rows.slice(start, end + 1), count: rows.length, error: null }),
     }
     mocks.from.mockReturnValue({ select: vi.fn(() => query) })

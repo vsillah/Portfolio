@@ -7,6 +7,7 @@ import {
   type SocialContentIntelligenceChannel,
 } from '@/lib/social-content-intelligence'
 import { supabaseAdmin } from '@/lib/supabase'
+import { excludeEvidenceRepairCanaries } from '@/lib/evidence-repair-canary'
 
 type ResearchPacketRow = Record<string, unknown>
 
@@ -168,9 +169,9 @@ export async function buildSocialContentDailyDigest(input: {
   const since = new Date(Date.now() - lookbackDays * 86_400_000).toISOString()
 
   const [{ data: packetData, error: packetError }, workItems] = await Promise.all([
-    supabaseAdmin
+    excludeEvidenceRepairCanaries(supabaseAdmin
       .from('social_content_research_packets')
-      .select('id, source_url, platform, creator_name, creator_handle, title, caption, hook_transcript, thumbnail_url, outlier_score, pattern_status, pattern_packet, privacy_notes, retrieved_at, status')
+      .select('id, source_url, platform, creator_name, creator_handle, title, caption, hook_transcript, thumbnail_url, outlier_score, pattern_status, pattern_packet, privacy_notes, retrieved_at, status'), 'packet')
       .gte('retrieved_at', since)
       .order('outlier_score', { ascending: false })
       .order('retrieved_at', { ascending: false })

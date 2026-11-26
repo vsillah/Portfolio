@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isEvidenceRepairCanaryId } from '@/lib/evidence-repair-canary';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 import type { CreateCampaignInput, CampaignStatus } from '@/lib/campaigns';
@@ -63,6 +64,7 @@ export async function GET(request: NextRequest) {
       ) throw calendarError;
 
       for (const item of calendarItems || []) {
+        if (isEvidenceRepairCanaryId(String(item.id), 'calendar')) continue;
         const campaignId = String(item.campaign_id || '');
         if (!campaignId) continue;
         const current = calendarByCampaign.get(campaignId) || { count: 0, next: null };

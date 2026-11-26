@@ -35,6 +35,7 @@ import {
 import { preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
 import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
 import { getCampaignReviewBacklog } from '@/lib/campaign-review-backlog'
+import { excludeEvidenceRepairCanaries, isEvidenceRepairCanaryId } from '@/lib/evidence-repair-canary'
 
 export type AgentSlackNotificationKind =
   | 'pending_approvals'
@@ -416,7 +417,7 @@ async function buildSocialCalendarPreparationPayload(input: AgentSlackNotificati
     blocks: [{ type: 'section', text: mrkdwn('No current preparation receipt needs notification.') }] as SlackBlock[],
     itemCount: 0, renderedCalendarItemIds: [] as string[],
   }
-  if (!row || row.authorization_status !== 'authorized' || ['completed', 'cancelled'].includes(row.due_status)) return empty
+  if (!row || isEvidenceRepairCanaryId(row.id, 'calendar') || row.authorization_status !== 'authorized' || ['completed', 'cancelled'].includes(row.due_status)) return empty
   const metadata = preparationMetadata(row.metadata)
   const preparation = preparationMetadata(metadata.publish_preparation)
   if (['external_execution_enabled', 'provider_generation_enabled', 'upload_enabled', 'schedule_enabled', 'publish_enabled', 'outreach_send_enabled'].some(key => metadata[key] === true)) return empty
@@ -478,7 +479,7 @@ async function socialCalendarApprovalRows(calendarItemIds?: string[], limit = 50
   const now = new Date()
   const startsAt = new Date(now.getTime() - socialCalendarApprovalReminderLookbackHours() * 60 * 60 * 1000)
   const endsAt = new Date(now.getTime() + socialCalendarApprovalReminderWindowHours() * 60 * 60 * 1000)
-  let query = supabaseAdmin
+  let query = excludeEvidenceRepairCanaries(supabaseAdmin
     .from('social_content_calendar_items')
     .select(`
       *,
@@ -486,7 +487,7 @@ async function socialCalendarApprovalRows(calendarItemIds?: string[], limit = 50
         id, status, platform, target_platforms, post_text, scheduled_for, rag_context,
         social_content_publishes (id, platform, status)
       )
-    `)
+    `), 'calendar')
     .in('authorization_status', ['pending', 'authorized'])
     .gte('scheduled_for', startsAt.toISOString())
     .lte('scheduled_for', endsAt.toISOString())
