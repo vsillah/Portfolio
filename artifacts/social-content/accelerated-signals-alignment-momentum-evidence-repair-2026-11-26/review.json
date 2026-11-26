@@ -1,0 +1,86 @@
+{
+  "receipt_type": "evidence_repair_review",
+  "mode": "shadow_review_only",
+  "reviewed_at": "2026-11-26T05:52:17-05:00",
+  "calendar_item_id": "8774cf25-7108-40a3-9041-d6cca21ae4de",
+  "work_item_id": "50b2338a-6f05-415c-93c3-6051e56f29dc",
+  "social_content_id": "fc3c57fe-6275-4baf-9bab-510923a83c53",
+  "candidate_evidence_version": "cbd0a285615aedc93f459be1c7d4a5c5586137700b7a08638e8a829973cf056e",
+  "approved_copy_sha256": "a7eabf684f84c14228930588cdb71deb09e6be8fc345ddbb60ede0268b0c236f",
+  "meaning_id": "accelerated-signals-alignment-momentum-operating-loop",
+  "claim_ids": [
+    "sam-is-the-approved-accelerated-workshop-map",
+    "signals-alignment-momentum-describe-the-practiced-learning-path"
+  ],
+  "playbooks_considered": [
+    {
+      "id": "authoritative_source_replacement",
+      "result": "unresolved",
+      "reason": "The first-party sources support the existing meaning, but no authoritative source-specific expiration or outlier-performance receipt exists for a replacement usable-framework packet."
+    },
+    {
+      "id": "owned_proof_binding",
+      "result": "source_available_not_linked",
+      "reason": "The approved SAM visual is owned and version-bound, but owned proof alone cannot satisfy the separate outlier-scored research-pattern gate."
+    },
+    {
+      "id": "typed_blocker_routing",
+      "result": "proposed",
+      "reason": "Route to the source owner for attributable performance observation and an independently evidenced freshness window before another preparation attempt."
+    }
+  ],
+  "authoritative_first_party_sources": [
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/sources/drive/canonical-sam-framework.png",
+      "sha256": "eb3d4fab5320d9d1233989ab8587c6856792793ecff538db69f3e648acb4a42d",
+      "supports": [
+        "sam-is-the-approved-accelerated-workshop-map"
+      ],
+      "privacy": "cleared_owned_asset",
+      "rights": "cleared_owned_asset"
+    },
+    {
+      "path": "docs/accelerated-course-modules/curriculum/scripts/L16.md",
+      "sha256": "aef51b9f3fce4210afd5f01cb0fdc8001bebd835e27e1ae257958a5b0864135d",
+      "supports": [
+        "signals-alignment-momentum-describe-the-practiced-learning-path"
+      ],
+      "privacy": "cleared_course_source",
+      "rights": "cleared_course_source"
+    },
+    {
+      "path": "artifacts/social-content/accelerated-campaign-visuals-2026-11-16/review-packet.md",
+      "sha256": "69edae9fca8e003d15d02bea6a517618a6f3500866d502fab81d4e660a9ce4bd",
+      "supports": [
+        "sam-is-the-approved-accelerated-workshop-map"
+      ],
+      "privacy": "cleared_internal_review_packet",
+      "rights": "cleared_owned_asset_receipt"
+    }
+  ],
+  "qualification_query_result": {
+    "approved_usable_framework_packets_with_outlier_score_and_current_exact_version_future_expiry": 0,
+    "observed_at": "2026-11-26T05:51:00-05:00"
+  },
+  "unresolved_evidence_gap": {
+    "required": [
+      "an attributable framework-pattern performance observation sufficient for the existing outlier policy",
+      "a source-owner freshness receipt bound to the exact packet version",
+      "an authoritative source-specific expiration and its basis"
+    ],
+    "prohibited_inference": [
+      "Do not derive expiry from retrieval, review, publication, crawl, or modification time.",
+      "Do not assign an outlier score without attributable performance evidence.",
+      "Do not broaden or rewrite the approved copy to fit unrelated research."
+    ]
+  },
+  "decision": "unresolved_stop",
+  "linked_to_production": false,
+  "preparation_rerun": false,
+  "notification_sent": false,
+  "external_actions_allowed": false,
+  "rollback": {
+    "required": false,
+    "reason": "No evidence, copy, asset, calendar, work-item, campaign, authorization, or execution state was changed."
+  }
+}

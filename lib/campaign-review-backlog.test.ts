@@ -179,6 +179,26 @@ describe('campaign rolling review persistence', () => {
       .toEqual(expect.objectContaining({ publish: false, upload: false, provider_calls: false, slack_send: false }))
     expect(Object.values(db.tables.agent_work_items[0].metadata.channel_lanes.linkedin.draft_packet.side_effects).every(value => value === false)).toBe(true)
   })
+  it('synchronizes only explicitly selected calendar items during a bounded preparation cycle', async () => {
+    seed(2)
+    delete db.tables.social_content_queue[0].rag_context.practitioner_content_quality
+    delete db.tables.social_content_queue[1].rag_context.practitioner_content_quality
+
+    const result = await prepareCampaignReviewBatch('campaign', {
+      now,
+      dueOnly: true,
+      preserveSocialContent: true,
+      syncCalendarPreparation: true,
+      calendarItemIds: ['calendar-0'],
+    })
+
+    expect(result.calendar_receipts).toEqual([
+      expect.objectContaining({ calendar_item_id: 'calendar-0', state: 'blocked' }),
+    ])
+    expect(db.tables.social_content_calendar_items[0].metadata.publish_preparation).toMatchObject({ status: 'blocked' })
+    expect(db.tables.social_content_calendar_items[1].metadata.publish_preparation).toBeUndefined()
+    expect(db.writes.filter(write => write.table === 'social_content_calendar_items')).toHaveLength(1)
+  })
   it('prepares at most five existing channel packets, keeps provenance, and dedupes repeated/concurrent refill', async () => {
     const [a, b] = await Promise.all([prepareCampaignReviewBatch('campaign', { now }), prepareCampaignReviewBatch('campaign', { now })])
     expect(a.prepared_count + b.prepared_count).toBe(5)
