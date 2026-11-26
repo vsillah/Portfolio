@@ -25,7 +25,7 @@ DECLARE
   v_expected_status text;
 BEGIN
   INSERT INTO auth.users(id) VALUES (v_reviewer);
-  INSERT INTO public.user_profiles(id,role) VALUES (v_reviewer,'admin');
+  UPDATE public.user_profiles SET role='admin' WHERE id=v_reviewer;
   INSERT INTO public.social_content_queue(id,post_text,updated_at) VALUES (v_social,'Synthetic approved copy',v_content_version);
   INSERT INTO public.social_content_calendar_items(id,social_content_id,title,scheduled_for,authorization_status,metadata)
     VALUES (v_calendar,v_social,'Synthetic evidence repair review',v_version + interval '7 days','authorized','{"external_execution_enabled":false}');
