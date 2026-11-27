@@ -1,0 +1,13 @@
+flowchart LR
+  A[Authorized internal Portfolio operator] --> B[Portfolio admin Social Content]
+  B --> C[Versioned human review and rights/privacy gates]
+  C --> D[Final YouTube submission decision]
+  D -->|separately authorized future action only| E[Server-side YouTube upload adapter]
+  E -->|OAuth scopes: upload, readonly, force-ssl| F[YouTube Data API]
+  F -->|provider video ID and outcome| G[Production publish record]
+  B -.-> H[Inactive review-only evidence bridge]
+  H -.->|future documented videos.list / channels.list reads| F
+  H -.-> I[Proposed in-memory bounded observation, raw-response hashes]
+  I -.-> J[Unscored internal review only]
+  K[Public privacy / deletion / terms routes] -.-> B
+  L[Review-only 30-day retention design] -.-> J
