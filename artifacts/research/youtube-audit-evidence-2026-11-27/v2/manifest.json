@@ -1,0 +1,99 @@
+{
+  "schema": "portfolio-youtube-homepage-evidence/v2",
+  "state": "review_only_local_preview_not_provider_ready",
+  "source_commit": "471bfbaeeea5f5ec37d2ff74ac4a52b59cb68c45",
+  "base_commit": "2b690f5e24a72507e6ba07a9db9491c7853a6b46",
+  "captured_on": "2026-11-27",
+  "public_route": "https://amadutown.com/",
+  "preview_route": "http://localhost:3187/?revision=471bfbaeeea5f5ec37d2ff74ac4a52b59cb68c45",
+  "form_url": "https://support.google.com/youtube/contact/yt_api_form?hl=en",
+  "uploaded": false,
+  "submitted": false,
+  "provider_write": false,
+  "production_data_write": false,
+  "collection_active": false,
+  "scoring_active": false,
+  "address_bar_capture_status": "pending_integration_captain",
+  "durable_in_app_human_qa_status": "pending_integration_captain",
+  "source_sha256": {
+    "app/page.tsx": "b1039d10e530e481fce4ae242ffe04166175f6bb08fa77b43cdf59bc84751103",
+    "components/YouTubeServiceDisclosure.tsx": "ed6b6a2b0cf58108f22c1d6c8ae48aa1d1b85c9228a5242624e0f9440a39841e"
+  },
+  "files": [
+    {
+      "path": "homepage-preview-desktop.png",
+      "media_type": "image/png",
+      "form_mapping": "section_5_homepage_privacy_link_and_youtube_presentation",
+      "status": "local_preview_missing_address_bar",
+      "provenance": "http://localhost:3187/?revision=471bfbaeeea5f5ec37d2ff74ac4a52b59cb68c45",
+      "redaction_status": "none_required_clean_public_session",
+      "rights_status": "owned_public_portfolio_content",
+      "sha256": "cfdf1a4d1875c75b3a5fda1e2eaff807a6c46e71a061a766b646e81da86665f7",
+      "bytes": 125012
+    },
+    {
+      "path": "homepage-preview-mobile.png",
+      "media_type": "image/png",
+      "form_mapping": "section_5_homepage_privacy_link_and_youtube_presentation_supplement",
+      "status": "local_preview_missing_address_bar",
+      "provenance": "http://localhost:3187/?revision=471bfbaeeea5f5ec37d2ff74ac4a52b59cb68c45",
+      "redaction_status": "none_required_clean_public_session",
+      "rights_status": "owned_public_portfolio_content",
+      "sha256": "ec45f6d87442a4f38b96a1e40a24b09b57a75c4eab15c92e577ae2baf0fdad10",
+      "bytes": 94065
+    },
+    {
+      "path": "homepage-preview-desktop.mp4",
+      "media_type": "video/mp4",
+      "form_mapping": "human_qa_desktop_walkthrough",
+      "status": "local_preview_not_provider_evidence",
+      "provenance": "isolated_headless_localhost",
+      "redaction_status": "none_required_clean_public_session",
+      "rights_status": "owned_public_portfolio_content",
+      "sha256": "eaa7d1d7fdbbe59a0eb112574da6f818780e58515365315ed822176d1a3dc33f",
+      "bytes": 270891
+    },
+    {
+      "path": "homepage-preview-mobile.mp4",
+      "media_type": "video/mp4",
+      "form_mapping": "human_qa_mobile_walkthrough",
+      "status": "local_preview_not_provider_evidence",
+      "provenance": "isolated_headless_localhost",
+      "redaction_status": "none_required_clean_public_session",
+      "rights_status": "owned_public_portfolio_content",
+      "sha256": "86a08734cfa64b23810298b26cdc1af60e6aa1dfa14ab0e8c481c2e990bccc1b",
+      "bytes": 142420
+    },
+    {
+      "path": "capture-preview.mjs",
+      "media_type": "text/javascript",
+      "form_mapping": "reproduction_script",
+      "status": "review_only",
+      "provenance": "repository_source",
+      "redaction_status": "none_required_clean_public_session",
+      "rights_status": "owned_public_portfolio_content",
+      "sha256": "0f1bf40cd77b06287e3bfd3dc96f29d264a73082582cd8a1f8fc87c4cbd911b4",
+      "bytes": 2477
+    },
+    {
+      "path": "README.md",
+      "media_type": "text/markdown",
+      "form_mapping": "packet_readme",
+      "status": "review_only",
+      "provenance": "repository_source",
+      "redaction_status": "none_required_clean_public_session",
+      "rights_status": "owned_public_portfolio_content",
+      "sha256": "f2701eb508802b9be925d40c85ec4e520f840395900d4caf71ae7e80d3c65da5",
+      "bytes": 3354
+    }
+  ],
+  "unresolved_required_evidence": [
+    "production_homepage_address_bar_capture_after_deployment",
+    "privacy_page_address_bar_capture",
+    "oauth_consent_scopes_revocation_screenshots",
+    "authenticated_upload_interface_screenshot",
+    "authenticated_internal_dashboard_screenshot",
+    "complete_upload_script_or_end_to_end_live_youtube_outcome"
+  ],
+  "rollback": "revert homepage disclosure commit and this v2 directory; no migration, credential, provider configuration, production row, calendar count, or external action was changed"
+}
