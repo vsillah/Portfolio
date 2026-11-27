@@ -2,7 +2,9 @@
   "version": "youtube-derived-metrics-compliance-dossier/v1",
   "status": "review_only_incomplete",
   "prepared_at": "2026-11-27T14:30:01Z",
-  "portfolio_commit": "30c68dcec9ca50108cae7bbcfc845ff04d627af6",
+  "portfolio_commit": "2df663832b6b5868fc5f2dbe0a5d67b54e2f6c6b",
+  "historical_preparation_commit": "30c68dcec9ca50108cae7bbcfc845ff04d627af6",
+  "reconciliation_date": "2026-11-27",
   "google_cloud_project_id": "amadutown-advisory-solutions",
   "oauth_client": {
     "environment_resolution_order": [
@@ -11,6 +13,8 @@
       "GOOGLE_GMAIL_OAUTH_CLIENT_ID"
     ],
     "exact_client_id_sha256": null,
+    "owner_reported_fingerprint_sha256": "087b837193068e592c387e0d5e64a41c2b26d532da65abb274f6a80dea1eb675",
+    "fingerprint_provenance": "owner_reported_in_review_addendum_not_independently_verified",
     "project_match_verified_for_submission": false,
     "credential_material_in_packet": false
   },
@@ -28,7 +32,7 @@
       "https://www.googleapis.com/youtube/v3/channels"
     ],
     "runtime_source_sha256": {
-      "lib/youtube-readonly-evidence-acquisition.ts": "99b20d6d5be3a9bd3001015b09414dda9e847c809931dae2797e26584a868004",
+      "lib/youtube-readonly-evidence-acquisition.ts": "322f85cb14b57c9e2fa1513b4b9e616026e2a8ea2729424323cd9acc0cedbe7d",
       "lib/youtube-oauth.ts": "b872b85517ee14a717fb014befbb95afecdcc493e416ebf58bc6c2e5b054941f"
     }
   },
@@ -40,6 +44,7 @@
   },
   "requested_use_case": {
     "form_category": "Analytics & Reporting",
+    "future_classification_request": "Portfolio Shorts-candidate and audience-band classifications are proposed only; their exact use and labeling require owner and YouTube review.",
     "purpose": "Internal, human-reviewed evidence preparation for AmaduTown content",
     "public_distribution_of_creator_metrics": false,
     "creator_ranking_product": false,
@@ -104,8 +109,15 @@
     "head": "d81d58cbd4954f7c92bdcda37b91685f06c03cf7",
     "diff_sha256": "ea1a835e8eccdad24c7cf9316cdcd53304993b402fbc4a1d177edcf0f12c825c",
     "human_qa_approved": true,
-    "merged": false,
-    "deployed": false
+    "merged": true,
+    "deployed": true,
+    "production_source_commit": "90e567a5f683ed7d7b3e984c36a820b40c9a9d13",
+    "production_deployment_id": "dpl_EunLzGy1LzjFjJz4dbip3tjYWvY7",
+    "privacy_source_sha256": "3b05a8ac489093f363a9bc145651c3d790667b8abe87da1b563a896cea9ed291",
+    "deletion_source_sha256": "2b276efae9a7b56675c61fba1b6917a64ab198385e326fdbcf497ba1865670fa",
+    "production_routes_qa": "desktop_and_390x844_links_keyboard_overflow_console_passed",
+    "deletion_request_route_rendered": true,
+    "live_purge_verified": false
   },
   "inactive_source_policy": {
     "path": "docs/content-strategy/youtube-external-metadata-source-policy-review.md",
@@ -113,6 +125,10 @@
   },
   "retention": {
     "current_non_authorized_delete_or_refresh_ceiling_days": 30,
+    "user_deletion_request_deadline_days": 7,
+    "review_only_design_merge_commit": "2df663832b6b5868fc5f2dbe0a5d67b54e2f6c6b",
+    "review_only_design_merged": true,
+    "live_enforcement_implemented": false,
     "requested_extended_retention_days": null,
     "extended_retention_basis": null,
     "accepted_expiration_or_reaudit_at": null
@@ -149,27 +165,54 @@
       "response_sha256": "d8d9a0f6ed3f7a5a57e62f5fc60e8895e3545f94c0c03ac9445f84ba191e6cd6"
     }
   ],
+  "current_official_policy_review": {
+    "inspected_on": "2026-11-27",
+    "retrieval": "read_only_rendered_official_pages_no_new_response_byte_hash_claim",
+    "urls": [
+      "https://support.google.com/youtube/contact/yt_api_form?hl=en",
+      "https://developers.google.com/youtube/data/guides/quota_and_compliance_audits",
+      "https://developers.google.com/youtube/terms/developer-policies",
+      "https://developers.google.com/youtube/terms/derived-metrics-policy"
+    ],
+    "provider_determination_received": false
+  },
   "submission_readiness": {
     "exact_client_project_binding": false,
-    "whole_client_scope_inventory": false,
+    "whole_client_scope_inventory": true,
     "formula_review": true,
     "data_flow_and_deletion_diagram": false,
-    "privacy_notice_deployed": false,
-    "deletion_route_smoked": false,
-    "synthetic_demo_ready": false,
+    "privacy_notice_deployed": true,
+    "deletion_route_smoked": true,
+    "live_deletion_execution_verified": false,
+    "synthetic_demo_ready": true,
+    "retention_design_merged": true,
+    "derived_metrics_authority_accepted": false,
+    "privacy_and_rights_receipts_issued": false,
     "live_form_answers_captured": false,
     "owner_approved_exact_packet": false,
     "submission_receipt_plan_ready": true
   },
   "blockers": [
-    "Exact deployed OAuth client fingerprint has not been bound to this dossier.",
-    "The full shared-client route and scope inventory is incomplete.",
-    "The proposed privacy notice is draft and undeployed.",
-    "The production deletion route has not been smoked for this use case.",
-    "The synthetic compliance-review demonstration is not prepared.",
-    "The live audit form and current attestations have not been captured for final review.",
+    "Owner-reported client fingerprint and project match need independent authenticated reconfirmation at submission.",
+    "No accepted project-specific derived-metrics amendment or retention allowance is in evidence.",
+    "Privacy and rights determinations for external creators remain unissued; live deletion enforcement is unimplemented.",
+    "Live form project number, organization/contact answers, quota volume, evidence uploads, demo access, and all attestations need owner review.",
     "The exact application has not received owner approval for a single submission."
   ],
+  "audit_form_review_candidate": {
+    "official_form_url": "https://support.google.com/youtube/contact/yt_api_form?hl=en",
+    "request_type_interpretation": "Complete a compliance audit to request for additional quota",
+    "request_type_basis": "non_reaudit_path_for_derived_metrics_review_only_not_a_submitted_answer",
+    "project_quota_selection_interpretation": "No change / Default quota (10k quota points)",
+    "quota_increase_requested": false,
+    "project_number": null,
+    "expected_api_usage_volume": null,
+    "derived_metrics_acknowledgement_accepted": false,
+    "demo_credentials_in_packet": false,
+    "all_attestations_accepted": false,
+    "form_submitted": false,
+    "owner_review_workbook": "artifacts/research/youtube-derived-metrics-compliance-dossier-2026-11-27/owner-review-audit-workbook.md"
+  },
   "locks": {
     "audit_submission_enabled": false,
     "terms_acceptance_enabled": false,

@@ -1,5 +1,7 @@
 # YouTube compliance review addendum — synthetic-only
 
+> **2026-11-27 authority reconciliation:** This file's original `b832e832` observations and hashes are a historical inventory. Current review base is `2df663832b6b5868fc5f2dbe0a5d67b54e2f6c6b`. Production legal deployment `dpl_EunLzGy1LzjFjJz4dbip3tjYWvY7` from `90e567a5f683ed7d7b3e984c36a820b40c9a9d13` is live at `amadutown.com`; `/legal/privacy` and `/legal/data-deletion` passed desktop and 390×844, internal-link keyboard navigation, overflow and console checks. Current source hashes: privacy `3b05a8ac489093f363a9bc145651c3d790667b8abe87da1b563a896cea9ed291`, deletion `2b276efae9a7b56675c61fba1b6917a64ab198385e326fdbcf497ba1865670fa`. This resolves notice parity and request-route visibility, not a live purge or privacy/rights authority. Review-only retention design PR #1354 merged as `2df66383`; its synthetic trace, TypeScript, 8 GB build, both PR Vercel contexts and database health check passed. No external cohort store/job was activated. The [owner-review workbook](owner-review-audit-workbook.md) records the current form interpretation and remaining action-time gates.
+
 **Status:** owner review; no audit submission, terms acceptance, live collection, evidence linkage, score activation, or production mutation. **Source commit:** `b832e83296bda150c17aff80b1794d3c9f94e345`. **Observed:** 2026-11-27 16:02 UTC. This addendum extends the original [dossier](../../../docs/content-strategy/youtube-derived-metrics-compliance-dossier.md) without replacing its historical source register or response hashes.
 
 ## Project and client binding
@@ -47,8 +49,8 @@ This is a trace of the current bridge, not a statement that collection or derive
 
 ## Retention, deletion, privacy, rights, rollback
 
-- The merged privacy page (`app/legal/privacy/page.tsx`) describes the proposed public-metadata fields, 30-calendar-day **maximum** delete-or-refresh boundary, Google Privacy Policy link, and `/legal/data-deletion` path. A merge commit is not deployment proof: `vercel.json` suppresses main deployment; production notice parity remains unverified.
-- `/legal/data-deletion` tells a requester to email the published contact with the provider and account/page identity. It describes operator removal/revocation of provider connection data and possible minimal audit retention. This is a request path, **not** an automated deletion endpoint or a production-smoked external-cohort purge.
+- The live privacy page describes the proposed public-metadata fields, 30-calendar-day **maximum** delete-or-refresh boundary, Google Privacy Policy link, and `/legal/data-deletion` path. The verified deployment and hashes are recorded above. Notice parity is not source-class approval.
+- The live `/legal/data-deletion` page lets a requester identify a public video/channel URL or ID without a connected account. This is a request path, **not** an automated deletion endpoint or a production-smoked external-cohort purge. Current Developer Policies III.E.4.g call for user-requested deletion as soon as possible and within seven calendar days.
 - The bridge holds response bodies and tokens in process memory, returns a bounded observation, and has no persistent external-cohort store. There is thus no bridge-held cohort to delete after a synthetic run. Any future persistence must first implement source-keyed deletion/refresh, revocation, requester verification, audit minimization, expiry enforcement and proof of purge; the current dossier's deletion-route smoke item remains open.
 - Public facts do not clear creator-media rights or privacy. No title, description, handle, comment text, person identity, image, thumbnail, video or audio is in this proposed cohort. Rights and privacy decisions must be separate, version-bound approvals. Do not repurpose connected-channel comment or upload permissions for this cohort.
 - On an invalid source, changed identity/status, revoked permission, privacy or rights objection, or policy change: stop use, invalidate any proposed receipt, remove any proposed derived use, and delete or refresh API data within the applicable limit. This packet has no production state to roll back; revert only its docs if rejected.
@@ -59,10 +61,10 @@ The [synthetic walkthrough](synthetic-demo.md) and [receipt](synthetic-demo-rece
 
 ## Remaining submission gates
 
-1. Verify the production deployment actually serves the merged privacy and safe-config versions; neither project's merge-commit deployment was created because `vercel.json` suppressed it. Do not use preview success as production proof.
+1. Reconfirm the production notice deployment and safe-config runtime version at submission. The production legal route parity was verified at `dpl_EunLzGy1LzjFjJz4dbip3tjYWvY7`; preview success alone is not production proof.
 2. Obtain project-specific, accepted written authority for the exact analytics use case, three ratios, any future score/classification, and retention. No acceptance record was found. Audit form and attestations need owner review at action time.
 3. Resolve the proposed ratio/audience-band use in code and privacy terms before any live external-cohort read. A source-class policy, privacy and rights receipts, exact freshness/expiry rule and data minimization decision are still absent.
-4. Design and validate deletion/refresh and requester recovery for any future persisted cohort; production-smoke the applicable path before claiming readiness.
+4. The merged retention design is review-only. Implement, validate and production-smoke deletion/refresh and requester recovery for any future persisted cohort before claiming operational readiness.
 5. Reconfirm the client fingerprint, granted scopes, quota/audit status, provider response provenance, and exact deployed versions for the single audit submission. These are separate checks.
 
 **Stop state:** audit submission, terms acceptance, live provider collection, scoring, evidence linkage, derived persistence, notifications, media, upload, scheduling, publishing and other external actions remain disabled for this packet.
