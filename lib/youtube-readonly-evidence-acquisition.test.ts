@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createHash } from 'node:crypto'
 import cohort from '@/artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/cohort.json'
 import { acquireYouTubeReadOnlyEvidence, YOUTUBE_EVIDENCE_CALENDAR_ID, YOUTUBE_EVIDENCE_COHORT_SHA256, YOUTUBE_EVIDENCE_CONTENT_ID, type YouTubeEvidenceRequest } from './youtube-readonly-evidence-acquisition'
 import { rawResponseSha256 } from './attributable-performance-evidence'
@@ -165,5 +166,54 @@ describe('YouTube read-only evidence acquisition', () => {
     const output = await acquireYouTubeReadOnlyEvidence(input)
     expect(output.status).toBe('blocked')
     expect(output.comparable_decisions).toEqual(expect.arrayContaining([expect.objectContaining({ reason: expect.stringContaining('publication window') })]))
+  })
+  it('reports exact timestamp and duration decisions with a byte hash and bounded public evidence', async () => {
+    const seed = cohort.included[0]
+    const observedAt = seed.published_at.replace('.000Z', 'Z')
+    const extraSecret = 'provider-secret-must-not-escape'
+    const { input } = setup({}, { video: (id, value) => id === seed.video_id
+      ? { ...value, snippet: { channelId: seed.channel_id, publishedAt: observedAt, title: extraSecret },
+          contentDetails: { duration: 'PT1M' }, statistics: { viewCount: '1000', privateMetric: extraSecret },
+          status: { privacyStatus: 'public' }, unrelated: { access_token: extraSecret } }
+      : value })
+    const output = await acquireYouTubeReadOnlyEvidence(input)
+    const observation = output.candidate_observations[0]
+    expect(observation).toMatchObject({ approved_video_id: seed.video_id,
+      raw_response_evidence: { video_id: seed.video_id, channel_id: seed.channel_id, published_at: observedAt, duration: 'PT1M', privacy_status: 'public' },
+      parsed_duration_seconds: 60, shorts_format_determination: 'duration_band_match', inclusion: 'excluded',
+      field_decisions: { video_id: 'match', channel_id: 'match', published_at: 'mismatch', duration: 'mismatch', public_status: 'match', shorts_duration_band: 'match' },
+      exclusion_fields: ['published_at', 'duration'] })
+    const expectedBody = { items: [{ id: seed.video_id, snippet: { channelId: seed.channel_id, publishedAt: observedAt, title: extraSecret },
+      contentDetails: { duration: 'PT1M' }, statistics: { viewCount: '1000', privateMetric: extraSecret },
+      status: { privacyStatus: 'public' }, unrelated: { access_token: extraSecret } }] }
+    expect(observation.response_body_sha256).toBe(createHash('sha256').update(JSON.stringify(expectedBody)).digest('hex'))
+    expect(JSON.stringify(output)).not.toContain(extraSecret)
+    expect(output.comparable_decisions[0].reason).toContain('publication timestamp')
+    expect(output.persistence_enabled).toBe(false)
+    expect(output.external_actions_enabled).toBe(false)
+  })
+  it('reports field exclusions for a private, wrong-channel, long video without leaking extra fields', async () => {
+    const seed = cohort.included[0]
+    const { input } = setup({}, { video: (id, value) => id === seed.video_id
+      ? { ...value, snippet: { channelId: cohort.included[1].channel_id, publishedAt: seed.published_at },
+          contentDetails: { duration: 'PT1H2M3S' }, status: { privacyStatus: 'private' } }
+      : value })
+    const output = await acquireYouTubeReadOnlyEvidence(input)
+    expect(output.candidate_observations[0]).toMatchObject({ parsed_duration_seconds: 3723,
+      shorts_format_determination: 'outside_duration_band',
+      field_decisions: { channel_id: 'mismatch', duration: 'mismatch', public_status: 'mismatch', shorts_duration_band: 'mismatch' },
+      exclusion_fields: ['channel_id', 'duration', 'public_status', 'shorts_duration_band'] })
+  })
+  it('redacts malformed provider fields and marks them unavailable', async () => {
+    const seed = cohort.included[0]
+    const secret = 'refresh-secret-malformed'
+    const { input } = setup({}, { video: (id, value) => id === seed.video_id
+      ? { ...value, snippet: { channelId: secret, publishedAt: secret }, contentDetails: { duration: secret }, status: { privacyStatus: secret } }
+      : value })
+    const output = await acquireYouTubeReadOnlyEvidence(input)
+    expect(output.candidate_observations[0]).toMatchObject({ raw_response_evidence: { video_id: seed.video_id, channel_id: null, published_at: null, duration: null, privacy_status: null },
+      parsed_duration_seconds: null, shorts_format_determination: 'unavailable',
+      field_decisions: { channel_id: 'unavailable', published_at: 'unavailable', duration: 'unavailable', public_status: 'unavailable', shorts_duration_band: 'unavailable' } })
+    expect(JSON.stringify(output)).not.toContain(secret)
   })
 })
