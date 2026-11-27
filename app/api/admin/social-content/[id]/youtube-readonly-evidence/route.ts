@@ -32,6 +32,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       credentials: config.data?.credentials ?? null,
       is_active: config.data?.is_active === true,
     })
+    const forbiddenScoringFields = ['normalized_method', 'normalized_performance_score', 'outlier_qualified']
+    if (forbiddenScoringFields.some((field) => Object.hasOwn(output, field) || output.records.some((record) => Object.hasOwn(record, field)))) {
+      throw new Error('Disabled scoring fields appeared in the read-only evidence result.')
+    }
     return NextResponse.json(output, { status: output.status === 'blocked' ? 409 : 200, headers: { 'Cache-Control': 'no-store' } })
   } catch {
     return NextResponse.json({ error: 'Read-only acquisition failed.' }, { status: 503 })

@@ -50,8 +50,6 @@ type RecordEvidence = {
   audience_view_ratio: number
   recency_adjusted_views_per_day: number
   age_days: number
-  normalized_performance_score: number | null
-  outlier_qualified: boolean | null
   raw_response_sha256: string
   video_response_sha256: string
   channel_response_sha256: string
@@ -91,7 +89,6 @@ export type YouTubeEvidenceResult = {
   candidate_observations: CandidateObservation[]
   seed_exclusions: Array<{ video_id: string; reason: string }>
   records: RecordEvidence[]
-  normalized_method: string | null
   scoring_enabled: false
   persistence_enabled: false
   external_actions_enabled: false
@@ -113,11 +110,6 @@ function median(values: number[]): number | null {
   const middle = Math.floor(sorted.length / 2)
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2
 }
-function percentile(value: number, values: number[]) {
-  const lower = values.filter((candidate) => candidate < value).length
-  const equal = values.filter((candidate) => candidate === value).length
-  return Number((((lower + equal * 0.5) / values.length) * 100).toFixed(2))
-}
 function result(input: Input, blockers: string[], qualificationBlockers: string[], records: RecordEvidence[], decisions: ComparableDecision[], selectedBand: AudienceBand | null, baselineReceipts: YouTubeEvidenceResult['baseline_receipts'] = [], providerResponses: ProviderResponse[] = [], candidateObservations: CandidateObservation[] = []): YouTubeEvidenceResult {
   const included = decisions.filter((decision) => decision.status === 'included').map((decision) => decision.video_id)
   const body = {
@@ -138,7 +130,6 @@ function result(input: Input, blockers: string[], qualificationBlockers: string[
     candidate_observations: candidateObservations,
     seed_exclusions: cohort.excluded.map((entry) => ({ video_id: entry.video_id, reason: entry.exclusion_reason })),
     records,
-    normalized_method: selectedBand && included.length >= cohort.target.minimum_sample_size ? cohort.formula.normalized_performance_score : null,
     scoring_enabled: false as const,
     persistence_enabled: false as const,
     external_actions_enabled: false as const,
@@ -325,7 +316,7 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
         decisions.push({ video_id: seed.video_id, channel_id: seed.channel_id, status: 'excluded', reason: `Comparable exceeds the approved ${cohort.target.recency_window_days}-day publication window.`, audience_band: audienceBand })
         continue
       }
-      records.push({ role: 'approved_comparable', video_id: seed.video_id, channel_id: seed.channel_id, format: 'shorts', canonical_url: seed.youtube_url, published_at: candidate.video.publishedAt, observed_at: now.toISOString(), duration_seconds: candidate.video.duration, views: candidate.video.views, likes: candidate.video.likes, comments: candidate.video.comments, public_subscribers: subscribers, audience_band: audienceBand, approved_inclusion_reason: seed.inclusion_reason, baseline, channel_relative_ratio: round4(candidate.video.views / baselineMedian), audience_view_ratio: round4(candidate.video.views / subscribers), recency_adjusted_views_per_day: round4(candidate.video.views / ageDays), age_days: ageDays, normalized_performance_score: null, outlier_qualified: null, raw_response_sha256: rawResponseSha256({ video_response_sha256: candidate.video.responseSha256, channel_response_sha256: rawResponseSha256(channelBody.parsed), baseline_receipt_sha256: baseline.receipt_sha256 }), video_response_sha256: candidate.video.responseSha256, channel_response_sha256: rawResponseSha256(channelBody.parsed), video_body_sha256: candidate.video.bodySha256, channel_body_sha256: channelBody.bodySha256 })
+      records.push({ role: 'approved_comparable', video_id: seed.video_id, channel_id: seed.channel_id, format: 'shorts', canonical_url: seed.youtube_url, published_at: candidate.video.publishedAt, observed_at: now.toISOString(), duration_seconds: candidate.video.duration, views: candidate.video.views, likes: candidate.video.likes, comments: candidate.video.comments, public_subscribers: subscribers, audience_band: audienceBand, approved_inclusion_reason: seed.inclusion_reason, baseline, channel_relative_ratio: round4(candidate.video.views / baselineMedian), audience_view_ratio: round4(candidate.video.views / subscribers), recency_adjusted_views_per_day: round4(candidate.video.views / ageDays), age_days: ageDays, raw_response_sha256: rawResponseSha256({ video_response_sha256: candidate.video.responseSha256, channel_response_sha256: rawResponseSha256(channelBody.parsed), baseline_receipt_sha256: baseline.receipt_sha256 }), video_response_sha256: candidate.video.responseSha256, channel_response_sha256: rawResponseSha256(channelBody.parsed), video_body_sha256: candidate.video.bodySha256, channel_body_sha256: channelBody.bodySha256 })
     }
     const counts = BAND_ORDER.map((value) => ({ band: value, count: records.filter((record) => record.audience_band === value).length }))
     const selected = counts.sort((a, b) => b.count - a.count || BAND_ORDER.indexOf(a.band) - BAND_ORDER.indexOf(b.band))[0]
@@ -334,17 +325,6 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
     decisions.sort((a, b) => cohort.included.findIndex((seed) => seed.video_id === a.video_id) - cohort.included.findIndex((seed) => seed.video_id === b.video_id))
     for (const observation of candidateObservations) observation.inclusion = decisions.find((decision) => decision.video_id === observation.approved_video_id)?.status ?? 'excluded'
     if (!selectedBand) return result(input, ['Fewer than five attributable comparables share one current audience band.'], qualificationBlockers, records, decisions, null, baselineReceipts, providerResponses, candidateObservations)
-    const includedRecords = records.filter((record) => record.audience_band === selectedBand)
-    if (includedRecords.length >= cohort.target.minimum_sample_size) {
-      const relative = includedRecords.map((record) => record.channel_relative_ratio)
-      const audience = includedRecords.map((record) => record.audience_view_ratio)
-      const recency = includedRecords.map((record) => record.recency_adjusted_views_per_day)
-      for (const record of includedRecords) {
-        const score = Number((percentile(record.channel_relative_ratio, relative) * 0.5 + percentile(record.audience_view_ratio, audience) * 0.3 + percentile(record.recency_adjusted_views_per_day, recency) * 0.2).toFixed(2))
-        record.normalized_performance_score = score
-        record.outlier_qualified = score >= cohort.outlier_qualification.threshold
-      }
-    }
     return result(input, [], qualificationBlockers, records, decisions, selectedBand, baselineReceipts, providerResponses, candidateObservations)
   } catch (error) {
     return result(input, [error instanceof Error && error.message.startsWith('YouTube ') ? error.message : 'YouTube read-only acquisition failed.'], qualificationBlockers, records, decisions, null, baselineReceipts, providerResponses, candidateObservations)

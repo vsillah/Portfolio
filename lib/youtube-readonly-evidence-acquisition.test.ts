@@ -81,7 +81,11 @@ describe('YouTube read-only evidence acquisition', () => {
     expect(output.qualification_blockers).toEqual([expect.stringContaining('source-class freshness policy'), expect.stringContaining('privacy and rights')])
     expect(output.source_policy_expires_at).toBeNull()
     expect(output.scoring_enabled).toBe(false)
-    expect(output.records.find((record) => record.video_id === 'gTHQpAkgjy4')).toMatchObject({ audience_band: 'micro', views: 1000, likes: 20, comments: null, baseline: { median_views: 100 }, channel_relative_ratio: 10, normalized_performance_score: expect.any(Number), outlier_qualified: expect.any(Boolean) })
+    expect(output.records.find((record) => record.video_id === 'gTHQpAkgjy4')).toMatchObject({ audience_band: 'micro', views: 1000, likes: 20, comments: null, baseline: { median_views: 100 }, channel_relative_ratio: 10 })
+    for (const field of ['normalized_method', 'normalized_performance_score', 'outlier_qualified']) {
+      expect(output).not.toHaveProperty(field)
+      expect(output.records.every((record) => !Object.hasOwn(record, field))).toBe(true)
+    }
     const requestedVideos = calls.filter((call) => new URL(call.url).pathname.endsWith('/videos')).map((call) => new URL(call.url).searchParams.get('id'))
     const requiredVideos = new Set(cohort.included.flatMap((seed) => [seed.video_id, ...seed.channel_baseline.video_ids]))
     expect(new Set(requestedVideos)).toEqual(requiredVideos)

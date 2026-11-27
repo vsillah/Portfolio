@@ -28,7 +28,16 @@ describe('admin-only YouTube evidence route', () => {
     expect(state.reads).toEqual(['social_content_queue', 'social_content_calendar_items', 'social_content_config'])
     expect(state.writes).toEqual([])
     expect(state.service).toHaveBeenCalledWith(expect.objectContaining({ content_updated_at: body.expected_content_updated_at, calendar_bound: true, is_active: true }))
-    expect(JSON.stringify(await response.json())).not.toContain('secret')
+    const output = await response.json()
+    expect(JSON.stringify(output)).not.toContain('secret')
+    for (const field of ['normalized_method', 'normalized_performance_score', 'outlier_qualified']) expect(output).not.toHaveProperty(field)
+  })
+  it.each(['normalized_method', 'normalized_performance_score', 'outlier_qualified'])('fails closed if disabled scoring returns %s', async (field) => {
+    state.service.mockResolvedValue({ status: 'acquired_unscored', records: [{ video_id: 'public-id', [field]: null }], persistence_enabled: false, external_actions_enabled: false })
+    const response = await POST(request(), { params: { id: YOUTUBE_EVIDENCE_CONTENT_ID } })
+    expect(response.status).toBe(503)
+    expect(await response.json()).toEqual({ error: 'Read-only acquisition failed.' })
+    expect(state.writes).toEqual([])
   })
   it('denies non-admin before database or provider access', async () => {
     state.auth = { error: 'Forbidden', status: 403 }
