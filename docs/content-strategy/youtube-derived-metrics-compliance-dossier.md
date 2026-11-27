@@ -1,5 +1,7 @@
 # YouTube derived-metrics compliance dossier
 
+> **Current review addendum (2026-11-27):** [OAuth, route, data-flow, deletion, retention, and synthetic demonstration inventory](../../artifacts/research/youtube-derived-metrics-compliance-dossier-2026-11-27/review-addendum.md) is bound to Portfolio `b832e83296bda150c17aff80b1794d3c9f94e345`. The original packet below remains a historical preparation snapshot; its base commit, privacy-notice PR status, and source hashes must not be read as current deployment evidence. No audit was submitted and no derived-metrics authority was accepted.
+
 - **State:** review-only preparation packet; incomplete; not submitted.
 - **Project:** `amadutown-advisory-solutions`
 - **Prepared against:** Portfolio `30c68dcec9ca50108cae7bbcfc845ff04d627af6`
