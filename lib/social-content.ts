@@ -168,8 +168,21 @@ export interface SocialContentPublish {
 export interface SocialContentConfig {
   id: string
   platform: SocialPlatform
-  credentials: Record<string, string>
-  settings: Record<string, string>
+  credentials?: Record<string, string>
+  credentials_configured?: boolean
+  credential_presence?: {
+    access_token: boolean
+    linkedin_author: boolean
+    instagram_account: boolean
+    instagram_professional_account: boolean
+    instagram_meta_page_linked: boolean
+    instagram_app_review: boolean
+    facebook_page_access_token: boolean
+    facebook_page: boolean
+  }
+  target_channel_label?: string
+  profile_handle_label?: string
+  settings: Record<string, unknown>
   is_active: boolean
   created_at: string
   updated_at: string

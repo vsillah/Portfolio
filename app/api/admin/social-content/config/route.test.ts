@@ -24,6 +24,8 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { GET, PUT } from './route'
+import { buildPlatformOrchestrationPlan } from '@/lib/social-platform-orchestration'
+import type { SocialContentConfig, SocialPlatform } from '@/lib/social-content'
 
 const secrets = [
   'secret-token', 'secret-refresh-token', 'secret-instagram-token',
@@ -37,7 +39,7 @@ async function expectNoSecrets(response: Response) {
   return JSON.parse(serialized)
 }
 
-const configs = [{
+const configs: SocialContentConfig[] = [{
   id: 'config-youtube',
   platform: 'youtube',
   credentials: {
@@ -95,9 +97,9 @@ function putRequest(body: unknown) {
   })
 }
 
-function installConfigQuery() {
+function installConfigQuery(rows: SocialContentConfig[] = configs) {
   mocks.eq.mockImplementation((_key: string, value: string) => Promise.resolve({
-    data: configs.filter((config) => config.platform === value),
+    data: rows.filter((config) => config.platform === value),
     error: null,
   }))
   mocks.order.mockReturnValue({ eq: mocks.eq })
@@ -125,7 +127,7 @@ describe('GET /api/admin/social-content/config', () => {
     const response = await GET(request('https://amadutown.com/api/admin/social-content/config?safe=true&platform=youtube'))
 
     expect(response.status).toBe(200)
-    await expect(expectNoSecrets(response)).resolves.toEqual({
+    await expect(expectNoSecrets(response)).resolves.toMatchObject({
       configs: [
         {
           id: 'config-youtube',
@@ -151,7 +153,7 @@ describe('GET /api/admin/social-content/config', () => {
 
     expect(response.status).toBe(200)
     const body = await expectNoSecrets(response)
-    expect(body.configs).toEqual([{
+    expect(body.configs).toMatchObject([{
       id: 'config-instagram',
       platform: 'instagram',
       settings: {
@@ -194,12 +196,127 @@ describe('GET /api/admin/social-content/config', () => {
     })
   })
 
+  it('keeps the detail-page orchestration contract equivalent for all six connected providers', async () => {
+    const platforms: SocialPlatform[] = ['youtube', 'linkedin', 'instagram', 'facebook', 'tiktok', 'x']
+    const providerRows: Array<Pick<SocialContentConfig, 'id' | 'platform' | 'credentials' | 'settings' | 'is_active'>> = [
+      {
+        id: 'youtube', platform: 'youtube', is_active: true,
+        credentials: { access_token: 'secret-youtube-access', channel_name: 'AmaduTown' },
+        settings: { default_privacy: 'unlisted', channel_id: 'secret-youtube-channel', clientSecret: 'secret-client-secret' },
+      },
+      {
+        id: 'linkedin', platform: 'linkedin', is_active: true,
+        credentials: { access_token: 'secret-linkedin-access', author_urn: 'secret-linkedin-author' },
+        settings: { profile_name: 'AmaduTown', nested: [{ refreshToken: 'secret-linkedin-refresh' }] },
+      },
+      {
+        id: 'instagram', platform: 'instagram', is_active: true,
+        credentials: { access_token: 'secret-instagram-access', ig_user_id: 'secret-instagram-id' },
+        settings: {
+          instagram_professional_account_id: 'secret-instagram-professional',
+          meta_page_id: 'secret-instagram-page',
+          app_review_permissions_confirmed: true,
+          instagram_account_type: 'business',
+        },
+      },
+      {
+        id: 'facebook', platform: 'facebook', is_active: true,
+        credentials: { page_access_token: 'secret-facebook-access', page_id: 'secret-facebook-page' },
+        settings: { connected_page_name: 'AmaduTown' },
+      },
+      {
+        id: 'tiktok', platform: 'tiktok', is_active: true,
+        credentials: { access_token: 'secret-tiktok-access' },
+        settings: { creator_info_confirmed: true, source_url_approved: true },
+      },
+      {
+        id: 'x', platform: 'x', is_active: true,
+        credentials: { access_token: 'secret-x-access', profile_handle: 'amadutown' },
+        settings: { default_privacy: 'private' },
+      },
+    ]
+    const rows: SocialContentConfig[] = providerRows.map((row) => ({
+      ...row, created_at: '2026-08-01', updated_at: '2026-08-01',
+    }))
+    installConfigQuery(rows)
+    mocks.order.mockResolvedValueOnce({ data: rows, error: null })
+
+    // This is the detail page's fetch -> setPlatformConfigs -> buildPlatformOrchestrationPlan handoff.
+    const response = await GET(request())
+    expect(response.status).toBe(200)
+    const serialized = await response.text()
+    for (const row of rows) {
+      for (const [key, value] of Object.entries(row.credentials ?? {})) {
+        if (key !== 'channel_name' && key !== 'profile_handle') expect(serialized).not.toContain(value)
+      }
+    }
+    for (const secret of [
+      'secret-youtube-channel', 'secret-client-secret', 'secret-linkedin-refresh',
+      'secret-instagram-professional', 'secret-instagram-page',
+    ]) expect(serialized).not.toContain(secret)
+    const safeConfigs = JSON.parse(serialized).configs as SocialContentConfig[]
+    expect(safeConfigs).toHaveLength(6)
+    expect(safeConfigs.every((config) => !('credentials' in config))).toBe(true)
+    expect(safeConfigs.find((config) => config.platform === 'youtube')).toMatchObject({
+      settings: { default_privacy: 'unlisted' }, target_channel_label: 'AmaduTown',
+      credential_presence: { access_token: true },
+    })
+    expect(safeConfigs.find((config) => config.platform === 'x')).toMatchObject({ profile_handle_label: 'amadutown' })
+
+    const planInput = {
+      targetPlatforms: platforms,
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: false,
+    }
+    const rawPlan = buildPlatformOrchestrationPlan({ ...planInput, platformConfigs: rows })
+    const detailPagePlan = buildPlatformOrchestrationPlan({ ...planInput, platformConfigs: safeConfigs })
+    expect(detailPagePlan.platforms.map((plan) => plan.stages.find((stage) => stage.key === 'platform_configuration')))
+      .toEqual(rawPlan.platforms.map((plan) => plan.stages.find((stage) => stage.key === 'platform_configuration')))
+    expect(detailPagePlan.platforms.map((plan) => plan.nextAction)).toEqual(rawPlan.platforms.map((plan) => plan.nextAction))
+    expect(detailPagePlan.platforms[0].youtubeReadiness?.checks.map(({ key, state }) => ({ key, state })))
+      .toEqual(rawPlan.platforms[0].youtubeReadiness?.checks.map(({ key, state }) => ({ key, state })))
+    expect(detailPagePlan.platforms[0].youtubeReadiness?.blockers).toEqual(rawPlan.platforms[0].youtubeReadiness?.blockers)
+    expect(detailPagePlan.platforms[0].youtubeReadiness?.reviewValues).toMatchObject({
+      visibility: 'unlisted', targetChannel: 'AmaduTown', providerConfig: 'YouTube Data API upload adapter active',
+    })
+    expect(detailPagePlan.sideEffectsUntilFinalGate).toEqual({
+      providerGeneration: false, upload: false, externalSchedule: false, publish: false, externalPost: false,
+    })
+    expect(safeConfigs.map((config) => config.credential_presence)).toMatchObject([
+      { access_token: true },
+      { access_token: true, linkedin_author: true },
+      { access_token: true, instagram_account: true, instagram_professional_account: true, instagram_meta_page_linked: true, instagram_app_review: true },
+      { facebook_page_access_token: true, facebook_page: true },
+      { access_token: true },
+      { access_token: true },
+    ])
+
+    const incompleteRows = rows.map((row) => ({
+      ...row,
+      credentials: { unrelated_secret: 'secret-unrelated-value' },
+    }))
+    mocks.order.mockResolvedValueOnce({ data: incompleteRows, error: null })
+    const incompleteResponse = await GET(request())
+    const incompleteSerialized = await incompleteResponse.text()
+    expect(incompleteSerialized).not.toContain('secret-unrelated-value')
+    const incompleteSafeConfigs = JSON.parse(incompleteSerialized).configs as SocialContentConfig[]
+    const incompleteRawPlan = buildPlatformOrchestrationPlan({ ...planInput, platformConfigs: incompleteRows })
+    const incompleteSafePlan = buildPlatformOrchestrationPlan({ ...planInput, platformConfigs: incompleteSafeConfigs })
+    expect(incompleteSafePlan.platforms.map((plan) => plan.stages.find((stage) => stage.key === 'platform_configuration')))
+      .toEqual(incompleteRawPlan.platforms.map((plan) => plan.stages.find((stage) => stage.key === 'platform_configuration')))
+    expect(incompleteSafePlan.platforms[0].youtubeReadiness?.blockers).toEqual(incompleteRawPlan.platforms[0].youtubeReadiness?.blockers)
+    expect(incompleteSafeConfigs.every((config) => config.credentials_configured === true && config.credential_presence?.access_token === false)).toBe(true)
+  })
+
   it('returns Facebook setup requirements without exposing Page token values', async () => {
     const response = await GET(request('https://amadutown.com/api/admin/social-content/config?safe=true&platform=facebook'))
 
     expect(response.status).toBe(200)
     const body = await expectNoSecrets(response)
-    expect(body.configs).toEqual([{
+    expect(body.configs).toMatchObject([{
       id: 'config-facebook',
       platform: 'facebook',
       settings: {

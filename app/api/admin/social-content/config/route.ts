@@ -35,7 +35,7 @@ function hasTruthy(record: Record<string, unknown>, keys: string[]) {
 // Settings are user-controlled JSON. Keep ordinary settings while excluding any
 // credential material accidentally stored alongside them, including nested data.
 function safeSettings(value: unknown): Record<string, unknown> {
-  const secretKey = /(?:^|_)(?:credential|credentials|secret|secrets|token|tokens|password|passwd|api_key|private_key|client_id|provider_id|provider_user_id|page_id|connected_page_id|meta_page_id|ig_user_id|instagram_user_id|business_account_id|instagram_professional_account_id)(?:$|_)/
+  const secretKey = /(?:^|_)(?:credential|credentials|secret|secrets|token|tokens|password|passwd|api_key|private_key|client_id|provider_id|provider_user_id|page_id|connected_page_id|meta_page_id|ig_user_id|instagram_user_id|business_account_id|instagram_professional_account_id|author_urn|person_urn|channel_id)(?:$|_)/
   const isSecretKey = (key: string) => secretKey.test(
     key.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^a-zA-Z0-9]+/g, '_').toLowerCase(),
   )
@@ -49,7 +49,54 @@ function safeSettings(value: unknown): Record<string, unknown> {
   return redact(asRecord(value)) as Record<string, unknown>
 }
 
+function configField(config: PlatformConfigRow, key: string) {
+  const credentials = asRecord(config.credentials)
+  const settings = asRecord(config.settings)
+  return credentials[key] ?? settings[key]
+}
+
+function hasConfigString(config: PlatformConfigRow, keys: string[]) {
+  return keys.some((key) => typeof configField(config, key) === 'string' && String(configField(config, key)).trim().length > 0)
+}
+
+function hasConfigTruthy(config: PlatformConfigRow, keys: string[]) {
+  return keys.some((key) => {
+    const value = configField(config, key)
+    return value === true || (typeof value === 'string' && value.trim().length > 0)
+  })
+}
+
+function label(record: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = record[key]
+    if (typeof value === 'string' && value.trim()) return value.trim()
+  }
+  return null
+}
+
+function credentialPresence(config: PlatformConfigRow) {
+  return {
+    access_token: hasConfigString(config, ['access_token']),
+    linkedin_author: hasConfigString(config, ['author_urn', 'person_urn']),
+    instagram_account: hasConfigString(config, ['ig_user_id', 'instagram_user_id', 'business_account_id']),
+    instagram_professional_account: hasConfigTruthy(config, [
+      'professional_account_confirmed', 'professional_account_confirmed_at', 'instagram_professional_account_id',
+    ]) || ['business', 'creator', 'professional'].includes(String(configField(config, 'instagram_account_type') ?? '').trim().toLowerCase()),
+    instagram_meta_page_linked: hasConfigTruthy(config, [
+      'meta_page_linked', 'meta_page_linked_at', 'meta_page_id', 'page_id', 'connected_page_id',
+    ]),
+    instagram_app_review: hasConfigTruthy(config, [
+      'app_review_permissions_confirmed', 'app_review_permissions_confirmed_at',
+      'instagram_content_publish_permission', 'instagram_basic_permission',
+    ]),
+    facebook_page_access_token: hasConfigString(config, ['page_access_token', 'access_token']),
+    facebook_page: hasConfigString(config, ['page_id']),
+  }
+}
+
 function safeConfig(config: PlatformConfigRow) {
+  const settings = asRecord(config.settings)
+  const credentials = asRecord(config.credentials)
   return {
     id: config.id,
     platform: config.platform,
@@ -60,6 +107,10 @@ function safeConfig(config: PlatformConfigRow) {
       && typeof config.credentials === 'object'
       && Object.keys(config.credentials).length > 0,
     ),
+    credential_presence: credentialPresence(config),
+    target_channel_label: label(settings, ['channel_title', 'channel_name', 'target_channel'])
+      ?? label(credentials, ['channel_title', 'channel_name', 'target_channel']),
+    profile_handle_label: label(settings, ['profile_handle']) ?? label(credentials, ['profile_handle']),
     provider_setup: instagramProviderSetup(config) ?? facebookProviderSetup(config),
     created_at: config.created_at,
     updated_at: config.updated_at,
