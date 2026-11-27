@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic'
 import Navigation from '@/components/Navigation'
 import HomeAnalytics from '@/components/HomeAnalytics'
+import YouTubeServiceDisclosure from '@/components/YouTubeServiceDisclosure'
 
 const Hero = dynamic(() => import('@/components/Hero'), { ssr: true })
 const SystemStory = dynamic(() => import('@/components/SystemStory'), { ssr: true })
@@ -16,18 +17,21 @@ const Contact = dynamic(() => import('@/components/Contact'), { ssr: false })
 
 export default function Home() {
   return (
-    <main className="min-h-screen relative">
-      <HomeAnalytics />
-      <Navigation />
-      <Hero />
-      <SystemStory />
-      <RevenuePlumbingDiscoveryCard />
-      <Store section="products" />
-      <Services />
-      <Store section="merchandise" />
-      <Publications />
-      <About />
-      <Contact />
-    </main>
+    <>
+      <main className="min-h-screen relative">
+        <HomeAnalytics />
+        <Navigation />
+        <Hero />
+        <SystemStory />
+        <RevenuePlumbingDiscoveryCard />
+        <Store section="products" />
+        <Services />
+        <Store section="merchandise" />
+        <Publications />
+        <About />
+        <Contact />
+      </main>
+      <YouTubeServiceDisclosure />
+    </>
   )
 }
