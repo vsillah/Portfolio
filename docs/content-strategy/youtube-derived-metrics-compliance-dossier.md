@@ -1,10 +1,10 @@
 # YouTube derived-metrics compliance dossier
 
-> **Current review addendum (2026-11-27):** [OAuth, route, data-flow, deletion, retention, and synthetic demonstration inventory](../../artifacts/research/youtube-derived-metrics-compliance-dossier-2026-11-27/review-addendum.md) is bound to Portfolio `b832e83296bda150c17aff80b1794d3c9f94e345`. The original packet below remains a historical preparation snapshot; its base commit, privacy-notice PR status, and source hashes must not be read as current deployment evidence. No audit was submitted and no derived-metrics authority was accepted.
+> **Current reconciliation (2026-11-27):** [Review addendum](../../artifacts/research/youtube-derived-metrics-compliance-dossier-2026-11-27/review-addendum.md) and [owner-review workbook](../../artifacts/research/youtube-derived-metrics-compliance-dossier-2026-11-27/owner-review-audit-workbook.md) bind the candidate to Portfolio `2df663832b6b5868fc5f2dbe0a5d67b54e2f6c6b`. The original preparation date and earlier source hashes remain historical. Production privacy/deletion routes are verified; no audit was submitted or derived-metrics authority accepted.
 
 - **State:** review-only preparation packet; incomplete; not submitted.
 - **Project:** `amadutown-advisory-solutions`
-- **Prepared against:** Portfolio `30c68dcec9ca50108cae7bbcfc845ff04d627af6`
+- **Prepared against:** Portfolio `30c68dcec9ca50108cae7bbcfc845ff04d627af6` (historical); reconciled against `2df663832b6b5868fc5f2dbe0a5d67b54e2f6c6b`
 - **Prepared:** 2026-11-27 09:30 ET / 2026-11-27 14:30 UTC
 **Machine-readable packet:** `artifacts/research/youtube-derived-metrics-compliance-dossier-2026-11-27/application-candidate.json`
 
@@ -28,12 +28,13 @@ The correct next external gate is therefore a reviewed compliance-audit submissi
 | Binding                                  | Review value                                                                                           | Status                                                                                                                                            |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Google Cloud project                     | `amadutown-advisory-solutions`                                                                         | Authenticated project identity previously observed; submission must reconfirm it.                                                                 |
-| Portfolio base                           | `30c68dcec9ca50108cae7bbcfc845ff04d627af6`                                                             | Exact current main used for this dossier.                                                                                                         |
-| OAuth client                             | Resolved at runtime from `YOUTUBE_CLIENT_ID`, `GOOGLE_CLIENT_ID`, or `GOOGLE_GMAIL_OAUTH_CLIENT_ID`    | Exact deployed client ID and a safe SHA-256 fingerprint must be captured at the submission review gate; no credential belongs in this repository. |
+| Portfolio base                           | `2df663832b6b5868fc5f2dbe0a5d67b54e2f6c6b` | Reconciliation base; original preparation used `30c68dce`. |
+| OAuth client                             | Resolved at runtime from `YOUTUBE_CLIENT_ID`, `GOOGLE_CLIENT_ID`, or `GOOGLE_GMAIL_OAUTH_CLIENT_ID`    | Owner-reported safe fingerprint is in the addendum; independently reconfirm deployed client/project binding at submission. No credential belongs here. |
 | OAuth scopes requested by current client | `youtube.upload`, `youtube.readonly`, `youtube.force-ssl`                                              | Declared in `lib/youtube-oauth.ts`; the audit must describe the whole client, even though the evidence bridge uses only `youtube.readonly`.       |
 | Evidence bridge                          | `youtube-readonly-evidence-acquisition-v2`                                                             | Fixed GETs to `videos.list` and `channels.list`; access-token refresh is in-memory; result and credentials are not persisted by the bridge.       |
 | Initial review target                    | Social Content `f966123f-05eb-48ec-a7c2-970afce642ef`; calendar `669f6c22-d373-4423-bf7c-77661c484302` | Remains unlinked and unscored.                                                                                                                    |
-| Privacy notice candidate                 | PR #1348, `d81d58cbd4954f7c92bdcda37b91685f06c03cf7`                                                   | Human-QA approved but still draft and undeployed. It cannot be represented as the current public notice.                                          |
+| Privacy/deletion notice | Privacy PR #1348; production deployment `dpl_EunLzGy1LzjFjJz4dbip3tjYWvY7` from `90e567a5f683ed7d7b3e984c36a820b40c9a9d13` | Live routes passed desktop, 390×844, keyboard link, overflow and console checks. Source hashes and limits are in the addendum. This proves notice parity, not a live purge. |
+| Retention design | PR #1354, merge `2df663832b6b5868fc5f2dbe0a5d67b54e2f6c6b` | Review-only contract and synthetic trace passed; no retention job or cohort store was activated. |
 | Source-class policy                      | `docs/content-strategy/youtube-external-metadata-source-policy-review.md`                              | Inactive review-only governance documentation.                                                                                                    |
 
 ## Proposed analytics use case
@@ -86,6 +87,7 @@ Hidden, missing, zero-denominator, private, unlisted, deleted, mismatched, cross
 ## Retention, privacy, and rights controls
 
 - The current operational ceiling is delete-or-refresh within 30 calendar days for non-authorized API data. The ceiling does not create a freshness receipt or guarantee that an observation remains current for 30 days.
+- A user deletion request requires deletion as soon as possible and within seven calendar days under current Developer Policies III.E.4.g. This is an earlier request-specific bound, not an extension to the 30-day storage ceiling. The production request route is visible, but no live external-cohort purge exists to exercise.
 - Any accepted extended-retention permission must be bound to the exact project, client, analytics use case, policy version, approval receipt, permitted fields, permitted calculations, and re-audit or expiration terms.
 - Privacy clearance and media/creator rights clearance remain separate gates. Public factual metadata does not authorize reuse of expressive media or imply creator endorsement.
 - Raw provider responses, derived cohort files, and scores must remain inaccessible to customer-facing surfaces unless a later, separately reviewed policy explicitly permits the display.
@@ -97,14 +99,14 @@ The final form must be re-opened immediately before submission because fields an
 
 | Form area             | Prepared answer or required evidence                                                                                                                                          | Gate                                                                                            |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Request type          | Compliance audit associated with the analytics/derived-metrics permission path described by YouTube policy. Do not claim a prior re-audit request.                            | Confirm the form offers a truthful request type before submission.                              |
+| Request type          | Review-only interpretation: the non-re-audit compliance-audit option, paired with Section 5 `No change / Default quota (10k quota points)`. No quota increase is requested. | Reconfirm the live form and owner intent at action time; this is not a selected or submitted answer. |
 | Organization          | AmaduTown Advisory Solutions; project `amadutown-advisory-solutions`.                                                                                                         | Confirm legal/entity and contact details with the authorized owner.                             |
 | API client            | Portfolio admin and evidence-review application.                                                                                                                              | Record deployed URL, client-ID fingerprint, environments, and exact owner.                      |
 | Business purpose      | Prepare internal evidence for AmaduTown content; no data brokerage, creator ranking product, ad-delivery safety claim, or public leaderboard.                                 | Confirm the description matches the running product.                                            |
 | API access            | Documented `videos.list` and `channels.list` reads for the proposed evidence path; current client also has upload/comment-related scopes used by separate approved workflows. | Disclose the whole API client rather than presenting the read-only bridge as the whole product. |
 | Analytics & Reporting | Request explicit permission for the four Portfolio calculations above and only the stated internal Human-QA purpose.                                                          | No broader equivalence or unspecified future analytics.                                         |
 | Storage               | Request only the minimum retention needed for reproducible internal review. Continue the 30-day delete-or-refresh ceiling unless YouTube explicitly grants a different bound. | Do not assume the general 36-month maximum is granted.                                          |
-| Privacy               | Bind the deployed privacy notice version, Google Privacy Policy link, access controls, deletion path, field list, purpose, and retention behavior.                            | PR #1348 is not sufficient until separately merged and deployed.                                |
+| Privacy               | Production notice and deletion path are live at the deployment and hashes above. | Privacy/rights determinations, request handling and any live purge still need separate review. |
 | Security              | Server-side credentials; no credential returned to the review client; in-memory refresh; no token in logs, receipts, screenshots, or committed artifacts.                     | Confirm with current implementation and deployment configuration.                               |
 | Demonstration         | Synthetic or redacted walkthrough showing setup, field minimization, exclusions, provenance, Human QA, disabled external actions, refresh/deletion, and rollback.             | No real creator data is required in the review recording.                                       |
 | Attestations          | Review each live attestation verbatim with the authorized owner.                                                                                                              | Never pre-check or infer agreement.                                                             |
@@ -114,12 +116,13 @@ The final form must be re-opened immediately before submission because fields an
 The application is **not ready to submit** until every item below is satisfied:
 
 - [ ] Exact deployed OAuth client ID is matched to `amadutown-advisory-solutions` and stored only as an approved safe fingerprint.
-- [ ] Current running routes, scopes, and API methods are inventoried, including upload/comment workflows sharing the client.
+- [x] Current source routes, scopes, and API methods are inventoried in the addendum, including upload/comment workflows sharing the client; verify deployed configuration at submission.
 - [ ] Proposed score formulas and all cohort exclusions are confirmed against the exact current code.
 - [ ] Data-flow and retention/deletion diagrams are complete.
-- [ ] PR #1348 or a superseding privacy notice is separately approved, merged, deployed, and hashed.
-- [ ] Data-deletion route is production-smoked.
-- [ ] Synthetic/redacted demo and reviewer instructions are complete.
+- [x] Privacy notice is separately approved, merged, deployed, and source-hashed as above.
+- [x] Data-deletion **request route** is production-smoked; no deletion execution was tested.
+- [x] Synthetic paper-only demo and reviewer instructions are complete; form-required screenshots or screencast remain unprepared.
+- [x] Review-only 30-day enforcement design merged with passing synthetic trace, TypeScript, 8 GB build, both PR Vercel contexts and database health check. No live enforcement is implied.
 - [ ] Every live audit-form answer and attestation has been captured in a version-bound review artifact.
 - [ ] The authorized owner approves the exact application packet and single submission.
 - [ ] The submitter can preserve the confirmation page, timestamp, reference number, submitted text, and attachment hashes.

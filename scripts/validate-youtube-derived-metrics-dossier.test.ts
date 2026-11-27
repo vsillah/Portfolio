@@ -32,22 +32,51 @@ describe("YouTube derived-metrics compliance dossier", () => {
     );
   });
 
-  it("rejects invented project authority, extended retention, or privacy deployment", () => {
+  it("rejects invented project authority, extended retention, or unsupported live purge", () => {
     const changed = candidate();
     changed.oauth_client.exact_client_id_sha256 = "a".repeat(64);
     changed.oauth_client.project_match_verified_for_submission = true;
     changed.retention.requested_extended_retention_days = 1095;
     changed.retention.extended_retention_basis = "assumed";
-    changed.privacy_notice_candidate.merged = true;
-    changed.privacy_notice_candidate.deployed = true;
+    changed.privacy_notice_candidate.live_purge_verified = true;
     const result = validateDossier(changed, root);
     expect(result.status).toBe("blocked");
     expect(result.blockers).toEqual(
       expect.arrayContaining([
         "Unverified client identity was promoted.",
         "Extended retention was inferred.",
-        "Draft privacy notice was presented as deployed.",
+        "Production privacy/deletion evidence is unbound or live purge was claimed.",
       ]),
     );
+  });
+
+  it("rejects quota, acknowledgement, or submission promoted from the review candidate", () => {
+    const changed = candidate();
+    changed.audit_form_review_candidate.quota_increase_requested = true;
+    changed.audit_form_review_candidate.derived_metrics_acknowledgement_accepted = true;
+    changed.audit_form_review_candidate.form_submitted = true;
+    expect(validateDossier(changed, root).blockers).toContain(
+      "Audit form candidate asserted quota, acceptance, credentials, or submission.",
+    );
+  });
+
+  it("rejects notice hash drift and a claimed live retention job", () => {
+    const changed = candidate();
+    changed.privacy_notice_candidate.deletion_source_sha256 = "a".repeat(64);
+    changed.retention.live_enforcement_implemented = true;
+    expect(validateDossier(changed, root).blockers).toEqual(expect.arrayContaining([
+      "Production privacy/deletion evidence is unbound or live purge was claimed.",
+      "Review-only retention design was promoted to live enforcement.",
+    ]));
+  });
+
+  it("rejects an unsourced policy determination or a claimed completed form", () => {
+    const changed = candidate();
+    changed.current_official_policy_review.provider_determination_received = true;
+    changed.submission_readiness.live_form_answers_captured = true;
+    expect(validateDossier(changed, root).blockers).toEqual(expect.arrayContaining([
+      "Current policy review sources or determination changed.",
+      "Resolved evidence or unresolved authority gates were misclassified.",
+    ]));
   });
 });
