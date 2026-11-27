@@ -1,0 +1,197 @@
+{
+  "version": "youtube-derived-metrics-compliance-dossier/v1",
+  "status": "review_only_incomplete",
+  "prepared_at": "2026-11-27T14:30:01Z",
+  "portfolio_commit": "30c68dcec9ca50108cae7bbcfc845ff04d627af6",
+  "google_cloud_project_id": "amadutown-advisory-solutions",
+  "oauth_client": {
+    "environment_resolution_order": [
+      "YOUTUBE_CLIENT_ID",
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_GMAIL_OAUTH_CLIENT_ID"
+    ],
+    "exact_client_id_sha256": null,
+    "project_match_verified_for_submission": false,
+    "credential_material_in_packet": false
+  },
+  "api_client": {
+    "name": "Portfolio",
+    "evidence_bridge_contract": "youtube-readonly-evidence-acquisition-v2",
+    "declared_scopes": [
+      "https://www.googleapis.com/auth/youtube.upload",
+      "https://www.googleapis.com/auth/youtube.readonly",
+      "https://www.googleapis.com/auth/youtube.force-ssl"
+    ],
+    "evidence_bridge_scope": "https://www.googleapis.com/auth/youtube.readonly",
+    "read_endpoints": [
+      "https://www.googleapis.com/youtube/v3/videos",
+      "https://www.googleapis.com/youtube/v3/channels"
+    ],
+    "runtime_source_sha256": {
+      "lib/youtube-readonly-evidence-acquisition.ts": "99b20d6d5be3a9bd3001015b09414dda9e847c809931dae2797e26584a868004",
+      "lib/youtube-oauth.ts": "b872b85517ee14a717fb014befbb95afecdcc493e416ebf58bc6c2e5b054941f"
+    }
+  },
+  "initial_review_binding": {
+    "social_content_id": "f966123f-05eb-48ec-a7c2-970afce642ef",
+    "calendar_item_id": "669f6c22-d373-4423-bf7c-77661c484302",
+    "evidence_linked": false,
+    "score_issued": false
+  },
+  "requested_use_case": {
+    "form_category": "Analytics & Reporting",
+    "purpose": "Internal, human-reviewed evidence preparation for AmaduTown content",
+    "public_distribution_of_creator_metrics": false,
+    "creator_ranking_product": false,
+    "cross_platform_normalization": false,
+    "sensitive_trait_inference": false,
+    "minimum_same_channel_same_format_comparables": 5,
+    "calculations": [
+      {
+        "name": "channel_relative_ratio",
+        "formula": "comparable_views / same_channel_shorts_baseline_median_views"
+      },
+      {
+        "name": "audience_view_ratio",
+        "formula": "comparable_views / public_subscriber_count"
+      },
+      {
+        "name": "recency_adjusted_views_per_day",
+        "formula": "comparable_views / max(1, observation_age_days)"
+      },
+      {
+        "name": "normalized_performance_score",
+        "formula": "0.50 * channel_relative_percentile + 0.30 * audience_view_percentile + 0.20 * recency_adjusted_percentile",
+        "youtube_metric": false,
+        "enabled": false
+      }
+    ]
+  },
+  "field_minimization": {
+    "requested": [
+      "video_id",
+      "channel_id",
+      "canonical_url",
+      "published_at",
+      "observed_at",
+      "duration",
+      "public_status",
+      "public_views",
+      "public_likes",
+      "public_comments",
+      "public_subscribers",
+      "endpoint",
+      "requested_parts",
+      "http_status",
+      "raw_response_sha256",
+      "parsed_response_sha256"
+    ],
+    "excluded": [
+      "private_or_unlisted_objects",
+      "viewer_subscriber_or_commenter_identity",
+      "comment_text",
+      "contact_information",
+      "location",
+      "protected_trait_inference",
+      "creator_media",
+      "thumbnail_audio_or_video_reuse",
+      "titles_descriptions_tags_handles_or_creator_names_as_scoring_inputs",
+      "ad_impression_revenue_or_cpm_claims"
+    ]
+  },
+  "privacy_notice_candidate": {
+    "pull_request": 1348,
+    "head": "d81d58cbd4954f7c92bdcda37b91685f06c03cf7",
+    "diff_sha256": "ea1a835e8eccdad24c7cf9316cdcd53304993b402fbc4a1d177edcf0f12c825c",
+    "human_qa_approved": true,
+    "merged": false,
+    "deployed": false
+  },
+  "inactive_source_policy": {
+    "path": "docs/content-strategy/youtube-external-metadata-source-policy-review.md",
+    "sha256": "8ff3b59b6f1402e40189ad9d981f5aa8b1541f1e8ea53cfbdded005fb3a27d0d"
+  },
+  "retention": {
+    "current_non_authorized_delete_or_refresh_ceiling_days": 30,
+    "requested_extended_retention_days": null,
+    "extended_retention_basis": null,
+    "accepted_expiration_or_reaudit_at": null
+  },
+  "source_register": [
+    {
+      "url": "https://developers.google.com/youtube/terms/developer-policies",
+      "retrieved_at": "2026-11-27T14:30:01Z",
+      "response_sha256": "2e43c11929adee5ec84724893e7fa451b2143f488e63d7e2d3446caac8b5e519"
+    },
+    {
+      "url": "https://developers.google.com/youtube/terms/developer-policies-guide",
+      "retrieved_at": "2026-11-27T14:30:01Z",
+      "response_sha256": "4510511456dc471e001ac3638e65402f3dc3f3986b6f79026796f66b77411d7e"
+    },
+    {
+      "url": "https://developers.google.com/youtube/terms/derived-metrics-policy",
+      "retrieved_at": "2026-11-27T14:30:01Z",
+      "response_sha256": "5d531fdba7a74b4923c2867c3921fef2a9fedfcd7325a2497e6edc7923223c02"
+    },
+    {
+      "url": "https://developers.google.com/youtube/terms/revision-history",
+      "retrieved_at": "2026-11-27T14:30:01Z",
+      "response_sha256": "7e55dea48840b0b5775aae30cfab44b43d1ec37a8617d02c2b22f5f3308648fa"
+    },
+    {
+      "url": "https://support.google.com/youtube/contact/yt_api_form?hl=en",
+      "retrieved_at": "2026-11-27T14:30:01Z",
+      "response_sha256": "2d940b2cb4d835833be98f7af1deadb1ff2309b9c9c04c29ec9df7ae19d25e01"
+    },
+    {
+      "url": "https://policies.google.com/privacy",
+      "retrieved_at": "2026-11-27T14:30:01Z",
+      "response_sha256": "d8d9a0f6ed3f7a5a57e62f5fc60e8895e3545f94c0c03ac9445f84ba191e6cd6"
+    }
+  ],
+  "submission_readiness": {
+    "exact_client_project_binding": false,
+    "whole_client_scope_inventory": false,
+    "formula_review": true,
+    "data_flow_and_deletion_diagram": false,
+    "privacy_notice_deployed": false,
+    "deletion_route_smoked": false,
+    "synthetic_demo_ready": false,
+    "live_form_answers_captured": false,
+    "owner_approved_exact_packet": false,
+    "submission_receipt_plan_ready": true
+  },
+  "blockers": [
+    "Exact deployed OAuth client fingerprint has not been bound to this dossier.",
+    "The full shared-client route and scope inventory is incomplete.",
+    "The proposed privacy notice is draft and undeployed.",
+    "The production deletion route has not been smoked for this use case.",
+    "The synthetic compliance-review demonstration is not prepared.",
+    "The live audit form and current attestations have not been captured for final review.",
+    "The exact application has not received owner approval for a single submission."
+  ],
+  "locks": {
+    "audit_submission_enabled": false,
+    "terms_acceptance_enabled": false,
+    "policy_activation_enabled": false,
+    "evidence_linkage_enabled": false,
+    "scoring_enabled": false,
+    "persistence_enabled": false,
+    "live_collection_enabled": false,
+    "provider_contact_enabled": false,
+    "notification_enabled": false,
+    "media_generation_enabled": false,
+    "upload_enabled": false,
+    "schedule_enabled": false,
+    "publish_enabled": false,
+    "production_mutation_enabled": false,
+    "external_actions_enabled": false
+  },
+  "rollback": {
+    "operation": "remove_review_only_dossier",
+    "production_records_unchanged": true,
+    "provider_state_unchanged": true,
+    "credentials_unchanged": true,
+    "historical_receipts_unchanged": true
+  }
+}
