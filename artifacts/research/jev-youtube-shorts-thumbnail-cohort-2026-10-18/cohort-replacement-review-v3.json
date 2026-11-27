@@ -1,0 +1,51 @@
+{
+  "version": "youtube-shorts-cohort-replacement-review/v3",
+  "status": "review_only_blocked",
+  "content_id": "f966123f-05eb-48ec-a7c2-970afce642ef",
+  "calendar_item_id": "669f6c22-d373-4423-bf7c-77661c484302",
+  "acquisition_receipt_sha256": "19fe792f1be83a631f006277e4f7c1c745b9f5e2f231e8e41b4d12b023669a71",
+  "acquisition_source_task_id": "01a21914-d7c8-79f0-92b9-5f5d4c78c4dd",
+  "verification_limit": "The acquisition task verified each candidate hash against its provider-response entry in the returned result. Full provider response bytes were not retained in this review packet, so this packet cannot independently recompute those body hashes.",
+  "source_cohort_path": "artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/cohort.json",
+  "source_cohort_sha256": "bdb9262ff106932123661a90c35d812753008952eee65635878d4642276bbf8c",
+  "proposed_cohort_sha256": "e604559f6e6ad49285963f1745600ac675fef4c28c7b9adff12ddff472080f99",
+  "replacement_rule": "Clone the exact source cohort and change only the five included[].duration_seconds values listed below. This packet does not activate the clone or change its approval state.",
+  "candidate_bindings": [
+    { "video_id": "gTHQpAkgjy4", "provider_published_at": "2025-04-18T12:01:22Z", "source_duration_seconds": 54, "observed_duration_seconds": 55, "response_body_sha256": "c7f7aaf8f60327e41e5de079e37660c36d180086980e2d53ba98e59db94b89b2" },
+    { "video_id": "usE8BPWET3M", "provider_published_at": "2026-10-04T02:33:08Z", "source_duration_seconds": 18, "observed_duration_seconds": 18, "response_body_sha256": "74deb9a42661373fa87bb8c2de913d01122d8ee42b42b1395e875131dd1d19af" },
+    { "video_id": "_ODSVV3SIEI", "provider_published_at": "2024-11-28T17:17:47Z", "source_duration_seconds": 39, "observed_duration_seconds": 39, "response_body_sha256": "9fe49b6b50fe20764fb9a7b4a0e960cb17d6ffaadc4483195369932094f5271a" },
+    { "video_id": "ZAdGsLGaGSU", "provider_published_at": "2026-10-17T07:00:11Z", "source_duration_seconds": 51, "observed_duration_seconds": 51, "response_body_sha256": "ef25e8d3589d84746e54026daff66c213dd7d8c1fb3794cec78fb38ad89e6831" },
+    { "video_id": "ojpZ-TJv918", "provider_published_at": "2026-07-14T02:56:21Z", "source_duration_seconds": 29, "observed_duration_seconds": 30, "response_body_sha256": "5c2c5741d707a41ba8d9a7abc6679a9604efe1a36ad62714cb02703fc760dfcb" },
+    { "video_id": "sA6UA2fMNHg", "provider_published_at": "2025-02-22T13:01:15Z", "source_duration_seconds": 45, "observed_duration_seconds": 46, "response_body_sha256": "2a992bd50bef38d77b017a7ba7d7bb410d92f1fb32db49f32da0194fcd4d6a1d" },
+    { "video_id": "SQEMkQu0b6o", "provider_published_at": "2026-09-08T15:47:57Z", "source_duration_seconds": 21, "observed_duration_seconds": 22, "response_body_sha256": "1691264793619b7fb033ec7ad9dc121f02b805bf70ef0561ec9cbe206257c159" },
+    { "video_id": "DVEOS9t_DHM", "provider_published_at": "2026-10-06T21:49:28Z", "source_duration_seconds": 32, "observed_duration_seconds": 33, "response_body_sha256": "e670ffe4df5cd363239bbb4c56fbeabe1edf20bbe35476ab0e4bb07cbb3d9872" }
+  ],
+  "freshness_candidate": {
+    "source_class": "external_creator",
+    "platform": "youtube",
+    "format": "shorts",
+    "evidence_version": "19fe792f1be83a631f006277e4f7c1c745b9f5e2f231e8e41b4d12b023669a71",
+    "approved": false,
+    "policy_id": null,
+    "policy_version": null,
+    "authority_receipt_id": null,
+    "expires_at": null,
+    "gap": "No source-owner-issued, approved external-creator YouTube Shorts policy and exact-version expiry receipt is available. The historical fresh_until value cannot supply expiry.",
+    "authority_contracts": ["docs/release-calendar-source-freshness.md", "lib/attributable-performance-evidence.ts:SourceClassPolicy"]
+  },
+  "privacy_rights_candidate": {
+    "evidence_version": "19fe792f1be83a631f006277e4f7c1c745b9f5e2f231e8e41b4d12b023669a71",
+    "approved": false,
+    "authority_receipt_id": null,
+    "privacy_cleared": false,
+    "rights_cleared": false,
+    "gap": "Existing Jev receipts cover owned assets, not these eight external-creator response versions. Exact-version permitted use and reviewer authority remain unverified.",
+    "authority_contracts": ["lib/attributable-performance-evidence.ts:RawPlatformObservation.rights", "artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/thumbnail-selection-receipt.json"]
+  },
+  "rollback": {
+    "historical_source_preserved": true,
+    "procedure": "Discard this review packet and retain the unchanged cohort.json; no runtime binding or production record has been changed."
+  },
+  "external_actions_enabled": false,
+  "persistence_enabled": false
+}

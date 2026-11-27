@@ -63,6 +63,7 @@ type ProviderResponse = { kind: 'video' | 'channel'; object_id: string; http_sta
 type FieldDecision = 'match' | 'mismatch' | 'unavailable'
 type CandidateObservation = {
   approved_video_id: string
+  approved_published_at: string
   response_body_sha256: string
   // Only these public, bounded videos.list fields are needed to reconcile the seed.
   raw_response_evidence: { video_id: string | null; channel_id: string | null; published_at: string | null; duration: string | null; privacy_status: 'public' | 'private' | 'unlisted' | null }
@@ -152,10 +153,24 @@ function durationSeconds(value: unknown): number | null {
 }
 const safeVideoId = (value: unknown) => typeof value === 'string' && VIDEO_ID.test(value) ? value : null
 const safeChannelId = (value: unknown) => typeof value === 'string' && CHANNEL_ID.test(value) ? value : null
-const safePublishedAt = (value: unknown) => typeof value === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z$/.test(value) && Number.isFinite(Date.parse(value)) ? value : null
+function utcInstant(value: unknown): number | null {
+  if (typeof value !== 'string') return null
+  const parts = value.match(/^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(?:\.(\d{1,3}))?Z$/)
+  if (!parts) return null
+  const instant = Date.parse(value)
+  if (!Number.isFinite(instant)) return null
+  const canonical = `${parts[1]}.${(parts[2] ?? '').padEnd(3, '0')}Z`
+  return new Date(instant).toISOString() === canonical ? instant : null
+}
+const safePublishedAt = (value: unknown) => utcInstant(value) === null ? null : value as string
 const safeDuration = (value: unknown) => typeof value === 'string' && value.length <= 24 && durationSeconds(value) !== null ? value : null
 const safePrivacy = (value: unknown) => value === 'public' || value === 'private' || value === 'unlisted' ? value : null
 function compare(observed: string | number | null, expected: string | number): FieldDecision { return observed === null ? 'unavailable' : observed === expected ? 'match' : 'mismatch' }
+function comparePublication(observed: string | null, expected: string): FieldDecision {
+  const observedInstant = utcInstant(observed)
+  const expectedInstant = utcInstant(expected)
+  return observedInstant === null || expectedInstant === null ? 'unavailable' : observedInstant === expectedInstant ? 'match' : 'mismatch'
+}
 async function readProviderBody(response: Response): Promise<{ parsed: unknown; bodySha256: string }> {
   const body = await response.text()
   if (body.length > 1_000_000) throw new Error('Provider response exceeded read-only evidence limit.')
@@ -242,7 +257,7 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
     else if (snippet?.channelId !== expectedChannel) reason = 'Video channel differs from the approved seed channel.'
     else if (status?.privacyStatus !== 'public') reason = 'Video is no longer public.'
     else if (duration === null || duration < 15 || duration > 60) reason = 'Video no longer meets the approved 15–60 second Shorts band.'
-    else if (!publishedAt || !Number.isFinite(Date.parse(publishedAt))) reason = 'Video publication time is unavailable.'
+    else if (!publishedAt || utcInstant(publishedAt) === null) reason = 'Video publication time is unavailable.'
     else if (Date.parse(publishedAt) > now.getTime()) reason = 'Video publication time is in the future.'
     else if (views === null) reason = 'Required public views are unavailable.'
     const found: VideoRead = reason
@@ -259,12 +274,12 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
       const shortsBand = parsedDuration === null ? 'unavailable' : parsedDuration >= 15 && parsedDuration <= 60 ? 'duration_band_match' : 'outside_duration_band'
       const fields: CandidateObservation['field_decisions'] = {
         video_id: compare(observed.video_id, seed.video_id), channel_id: compare(observed.channel_id, seed.channel_id),
-        published_at: compare(observed.published_at, seed.published_at), duration: compare(parsedDuration, seed.duration_seconds),
+        published_at: comparePublication(observed.published_at, seed.published_at), duration: compare(parsedDuration, seed.duration_seconds),
         public_status: compare(observed.privacy_status, 'public'),
         shorts_duration_band: shortsBand === 'unavailable' ? 'unavailable' : shortsBand === 'duration_band_match' ? 'match' : 'mismatch',
       }
       const exclusionFields = (Object.keys(fields) as Array<keyof typeof fields>).filter((field) => fields[field] !== 'match')
-      candidateObservations.push({ approved_video_id: seed.video_id, response_body_sha256: candidate.bodySha256,
+      candidateObservations.push({ approved_video_id: seed.video_id, approved_published_at: seed.published_at, response_body_sha256: candidate.bodySha256,
         raw_response_evidence: observed, parsed_duration_seconds: parsedDuration,
         shorts_format_determination: shortsBand, field_decisions: fields,
         inclusion: 'excluded', exclusion_fields: exclusionFields })
