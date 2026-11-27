@@ -1,0 +1,12 @@
+# Conditional evidence ledger — not captured screenshots
+
+The live form's conditional evidence follows from the owner-prepared selections: OAuth **Yes** and use cases **Video Uploading & Account Management**, **Tools for Creators**, **Internal Company Tool**, and **Analytics & Reporting**. Each item below is a capture instruction or source map, not proof of a live screen or provider consent.
+
+| Form evidence | Current source trace | Safe capture and unresolved condition |
+| --- | --- | --- |
+| OAuth consent and scopes | `lib/youtube-oauth.ts` requests `youtube.upload`, `youtube.readonly`, `youtube.force-ssl`; `app/api/auth/youtube/route.ts` requires admin and builds Google's consent URL; callback is `app/api/auth/youtube/callback/route.ts`. | Owner-controlled consent screen only after separate authorization. Capture app name and scopes, redact account identity and client ID. Do not click consent, reconnect, or modify tokens in this lane. |
+| OAuth revocation | Public deletion route gives a request path; current source inventory does not establish a safe in-app revocation screenshot. | Owner must identify the actual Google account permission/revocation control and the app's post-revocation recovery state. No revocation or account setting change here. |
+| Upload interface | `app/admin/social-content/page.tsx` shows YouTube connection and gate copy; `app/admin/social-content/youtube/final-submission-review/page.tsx` prepares a review packet; `lib/publishing/youtube.ts` contains the gated multipart `videos.insert` adapter. | Capture the authenticated admin screen only with approved synthetic/owned data, redacting account, channel, and private rows. Do not click Connect/Reconnect, approve final submission, invoke upload, or expose tokens. |
+| Internal dashboard / analytics | `app/admin/social-content/page.tsx` is the internal dashboard. The derived-metrics dossier and review-only retention design remain inactive; no external cohort scoring, ranking, or persisted analytics screen is approved. | Capture existing internal review UI with synthetic/approved fixtures only. Label proposed analytics separately and visibly unscored. Do not portray a proposed metric as running product behavior. |
+
+For current source context, see the [derived-metrics dossier](../../../../docs/content-strategy/youtube-derived-metrics-compliance-dossier.md) and its [owner workbook](../../youtube-derived-metrics-compliance-dossier-2026-11-27/owner-review-audit-workbook.md). Reconfirm current deployed code and UI at the action-time capture gate.

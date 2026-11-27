@@ -1,0 +1,125 @@
+{
+  "schema": "portfolio-youtube-audit-evidence/v1",
+  "state": "review_only_incomplete_unsubmitted",
+  "frozen_source_commit": "a9c4ea9f0cf2f7cf3454a89e569ee3f748d68585",
+  "captured_on": "2026-11-27",
+  "project_id": "amadutown-advisory-solutions",
+  "project_number": "329708734708",
+  "client": "Portfolio",
+  "form_url": "https://support.google.com/youtube/contact/yt_api_form?hl=en",
+  "form_state_modified": false,
+  "uploaded": false,
+  "submitted": false,
+  "amendment_accepted": false,
+  "attestations_accepted": false,
+  "provider_write": false,
+  "production_data_write": false,
+  "source_sha256": {
+    "app/legal/privacy/page.tsx": "3b05a8ac489093f363a9bc145651c3d790667b8abe87da1b563a896cea9ed291",
+    "app/legal/data-deletion/page.tsx": "2b276efae9a7b56675c61fba1b6917a64ab198385e326fdbcf497ba1865670fa",
+    "app/legal/terms/page.tsx": "242a109f41afd587124210de4853e775a54550748234d11791818cd573638392",
+    "lib/youtube-oauth.ts": "b872b85517ee14a717fb014befbb95afecdcc493e416ebf58bc6c2e5b054941f",
+    "lib/publishing/youtube.ts": "1ecb348070bedca50aff495f7cbad2aacc806c3be4118fd2446e889f92866e8a",
+    "app/admin/social-content/page.tsx": "51bc1d89c34e0b17ca1d7b7cb0e77a692af0963d530cd089be1e255ae9825448",
+    "app/admin/social-content/youtube/final-submission-review/page.tsx": "e060c3c03a322cd717010bf3c8f27e6abf4eb9ef16226241d306ce479ce9677f"
+  },
+  "files": [
+    {
+      "path": "privacy-policy-public-route.jpg",
+      "media_type": "image/jpeg",
+      "form_mapping": "section_5_privacy_policy_screenshots",
+      "status": "candidate_missing_address_bar",
+      "provenance": "https://amadutown.com/legal/privacy",
+      "redaction_status": "top_right_account_badge_covered",
+      "rights_status": "owned_public_legal_copy",
+      "sha256": "f2ff6e5d4fdd1b67c9726ed87d9670fa6dc1e1c5a1484b6841247946ce3bad7c",
+      "bytes": 536751
+    },
+    {
+      "path": "data-deletion-public-route.jpg",
+      "media_type": "image/jpeg",
+      "form_mapping": "section_5_privacy_policy_screenshots_supplement",
+      "status": "candidate_missing_address_bar",
+      "provenance": "https://amadutown.com/legal/data-deletion",
+      "redaction_status": "top_right_account_badge_covered",
+      "rights_status": "owned_public_legal_copy",
+      "sha256": "fa0ef16c13e6caf0ee842bccc3a9ae81af1308320f934e11a016739dc47dd170",
+      "bytes": 167795
+    },
+    {
+      "path": "terms-of-service-public-route.jpg",
+      "media_type": "image/jpeg",
+      "form_mapping": "section_5_terms_documentation",
+      "status": "candidate_owner_review",
+      "provenance": "https://amadutown.com/legal/terms",
+      "redaction_status": "top_right_account_badge_covered",
+      "rights_status": "owned_public_legal_copy",
+      "sha256": "900dd809ca0ee145236d566bde70af7569f4ecc702ad7941486aff64a8f6d607",
+      "bytes": 278842
+    },
+    {
+      "path": "architecture.mmd",
+      "media_type": "text/plain",
+      "form_mapping": "section_6_architecture",
+      "status": "review_only_not_uploaded",
+      "provenance": "repository_source",
+      "redaction_status": "not_applicable",
+      "rights_status": "owned_source_derived",
+      "sha256": "6c4d668956052c47dfa97d0386983690ceec386c60ff7fb7f5ecb705d1663e8c",
+      "bytes": 754
+    },
+    {
+      "path": "user-flow.mmd",
+      "media_type": "text/plain",
+      "form_mapping": "section_6_user_flow",
+      "status": "review_only_not_uploaded",
+      "provenance": "repository_source",
+      "redaction_status": "not_applicable",
+      "rights_status": "owned_source_derived",
+      "sha256": "a84e443cc6e2954c9df55c93956907ab6a61c75121692f3bc21316b14bc8d9c3",
+      "bytes": 803
+    },
+    {
+      "path": "conditional-evidence.md",
+      "media_type": "text/markdown",
+      "form_mapping": "section_5_conditional_evidence",
+      "status": "inventory_only_not_screenshots",
+      "provenance": "repository_source",
+      "redaction_status": "not_applicable",
+      "rights_status": "owned_source_derived",
+      "sha256": "40352640300efbb4df3ca7459668e75d35d756c07c320c0b909dea50e36b27c0",
+      "bytes": 2557
+    },
+    {
+      "path": "screencast-candidate.md",
+      "media_type": "text/markdown",
+      "form_mapping": "section_5_conditional_upload_proof",
+      "status": "incomplete_unrecorded",
+      "provenance": "repository_source",
+      "redaction_status": "not_applicable",
+      "rights_status": "owned_source_derived",
+      "sha256": "710b3683d6184181f48c99c0d1b9136adabf62adad5ee6903e88f0c6e2e84759",
+      "bytes": 2415
+    },
+    {
+      "path": "README.md",
+      "media_type": "text/markdown",
+      "form_mapping": "packet_readme",
+      "status": "review_only",
+      "provenance": "repository_and_public_routes",
+      "redaction_status": "not_applicable",
+      "rights_status": "owned_source_derived",
+      "sha256": "8ab3554c3bde022b73f6e55aad36601bcd4565186264181b1f123648cac5331b",
+      "bytes": 5786
+    }
+  ],
+  "unresolved_required_evidence": [
+    "homepage_privacy_link_and_youtube_branding_same_live_route",
+    "privacy_browser_address_bar",
+    "oauth_consent_scopes_revocation_screenshots",
+    "authenticated_upload_interface_screenshot",
+    "authenticated_internal_dashboard_screenshot",
+    "complete_upload_script_or_end_to_end_live_youtube_outcome"
+  ],
+  "rollback": "revert this evidence-only directory; no external or production state was changed"
+}

@@ -1,0 +1,12 @@
+# Safe end-to-end recording candidate — stop before provider write
+
+**Status:** reproducible shot list, unrecorded, incomplete for the form. The [current form](https://support.google.com/youtube/contact/yt_api_form?hl=en) requires a complete working upload script **or** an end-to-end screencast showing the final uploaded video live on YouTube for Video Uploading/Internal Company tools. This review lane cannot supply either final provider outcome without new authority. Never present this shot list as a completed screencast.
+
+1. Freeze the exact deployed Portfolio commit, production route, approved synthetic or already-public owned video asset, asset hash, rights receipt, privacy decision, and reviewer identity outside this repo. Verify no real customer, private message, token, or unrelated browser tab can enter the recording.
+2. Record the public privacy, deletion, and terms routes, then the login route **without entering or exposing credentials**. The operator handles authentication off camera before resuming the recording.
+3. Show the authenticated `/admin/social-content` YouTube connection status and current review item. Redact account/channel labels and unrelated rows. Do not invoke Connect/Reconnect or open Google consent.
+4. Show the final video URL and metadata in an approved synthetic or already-public safe review fixture. Walk through copy, rights, privacy, approval, provider readiness, blocked state, and recovery. Do not fabricate a green gate or live score.
+5. Open the internal final platform-submission packet. Show that it is a preparation/review surface, then **STOP before any final approval or submit/upload action**. Record the exact blocked reason and stop timestamp in the private evidence register.
+6. Only a later, separately authorized provider-write lane could resume from this gate, upload a rights-cleared owned asset, observe the YouTube outcome, record provider ID/URL and status, and review any public visibility or notification consequence. That future recording needs its own consent, rights, privacy, release, rollback and production-data plan. It must never be stitched into this candidate as if it already happened.
+
+**No-op verification for this lane:** no provider request, no video upload, no new publish row, no OAuth change, no policy or authority receipt, no scoring/persistence/linkage, and no change to canonical Social Content or calendar counts.

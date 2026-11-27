@@ -1,0 +1,13 @@
+flowchart TD
+  A[Internal operator opens Portfolio login] --> B[Authenticated Social Content]
+  B --> C[Check YouTube connection status]
+  C -->|No connection or expired access| X[Stop; owner-controlled OAuth/revocation gate]
+  C -->|Existing authorized connection| D[Select already approved, rights-cleared video candidate]
+  D --> E[Review copy, final video URL, privacy, rights and source evidence]
+  E -->|Missing or changed evidence| Y[Blocked; revise and repeat Human QA]
+  E -->|All gates current| F[Review final platform-submission packet]
+  F --> G[STOP in this evidence package]
+  G -.->|separate explicit provider-write authority| H[Final submit action]
+  H -.-> I[YouTube upload adapter]
+  I -.-> J[Provider response and live YouTube outcome]
+  J -.-> K[Reconcile immutable publish receipt]
