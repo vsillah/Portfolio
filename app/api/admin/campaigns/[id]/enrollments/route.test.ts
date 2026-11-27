@@ -80,6 +80,26 @@ describe('GET /api/admin/campaigns/[id]/enrollments', () => {
     expect(body).toEqual({ data: [{ id: 'enr-1', status: 'withdrawn' }], total: 1 })
   })
 
+  it('does not restrict status when the filter is all', async () => {
+    // filter === 'all' → no restriction on campaign_enrollments.status
+    const statusEq = vi.fn()
+    const result = { data: [{ id: 'enr-withdrawn', status: 'withdrawn' }], error: null, count: 1 }
+    const range = vi.fn().mockReturnValue(thenable(result, { eq: statusEq }))
+    const order = vi.fn().mockReturnValue({ range })
+    mocks.from.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ order }),
+      }),
+    })
+
+    const response = await GET(getRequest('?status=all'), params)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(statusEq).not.toHaveBeenCalled()
+    expect(body).toEqual({ data: [{ id: 'enr-withdrawn', status: 'withdrawn' }], total: 1 })
+  })
+
   it('applies a concrete status filter', async () => {
     const result = { data: [{ id: 'enr-2', status: 'active' }], error: null, count: 1 }
     const statusEq = vi.fn().mockResolvedValue(result)
