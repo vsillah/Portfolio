@@ -32,6 +32,91 @@ function hasTruthy(record: Record<string, unknown>, keys: string[]) {
   })
 }
 
+// Settings are user-controlled JSON. Keep ordinary settings while excluding any
+// credential material accidentally stored alongside them, including nested data.
+function safeSettings(value: unknown): Record<string, unknown> {
+  const secretKey = /(?:^|_)(?:credential|credentials|secret|secrets|token|tokens|password|passwd|api_key|private_key|client_id|provider_id|provider_user_id|page_id|connected_page_id|meta_page_id|ig_user_id|instagram_user_id|business_account_id|instagram_professional_account_id|author_urn|person_urn|channel_id)(?:$|_)/
+  const isSecretKey = (key: string) => secretKey.test(
+    key.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^a-zA-Z0-9]+/g, '_').toLowerCase(),
+  )
+  const redact = (entry: unknown): unknown => {
+    if (Array.isArray(entry)) return entry.map(redact)
+    if (!entry || typeof entry !== 'object') return entry
+    return Object.fromEntries(
+      Object.entries(entry).filter(([key]) => !isSecretKey(key)).map(([key, item]) => [key, redact(item)]),
+    )
+  }
+  return redact(asRecord(value)) as Record<string, unknown>
+}
+
+function configField(config: PlatformConfigRow, key: string) {
+  const credentials = asRecord(config.credentials)
+  const settings = asRecord(config.settings)
+  return credentials[key] ?? settings[key]
+}
+
+function hasConfigString(config: PlatformConfigRow, keys: string[]) {
+  return keys.some((key) => typeof configField(config, key) === 'string' && String(configField(config, key)).trim().length > 0)
+}
+
+function hasConfigTruthy(config: PlatformConfigRow, keys: string[]) {
+  return keys.some((key) => {
+    const value = configField(config, key)
+    return value === true || (typeof value === 'string' && value.trim().length > 0)
+  })
+}
+
+function label(record: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = record[key]
+    if (typeof value === 'string' && value.trim()) return value.trim()
+  }
+  return null
+}
+
+function credentialPresence(config: PlatformConfigRow) {
+  return {
+    access_token: hasConfigString(config, ['access_token']),
+    linkedin_author: hasConfigString(config, ['author_urn', 'person_urn']),
+    instagram_account: hasConfigString(config, ['ig_user_id', 'instagram_user_id', 'business_account_id']),
+    instagram_professional_account: hasConfigTruthy(config, [
+      'professional_account_confirmed', 'professional_account_confirmed_at', 'instagram_professional_account_id',
+    ]) || ['business', 'creator', 'professional'].includes(String(configField(config, 'instagram_account_type') ?? '').trim().toLowerCase()),
+    instagram_meta_page_linked: hasConfigTruthy(config, [
+      'meta_page_linked', 'meta_page_linked_at', 'meta_page_id', 'page_id', 'connected_page_id',
+    ]),
+    instagram_app_review: hasConfigTruthy(config, [
+      'app_review_permissions_confirmed', 'app_review_permissions_confirmed_at',
+      'instagram_content_publish_permission', 'instagram_basic_permission',
+    ]),
+    facebook_page_access_token: hasConfigString(config, ['page_access_token', 'access_token']),
+    facebook_page: hasConfigString(config, ['page_id']),
+  }
+}
+
+function safeConfig(config: PlatformConfigRow) {
+  const settings = asRecord(config.settings)
+  const credentials = asRecord(config.credentials)
+  return {
+    id: config.id,
+    platform: config.platform,
+    settings: safeSettings(config.settings),
+    is_active: Boolean(config.is_active),
+    credentials_configured: Boolean(
+      config.credentials
+      && typeof config.credentials === 'object'
+      && Object.keys(config.credentials).length > 0,
+    ),
+    credential_presence: credentialPresence(config),
+    target_channel_label: label(settings, ['channel_title', 'channel_name', 'target_channel'])
+      ?? label(credentials, ['channel_title', 'channel_name', 'target_channel']),
+    profile_handle_label: label(settings, ['profile_handle']) ?? label(credentials, ['profile_handle']),
+    provider_setup: instagramProviderSetup(config) ?? facebookProviderSetup(config),
+    created_at: config.created_at,
+    updated_at: config.updated_at,
+  }
+}
+
 function instagramProviderSetup(config: PlatformConfigRow) {
   if (config.platform !== 'instagram') return null
 
@@ -101,7 +186,6 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const safeResponse = searchParams.get('safe') === 'true'
     const platform = searchParams.get('platform')
 
     let query = supabaseAdmin
@@ -116,32 +200,13 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching social content config:', error)
+      console.error('Error fetching social content config')
       return NextResponse.json({ error: 'Failed to fetch config' }, { status: 500 })
     }
 
-    if (safeResponse) {
-      const safeConfigs = ((data || []) as PlatformConfigRow[]).map((config) => ({
-        id: config.id,
-        platform: config.platform,
-        settings: config.settings || {},
-        is_active: Boolean(config.is_active),
-        credentials_configured: Boolean(
-          config.credentials
-          && typeof config.credentials === 'object'
-          && Object.keys(config.credentials).length > 0,
-        ),
-        provider_setup: instagramProviderSetup(config) ?? facebookProviderSetup(config),
-        created_at: config.created_at,
-        updated_at: config.updated_at,
-      }))
-
-      return NextResponse.json({ configs: safeConfigs })
-    }
-
-    return NextResponse.json({ configs: data || [] })
-  } catch (error) {
-    console.error('Error in GET /api/admin/social-content/config:', error)
+    return NextResponse.json({ configs: ((data || []) as PlatformConfigRow[]).map(safeConfig) })
+  } catch {
+    console.error('Error in GET /api/admin/social-content/config')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -181,13 +246,13 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error updating social content config:', error)
+      console.error('Error updating social content config')
       return NextResponse.json({ error: 'Failed to update config' }, { status: 500 })
     }
 
-    return NextResponse.json({ config: data })
-  } catch (error) {
-    console.error('Error in PUT /api/admin/social-content/config:', error)
+    return NextResponse.json({ config: safeConfig(data as PlatformConfigRow) })
+  } catch {
+    console.error('Error in PUT /api/admin/social-content/config')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

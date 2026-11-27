@@ -109,6 +109,9 @@ export function isAutomaticSubmissionSupported(platform: SocialPlatform) {
 }
 
 const SUBMITTED_STATUSES = new Set<PublishStatus>(['published'])
+type PlatformConfig = Pick<SocialContentConfig,
+  'platform' | 'credentials' | 'credential_presence' | 'target_channel_label' | 'profile_handle_label' | 'settings' | 'is_active'
+>
 export type BuildPlatformOrchestrationInput = {
   item?: Pick<SocialContentItem,
     | 'status'
@@ -128,7 +131,7 @@ export type BuildPlatformOrchestrationInput = {
   >> | null
   targetPlatforms?: SocialPlatform[]
   publishRecords?: Pick<SocialContentPublish, 'platform' | 'status' | 'platform_post_url'>[]
-  platformConfigs?: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'>[]
+  platformConfigs?: PlatformConfig[]
   platformAssetReadiness?: Partial<Record<SocialPlatform, PlatformAssetReadiness>>
   copyApproved?: boolean
   productionReady?: boolean
@@ -203,6 +206,11 @@ function configField(config: Pick<SocialContentConfig, 'credentials' | 'settings
   return credentials?.[key] ?? settings?.[key]
 }
 
+function credentialPresent(config: PlatformConfig | undefined, key: keyof NonNullable<SocialContentConfig['credential_presence']>, legacy: () => boolean) {
+  // A safe API projection is authoritative. Internal server configs still use raw values.
+  return config?.credential_presence ? config.credential_presence[key] === true : legacy()
+}
+
 function configSettings(config: Pick<SocialContentConfig, 'settings'> | undefined) {
   return config?.settings as Record<string, unknown> | undefined
 }
@@ -255,9 +263,10 @@ function youtubeConfigVisibility(
   return 'private'
 }
 
-function youtubeTargetChannel(config: Pick<SocialContentConfig, 'credentials' | 'settings'> | undefined) {
+function youtubeTargetChannel(config: PlatformConfig | undefined) {
   const credentials = config?.credentials as Record<string, unknown> | undefined
   const settings = config?.settings as Record<string, unknown> | undefined
+  if (config?.target_channel_label) return config.target_channel_label
   return firstRecordString(settings, ['channel_title', 'channel_name', 'channel_id', 'target_channel'])
     ?? firstRecordString(credentials, ['channel_title', 'channel_name', 'channel_id', 'target_channel'])
     ?? 'Connected OAuth channel'
@@ -265,7 +274,7 @@ function youtubeTargetChannel(config: Pick<SocialContentConfig, 'credentials' | 
 
 export function getYouTubePublishingReadiness(input: {
   item?: BuildPlatformOrchestrationInput['item']
-  config?: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'>
+  config?: PlatformConfig
   redactionReady?: boolean
   draftHandoffReady?: boolean
   finalSubmissionGateReady?: boolean
@@ -298,7 +307,7 @@ export function getYouTubePublishingReadiness(input: {
   const redactionReady = input.redactionReady ?? true
   const visibility = youtubeConfigVisibility(input.config)
   const targetChannel = youtubeTargetChannel(input.config)
-  const configReady = Boolean(input.config?.is_active && truthyString(configField(input.config, 'access_token')))
+  const configReady = Boolean(input.config?.is_active && credentialPresent(input.config, 'access_token', () => truthyString(configField(input.config, 'access_token'))))
   const draftReady = Boolean(input.draftHandoffReady || input.publishRecord)
   const finalGateReady = Boolean(input.finalSubmissionGateReady)
   const copyReady = isCopyApproved(item?.status)
@@ -473,7 +482,7 @@ function getYouTubeAssetReadiness(
 
 function hasPlatformConfiguration(
   platform: SocialPlatform,
-  config: Pick<SocialContentConfig, 'platform' | 'credentials' | 'settings' | 'is_active'> | undefined,
+  config: PlatformConfig | undefined,
 ) {
   if (!config?.is_active) {
     return {
@@ -484,8 +493,8 @@ function hasPlatformConfiguration(
 
   switch (platform) {
     case 'linkedin': {
-      const hasToken = truthyString(configField(config, 'access_token'))
-      const hasAuthor = truthyString(configField(config, 'author_urn')) || truthyString(configField(config, 'person_urn'))
+      const hasToken = credentialPresent(config, 'access_token', () => truthyString(configField(config, 'access_token')))
+      const hasAuthor = credentialPresent(config, 'linkedin_author', () => truthyString(configField(config, 'author_urn')) || truthyString(configField(config, 'person_urn')))
       return {
         ready: hasToken && hasAuthor,
         detail: hasToken && hasAuthor
@@ -494,7 +503,7 @@ function hasPlatformConfiguration(
       }
     }
     case 'youtube': {
-      const hasToken = truthyString(configField(config, 'access_token'))
+      const hasToken = credentialPresent(config, 'access_token', () => truthyString(configField(config, 'access_token')))
       const visibility = youtubeConfigVisibility(config)
       const targetChannel = youtubeTargetChannel(config)
       return {
@@ -505,30 +514,30 @@ function hasPlatformConfiguration(
       }
     }
     case 'instagram': {
-      const hasToken = truthyString(configField(config, 'access_token'))
-      const hasAccount = truthyString(configField(config, 'ig_user_id'))
+      const hasToken = credentialPresent(config, 'access_token', () => truthyString(configField(config, 'access_token')))
+      const hasAccount = credentialPresent(config, 'instagram_account', () => truthyString(configField(config, 'ig_user_id'))
         || truthyString(configField(config, 'instagram_user_id'))
-        || truthyString(configField(config, 'business_account_id'))
+        || truthyString(configField(config, 'business_account_id')))
       const instagramAccountType = configField(config, 'instagram_account_type')
-      const hasProfessionalAccount = hasTruthySetting(config, [
+      const hasProfessionalAccount = credentialPresent(config, 'instagram_professional_account', () => hasTruthySetting(config, [
         'professional_account_confirmed',
         'professional_account_confirmed_at',
         'instagram_professional_account_id',
       ]) || (typeof instagramAccountType === 'string'
-        && ['business', 'creator', 'professional'].includes(instagramAccountType.trim().toLowerCase()))
-      const hasMetaPageLink = hasTruthySetting(config, [
+        && ['business', 'creator', 'professional'].includes(instagramAccountType.trim().toLowerCase())))
+      const hasMetaPageLink = credentialPresent(config, 'instagram_meta_page_linked', () => hasTruthySetting(config, [
         'meta_page_linked',
         'meta_page_linked_at',
         'meta_page_id',
         'page_id',
         'connected_page_id',
-      ])
-      const hasAppReview = hasTruthySetting(config, [
+      ]))
+      const hasAppReview = credentialPresent(config, 'instagram_app_review', () => hasTruthySetting(config, [
         'app_review_permissions_confirmed',
         'app_review_permissions_confirmed_at',
         'instagram_content_publish_permission',
         'instagram_basic_permission',
-      ])
+      ]))
       const missing = [
         !hasProfessionalAccount ? 'professional Instagram account confirmation' : null,
         !hasMetaPageLink ? 'Meta Page linkage' : null,
@@ -544,8 +553,8 @@ function hasPlatformConfiguration(
       }
     }
     case 'facebook': {
-      const hasToken = truthyString(configField(config, 'page_access_token')) || truthyString(configField(config, 'access_token'))
-      const hasPage = truthyString(configField(config, 'page_id'))
+      const hasToken = credentialPresent(config, 'facebook_page_access_token', () => truthyString(configField(config, 'page_access_token')) || truthyString(configField(config, 'access_token')))
+      const hasPage = credentialPresent(config, 'facebook_page', () => truthyString(configField(config, 'page_id')))
       return {
         ready: hasToken && hasPage,
         detail: hasToken && hasPage
@@ -554,7 +563,7 @@ function hasPlatformConfiguration(
       }
     }
     case 'tiktok': {
-      const hasToken = truthyString(configField(config, 'access_token'))
+      const hasToken = credentialPresent(config, 'access_token', () => truthyString(configField(config, 'access_token')))
       const settings = configSettings(config)
       const creatorConfirmed = settings?.creator_info_confirmed === true
         || truthyString(settings?.creator_info_confirmed_at)
@@ -573,8 +582,8 @@ function hasPlatformConfiguration(
       }
     }
     case 'x': {
-      const hasToken = truthyString(configField(config, 'access_token'))
-      const handle = configField(config, 'profile_handle')
+      const hasToken = credentialPresent(config, 'access_token', () => truthyString(configField(config, 'access_token')))
+      const handle = config?.profile_handle_label ?? configField(config, 'profile_handle')
       return {
         ready: hasToken,
         detail: hasToken

@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   select: vi.fn(),
   order: vi.fn(),
   eq: vi.fn(),
+  update: vi.fn(),
+  single: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -21,9 +23,23 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { GET } from './route'
+import { GET, PUT } from './route'
+import { buildPlatformOrchestrationPlan } from '@/lib/social-platform-orchestration'
+import type { SocialContentConfig, SocialPlatform } from '@/lib/social-content'
 
-const configs = [{
+const secrets = [
+  'secret-token', 'secret-refresh-token', 'secret-instagram-token',
+  'secret-ig-user', 'secret-facebook-token', 'secret-page-id',
+  'secret-client-secret', 'secret-provider-id', 'secret-nested-token',
+]
+
+async function expectNoSecrets(response: Response) {
+  const serialized = await response.text()
+  for (const secret of secrets) expect(serialized).not.toContain(secret)
+  return JSON.parse(serialized)
+}
+
+const configs: SocialContentConfig[] = [{
   id: 'config-youtube',
   platform: 'youtube',
   credentials: {
@@ -33,6 +49,8 @@ const configs = [{
   settings: {
     channel_title: 'Vambah Sillah',
     default_privacy: 'private',
+    client_secret: 'secret-client-secret',
+    nested: [{ providerId: 'secret-provider-id', access_token: 'secret-nested-token', keep: 'visible' }],
   },
   is_active: true,
   created_at: '2026-08-03T00:00:00.000Z',
@@ -71,14 +89,30 @@ function request(url = 'https://amadutown.com/api/admin/social-content/config') 
   return new NextRequest(url)
 }
 
-function installConfigQuery() {
+function putRequest(body: unknown) {
+  return new NextRequest('https://amadutown.com/api/admin/social-content/config', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
+function installConfigQuery(rows: SocialContentConfig[] = configs) {
   mocks.eq.mockImplementation((_key: string, value: string) => Promise.resolve({
-    data: configs.filter((config) => config.platform === value),
+    data: rows.filter((config) => config.platform === value),
     error: null,
   }))
   mocks.order.mockReturnValue({ eq: mocks.eq })
   mocks.select.mockReturnValue({ order: mocks.order })
   mocks.from.mockReturnValue({ select: mocks.select })
+}
+
+function installUpdate(result: { data: unknown; error: unknown }) {
+  mocks.single.mockResolvedValue(result)
+  mocks.eq.mockReturnValue({ select: mocks.select })
+  mocks.select.mockReturnValue({ single: mocks.single })
+  mocks.update.mockReturnValue({ eq: mocks.eq })
+  mocks.from.mockReturnValue({ update: mocks.update })
 }
 
 describe('GET /api/admin/social-content/config', () => {
@@ -93,7 +127,7 @@ describe('GET /api/admin/social-content/config', () => {
     const response = await GET(request('https://amadutown.com/api/admin/social-content/config?safe=true&platform=youtube'))
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({
+    await expect(expectNoSecrets(response)).resolves.toMatchObject({
       configs: [
         {
           id: 'config-youtube',
@@ -101,6 +135,7 @@ describe('GET /api/admin/social-content/config', () => {
           settings: {
             channel_title: 'Vambah Sillah',
             default_privacy: 'private',
+            nested: [{ keep: 'visible' }],
           },
           is_active: true,
           credentials_configured: true,
@@ -117,8 +152,8 @@ describe('GET /api/admin/social-content/config', () => {
     const response = await GET(request('https://amadutown.com/api/admin/social-content/config?safe=true&platform=instagram'))
 
     expect(response.status).toBe(200)
-    const body = await response.json()
-    expect(body.configs).toEqual([{
+    const body = await expectNoSecrets(response)
+    expect(body.configs).toMatchObject([{
       id: 'config-instagram',
       platform: 'instagram',
       settings: {
@@ -143,25 +178,145 @@ describe('GET /api/admin/social-content/config', () => {
       created_at: '2026-08-04T00:00:00.000Z',
       updated_at: '2026-08-04T00:00:00.000Z',
     }])
-    expect(JSON.stringify(body)).not.toContain('secret-instagram-token')
-    expect(JSON.stringify(body)).not.toContain('secret-ig-user')
   })
 
-  it('keeps the legacy full config response for existing detail-page orchestration', async () => {
+  it('redacts every config by default without safe=true', async () => {
     mocks.order.mockResolvedValueOnce({ data: configs, error: null })
 
     const response = await GET(request())
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({ configs })
+    const body = await expectNoSecrets(response)
+    expect(body.configs).toHaveLength(3)
+    expect(body.configs[0].credentials).toBeUndefined()
+    expect(body.configs[0].settings).toEqual({
+      channel_title: 'Vambah Sillah',
+      default_privacy: 'private',
+      nested: [{ keep: 'visible' }],
+    })
+  })
+
+  it('keeps the detail-page orchestration contract equivalent for all six connected providers', async () => {
+    const platforms: SocialPlatform[] = ['youtube', 'linkedin', 'instagram', 'facebook', 'tiktok', 'x']
+    const providerRows: Array<Pick<SocialContentConfig, 'id' | 'platform' | 'credentials' | 'settings' | 'is_active'>> = [
+      {
+        id: 'youtube', platform: 'youtube', is_active: true,
+        credentials: { access_token: 'secret-youtube-access', channel_name: 'AmaduTown' },
+        settings: { default_privacy: 'unlisted', channel_id: 'secret-youtube-channel', clientSecret: 'secret-client-secret' },
+      },
+      {
+        id: 'linkedin', platform: 'linkedin', is_active: true,
+        credentials: { access_token: 'secret-linkedin-access', author_urn: 'secret-linkedin-author' },
+        settings: { profile_name: 'AmaduTown', nested: [{ refreshToken: 'secret-linkedin-refresh' }] },
+      },
+      {
+        id: 'instagram', platform: 'instagram', is_active: true,
+        credentials: { access_token: 'secret-instagram-access', ig_user_id: 'secret-instagram-id' },
+        settings: {
+          instagram_professional_account_id: 'secret-instagram-professional',
+          meta_page_id: 'secret-instagram-page',
+          app_review_permissions_confirmed: true,
+          instagram_account_type: 'business',
+        },
+      },
+      {
+        id: 'facebook', platform: 'facebook', is_active: true,
+        credentials: { page_access_token: 'secret-facebook-access', page_id: 'secret-facebook-page' },
+        settings: { connected_page_name: 'AmaduTown' },
+      },
+      {
+        id: 'tiktok', platform: 'tiktok', is_active: true,
+        credentials: { access_token: 'secret-tiktok-access' },
+        settings: { creator_info_confirmed: true, source_url_approved: true },
+      },
+      {
+        id: 'x', platform: 'x', is_active: true,
+        credentials: { access_token: 'secret-x-access', profile_handle: 'amadutown' },
+        settings: { default_privacy: 'private' },
+      },
+    ]
+    const rows: SocialContentConfig[] = providerRows.map((row) => ({
+      ...row, created_at: '2026-08-01', updated_at: '2026-08-01',
+    }))
+    installConfigQuery(rows)
+    mocks.order.mockResolvedValueOnce({ data: rows, error: null })
+
+    // This is the detail page's fetch -> setPlatformConfigs -> buildPlatformOrchestrationPlan handoff.
+    const response = await GET(request())
+    expect(response.status).toBe(200)
+    const serialized = await response.text()
+    for (const row of rows) {
+      for (const [key, value] of Object.entries(row.credentials ?? {})) {
+        if (key !== 'channel_name' && key !== 'profile_handle') expect(serialized).not.toContain(value)
+      }
+    }
+    for (const secret of [
+      'secret-youtube-channel', 'secret-client-secret', 'secret-linkedin-refresh',
+      'secret-instagram-professional', 'secret-instagram-page',
+    ]) expect(serialized).not.toContain(secret)
+    const safeConfigs = JSON.parse(serialized).configs as SocialContentConfig[]
+    expect(safeConfigs).toHaveLength(6)
+    expect(safeConfigs.every((config) => !('credentials' in config))).toBe(true)
+    expect(safeConfigs.find((config) => config.platform === 'youtube')).toMatchObject({
+      settings: { default_privacy: 'unlisted' }, target_channel_label: 'AmaduTown',
+      credential_presence: { access_token: true },
+    })
+    expect(safeConfigs.find((config) => config.platform === 'x')).toMatchObject({ profile_handle_label: 'amadutown' })
+
+    const planInput = {
+      targetPlatforms: platforms,
+      copyApproved: true,
+      productionReady: true,
+      redactionReady: true,
+      draftHandoffReady: true,
+      finalSubmissionGateReady: false,
+    }
+    const rawPlan = buildPlatformOrchestrationPlan({ ...planInput, platformConfigs: rows })
+    const detailPagePlan = buildPlatformOrchestrationPlan({ ...planInput, platformConfigs: safeConfigs })
+    expect(detailPagePlan.platforms.map((plan) => plan.stages.find((stage) => stage.key === 'platform_configuration')))
+      .toEqual(rawPlan.platforms.map((plan) => plan.stages.find((stage) => stage.key === 'platform_configuration')))
+    expect(detailPagePlan.platforms.map((plan) => plan.nextAction)).toEqual(rawPlan.platforms.map((plan) => plan.nextAction))
+    expect(detailPagePlan.platforms[0].youtubeReadiness?.checks.map(({ key, state }) => ({ key, state })))
+      .toEqual(rawPlan.platforms[0].youtubeReadiness?.checks.map(({ key, state }) => ({ key, state })))
+    expect(detailPagePlan.platforms[0].youtubeReadiness?.blockers).toEqual(rawPlan.platforms[0].youtubeReadiness?.blockers)
+    expect(detailPagePlan.platforms[0].youtubeReadiness?.reviewValues).toMatchObject({
+      visibility: 'unlisted', targetChannel: 'AmaduTown', providerConfig: 'YouTube Data API upload adapter active',
+    })
+    expect(detailPagePlan.sideEffectsUntilFinalGate).toEqual({
+      providerGeneration: false, upload: false, externalSchedule: false, publish: false, externalPost: false,
+    })
+    expect(safeConfigs.map((config) => config.credential_presence)).toMatchObject([
+      { access_token: true },
+      { access_token: true, linkedin_author: true },
+      { access_token: true, instagram_account: true, instagram_professional_account: true, instagram_meta_page_linked: true, instagram_app_review: true },
+      { facebook_page_access_token: true, facebook_page: true },
+      { access_token: true },
+      { access_token: true },
+    ])
+
+    const incompleteRows = rows.map((row) => ({
+      ...row,
+      credentials: { unrelated_secret: 'secret-unrelated-value' },
+    }))
+    mocks.order.mockResolvedValueOnce({ data: incompleteRows, error: null })
+    const incompleteResponse = await GET(request())
+    const incompleteSerialized = await incompleteResponse.text()
+    expect(incompleteSerialized).not.toContain('secret-unrelated-value')
+    const incompleteSafeConfigs = JSON.parse(incompleteSerialized).configs as SocialContentConfig[]
+    const incompleteRawPlan = buildPlatformOrchestrationPlan({ ...planInput, platformConfigs: incompleteRows })
+    const incompleteSafePlan = buildPlatformOrchestrationPlan({ ...planInput, platformConfigs: incompleteSafeConfigs })
+    expect(incompleteSafePlan.platforms.map((plan) => plan.stages.find((stage) => stage.key === 'platform_configuration')))
+      .toEqual(incompleteRawPlan.platforms.map((plan) => plan.stages.find((stage) => stage.key === 'platform_configuration')))
+    expect(incompleteSafePlan.platforms[0].youtubeReadiness?.blockers).toEqual(incompleteRawPlan.platforms[0].youtubeReadiness?.blockers)
+    expect(incompleteSafeConfigs.every((config) => config.credentials_configured === true && config.credential_presence?.access_token === false)).toBe(true)
   })
 
   it('returns Facebook setup requirements without exposing Page token values', async () => {
     const response = await GET(request('https://amadutown.com/api/admin/social-content/config?safe=true&platform=facebook'))
 
     expect(response.status).toBe(200)
-    const body = await response.json()
-    expect(body.configs).toEqual([{
+    const body = await expectNoSecrets(response)
+    expect(body.configs).toMatchObject([{
       id: 'config-facebook',
       platform: 'facebook',
       settings: {
@@ -181,7 +336,81 @@ describe('GET /api/admin/social-content/config', () => {
       created_at: '2026-08-05T00:00:00.000Z',
       updated_at: '2026-08-05T00:00:00.000Z',
     }])
-    expect(JSON.stringify(body)).not.toContain('secret-facebook-token')
-    expect(JSON.stringify(body)).not.toContain('secret-page-id')
+  })
+
+  it('keeps authentication and authorization failures intact', async () => {
+    for (const status of [401, 403]) {
+      mocks.verifyAdmin.mockResolvedValueOnce({ error: 'Access denied', status })
+      mocks.isAuthError.mockReturnValueOnce(true)
+      const response = await GET(request())
+      expect(response.status).toBe(status)
+      expect(await expectNoSecrets(response)).toEqual({ error: 'Access denied' })
+    }
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('returns fixed errors without credential values on read failure and exception', async () => {
+    mocks.order.mockResolvedValueOnce({ data: null, error: new Error('secret-token') })
+    const failed = await GET(request())
+    expect(failed.status).toBe(500)
+    expect(await expectNoSecrets(failed)).toEqual({ error: 'Failed to fetch config' })
+
+    mocks.verifyAdmin.mockRejectedValueOnce(new Error('secret-refresh-token'))
+    const thrown = await GET(request())
+    expect(thrown.status).toBe(500)
+    expect(await expectNoSecrets(thrown)).toEqual({ error: 'Internal server error' })
+  })
+})
+
+describe('PUT /api/admin/social-content/config', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
+    mocks.isAuthError.mockReturnValue(false)
+  })
+
+  it('preserves the authorized update and redacts its success response', async () => {
+    installUpdate({ data: configs[0], error: null })
+    const credentials = { access_token: 'secret-token', refresh_token: 'secret-refresh-token' }
+    const response = await PUT(putRequest({ platform: 'youtube', credentials, is_active: true }))
+
+    expect(response.status).toBe(200)
+    expect(mocks.update).toHaveBeenCalledWith({ credentials, is_active: true })
+    expect(mocks.eq).toHaveBeenCalledWith('platform', 'youtube')
+    const body = await expectNoSecrets(response)
+    expect(body.config.credentials).toBeUndefined()
+    expect(body.config.credentials_configured).toBe(true)
+    expect(body.config.settings.default_privacy).toBe('private')
+  })
+
+  it('redacts errors for validation, database failure, and exceptions', async () => {
+    const missing = await PUT(putRequest({ credentials: { access_token: 'secret-token' } }))
+    expect(missing.status).toBe(400)
+    expect(await expectNoSecrets(missing)).toEqual({ error: 'platform is required' })
+
+    const empty = await PUT(putRequest({ platform: 'youtube' }))
+    expect(empty.status).toBe(400)
+    expect(await expectNoSecrets(empty)).toEqual({ error: 'No valid fields to update' })
+
+    installUpdate({ data: null, error: new Error('secret-token') })
+    const failed = await PUT(putRequest({ platform: 'youtube', credentials: { access_token: 'secret-token' } }))
+    expect(failed.status).toBe(500)
+    expect(await expectNoSecrets(failed)).toEqual({ error: 'Failed to update config' })
+
+    mocks.verifyAdmin.mockRejectedValueOnce(new Error('secret-token'))
+    const thrown = await PUT(putRequest({ platform: 'youtube', credentials: { access_token: 'secret-token' } }))
+    expect(thrown.status).toBe(500)
+    expect(await expectNoSecrets(thrown)).toEqual({ error: 'Internal server error' })
+  })
+
+  it('keeps authentication and authorization failures intact', async () => {
+    for (const status of [401, 403]) {
+      mocks.verifyAdmin.mockResolvedValueOnce({ error: 'Access denied', status })
+      mocks.isAuthError.mockReturnValueOnce(true)
+      const response = await PUT(putRequest({ platform: 'youtube', credentials: { access_token: 'secret-token' } }))
+      expect(response.status).toBe(status)
+      expect(await expectNoSecrets(response)).toEqual({ error: 'Access denied' })
+    }
+    expect(mocks.update).not.toHaveBeenCalled()
   })
 })
