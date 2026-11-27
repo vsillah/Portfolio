@@ -1,0 +1,40 @@
+{
+  "version": "youtube-compliance-synthetic-demo/v1",
+  "status": "review_only_not_submitted",
+  "source_commit": "b832e83296bda150c17aff80b1794d3c9f94e345",
+  "created_at": "2026-11-27T16:03:46.924351+00:00",
+  "synthetic": true,
+  "live_provider_calls": 0,
+  "database_calls": 0,
+  "account_actions": 0,
+  "client_id_sha256": "087b837193068e592c387e0d5e64a41c2b26d532da65abb274f6a80dea1eb675",
+  "client_binding_provenance": "Owner-reported 1Password production variable and read-only Google Cloud Console match on 2026-11-27; raw client ID never entered this packet.",
+  "google_cloud_project_id": "amadutown-advisory-solutions",
+  "oauth_client_name": "Portfolio Gmail Drafts",
+  "files": {
+    "synthetic-demo.md": "56b67ce4706fc0c55bc8562db9dac0b4e45e81e8cbccb27ad1281cc740cc5df3",
+    "review-addendum.md": "bf62facb09e2b841e252b4817e212de03747ff4d935a116b45bdee9f6fd0eec7"
+  },
+  "authority": {
+    "derived_metrics_amendment_accepted": false,
+    "acceptance_record_found": false,
+    "privacy_rights_receipts_approved": false,
+    "deletion_refresh_path_validated": false
+  },
+  "locks": {
+    "audit_submission_enabled": false,
+    "terms_acceptance_enabled": false,
+    "live_collection_enabled": false,
+    "scoring_enabled": false,
+    "derived_persistence_enabled": false,
+    "evidence_linkage_enabled": false,
+    "notification_enabled": false,
+    "media_generation_enabled": false,
+    "upload_enabled": false,
+    "schedule_enabled": false,
+    "publish_enabled": false,
+    "production_mutation_enabled": false,
+    "external_actions_enabled": false
+  },
+  "rollback": "Delete this review-only packet; no external or production state was changed."
+}
