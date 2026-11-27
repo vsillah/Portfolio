@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
 import cohort from '@/artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/cohort.json'
+import replacement from '@/artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/cohort-replacement-review-v3.json'
 import { acquireYouTubeReadOnlyEvidence, YOUTUBE_EVIDENCE_CALENDAR_ID, YOUTUBE_EVIDENCE_COHORT_SHA256, YOUTUBE_EVIDENCE_CONTENT_ID, type YouTubeEvidenceRequest } from './youtube-readonly-evidence-acquisition'
 import { rawResponseSha256 } from './attributable-performance-evidence'
 import { YOUTUBE_READONLY_SCOPE } from './youtube-oauth'
@@ -40,6 +41,30 @@ function setup(overrides: Record<string, unknown> = {}, options: {
 afterEach(() => { vi.unstubAllEnvs() })
 
 describe('YouTube read-only evidence acquisition', () => {
+  it('keeps the receipt-bound replacement review-only with exactly five duration edits and three unchanged values', () => {
+    expect(replacement.status).toBe('review_only_blocked')
+    expect(replacement.acquisition_receipt_sha256).toBe('19fe792f1be83a631f006277e4f7c1c745b9f5e2f231e8e41b4d12b023669a71')
+    expect(rawResponseSha256(cohort)).toBe(replacement.source_cohort_sha256)
+    expect(replacement.candidate_bindings.map((item) => item.video_id)).toEqual(cohort.included.map((item) => item.video_id))
+    expect(replacement.candidate_bindings.every((item) => /^[a-f0-9]{64}$/.test(item.response_body_sha256))).toBe(true)
+    expect(replacement.candidate_bindings.every((item) => Date.parse(item.provider_published_at) === Date.parse(cohort.included.find((seed) => seed.video_id === item.video_id)!.published_at))).toBe(true)
+    expect(replacement.candidate_bindings.every((item) => item.source_duration_seconds === cohort.included.find((seed) => seed.video_id === item.video_id)!.duration_seconds)).toBe(true)
+    const changes = replacement.candidate_bindings.filter((item) => item.observed_duration_seconds !== item.source_duration_seconds)
+    expect(changes.map((item) => [item.video_id, item.source_duration_seconds, item.observed_duration_seconds])).toEqual([
+      ['gTHQpAkgjy4', 54, 55], ['ojpZ-TJv918', 29, 30], ['sA6UA2fMNHg', 45, 46],
+      ['SQEMkQu0b6o', 21, 22], ['DVEOS9t_DHM', 32, 33],
+    ])
+    expect(replacement.candidate_bindings.filter((item) => item.observed_duration_seconds === item.source_duration_seconds).map((item) => item.video_id)).toEqual(['usE8BPWET3M', '_ODSVV3SIEI', 'ZAdGsLGaGSU'])
+    const proposed = structuredClone(cohort)
+    for (const seed of proposed.included) seed.duration_seconds = replacement.candidate_bindings.find((item) => item.video_id === seed.video_id)!.observed_duration_seconds
+    expect(rawResponseSha256(proposed)).toBe(replacement.proposed_cohort_sha256)
+    expect(replacement.freshness_candidate).toMatchObject({ approved: false, expires_at: null, authority_receipt_id: null })
+    expect(replacement.privacy_rights_candidate).toMatchObject({ approved: false, privacy_cleared: false, rights_cleared: false })
+    expect(replacement.rollback.historical_source_preserved).toBe(true)
+    expect(replacement.external_actions_enabled).toBe(false)
+    expect(replacement.persistence_enabled).toBe(false)
+    expect(JSON.stringify(replacement)).not.toMatch(/access_token|refresh_token|client_secret|service_role/i)
+  })
   it('refreshes every exact approved comparable and same-channel baseline; selects six micro-band records and preserves large-band exclusions', async () => {
     const { input, calls } = setup()
     const output = await acquireYouTubeReadOnlyEvidence(input)
@@ -178,19 +203,45 @@ describe('YouTube read-only evidence acquisition', () => {
       : value })
     const output = await acquireYouTubeReadOnlyEvidence(input)
     const observation = output.candidate_observations[0]
-    expect(observation).toMatchObject({ approved_video_id: seed.video_id,
+    expect(observation).toMatchObject({ approved_video_id: seed.video_id, approved_published_at: seed.published_at,
       raw_response_evidence: { video_id: seed.video_id, channel_id: seed.channel_id, published_at: observedAt, duration: 'PT1M', privacy_status: 'public' },
       parsed_duration_seconds: 60, shorts_format_determination: 'duration_band_match', inclusion: 'excluded',
-      field_decisions: { video_id: 'match', channel_id: 'match', published_at: 'mismatch', duration: 'mismatch', public_status: 'match', shorts_duration_band: 'match' },
-      exclusion_fields: ['published_at', 'duration'] })
+      field_decisions: { video_id: 'match', channel_id: 'match', published_at: 'match', duration: 'mismatch', public_status: 'match', shorts_duration_band: 'match' },
+      exclusion_fields: ['duration'] })
     const expectedBody = { items: [{ id: seed.video_id, snippet: { channelId: seed.channel_id, publishedAt: observedAt, title: extraSecret },
       contentDetails: { duration: 'PT1M' }, statistics: { viewCount: '1000', privateMetric: extraSecret },
       status: { privacyStatus: 'public' }, unrelated: { access_token: extraSecret } }] }
     expect(observation.response_body_sha256).toBe(createHash('sha256').update(JSON.stringify(expectedBody)).digest('hex'))
     expect(JSON.stringify(output)).not.toContain(extraSecret)
-    expect(output.comparable_decisions[0].reason).toContain('publication timestamp')
+    expect(output.comparable_decisions[0].reason).toContain('duration differs')
     expect(output.persistence_enabled).toBe(false)
     expect(output.external_actions_enabled).toBe(false)
+  })
+  it('matches UTC-equivalent publication strings and excludes a true millisecond difference', async () => {
+    const seed = cohort.included[1]
+    const equivalent = seed.published_at.replace('.000Z', 'Z')
+    const { input } = setup({}, { video: (id, value) => id === seed.video_id
+      ? { ...value, snippet: { channelId: seed.channel_id, publishedAt: equivalent } } : value })
+    const output = await acquireYouTubeReadOnlyEvidence(input)
+    expect(output.candidate_observations[1]).toMatchObject({ approved_published_at: seed.published_at,
+      raw_response_evidence: { published_at: equivalent }, field_decisions: { published_at: 'match' } })
+    expect(output.comparable_decisions[1].status).toBe('included')
+    const changed = setup({}, { video: (id, value) => id === seed.video_id
+      ? { ...value, snippet: { channelId: seed.channel_id, publishedAt: seed.published_at.replace('.000Z', '.001Z') } } : value })
+    const mismatch = await acquireYouTubeReadOnlyEvidence(changed.input)
+    expect(mismatch.candidate_observations[1].field_decisions.published_at).toBe('mismatch')
+    expect(mismatch.comparable_decisions[1].reason).toContain('publication timestamp')
+  })
+  it('rejects malformed and calendar-invalid publication values', async () => {
+    const seed = cohort.included[0]
+    for (const publishedAt of ['2026-02-30T12:00:00Z', '2026-10-04T02:33:08+00:00', 'bad']) {
+      const { input } = setup({}, { video: (id, value) => id === seed.video_id
+        ? { ...value, snippet: { channelId: seed.channel_id, publishedAt } } : value })
+      const output = await acquireYouTubeReadOnlyEvidence(input)
+      expect(output.candidate_observations[0].raw_response_evidence.published_at).toBeNull()
+      expect(output.candidate_observations[0].field_decisions.published_at).toBe('unavailable')
+      expect(output.comparable_decisions[0].status).toBe('excluded')
+    }
   })
   it('reports field exclusions for a private, wrong-channel, long video without leaking extra fields', async () => {
     const seed = cohort.included[0]
