@@ -36,6 +36,19 @@ const sections = [
     ],
   },
   {
+    title: 'YouTube public metadata',
+    body: [
+      'Portfolio uses YouTube API Services for connected AmaduTown channel workflows. We are separately reviewing a limited use of public YouTube metadata from documented API endpoints. That proposed use would include only video and channel IDs and canonical URLs, publication timestamps, duration, public status, public audience counts such as channel subscribers, and public engagement counts such as video views, likes, and comments when the API actually returns them. Hidden or unavailable counts would remain unavailable.',
+      'The proposed purpose is bounded observation, source provenance, internal evidence review and comparison, freshness evaluation, and audit. It does not include collecting individual viewer, commenter, or subscriber identities or inferring sensitive traits. Cross-creator scoring and new metrics are not enabled by this notice; any such use needs separate review of the applicable YouTube terms and the exact API project authority.',
+      'If this use is approved, access to the observations would be limited to authorized reviewers. Source links, observation times, and raw-response hashes where applicable would support provenance. Current and historical counts would be identified by their observation time. Non-authorized YouTube API data would be deleted or refreshed within 30 calendar days, and sooner when required. That limit is a retention or refresh ceiling, not a promise that a particular observation remains current for 30 days.',
+      'You can request deletion of YouTube data held by Portfolio using the contact and data deletion path below. Deleting data from Portfolio does not delete data held by YouTube; YouTube data must be managed through YouTube or an authorized service. Access to public metadata does not grant permission to reuse video, audio, thumbnails, or other creator media, imply creator endorsement, publish a comparison, or take an external action.',
+    ],
+    links: [
+      { label: 'Google Privacy Policy', href: 'https://policies.google.com/privacy' },
+      { label: 'Data deletion request process', href: '/legal/data-deletion' },
+    ],
+  },
+  {
     title: 'How we use it',
     body: [
       'Provider data is used to connect approved AmaduTown, LLC channels, show publishing readiness, submit approved content, record audit trails, and troubleshoot failed provider actions.',
@@ -71,7 +84,7 @@ export default function PrivacyPage() {
           <p className="mt-4 text-lg leading-8 text-muted-foreground">
             This policy explains how AmaduTown, LLC handles Agentified learning data, Portfolio social publishing workflows, and optional SMS communications.
           </p>
-          <p className="mt-3 text-sm text-muted-foreground">Last updated: November 23, 2026</p>
+          <p className="mt-3 text-sm text-muted-foreground">Last updated: November 27, 2026</p>
 
           <div className="mt-10 space-y-8 rounded-2xl border border-radiant-gold/15 bg-silicon-slate/25 p-6 sm:p-8">
             {sections.map((section) => (
@@ -81,6 +94,15 @@ export default function PrivacyPage() {
                   {section.body.map((paragraph) => (
                     <p key={paragraph} className="leading-7">{paragraph}</p>
                   ))}
+                  {'links' in section && section.links && (
+                    <p className="flex flex-wrap gap-x-5 gap-y-2 leading-7">
+                      {section.links.map((link) => (
+                        <a key={link.href} href={link.href} className="text-radiant-gold underline underline-offset-4 hover:text-foreground">
+                          {link.label}
+                        </a>
+                      ))}
+                    </p>
+                  )}
                 </div>
               </section>
             ))}
