@@ -60,6 +60,18 @@ type RecordEvidence = {
 }
 type ComparableDecision = { video_id: string; channel_id: string; status: 'included' | 'excluded'; reason: string; audience_band: AudienceBand | null }
 type ProviderResponse = { kind: 'video' | 'channel'; object_id: string; http_status: number; body_sha256: string }
+type FieldDecision = 'match' | 'mismatch' | 'unavailable'
+type CandidateObservation = {
+  approved_video_id: string
+  response_body_sha256: string
+  // Only these public, bounded videos.list fields are needed to reconcile the seed.
+  raw_response_evidence: { video_id: string | null; channel_id: string | null; published_at: string | null; duration: string | null; privacy_status: 'public' | 'private' | 'unlisted' | null }
+  parsed_duration_seconds: number | null
+  shorts_format_determination: 'duration_band_match' | 'outside_duration_band' | 'unavailable'
+  field_decisions: { video_id: FieldDecision; channel_id: FieldDecision; published_at: FieldDecision; duration: FieldDecision; public_status: FieldDecision; shorts_duration_band: FieldDecision }
+  inclusion: 'included' | 'excluded'
+  exclusion_fields: Array<keyof CandidateObservation['field_decisions']>
+}
 export type YouTubeEvidenceResult = {
   contract_version: 'youtube-readonly-evidence-acquisition-v2'
   content_id: string
@@ -75,6 +87,7 @@ export type YouTubeEvidenceResult = {
   comparable_decisions: ComparableDecision[]
   baseline_receipts: Array<{ comparable_video_id: string; channel_id: string; baseline: Baseline }>
   provider_responses: ProviderResponse[]
+  candidate_observations: CandidateObservation[]
   seed_exclusions: Array<{ video_id: string; reason: string }>
   records: RecordEvidence[]
   normalized_method: string | null
@@ -87,7 +100,7 @@ export type YouTubeEvidenceResult = {
 type Input = { request: YouTubeEvidenceRequest; credentials: Credentials | null; is_active: boolean; content_updated_at: string | null; calendar_bound: boolean; fetchImpl?: typeof fetch; now?: Date }
 type Seed = typeof cohort.included[number]
 type VideoSnapshot = { id: string; channelId: string; publishedAt: string; duration: number; views: number; likes: number | null; comments: number | null; responseSha256: string; bodySha256: string }
-type VideoRead = { video: VideoSnapshot | null; exclusion: Exclusion | null }
+type VideoRead = { video: VideoSnapshot | null; exclusion: Exclusion | null; evidence: CandidateObservation['raw_response_evidence'] | null; bodySha256: string }
 const obj = (value: unknown): Record<string, unknown> | null => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
 const str = (value: unknown) => typeof value === 'string' && value.trim() ? value : null
 const count = (value: unknown) => typeof value === 'string' && /^\d+$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : null
@@ -104,7 +117,7 @@ function percentile(value: number, values: number[]) {
   const equal = values.filter((candidate) => candidate === value).length
   return Number((((lower + equal * 0.5) / values.length) * 100).toFixed(2))
 }
-function result(input: Input, blockers: string[], qualificationBlockers: string[], records: RecordEvidence[], decisions: ComparableDecision[], selectedBand: AudienceBand | null, baselineReceipts: YouTubeEvidenceResult['baseline_receipts'] = [], providerResponses: ProviderResponse[] = []): YouTubeEvidenceResult {
+function result(input: Input, blockers: string[], qualificationBlockers: string[], records: RecordEvidence[], decisions: ComparableDecision[], selectedBand: AudienceBand | null, baselineReceipts: YouTubeEvidenceResult['baseline_receipts'] = [], providerResponses: ProviderResponse[] = [], candidateObservations: CandidateObservation[] = []): YouTubeEvidenceResult {
   const included = decisions.filter((decision) => decision.status === 'included').map((decision) => decision.video_id)
   const body = {
     contract_version: 'youtube-readonly-evidence-acquisition-v2' as const,
@@ -121,6 +134,7 @@ function result(input: Input, blockers: string[], qualificationBlockers: string[
     comparable_decisions: decisions,
     baseline_receipts: baselineReceipts,
     provider_responses: providerResponses,
+    candidate_observations: candidateObservations,
     seed_exclusions: cohort.excluded.map((entry) => ({ video_id: entry.video_id, reason: entry.exclusion_reason })),
     records,
     normalized_method: selectedBand && included.length >= cohort.target.minimum_sample_size ? cohort.formula.normalized_performance_score : null,
@@ -131,9 +145,17 @@ function result(input: Input, blockers: string[], qualificationBlockers: string[
   return { ...body, receipt_sha256: rawResponseSha256(body) }
 }
 function durationSeconds(value: unknown): number | null {
-  const parts = str(value)?.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/)
-  return parts ? Number(parts[1] ?? 0) * 3600 + Number(parts[2] ?? 0) * 60 + Number(parts[3] ?? 0) : null
+  const parts = str(value)?.match(/^PT(?=.)(?:(\d{1,4})H)?(?:(\d{1,4})M)?(?:(\d{1,4})S)?$/)
+  if (!parts) return null
+  const seconds = Number(parts[1] ?? 0) * 3600 + Number(parts[2] ?? 0) * 60 + Number(parts[3] ?? 0)
+  return Number.isSafeInteger(seconds) ? seconds : null
 }
+const safeVideoId = (value: unknown) => typeof value === 'string' && VIDEO_ID.test(value) ? value : null
+const safeChannelId = (value: unknown) => typeof value === 'string' && CHANNEL_ID.test(value) ? value : null
+const safePublishedAt = (value: unknown) => typeof value === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?Z$/.test(value) && Number.isFinite(Date.parse(value)) ? value : null
+const safeDuration = (value: unknown) => typeof value === 'string' && value.length <= 24 && durationSeconds(value) !== null ? value : null
+const safePrivacy = (value: unknown) => value === 'public' || value === 'private' || value === 'unlisted' ? value : null
+function compare(observed: string | number | null, expected: string | number): FieldDecision { return observed === null ? 'unavailable' : observed === expected ? 'match' : 'mismatch' }
 async function readProviderBody(response: Response): Promise<{ parsed: unknown; bodySha256: string }> {
   const body = await response.text()
   if (body.length > 1_000_000) throw new Error('Provider response exceeded read-only evidence limit.')
@@ -184,6 +206,7 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
   const decisions: ComparableDecision[] = []
   const baselineReceipts: YouTubeEvidenceResult['baseline_receipts'] = []
   const providerResponses: ProviderResponse[] = []
+  const candidateObservations: CandidateObservation[] = []
   const qualificationBlockers = [
     'Approved exact-version YouTube external-creator public-metrics source-class freshness policy and expiry rule are missing; no expires_at can be assigned.',
     'Comparable privacy and rights clearance for the new response version is not bound to an approved receipt.',
@@ -198,7 +221,7 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
     providerResponses.push({ kind: 'video', object_id: id, http_status: response.status, body_sha256: bodySha256 })
     if (!response.ok && response.status !== 404) throw new Error('YouTube video lookup failed or quota/access was denied.')
     if (response.status === 404) {
-      const missing: VideoRead = { video: null, exclusion: { video_id: id, reason: 'Approved video identity is unavailable.', response_sha256: rawResponseSha256(parsed) } }
+      const missing: VideoRead = { video: null, exclusion: { video_id: id, reason: 'Approved video identity is unavailable.', response_sha256: rawResponseSha256(parsed) }, evidence: null, bodySha256 }
       videoCache.set(key, missing)
       return missing
     }
@@ -209,6 +232,11 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
     const duration = durationSeconds(obj(video?.contentDetails)?.duration)
     const views = count(stats?.viewCount)
     const publishedAt = str(snippet?.publishedAt)
+    const evidence: CandidateObservation['raw_response_evidence'] = {
+      video_id: safeVideoId(video?.id), channel_id: safeChannelId(snippet?.channelId),
+      published_at: safePublishedAt(snippet?.publishedAt), duration: safeDuration(obj(video?.contentDetails)?.duration),
+      privacy_status: safePrivacy(status?.privacyStatus),
+    }
     let reason: string | null = null
     if (video?.id !== id) reason = 'Approved video identity is unavailable or changed.'
     else if (snippet?.channelId !== expectedChannel) reason = 'Video channel differs from the approved seed channel.'
@@ -218,16 +246,31 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
     else if (Date.parse(publishedAt) > now.getTime()) reason = 'Video publication time is in the future.'
     else if (views === null) reason = 'Required public views are unavailable.'
     const found: VideoRead = reason
-      ? { video: null, exclusion: { video_id: id, reason, response_sha256: responseSha256 } }
-      : { video: { id, channelId: expectedChannel, publishedAt: publishedAt!, duration: duration!, views: views!, likes: count(stats?.likeCount), comments: count(stats?.commentCount), responseSha256, bodySha256 }, exclusion: null }
+      ? { video: null, exclusion: { video_id: id, reason, response_sha256: responseSha256 }, evidence, bodySha256 }
+      : { video: { id, channelId: expectedChannel, publishedAt: publishedAt!, duration: duration!, views: views!, likes: count(stats?.likeCount), comments: count(stats?.commentCount), responseSha256, bodySha256 }, exclusion: null, evidence, bodySha256 }
     videoCache.set(key, found)
     return found
   }
   try {
     for (const seed of cohort.included) {
       const candidate = await videoRead(seed.video_id, seed.channel_id)
+      const observed = candidate.evidence ?? { video_id: null, channel_id: null, published_at: null, duration: null, privacy_status: null }
+      const parsedDuration = durationSeconds(observed.duration)
+      const shortsBand = parsedDuration === null ? 'unavailable' : parsedDuration >= 15 && parsedDuration <= 60 ? 'duration_band_match' : 'outside_duration_band'
+      const fields: CandidateObservation['field_decisions'] = {
+        video_id: compare(observed.video_id, seed.video_id), channel_id: compare(observed.channel_id, seed.channel_id),
+        published_at: compare(observed.published_at, seed.published_at), duration: compare(parsedDuration, seed.duration_seconds),
+        public_status: compare(observed.privacy_status, 'public'),
+        shorts_duration_band: shortsBand === 'unavailable' ? 'unavailable' : shortsBand === 'duration_band_match' ? 'match' : 'mismatch',
+      }
+      const exclusionFields = (Object.keys(fields) as Array<keyof typeof fields>).filter((field) => fields[field] !== 'match')
+      candidateObservations.push({ approved_video_id: seed.video_id, response_body_sha256: candidate.bodySha256,
+        raw_response_evidence: observed, parsed_duration_seconds: parsedDuration,
+        shorts_format_determination: shortsBand, field_decisions: fields,
+        inclusion: 'excluded', exclusion_fields: exclusionFields })
       let reason = candidate.exclusion?.reason ?? null
-      if (!reason && (candidate.video?.publishedAt !== seed.published_at || candidate.video?.duration !== seed.duration_seconds)) reason = 'Comparable publication or Shorts identity differs from the approved seed.'
+      if (!reason && fields.published_at !== 'match') reason = 'Comparable publication timestamp differs from the approved seed.'
+      if (!reason && fields.duration !== 'match') reason = 'Comparable duration differs from the approved seed.'
       const channelParams = new URLSearchParams({ part: 'statistics', id: seed.channel_id })
       const channelResponse = await fetchImpl(`${CHANNEL_URL}?${channelParams}`, { method: 'GET', headers: headers(), redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(8000) })
       const channelBody = await readProviderBody(channelResponse)
@@ -274,7 +317,8 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
     const selectedBand = selected?.count >= MIN_COHORT ? selected.band : null
     for (const record of records) decisions.push({ video_id: record.video_id, channel_id: record.channel_id, status: record.audience_band === selectedBand ? 'included' : 'excluded', reason: record.audience_band === selectedBand ? 'Current exact baseline, public audience, and approved Shorts identity qualify in the selected band.' : `Audience band ${record.audience_band} differs from the selected ${selectedBand ?? 'at-least-five'} band.`, audience_band: record.audience_band })
     decisions.sort((a, b) => cohort.included.findIndex((seed) => seed.video_id === a.video_id) - cohort.included.findIndex((seed) => seed.video_id === b.video_id))
-    if (!selectedBand) return result(input, ['Fewer than five attributable comparables share one current audience band.'], qualificationBlockers, records, decisions, null, baselineReceipts, providerResponses)
+    for (const observation of candidateObservations) observation.inclusion = decisions.find((decision) => decision.video_id === observation.approved_video_id)?.status ?? 'excluded'
+    if (!selectedBand) return result(input, ['Fewer than five attributable comparables share one current audience band.'], qualificationBlockers, records, decisions, null, baselineReceipts, providerResponses, candidateObservations)
     const includedRecords = records.filter((record) => record.audience_band === selectedBand)
     if (includedRecords.length >= cohort.target.minimum_sample_size) {
       const relative = includedRecords.map((record) => record.channel_relative_ratio)
@@ -286,8 +330,8 @@ export async function acquireYouTubeReadOnlyEvidence(input: Input): Promise<YouT
         record.outlier_qualified = score >= cohort.outlier_qualification.threshold
       }
     }
-    return result(input, [], qualificationBlockers, records, decisions, selectedBand, baselineReceipts, providerResponses)
+    return result(input, [], qualificationBlockers, records, decisions, selectedBand, baselineReceipts, providerResponses, candidateObservations)
   } catch (error) {
-    return result(input, [error instanceof Error && error.message.startsWith('YouTube ') ? error.message : 'YouTube read-only acquisition failed.'], qualificationBlockers, records, decisions, null, baselineReceipts, providerResponses)
+    return result(input, [error instanceof Error && error.message.startsWith('YouTube ') ? error.message : 'YouTube read-only acquisition failed.'], qualificationBlockers, records, decisions, null, baselineReceipts, providerResponses, candidateObservations)
   } finally { accessToken = '' }
 }
