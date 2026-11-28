@@ -18,4 +18,28 @@ describe('review-only public observation intake', () => {
     expect(validPublicObservation({ ...observation, relevance: { observed: 9, required: 0 } }, now)).toBe(false)
     expect(validPublicObservation({ ...observation, evidence_note: 'guess' }, now)).toBe(false)
   })
+
+  it('rejects private hosts, future windows, and notes outside the review length', () => {
+    for (const source_url of [
+      'https://localhost/public-signal',
+      'https://user:pass@example.org/public-signal',
+      'https://files.local/public-signal',
+      'https://files.invalid/public-signal',
+      'https://files.example.test/public-signal',
+      'https://intranet/public-signal',
+    ]) {
+      expect(validPublicObservation({ ...observation, source_url }, now)).toBe(false)
+    }
+    expect(validPublicObservation(null, now)).toBe(false)
+    expect(validPublicObservation([observation], now)).toBe(false)
+    expect(validPublicObservation({ ...observation, coverage_identity: 'short' }, now)).toBe(false)
+    expect(validPublicObservation({ ...observation, coverage_identity: 'bad identity' }, now)).toBe(false)
+    expect(validPublicObservation({ ...observation, observed_at: '2026-10-20T13:00:00.000Z' }, now)).toBe(false)
+    expect(validPublicObservation({ ...observation, expires_at: now }, now)).toBe(false)
+    expect(validPublicObservation({ ...observation, expires_at: '2026-10-27T11:00:01.000Z' }, now)).toBe(false)
+    expect(validPublicObservation({ ...observation, public_attention: { observed: -1, required: 100 } }, now)).toBe(false)
+    expect(validPublicObservation({ ...observation, evidence_note: 'x'.repeat(501) }, now)).toBe(false)
+    expect(validPublicObservation({ ...observation, evidence_note: 'x'.repeat(500) }, now)).toBe(true)
+    expect(validPublicObservation(observation, 'not-a-time')).toBe(false)
+  })
 })
