@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { recommendSpeakerFit, speakingServiceHref, SPEAKING_SERVICE_ID } from './speaker-fit'
+import { recommendSpeakerFit, speakingServiceHref, SPEAKING_SERVICE_ID, topicOptions } from './speaker-fit'
 
 const complete = { audience: 'community', outcome: 'action', format: 'fireside', topic: 'burden' }
 
@@ -16,6 +16,19 @@ describe('speaker fit brief', () => {
     expect(recommendSpeakerFit({ ...complete, audience: '' })).toBeNull()
     expect(recommendSpeakerFit({ ...complete, topic: '<script>' })).toBeNull()
     expect(speakingServiceHref({ ...complete, format: 'other' })).toBe(`/services/${SPEAKING_SERVICE_ID}`)
+  })
+
+  it('gives every allowlisted topic a direction and changes the note with the format', () => {
+    for (const topic of topicOptions) {
+      const result = recommendSpeakerFit({ ...complete, topic: topic.value })
+      expect(result?.title.trim().length).toBeGreaterThan(0)
+      expect(result?.angle.trim().length).toBeGreaterThan(0)
+    }
+    expect(recommendSpeakerFit({ ...complete, format: 'panel' })?.checklist[1]).toContain('each speaker')
+    expect(recommendSpeakerFit({ ...complete, format: 'keynote' })?.checklist[1]).toContain('human problem')
+    expect(recommendSpeakerFit({ ...complete, audience: ' community' })).toBeNull()
+    expect(recommendSpeakerFit({ ...complete, outcome: 'Action' })).toBeNull()
+    expect(speakingServiceHref()).toBe(`/services/${SPEAKING_SERVICE_ID}`)
   })
 
   it('routes into the existing public service with only allowlisted context', () => {
