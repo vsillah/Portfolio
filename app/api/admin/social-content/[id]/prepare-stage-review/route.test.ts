@@ -108,4 +108,107 @@ describe('POST /api/admin/social-content/[id]/prepare-stage-review', () => {
 
     expect(response.status).toBe(409)
   })
+
+  it('returns the closed not-found response without preparing a packet', async () => {
+    mocks.single.mockResolvedValue({ data: null, error: { message: 'row missing from the database' } })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(404)
+    await expect(response.json()).resolves.toEqual({ error: 'Content not found' })
+    expect(mocks.rpc).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['null context', null, null],
+    ['a string context', 'asset_packet', null],
+    ['an array context', ['asset_packet'], null],
+    ['a blank gate', { current_gate: '   ' }, null],
+    ['a differently cased gate', { current_gate: 'Asset_Packet' }, 'Asset_Packet'],
+  ])('rejects %s before calling the preparation function', async (_label, ragContext, currentGate) => {
+    mocks.single.mockResolvedValue({
+      data: {
+        id: 'social-1',
+        updated_at: '2026-10-25T10:00:00.000Z',
+        rag_context: ragContext,
+      },
+      error: null,
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toEqual({
+      error: 'The current internal gate does not support packet preparation.',
+      current_gate: currentGate,
+    })
+    expect(mocks.rpc).not.toHaveBeenCalled()
+  })
+
+  it('trims a preparable gate before building the version-bound privacy packet', async () => {
+    mocks.single.mockResolvedValue({
+      data: {
+        id: 'social-1',
+        updated_at: '2026-10-25T10:00:00.000Z',
+        rag_context: { current_gate: ' privacy ' },
+      },
+      error: null,
+    })
+    mocks.rpc.mockResolvedValue({
+      data: {
+        work_item_id: 'work-privacy',
+        external_execution: true,
+      },
+      error: null,
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.rpc).toHaveBeenCalledWith('prepare_social_content_stage_review', {
+      p_social_content_id: 'social-1',
+      p_expected_content_updated_at: '2026-10-25T10:00:00.000Z',
+      p_current_gate: 'privacy',
+      p_triggered_by_user_id: 'admin-1',
+      p_idempotency_key: 'social-stage-review:social-1:privacy:2026-10-25T10:00:00.000Z',
+    })
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      canonical_href: '/admin/social-content/social-1?step=visuals&review=mobile&proposal=work-privacy#social-asset-packet-gate',
+      external_execution: false,
+    })
+  })
+
+  it.each([
+    'Approved prior-stage receipt is required',
+    'Social Content current gate does not match requested stage',
+    'Unsupported Social Content review stage',
+    'Review preparation idempotency key is required',
+  ])('classifies %s as a preparation conflict', async (message) => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { message } })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+  })
+
+  it('uses the closed failure when preparation returns no packet', async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: null })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(500)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Failed to prepare the internal review packet',
+    })
+  })
+
+  it('keeps an unrelated preparation failure from the conflict class', async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { message: 'connection reset by peer' } })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(500)
+    expect(mocks.from).toHaveBeenCalled()
+  })
 })
