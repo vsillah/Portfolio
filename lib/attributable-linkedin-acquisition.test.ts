@@ -37,7 +37,7 @@ function packet(): LinkedInAcquisitionInput {
     calendar_item_id: SIGNALS_ALIGNMENT_MOMENTUM_CALENDAR_ID, artifact_version: 'synthetic-artifact-v1', content_sha256: rawResponseSha256({ approved_copy: 'synthetic' }), content_snapshot: { approved_copy: 'synthetic' },
     candidate, comparables, baselines: [baseline(candidate)], evaluated_at: evaluated,
     fixture_manifest: { manifest_id: 'synthetic-linkedin-v1', manifest_version: 'v1', policy_id: 'synthetic-policy', policy_version: 'policy-v1', evidence_version: 'synthetic-v1', metric_definition: { metric_name: 'engagements', denominator_name: 'impressions', definition_version: 'v1', approval_receipt_id: 'synthetic-definition-v1' }, entries: fixtures.map((item) => ({ record_id: item.provenance.record_id, raw_response_sha256: rawResponseSha256(item.raw_response), evidence_version: item.evidence_version, collector_version: item.collector_version, source_policy_version: item.source_policy_version, policy_approval_receipt_id: item.policy.approval.receipt_id, kind: 'synthetic', approval_receipt_id: `synthetic-fixture-${item.provenance.record_id}`, source_path: sourcePath })) },
-    retained_sources: fixtures.map((item) => ({ record_id: item.provenance.record_id, source_path: sourcePath, raw_response_sha256: rawResponseSha256(item.raw_response), policy_expires_at: item.policy.expires_at })),
+    retained_sources: fixtures.map((item) => ({ record_id: item.provenance.record_id, source_path: sourcePath, raw_response_sha256: rawResponseSha256(item.raw_response), policy_expires_at: item.policy.expires_at, source_route: 'synthetic', impression_origin: 'linkedin_reported', reported_impressions: 1000 })),
   }
 }
 
@@ -77,9 +77,29 @@ describe('Phase 5L LinkedIn retained-source reconciliation', () => {
   it('keeps historical authority unverified even when the fixture is otherwise complete', () => {
     const input = packet()
     input.fixture_manifest.entries = input.fixture_manifest.entries.map((entry) => ({ ...entry, kind: 'approved_checked_in_historical' }))
+    input.retained_sources = input.retained_sources.map((source) => ({ ...source, source_route: 'member_export' }))
     const report = reconcileLinkedInAttributableEvidence(input)
     expect(report.status).toBe('blocked')
     expect(report.source_authority).toBe('historical_approval_store_unverified')
     expect(report.blockers).toContain('Historical source approval and policy authority require owning-store verification.')
+  })
+
+  it.each([
+    ['Portfolio-derived impressions', (v: LinkedInAcquisitionInput) => { v.retained_sources[0].impression_origin = 'portfolio_derived' }, 'Portfolio-derived impressions'],
+    ['reported count drift', (v: LinkedInAcquisitionInput) => { v.retained_sources[0].reported_impressions = 1001 }, 'match the retained response'],
+    ['unresolved API activity-to-entity mapping', (v: LinkedInAcquisitionInput) => { v.retained_sources[0].source_route = 'api_response' }, 'API entity mapping'],
+    ['source route drift', (v: LinkedInAcquisitionInput) => { v.retained_sources[0].source_route = 'member_export' }, 'source route differs'],
+    ['missing source-policy expiry', (v: LinkedInAcquisitionInput) => { v.retained_sources[0].policy_expires_at = '' }, 'source-policy expiration'],
+    ['privacy uncleared', (v: LinkedInAcquisitionInput) => { v.candidate!.rights.privacy_cleared = false }, 'privacy'],
+    ['wrong format', (v: LinkedInAcquisitionInput) => { v.comparables[0].format = 'image' }, 'format'],
+    ['lifetime range instead of seven days', (v: LinkedInAcquisitionInput) => { v.candidate!.observation_window.start = '2025-11-25T12:00:00Z' }, 'window'],
+  ] as const)('keeps %s unscored with external actions locked', (_, change, reason) => {
+    const input = packet(); change(input)
+    const report = reconcileLinkedInAttributableEvidence(input)
+    expect(report.status).toBe('blocked')
+    expect(report.blockers.join(' ').toLowerCase()).toContain(reason.toLowerCase())
+    expect(report.external_actions_enabled).toBe(false)
+    expect(report.production_receipt_enabled).toBe(false)
+    expect(report.packet_linkage_enabled).toBe(false)
   })
 })
