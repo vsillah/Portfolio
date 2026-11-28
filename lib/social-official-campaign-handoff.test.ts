@@ -68,6 +68,23 @@ function decisionReceipt(role: 'privacy' | 'originality', version: string) {
     privacyClassification: 'public_safe', provenance: `qa:${role}`, approvedAt: now, approvedBy: 'reviewer',
     metadata: { official_campaign_gate: role, status: 'passed', input_version: version } })
 }
+function readyResult(mutate?: (state: ReturnType<typeof input>) => void) {
+  const state = input()
+  state.packets = state.packets.map((row) => ({ ...row, actor_metadata: {
+    ...row.actor_metadata,
+    official_signal: { ...row.actor_metadata.official_signal },
+    topic_momentum_receipt: { ...row.actor_metadata.topic_momentum_receipt },
+    public_signal_measurement_receipt: { ...row.actor_metadata.public_signal_measurement_receipt },
+  } }))
+  state.productReceipts = state.productReceipts.map((row) => ({ ...row }))
+  state.gateReceipts = state.gateReceipts.map((row) => ({ ...row, metadata: { ...row.metadata } }))
+  state.calendar = state.calendar.map((row) => ({ ...row, metadata: { ...row.metadata } }))
+  mutate?.(state)
+  state.gateReceipts = state.gateReceipts.filter((row) => !['privacy', 'originality'].includes(String(row.metadata.official_campaign_gate)))
+  const version = projectOfficialCampaignHandoff(state).input_version
+  state.gateReceipts.push(decisionReceipt('privacy', version), decisionReceipt('originality', version))
+  return projectOfficialCampaignHandoff(state)
+}
 
 describe('three-source Portfolio campaign handoff', () => {
   it('keeps current review-ready packets blocked and produces one stable backlog identity', () => {
@@ -119,5 +136,73 @@ describe('three-source Portfolio campaign handoff', () => {
     expect(result.blockers.map((entry) => entry.code)).toEqual(expect.arrayContaining([
       'official_attribution_invalid', 'portfolio_product_proof_missing', 'outlier_linkedin_missing', 'calendar_slot_missing', 'privacy_receipt_missing', 'originality_receipt_missing',
     ]))
+  })
+
+  it('treats an official source that expires at the evaluation instant as stale and one millisecond later as current', () => {
+    const expired = readyResult((state) => { state.packets[0].actor_metadata.official_signal.expires_at = now })
+    expect(expired.status).toBe('blocked')
+    expect(expired.channel_reviews).toEqual([])
+    expect(expired.blockers.map((entry) => entry.code)).toEqual(['official_packet_stale'])
+    const current = readyResult((state) => { state.packets[0].actor_metadata.official_signal.expires_at = '2026-10-21T16:00:00.001Z' })
+    expect(current.blockers.map((entry) => entry.code)).not.toContain('official_packet_stale')
+    expect(current.status).toBe('review_ready')
+  })
+
+  it('blocks outlier evidence that is due now, older than seven days, weighted by a playlist, or scored above 100', () => {
+    const dueNow = readyResult((state) => { state.gateReceipts[1].metadata.fresh_until = now })
+    expect(dueNow.blockers.map((entry) => entry.code)).toEqual(['outlier_linkedin_missing'])
+    const insideWindow = readyResult((state) => { state.gateReceipts[1].metadata.fresh_until = '2026-10-28T16:00:00.000Z' })
+    expect(insideWindow.blockers.map((entry) => entry.code)).not.toContain('outlier_linkedin_missing')
+    expect(insideWindow.status).toBe('review_ready')
+    const pastWindow = readyResult((state) => { state.gateReceipts[1].metadata.fresh_until = '2026-10-28T16:00:00.001Z' })
+    expect(pastWindow.blockers.map((entry) => entry.code)).toEqual(['outlier_linkedin_missing'])
+    const playlistWeighted = readyResult((state) => { state.gateReceipts[1].metadata.curated_playlist_performance_weight = 1 })
+    expect(playlistWeighted.blockers.map((entry) => entry.code)).toEqual(['outlier_linkedin_missing'])
+    const overscored = readyResult((state) => { state.gateReceipts[1].metadata.normalized_scores = [101, 77, 74, 72, 70] })
+    expect(overscored.blockers.map((entry) => entry.code)).toEqual(['outlier_linkedin_missing'])
+  })
+
+  it('accepts product proof captured exactly 30 days ago and blocks older or future captures', () => {
+    const current = readyResult((state) => { state.gateReceipts[0].metadata.captured_at = '2026-09-21T16:00:00.000Z' })
+    expect(current.blockers.map((entry) => entry.code)).not.toContain('product_visual_proof_missing')
+    expect(current.status).toBe('review_ready')
+    const expired = readyResult((state) => { state.gateReceipts[0].metadata.captured_at = '2026-09-21T15:59:59.999Z' })
+    expect(expired.blockers.map((entry) => entry.code)).toEqual(['product_visual_proof_missing'])
+    const future = readyResult((state) => { state.gateReceipts[0].metadata.captured_at = '2026-10-21T16:00:00.001Z' })
+    expect(future.blockers.map((entry) => entry.code)).toEqual(['product_visual_proof_missing'])
+  })
+
+  it('blocks split campaigns, slots due now, and calendar rows already bound to other content', () => {
+    const split = readyResult((state) => { state.calendar[1].campaign_id = 'campaign-2' })
+    expect(split.status).toBe('blocked')
+    expect(split.channel_reviews).toEqual([])
+    expect(split.blockers.map((entry) => entry.code)).toEqual(['campaign_binding_ambiguous'])
+    const due = readyResult((state) => { state.calendar.forEach((row) => { row.scheduled_for = now }) })
+    expect(due.blockers.map((entry) => entry.code)).toEqual(['calendar_slot_missing', 'calendar_slot_missing'])
+    const foreign = readyResult((state) => { state.calendar.forEach((row) => { row.social_content_id = 'already-bound' }) })
+    expect(foreign.blockers.map((entry) => entry.code)).toEqual(['calendar_slot_missing', 'calendar_slot_missing'])
+    const nextInstant = readyResult((state) => { state.calendar.forEach((row) => { row.scheduled_for = '2026-10-21T16:00:00.001Z' }) })
+    expect(nextInstant.status).toBe('review_ready')
+  })
+
+  it('blocks a missing packet, a forged measurement link, a tampered product summary, raw source text, and an invalid clock', () => {
+    const missingId = OFFICIAL_CAMPAIGN_PACKET_IDS[1]
+    const missing = readyResult((state) => { state.packets = state.packets.filter((row) => row.id !== missingId) })
+    expect(missing.channel_reviews).toEqual([])
+    expect(missing.blockers).toEqual([expect.objectContaining({
+      code: 'official_packet_missing', observed: missingId,
+      href: `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(missingId)}`,
+    })])
+    const forged = readyResult((state) => { state.packets[0].actor_metadata.topic_momentum_receipt.measurement_receipt_id = 'public-signal-measurement:forged' })
+    expect(forged.blockers).toEqual([expect.objectContaining({ code: 'measurement_lineage_mismatch', observed: 'public-signal-measurement:forged' })])
+    expect(forged.channel_reviews).toEqual([])
+    const tampered = readyResult((state) => { state.productReceipts[0].approved_summary = `${state.productReceipts[0].approved_summary} extra` })
+    expect(tampered.blockers).toEqual([expect.objectContaining({ code: 'portfolio_product_proof_missing', observed: 'portfolio:agent-operations-control-plane' })])
+    const raw = readyResult((state) => { state.packets[0].actor_metadata.official_signal.raw_content_included = true })
+    expect(raw.blockers.map((entry) => entry.code)).toEqual(['official_attribution_invalid'])
+    const clock = readyResult((state) => { state.now = 'not-a-time' })
+    expect(clock.status).toBe('blocked')
+    expect(clock.channel_reviews).toEqual([])
+    expect(clock.blockers).toEqual(expect.arrayContaining([expect.objectContaining({ code: 'clock_invalid', observed: 'not-a-time' })]))
   })
 })
