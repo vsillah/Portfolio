@@ -3,7 +3,7 @@ import 'server-only'
 import { hasAppGrant, type ActivationGrant } from './app-activation'
 
 // A rollout manifest is a reviewed registration proposal. The existing
-// activation_apps table and server origin configuration remain runtime authority.
+// Convex activationApps table and server origin configuration remain runtime authority.
 export type AppRolloutManifest = {
   appKey: string
   displayName: string
@@ -11,7 +11,7 @@ export type AppRolloutManifest = {
   exactOrigins: string[]
   consentVersion: string
   authHandoff: 'portfolio-verified-adult'
-  abuseControl: 'unconfigured' | 'postgres-distributed'
+  abuseControl: 'unconfigured' | 'convex-distributed'
   identityExchange: 'unconfigured' | 'single-use-code'
   appSessionBinding: 'unconfigured' | 'verified-adult-server-session'
   invitationDelivery: 'unconfigured' | 'approved-server-adapter'
@@ -54,7 +54,7 @@ export function validateRolloutManifests(manifests: readonly AppRolloutManifest[
     if (!/^[a-f0-9]{40}$/.test(manifest.sourceAdapterCommit)) throw new Error('Invalid source adapter commit.')
     if (!manifest.consentVersion || manifest.consentVersion.length > 80) throw new Error('Invalid consent version.')
     if (manifest.authHandoff !== 'portfolio-verified-adult') throw new Error('Unreviewed auth handoff.')
-    if (!['unconfigured', 'postgres-distributed'].includes(manifest.abuseControl)) throw new Error('Invalid abuse control.')
+    if (!['unconfigured', 'convex-distributed'].includes(manifest.abuseControl)) throw new Error('Invalid abuse control.')
     if (!['unconfigured', 'single-use-code'].includes(manifest.identityExchange)) throw new Error('Invalid identity exchange.')
     if (!['unconfigured', 'verified-adult-server-session'].includes(manifest.appSessionBinding)) throw new Error('Invalid app session binding.')
     if (!['unconfigured', 'approved-server-adapter'].includes(manifest.invitationDelivery)) throw new Error('Invalid delivery adapter.')
@@ -62,7 +62,7 @@ export function validateRolloutManifests(manifests: readonly AppRolloutManifest[
     if (!Array.isArray(manifest.exactOrigins) || manifest.exactOrigins.some(origin => !isExactHttpsOrigin(origin)) || new Set(manifest.exactOrigins).size !== manifest.exactOrigins.length) throw new Error('Invalid or duplicate exact origin.')
     if (manifest.exactOrigins.some(origin => seenOrigins.has(origin))) throw new Error('Origin belongs to another app.')
     if (manifest.activationEnabled && (!manifest.exactOrigins.length || manifest.invitationDelivery === 'unconfigured'
-      || manifest.abuseControl !== 'postgres-distributed' || manifest.identityExchange !== 'single-use-code'
+      || manifest.abuseControl !== 'convex-distributed' || manifest.identityExchange !== 'single-use-code'
       || manifest.appSessionBinding !== 'verified-adult-server-session')) throw new Error('Activation requires reviewed origins, delivery, abuse control, identity exchange, and app session binding.')
     if (manifest.accessPolicy === 'activation_and_paid' && !manifest.billingEnabled) throw new Error('Paid policy requires a separately enabled billing gate.')
     result.set(manifest.appKey, manifest)

@@ -29,6 +29,8 @@ describe('activation redemption route', () => {
   it('fails closed for missing auth, wrong app, replay and rate limit', async () => {
     auth.mockResolvedValueOnce({ error: 'Authentication required', status: 401 })
     expect((await POST(request())).status).toBe(401)
+    expect(repository.consumeAbuseBudget).not.toHaveBeenCalled()
+    expect(repository.redeem).not.toHaveBeenCalled()
     expect((await POST(request({ ...body, appKey: 'other-app' }))).status).toBe(403)
     repository.redeem.mockResolvedValueOnce(false)
     expect((await POST(request())).status).toBe(404)

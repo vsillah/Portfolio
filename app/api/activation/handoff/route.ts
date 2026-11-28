@@ -13,10 +13,10 @@ export async function POST(request: NextRequest) {
   if (!repository || !activationRuntimeConfigured() || process.env.APP_ACTIVATION_HANDOFF_ENABLED !== 'true') return reply({ error: 'Handoff is unavailable.' }, 503)
   if (request.headers.get('origin') !== new URL(request.url).origin) return reply({ error: 'Portfolio origin required.' }, 403)
   if (request.headers.get('content-type')?.split(';')[0] !== 'application/json') return reply({ error: 'JSON content type required.' }, 415)
-  try { if (!await repository.consumeAbuseBudget('handoff_issue', getClientIpFromRequest(request))) return reply({ error: 'Please try again later.' }, 429) }
-  catch { return reply({ error: 'Handoff is unavailable.' }, 503) }
   const auth = await verifyAuth(request)
   if (isAuthError(auth) || auth.user.is_anonymous || !auth.user.email) return reply({ error: 'Signed-in adult account required.' }, 401)
+  try { if (!await repository.consumeAbuseBudget('handoff_issue', getClientIpFromRequest(request))) return reply({ error: 'Please try again later.' }, 429) }
+  catch { return reply({ error: 'Handoff is unavailable.' }, 503) }
   if (Number(request.headers.get('content-length') || 0) > 2048) return reply({ error: 'Request too large.' }, 413)
   let body: unknown
   try { body = await request.json() } catch { return reply({ error: 'Invalid JSON.' }, 400) }

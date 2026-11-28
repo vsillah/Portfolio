@@ -4,7 +4,7 @@ import { checkAppAccess, decideAppAccess, trumpetTrainerRollout, validateRollout
 import type { ActivationGrant } from './app-activation'
 
 const now = new Date('2026-11-07T12:00:00.000Z')
-const enabled: AppRolloutManifest = { ...trumpetTrainerRollout, exactOrigins: ['https://app.example.test'], invitationDelivery: 'approved-server-adapter', abuseControl: 'postgres-distributed', identityExchange: 'single-use-code', appSessionBinding: 'verified-adult-server-session', activationEnabled: true }
+const enabled: AppRolloutManifest = { ...trumpetTrainerRollout, exactOrigins: ['https://app.example.test'], invitationDelivery: 'approved-server-adapter', abuseControl: 'convex-distributed', identityExchange: 'single-use-code', appSessionBinding: 'verified-adult-server-session', activationEnabled: true }
 const grant: ActivationGrant = { id: 'grant-1', appKey: enabled.appKey, interestId: 'interest-1', invitationId: 'inv-1', authUserId: 'adult-1', expiresAt: '2026-12-01T00:00:00.000Z', revokedAt: null }
 const paid: PaidEntitlement = { appKey: enabled.appKey, authUserId: 'adult-1', status: 'active', expiresAt: '2026-12-01T00:00:00.000Z' }
 const access = (manifest: AppRolloutManifest, activeGrant: ActivationGrant | null = grant, entitlement: PaidEntitlement | null = null, appKey = enabled.appKey, authUserId = 'adult-1') =>
