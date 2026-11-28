@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Portfolio YouTube review-only user flow</title>
+  <desc id="desc">User flow from selecting a calendar item through evidence review and Human QA, ending before the separately authorized provider action.</desc>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#4da3ff"/></marker>
+    <marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#ff6b6b"/></marker>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.22"/></filter>
+    <style>.title{font:700 36px Inter,Arial,sans-serif;fill:#f8fafc}.sub{font:400 18px Inter,Arial,sans-serif;fill:#94a3b8}.h{font:700 19px Inter,Arial,sans-serif;fill:#f8fafc}.b{font:400 16px Inter,Arial,sans-serif;fill:#dbeafe}.n{font:700 17px Inter,Arial,sans-serif;fill:#071421}.box{stroke-width:2;rx:18;filter:url(#s)}.arrow{fill:none;stroke:#4da3ff;stroke-width:3;marker-end:url(#a)}.stop{fill:none;stroke:#ff6b6b;stroke-width:3;stroke-dasharray:10 8;marker-end:url(#r)}</style>
+  </defs>
+  <rect width="1600" height="900" fill="#071421"/><circle cx="1500" cy="800" r="330" fill="#10213d" opacity=".5"/>
+  <text x="80" y="70" class="title">Portfolio YouTube Workflow — User Flow</text>
+  <text x="80" y="105" class="sub">The provider action is intentionally outside this review-only screencast.</text>
+
+  <g>
+    <circle cx="105" cy="215" r="30" fill="#a5d8ff"/><text x="105" y="222" text-anchor="middle" class="n">1</text>
+    <rect x="160" y="160" width="240" height="110" class="box" fill="#0f3b61" stroke="#4da3ff"/>
+    <text x="280" y="205" text-anchor="middle" class="h">Select content item</text><text x="280" y="238" text-anchor="middle" class="b">Calendar or Social Content</text>
+    <circle cx="500" cy="215" r="30" fill="#a5d8ff"/><text x="500" y="222" text-anchor="middle" class="n">2</text>
+    <rect x="555" y="145" width="270" height="140" class="box" fill="#0f3b61" stroke="#4da3ff"/>
+    <text x="690" y="190" text-anchor="middle" class="h">Review candidate</text><text x="690" y="223" text-anchor="middle" class="b">Copy • title • description</text><text x="690" y="253" text-anchor="middle" class="b">video • thumbnail</text>
+    <circle cx="925" cy="215" r="30" fill="#a5d8ff"/><text x="925" y="222" text-anchor="middle" class="n">3</text>
+    <rect x="980" y="145" width="290" height="140" class="box" fill="#0b3c43" stroke="#2dd4bf"/>
+    <text x="1125" y="190" text-anchor="middle" class="h">Inspect evidence</text><text x="1125" y="223" text-anchor="middle" class="b">sources • hashes • provenance</text><text x="1125" y="253" text-anchor="middle" class="b">privacy • rights • exclusions</text>
+    <path d="M400 215 H465" class="arrow"/><path d="M825 215 H890" class="arrow"/>
+  </g>
+
+  <g>
+    <circle cx="1325" cy="410" r="30" fill="#ffd8a8"/><text x="1325" y="417" text-anchor="middle" class="n">4</text>
+    <polygon points="1445,335 1540,410 1445,485 1350,410" fill="#5b3218" stroke="#f59e0b" stroke-width="2" filter="url(#s)"/>
+    <text x="1445" y="395" text-anchor="middle" class="h">Evidence</text><text x="1445" y="423" text-anchor="middle" class="b">complete and</text><text x="1445" y="451" text-anchor="middle" class="b">current?</text>
+    <path d="M1270 215 C1390 215 1445 250 1445 330" class="arrow"/>
+  </g>
+
+  <g>
+    <rect x="930" y="565" width="310" height="135" class="box" fill="#481f29" stroke="#ff6b6b"/>
+    <text x="1085" y="610" text-anchor="middle" class="h">Blocked / revise</text><text x="1085" y="644" text-anchor="middle" class="b">Record exact gap and owner</text><text x="1085" y="674" text-anchor="middle" class="b">No provider action</text>
+    <path d="M1380 470 C1310 550 1270 620 1245 630" class="stop"/><text x="1300" y="555" class="sub">No</text>
+  </g>
+
+  <g>
+    <circle cx="680" cy="632" r="30" fill="#ffd8a8"/><text x="680" y="639" text-anchor="middle" class="n">5</text>
+    <rect x="430" y="565" width="210" height="135" class="box" fill="#5b3218" stroke="#f59e0b"/>
+    <text x="535" y="610" text-anchor="middle" class="h">Human QA</text><text x="535" y="644" text-anchor="middle" class="b">Approve • reject</text><text x="535" y="674" text-anchor="middle" class="b">request revision</text>
+    <path d="M1350 410 C1000 410 700 480 620 560" class="arrow"/><text x="920" y="448" class="sub">Yes</text>
+  </g>
+
+  <g>
+    <circle cx="200" cy="632" r="30" fill="#ffc9c9"/><text x="200" y="639" text-anchor="middle" class="n">6</text>
+    <rect x="250" y="565" width="140" height="135" class="box" fill="#481f29" stroke="#ff6b6b"/>
+    <text x="320" y="610" text-anchor="middle" class="h">STOP</text><text x="320" y="644" text-anchor="middle" class="b">separate upload</text><text x="320" y="674" text-anchor="middle" class="b">authority required</text>
+    <path d="M425 632 H395" class="stop"/>
+  </g>
+
+  <rect x="150" y="775" width="1300" height="75" rx="16" fill="#0d2436" stroke="#334155" stroke-width="2"/>
+  <text x="800" y="808" text-anchor="middle" class="h">Review evidence ends here</text>
+  <text x="800" y="835" text-anchor="middle" class="b">No upload, scheduling, publication, outreach, scoring activation, collection activation, or production mutation occurs.</text>
+</svg>
