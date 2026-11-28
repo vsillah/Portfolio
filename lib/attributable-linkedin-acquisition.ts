@@ -11,6 +11,9 @@ export type LinkedInRetainedSource = {
   source_path: string
   raw_response_sha256: string
   policy_expires_at: string
+  source_route: 'synthetic' | 'member_export' | 'api_response'
+  impression_origin: 'linkedin_reported' | 'portfolio_derived'
+  reported_impressions: number
 }
 
 export type LinkedInAcquisitionInput = {
@@ -81,6 +84,15 @@ export function reconcileLinkedInAttributableEvidence(input: LinkedInAcquisition
     if (!present(source.policy_expires_at) || source.policy_expires_at !== fixture.policy.expires_at) blockers.push(`${recordId}: exact source-policy expiration differs.`)
     const manifestEntries = input.fixture_manifest.entries.filter((entry) => entry.record_id === recordId)
     if (manifestEntries.length !== 1 || manifestEntries[0].source_path !== source.source_path) blockers.push(`${recordId}: retained path differs from the fixture manifest.`)
+    const raw = fixture.raw_response && typeof fixture.raw_response === 'object' ? fixture.raw_response as Record<string, unknown> : null
+    const analytics = raw?.analytics && typeof raw.analytics === 'object' ? raw.analytics as Record<string, unknown> : null
+    if (source.impression_origin !== 'linkedin_reported' || !Number.isInteger(source.reported_impressions)
+      || source.reported_impressions <= 0 || source.reported_impressions !== analytics?.impressions) {
+      blockers.push(`${recordId}: impressions must be directly reported by LinkedIn and match the retained response; Portfolio-derived impressions are unsupported.`)
+    }
+    if (source.source_route === 'api_response') blockers.push(`${recordId}: API entity mapping, response schema, and retention authority are unverified.`)
+    else if (source.source_route !== 'synthetic' && source.source_route !== 'member_export') blockers.push(`${recordId}: source route is unsupported.`)
+    if (manifestEntries.length === 1 && (manifestEntries[0].kind === 'synthetic') !== (source.source_route === 'synthetic')) blockers.push(`${recordId}: source route differs from fixture authority class.`)
   }
   for (const recordId of indexed.keys()) if (!fixtures.some((fixture) => fixture.provenance.record_id === recordId)) blockers.push(`${recordId}: retained-source entry has no observation.`)
   const kinds = input.fixture_manifest.entries.map((entry) => entry.kind)
