@@ -49,7 +49,18 @@ describe('visual review packet preparation route', () => {
   })
 
   it('keeps stale and missing evidence failures closed', async () => {
-    for (const message of ['Social Content stage preparation is stale', 'Exact approved prior copy decision receipt is required', 'Safe exact visual asset hash and path are required']) {
+    for (const message of [
+      'Social Content stage preparation is stale',
+      'Exact approved prior copy decision receipt is required',
+      'Safe exact visual asset hash and path are required',
+      'Current copy, CTA, visual, or candidate projection identity mismatch',
+      'Approved visual receipt is not bound to the exact asset hash',
+      'Approved visual receipt is not bound to the exact asset path',
+      'An approved visual receipt is required',
+      'Lead-magnet receipt identity or URL mismatch',
+      'Existing review packet is stale',
+      'Duplicate or ambiguous prior-stage receipt identity for visual',
+    ]) {
       mocks.rpc.mockResolvedValueOnce({ data: null, error: { message } })
       const response = await POST(request(), context)
       expect(response.status).toBe(409)
