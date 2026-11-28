@@ -1,0 +1,67 @@
+{
+  "version": "portfolio-youtube-provider-internal-workflow/v1",
+  "revision": "4396b8050dad",
+  "review_url": "http://127.0.0.1:3128/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&review=mobile&qa_fixture=channel_native_video_v2&video_package_state=ready&packaging_state=bound&rev=4396b8050dad",
+  "data_mode": "approved_fixture_and_static_governance_diagrams",
+  "rendered_status": "Pair binding passed · scoring hold",
+  "scope": "review_only_internal_tool_screencast",
+  "mp4": "artifacts/provider-evidence/youtube-api-audit-2026-11-27/screencast/portfolio-youtube-internal-workflow.mp4",
+  "mp4_sha256": "e8b543c13e0568d651f75a1ad99fe7ddb3d32c6ed5d976c43e6173b5cb76c20b",
+  "architecture_diagram": "artifacts/provider-evidence/youtube-api-audit-2026-11-27/diagrams/portfolio-youtube-architecture.svg",
+  "architecture_sha256": "9d0a289008e5e5b9c26bb9cce3ab2cb3b62663b8820331f0cd27d817eb387406",
+  "architecture_png": "artifacts/provider-evidence/youtube-api-audit-2026-11-27/diagrams/portfolio-youtube-architecture.png",
+  "architecture_png_sha256": "52deeec66a86a4b951251de5b743fc188a7f56ac8d88c20ee0a43404a69cff45",
+  "user_flow_diagram": "artifacts/provider-evidence/youtube-api-audit-2026-11-27/diagrams/portfolio-youtube-user-flow.svg",
+  "user_flow_sha256": "20f475e38513c8d28eabe4c7f2836e0e66f5b2a690340711a5c3ee29eef02fa3",
+  "user_flow_png": "artifacts/provider-evidence/youtube-api-audit-2026-11-27/diagrams/portfolio-youtube-user-flow.png",
+  "user_flow_png_sha256": "0b4685df554337a89c08079739390ff2372fad964ff3d5ff202858a54e06fb84",
+  "external_requests_blocked": [
+    {
+      "method": "POST",
+      "target": "supabase_auth"
+    },
+    {
+      "method": "GET",
+      "target": "vercel_speed_insights"
+    },
+    {
+      "method": "POST",
+      "target": "supabase_auth"
+    },
+    {
+      "method": "POST",
+      "target": "supabase_auth"
+    },
+    {
+      "method": "POST",
+      "target": "supabase_auth"
+    },
+    {
+      "method": "POST",
+      "target": "supabase_auth"
+    },
+    {
+      "method": "POST",
+      "target": "supabase_auth"
+    },
+    {
+      "method": "POST",
+      "target": "supabase_auth"
+    }
+  ],
+  "external_requests_completed": 0,
+  "local_write_requests_completed": 0,
+  "credentials_returned_or_persisted": false,
+  "provider_settings_changed": false,
+  "production_data_mutated": false,
+  "scoring_activated": false,
+  "collection_activated": false,
+  "evidence_linked": false,
+  "upload_attempted": false,
+  "schedule_attempted": false,
+  "publication_attempted": false,
+  "attestations_accepted": false,
+  "captcha_solved": false,
+  "provider_form_submitted": false,
+  "limitation": "This recording truthfully demonstrates the internal Portfolio workflow and its fail-closed provider boundary. It does not claim or simulate a live YouTube upload."
+}
